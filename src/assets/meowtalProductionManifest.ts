@@ -195,8 +195,11 @@ const generatedUiSurfaceSourcePaths: Readonly<Partial<Record<MeowtalVisualSurfac
 const generatedUiSurfaceRuntimePaths: Readonly<Partial<Record<MeowtalVisualSurfaceId, string>>> = {
   "logo-title-mark": "/assets/generated/ui/meowtal/logo-title-mark.png",
   "hud-frame": "/assets/generated/ui/meowtal/hud-frame.png",
+  "rabbit-portrait": "/assets/generated/ui/meowtal/rabbit-portrait.png",
+  "cat-portrait": "/assets/generated/ui/meowtal/cat-portrait.png",
   "health-bar-rabbit": "/assets/generated/ui/meowtal/health-bar-rabbit.png",
   "health-bar-cat": "/assets/generated/ui/meowtal/health-bar-cat.png",
+  "super-meter": "/assets/generated/ui/meowtal/super-meter.png",
   "timer-frame": "/assets/generated/ui/meowtal/timer-frame.png",
   "fight-ko-victory-overlays": "/assets/generated/ui/meowtal/fight-ko-victory-overlays.png",
 };
@@ -219,15 +222,15 @@ const generatedUiSurfaceQaNotes: Readonly<Partial<Record<MeowtalVisualSurfaceId,
   "hud-frame":
     "Approved runtime UI asset: top HUD frame with left/right health housings and center timer medallion, transparent alpha, no text, portraits, copied branding, watermark, or brand marks. Approved by T095 visual QA and promoted by T096; not yet routed into scene rendering.",
   "rabbit-portrait":
-    "Generated source-only UI candidate: Gray Rabbit HUD portrait medallion derived from approved transparent idle sprite to preserve upright two-legged identity and proportions, transparent alpha, no text, copied branding, watermark, or brand marks. Pending visual QA and runtime promotion.",
+    "Approved runtime UI asset: Gray Rabbit HUD portrait medallion derived from approved transparent idle sprite to preserve upright two-legged identity and proportions, transparent alpha, no text, copied branding, watermark, or brand marks. Approved by T098 visual QA and promoted by T099; not yet routed into scene rendering.",
   "cat-portrait":
-    "Generated source-only UI candidate: Ginger Tabby Cat HUD portrait medallion derived from approved transparent idle sprite to preserve upright two-legged identity and proportions, transparent alpha, no text, copied branding, watermark, or brand marks. Pending visual QA and runtime promotion.",
+    "Approved runtime UI asset: Ginger Tabby Cat HUD portrait medallion derived from approved transparent idle sprite to preserve upright two-legged identity and proportions, transparent alpha, no text, copied branding, watermark, or brand marks. Approved by T098 visual QA and promoted by T099; not yet routed into scene rendering.",
   "health-bar-rabbit":
     "Approved runtime UI asset: red rabbit-side health bar treatment with transparent alpha, no text, portraits, copied branding, watermark, or brand marks. Approved by T095 visual QA and promoted by T096; not yet routed into scene rendering.",
   "health-bar-cat":
     "Approved runtime UI asset: blue cat-side health bar treatment with transparent alpha, no text, portraits, copied branding, watermark, or brand marks. Approved by T095 visual QA and promoted by T096; not yet routed into scene rendering.",
   "super-meter":
-    "Generated source-only UI candidate: bottom special/super meter bar with gold/obsidian trim and green/yellow segmented energy fill, transparent alpha, no text, copied branding, watermark, or brand marks. Pending visual QA and runtime promotion.",
+    "Approved runtime UI asset: bottom special/super meter bar with gold/obsidian trim and green/yellow segmented energy fill, transparent alpha, no text, copied branding, watermark, or brand marks. Approved by T098 visual QA and promoted by T099; not yet routed into scene rendering.",
   "timer-frame":
     "Approved runtime UI asset: circular center timer frame with transparent alpha, no numbers, copied branding, watermark, or brand marks. Approved by T095 visual QA and promoted by T096; not yet routed into scene rendering.",
   "fight-ko-victory-overlays":

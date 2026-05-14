@@ -355,7 +355,7 @@ Composite QA candidate: `output/imagegen/meowtal-courtyard-composite-preview.png
 
 ### UI, HUD, And Effects Surfaces
 
-Status: first HUD/logo batch approved as runtime UI assets, not yet routed into scene rendering.
+Status: approved runtime UI assets, not yet routed into scene rendering.
 
 - `ui:logo-title-mark`
   - Source path: `assets/source/imagegen/ui/meowtal/logo-title-mark.png`
@@ -379,21 +379,23 @@ Status: first HUD/logo batch approved as runtime UI assets, not yet routed into 
   - QA notes: top HUD frame with left/right health housings and center timer medallion, no text, portraits, copied branding, watermark, or brand marks.
 - `ui:rabbit-portrait`
   - Source path: `assets/source/imagegen/ui/meowtal/rabbit-portrait.png`
+  - Runtime path: `/assets/generated/ui/meowtal/rabbit-portrait.png`
   - Output QA candidate: `output/imagegen/meowtal-ui-rabbit-portrait.png`
   - Provider: approved Codex imagegen runtime sprite plus local portrait-frame normalization
   - Generated on: 2026-05-14
   - License status: owned generated source asset
-  - Runtime status: source-only candidate; runtime path is null pending visual QA and runtime promotion
-  - Transform notes: derived from the approved transparent gray-rabbit idle runtime sprite to avoid character drift, composed into a transparent 1024x576 HUD portrait medallion with local frame, glow, and side markers.
+  - Runtime status: approved by T098 visual QA and promoted by T099; not yet routed into scene rendering
+  - Transform notes: derived from the approved transparent gray-rabbit idle runtime sprite to avoid character drift, composed into a transparent 1024x576 HUD portrait medallion with local frame, glow, and side markers, promoted to runtime.
   - QA notes: Gray Rabbit portrait preserves approved upright two-legged identity and proportions, no text, copied branding, watermark, or brand marks.
 - `ui:cat-portrait`
   - Source path: `assets/source/imagegen/ui/meowtal/cat-portrait.png`
+  - Runtime path: `/assets/generated/ui/meowtal/cat-portrait.png`
   - Output QA candidate: `output/imagegen/meowtal-ui-cat-portrait.png`
   - Provider: approved Codex imagegen runtime sprite plus local portrait-frame normalization
   - Generated on: 2026-05-14
   - License status: owned generated source asset
-  - Runtime status: source-only candidate; runtime path is null pending visual QA and runtime promotion
-  - Transform notes: derived from the approved transparent ginger-tabby-cat idle runtime sprite to avoid character drift, composed into a transparent 1024x576 HUD portrait medallion with local frame, glow, and side markers.
+  - Runtime status: approved by T098 visual QA and promoted by T099; not yet routed into scene rendering
+  - Transform notes: derived from the approved transparent ginger-tabby-cat idle runtime sprite to avoid character drift, composed into a transparent 1024x576 HUD portrait medallion with local frame, glow, and side markers, promoted to runtime.
   - QA notes: Ginger Tabby Cat portrait preserves approved upright two-legged identity and proportions, no text, copied branding, watermark, or brand marks.
 - `ui:health-bar-rabbit`
   - Source path: `assets/source/imagegen/ui/meowtal/health-bar-rabbit.png`
@@ -417,12 +419,13 @@ Status: first HUD/logo batch approved as runtime UI assets, not yet routed into 
   - QA notes: blue cat-side health bar treatment, no text, portraits, copied branding, watermark, or brand marks.
 - `ui:super-meter`
   - Source path: `assets/source/imagegen/ui/meowtal/super-meter.png`
+  - Runtime path: `/assets/generated/ui/meowtal/super-meter.png`
   - Output QA candidate: `output/imagegen/meowtal-ui-super-meter.png`
   - Provider: Codex built-in imagegen
   - Generated on: 2026-05-14
   - License status: owned generated source asset
-  - Runtime status: source-only candidate; runtime path is null pending visual QA and runtime promotion
-  - Transform notes: generated on magenta chroma key, resized to 1024x576, removed chroma key to transparent alpha.
+  - Runtime status: approved by T098 visual QA and promoted by T099; not yet routed into scene rendering
+  - Transform notes: generated on magenta chroma key, resized to 1024x576, removed chroma key to transparent alpha, promoted to runtime.
   - QA notes: bottom special/super meter bar with gold/obsidian trim and green/yellow segmented energy fill, no text, copied branding, watermark, or brand marks.
 - `ui:timer-frame`
   - Source path: `assets/source/imagegen/ui/meowtal/timer-frame.png`

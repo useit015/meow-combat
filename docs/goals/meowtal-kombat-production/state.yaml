@@ -85,7 +85,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T099
+active_task: T100
 
 tasks:
   - id: T000
@@ -5045,7 +5045,7 @@ tasks:
   - id: T099
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: low
     objective: "Promote only the T098-approved UI surfaces rabbit-portrait, cat-portrait, and super-meter to runtime paths, and update provenance/tests to mark exactly these three surfaces approved. Do not regenerate sources, route/render UI in the scene, or touch fighter, stage, combat/gameplay, audio, or particle files."
     inputs:
@@ -5072,6 +5072,66 @@ tasks:
       - "Any UI surface besides rabbit-portrait, cat-portrait, and super-meter is promoted."
       - "Any promoted file is not 1024x576 with alpha."
       - "Manifest/provenance fail to mark exactly these three as approved runtime UI with runtime paths."
+    receipt:
+      completed_at: "2026-05-14"
+      result: done
+      summary: "Promoted exactly the three T098-approved UI source candidates rabbit-portrait, cat-portrait, and super-meter into runtime UI files under public/assets/generated/ui/meowtal and updated provenance/tests to mark exactly those three surfaces approved with runtime paths. No source candidates were regenerated or visually changed after approval, and no scene/HUD rendering, fighter, stage, combat/gameplay, audio, or particle files were changed."
+      changed_files:
+        - "public/assets/generated/ui/meowtal/rabbit-portrait.png"
+        - "public/assets/generated/ui/meowtal/cat-portrait.png"
+        - "public/assets/generated/ui/meowtal/super-meter.png"
+        - "src/assets/meowtalProductionManifest.ts"
+        - "docs/assets/meowtal-kombat-provenance.md"
+        - "test/meowtal-production-manifest.test.ts"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+      evidence:
+        - "sips -g pixelWidth -g pixelHeight -g hasAlpha public/assets/generated/ui/meowtal/rabbit-portrait.png public/assets/generated/ui/meowtal/cat-portrait.png public/assets/generated/ui/meowtal/super-meter.png passed: all three are 1024x576 with alpha."
+        - "npm run typecheck passed."
+        - "npm test -- --run test/meowtal-production-manifest.test.ts passed: 1 file, 21 tests."
+        - "npm run verify passed: 21 files, 117 tests, production build completed."
+        - "Judge audit returned approved_complete for T099 and confirmed promoted checksums match source candidates exactly."
+      commands:
+        - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha public/assets/generated/ui/meowtal/rabbit-portrait.png public/assets/generated/ui/meowtal/cat-portrait.png public/assets/generated/ui/meowtal/super-meter.png"
+          status: pass
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm test -- --run test/meowtal-production-manifest.test.ts"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+      notes:
+        - "The approved runtime UI asset set now includes logo-title-mark, hud-frame, rabbit-portrait, cat-portrait, health-bar-rabbit, health-bar-cat, super-meter, timer-frame, and fight-ko-victory-overlays."
+        - "The runtime UI files are still not loaded or rendered in the playable scene; that is reserved for T100."
+  - id: T100
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: low
+    objective: "Route only the approved Meowtal in-fight UI runtime assets into the playable scene shell: HUD frame, health bars, timer frame, portraits, super meter, and fight/K.O./victory overlays. Do not generate new assets and do not change gameplay/combat, fighter assets, stage assets, audio, or particle logic."
+    inputs:
+      - "T099 runtime UI promotion receipt"
+      - "Approved runtime UI assets under public/assets/generated/ui/meowtal"
+      - "Current procedural HUD/shell rendering in src/game/MoroccanArenaScene.ts"
+    allowed_files:
+      - "src/assets/types.ts"
+      - "src/assets/catalog.ts"
+      - "src/game/gameConfig.ts"
+      - "src/game/MoroccanArenaScene.ts"
+      - "test/asset-runtime.test.ts"
+      - "test/game-config.test.ts"
+      - "test/presentation.test.ts"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+    verify:
+      - "npm run typecheck"
+      - "npm test -- --run test/asset-runtime.test.ts test/game-config.test.ts test/presentation.test.ts"
+      - "npm run verify"
+      - "Browser/Playwright smoke: ready/select/fight should show approved Meowtal UI assets, no missing UI assets, no runtime fallbacks, no console/page errors, and readable overlays."
+    stop_if:
+      - "Requires generating or promoting additional UI assets."
+      - "Touches fighter assets, stage assets, audio, particle files, combat/gameplay logic, or frame data."
+      - "Reintroduces Atlas/Viper runtime content."
+      - "Browser smoke shows missing UI assets, runtime fallbacks, unreadable overlays, overlap regressions, or console/page errors."
+      - "The approved UI assets cannot be loaded/rendered without broad scene rearchitecture."
     receipt: null
   - id: T005
     type: worker
