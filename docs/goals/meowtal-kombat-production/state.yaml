@@ -83,7 +83,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T040
+active_task: T041
 
 tasks:
   - id: T000
@@ -1546,7 +1546,7 @@ tasks:
   - id: T040
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: low
     objective: "Promote only the approved normalized Meowtal crouch rows to runtime assets. Copy normalized candidates into public runtime paths, update manifest provenance from generated/non-runtime to approved/runtime for only gray-rabbit:crouch and ginger-tabby-cat:crouch, update provenance docs/tests, and keep every other remaining animation row blocked."
     allowed_files:
@@ -1574,6 +1574,68 @@ tasks:
       - "Manifest/provenance cannot clearly record T039 visual approval and runtime promotion."
       - "Files outside allowed_files are required."
       - "Verification fails twice for the same underlying reason."
+    receipt:
+      result: done
+      summary: "Promoted only the two approved normalized Meowtal crouch rows into public runtime assets and updated the Meowtal manifest/docs/tests so gray-rabbit:crouch and ginger-tabby-cat:crouch are approved runtime assets. Every remaining ungenerated Meowtal row stays blocked behind a separate scoped generation task, and no runtime character selection or gameplay config was switched."
+      changed_files:
+        - "public/assets/generated/fighters/gray-rabbit/crouch.png"
+        - "public/assets/generated/fighters/ginger-tabby-cat/crouch.png"
+        - "src/assets/meowtalProductionManifest.ts"
+        - "docs/assets/meowtal-kombat-provenance.md"
+        - "test/meowtal-production-manifest.test.ts"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+      evidence:
+        - "public/assets/generated/fighters/gray-rabbit/crouch.png"
+        - "public/assets/generated/fighters/ginger-tabby-cat/crouch.png"
+        - "src/assets/meowtalProductionManifest.ts"
+      checksums:
+        gray_rabbit_crouch_runtime_sha256: "0acd1e3ee55704449d5b7ada53681e8dc0502f972525dc43648d0109e26cadb1"
+        ginger_tabby_cat_crouch_runtime_sha256: "ee5206a90b0109832cc7d173f077c3d3fdc41acbca93f126df7aa8fdb6a1fe04"
+      commands:
+        - cmd: "node scripts/normalize-fighter-rows.mjs --animation crouch --fighters gray-rabbit,ginger-tabby-cat"
+          status: pass
+        - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha public/assets/generated/fighters/gray-rabbit/crouch.png public/assets/generated/fighters/ginger-tabby-cat/crouch.png"
+          status: pass
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-qa.test.ts"
+          status: pass
+        - cmd: "npm run imagegen:qa"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+      notes:
+        - "sips reported pixelWidth 1024, pixelHeight 256, hasAlpha yes for both public crouch runtime PNGs."
+        - "Full verify passed with 21 test files and 105 tests."
+        - "No source imagegen PNGs, other rows, canonical sheets, stage, UI, HUD, logo, particle, audio, gameplay config, or selectable runtime character switch were touched."
+  - id: T041
+    type: judge
+    assignee: Judge
+    status: active
+    reasoning_hint: high
+    objective: "Scope the next small Meowtal production slice after idle, walk-forward, walk-back, and crouch runtime rows are approved. Decide whether to continue fighter animation coverage, begin parallax arena asset generation, begin logo/HUD/UI surface generation, or prepare runtime routing."
+    inputs:
+      - "T028 idle runtime promotion receipt"
+      - "T032 walk-forward runtime promotion receipt"
+      - "T036 walk-back runtime promotion receipt"
+      - "T040 crouch runtime promotion receipt"
+      - "src/assets/meowtalProductionManifest.ts"
+      - "docs/assets/meowtal-kombat-provenance.md"
+      - "Goal requirements: complete fighter animation set, parallax arena, complete HUD/logo/UI assets, audio/effects, Tough Love Arena-level feel, small commits, no PoC completion"
+    constraints:
+      - "Do not implement."
+      - "Do not choose a broad all-assets task."
+      - "Prefer a small reviewable Worker task with tight allowed_files and verification."
+      - "Preserve upright two-legged fighter consistency and defer runtime character switch until enough asset coverage exists."
+      - "If choosing more animation rows, runtime approval must be deferred to a later Judge task."
+      - "If choosing non-character assets, require provenance/license docs and visual QA gates."
+    expected_output:
+      - "Decision and rationale"
+      - "Exact next Worker objective"
+      - "allowed_files"
+      - "verify commands"
+      - "stop_if conditions"
+      - "visual QA or runtime verification expectations"
     receipt: null
   - id: T005
     type: worker
@@ -1725,17 +1787,17 @@ checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T038
+    task: T040
     commands:
-      - cmd: "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-readiness.test.ts"
-        status: pass
       - cmd: "node scripts/normalize-fighter-rows.mjs --animation crouch --fighters gray-rabbit,ginger-tabby-cat"
         status: pass
-      - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha output/imagegen/gray-rabbit-crouch-normalized.png output/imagegen/ginger-tabby-cat-crouch-normalized.png"
+      - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha public/assets/generated/fighters/gray-rabbit/crouch.png public/assets/generated/fighters/ginger-tabby-cat/crouch.png"
+        status: pass
+      - cmd: "npm run typecheck"
+        status: pass
+      - cmd: "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-qa.test.ts"
         status: pass
       - cmd: "npm run imagegen:qa"
-        status: pass
-      - cmd: "npm test -- --run test/asset-qa.test.ts"
         status: pass
       - cmd: "npm run verify"
         status: pass

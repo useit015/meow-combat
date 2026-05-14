@@ -57,7 +57,7 @@ These are approved before animation rows as style locks only. Required sheet str
 
 ### Character Animation Rows
 
-Status: idle, walk-forward, and walk-back rows approved for runtime publication; crouch source rows are generated candidates pending visual QA; all other rows remain blocked pending separate scoped generation.
+Status: idle, walk-forward, walk-back, and crouch rows approved for runtime publication; all other rows remain blocked pending separate scoped generation.
 
 - `gray-rabbit:idle`
   - Source path: `assets/source/imagegen/fighters/gray-rabbit/idle.png`
@@ -109,20 +109,20 @@ Status: idle, walk-forward, and walk-back rows approved for runtime publication;
   - QA notes: eight separated upright two-legged ginger tabby guarded backward-footwork frames, no visible text/watermark/frame numbers, chroma-key removed to transparent alpha, normalized to 2048x256 RGBA.
 - `gray-rabbit:crouch`
   - Source path: `assets/source/imagegen/fighters/gray-rabbit/crouch.png`
-  - Runtime path: none
+  - Runtime path: `/assets/generated/fighters/gray-rabbit/crouch.png`
   - Provider: Codex built-in imagegen
   - Generated on: 2026-05-14
   - License status: owned generated source asset
-  - Runtime status: not approved for runtime use; pending T039 visual QA
-  - QA notes: four separated upright two-legged gray rabbit crouch/guard frames, no visible text/watermark/frame numbers, chroma-key removed to transparent alpha, normalized to 1024x256 RGBA QA candidate.
+  - Runtime status: approved by T039 visual QA and promoted by T040
+  - QA notes: four separated upright two-legged gray rabbit crouch/guard frames, no visible text/watermark/frame numbers, chroma-key removed to transparent alpha, normalized to 1024x256 RGBA.
 - `ginger-tabby-cat:crouch`
   - Source path: `assets/source/imagegen/fighters/ginger-tabby-cat/crouch.png`
-  - Runtime path: none
+  - Runtime path: `/assets/generated/fighters/ginger-tabby-cat/crouch.png`
   - Provider: Codex built-in imagegen
   - Generated on: 2026-05-14
   - License status: owned generated source asset
-  - Runtime status: not approved for runtime use; pending T039 visual QA
-  - QA notes: four separated upright two-legged ginger tabby crouch/guard frames, no visible text/watermark/frame numbers, chroma-key removed to transparent alpha, normalized to 1024x256 RGBA QA candidate.
+  - Runtime status: approved by T039 visual QA and promoted by T040
+  - QA notes: four separated upright two-legged ginger tabby crouch/guard frames, no visible text/watermark/frame numbers, chroma-key removed to transparent alpha, normalized to 1024x256 RGBA.
 
 Each fighter needs rows for idle, walk-forward, walk-back, crouch, jump, light-punch, heavy-punch, light-kick, special, hitstun, blockstun, knockdown, win, and lose. Rows must preserve the shared upright two-legged rig, species identity, markings, proportions, lighting, camera angle, scale, outline/detail level, and rendering style.
 
