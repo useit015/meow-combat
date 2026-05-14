@@ -32,9 +32,27 @@ async function loadPlaywright() {
     return await import("playwright");
   } catch (error) {
     const moduleDir = process.env.PLAYWRIGHT_NODE_MODULES;
-    if (!moduleDir) throw error;
-    const require = createRequire(import.meta.url);
-    return require(path.join(moduleDir, "playwright"));
+    if (moduleDir) {
+      const require = createRequire(import.meta.url);
+      try {
+        return require(path.join(moduleDir, "playwright"));
+      } catch (fallbackError) {
+        throw new Error(
+          `Unable to load Playwright from PLAYWRIGHT_NODE_MODULES=${moduleDir}. ` +
+            "Install playwright there or unset PLAYWRIGHT_NODE_MODULES to use a project-local install.",
+          { cause: fallbackError },
+        );
+      }
+    }
+
+    throw new Error(
+      [
+        "Playwright is required for npm run smoke:meowtal.",
+        "Install it outside the repo with: npm install --prefix /tmp/meowtal-playwright playwright@1.60.0",
+        "Then run with: PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/",
+      ].join("\n"),
+      { cause: error },
+    );
   }
 }
 

@@ -22,6 +22,21 @@ npm run verify
 
 `npm run verify` runs typecheck, tests, and the production build. CI runs the same command from `.github/workflows/ci.yml`.
 
+Production preview smoke for Meowtal Kombat:
+
+```bash
+npm run build
+npm run preview -- --host 127.0.0.1 --port 4173
+```
+
+In another terminal, run the repeatable browser smoke:
+
+```bash
+PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/meowtal-smoke-local
+```
+
+The smoke captures desktop keyboard play plus phone portrait/landscape touch play, checks the control fallback line, pause/touch readability, missing runtime UI, and console/page errors, then writes screenshots and `report.json` into the chosen output directory. If Playwright is not already available, install it outside the repo once with `npm install --prefix /tmp/meowtal-playwright playwright@1.60.0` to avoid changing the project lockfile.
+
 Useful focused commands:
 
 ```bash

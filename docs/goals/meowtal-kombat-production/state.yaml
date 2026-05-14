@@ -85,7 +85,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T111
+active_task: T112
 
 tasks:
   - id: T000
@@ -5744,7 +5744,7 @@ tasks:
   - id: T111
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: low
     objective: "Make the Meowtal browser smoke repeatable from npm and document the production preview/smoke workflow for local release checks, without changing gameplay, assets, combat rules, audio, or generated binaries."
     inputs:
@@ -5775,6 +5775,74 @@ tasks:
       - "Requires new npm dependencies, package-lock.json changes, external services, generated assets, audio, combat/gameplay changes, UI rendering changes, or files outside allowed_files."
       - "Existing smoke script needs behavior changes beyond packaging/docs clarity."
       - "A production preview target cannot be started locally."
+    receipt:
+      result: done
+      summary: "Added npm run smoke:meowtal as the repeatable entrypoint for the existing Meowtal browser smoke, documented the production preview plus smoke workflow in README, and improved the smoke script's Playwright loading errors without changing game behavior, assets, combat, UI rendering, dependencies, or lockfiles."
+      changed_files:
+        - "package.json"
+        - "README.md"
+        - "scripts/smoke-meowtal-browser.mjs"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+      commands:
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm test -- --run test/control-fallback.test.ts test/touch-controls.test.ts"
+          status: pass
+        - cmd: "node --check scripts/smoke-meowtal-browser.mjs"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/meowtal-smoke-t111"
+          status: pass
+      evidence:
+        - "output/web-game/meowtal-smoke-t111/report.json"
+        - "output/web-game/meowtal-smoke-t111/desktop-keyboard-fight.png"
+        - "output/web-game/meowtal-smoke-t111/portrait-fight.png"
+        - "output/web-game/meowtal-smoke-t111/landscape-pause.png"
+      smoke_summary:
+        failures: 0
+        scenarios:
+          - "desktop"
+          - "portrait"
+          - "landscape"
+        screenshots: 13
+      judge:
+        agent: "019e288c-4a6c-72a3-b1fb-153965620818"
+        result: approve
+        summary: "Judge approved T111: diff stayed inside package/docs/smoke entrypoint scope; no gameplay, assets, combat, UI rendering, dependencies, or lockfile changes; typecheck, focused tests, full verify, and production-preview smoke passed."
+      notes:
+        - "Residual risk: smoke depends on an external Playwright install under /tmp/meowtal-playwright by design to avoid lockfile churn."
+        - "Residual risk: the smoke command assumes a production preview is already serving at the provided URL."
+  - id: T112
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: low
+    objective: "Refresh README product identity and runbook wording so it describes the current Meowtal Kombat production game instead of stale Atlas Arena/Moroccan KOF language, without changing code, assets, package scripts, or gameplay."
+    inputs:
+      - "README still opens with Atlas Arena/Moroccan KOF wording even though the active product is Meowtal Kombat."
+      - "T111 added production smoke instructions."
+      - "Goal requirement: no missing or misleading run instructions before production completion."
+    constraints:
+      - "Do not change source code, package scripts, generated assets, audio, tests, build output, or gameplay behavior."
+      - "Preserve useful pipeline/run/verify instructions."
+      - "Mention Meowtal Kombat, gray rabbit, ginger tabby cat, parallax courtyard, touch/keyboard/gamepad fallback, and production smoke accurately."
+      - "Keep one small coherent commit."
+    expected_output:
+      - "README title/description/current scope reflects Meowtal Kombat instead of Atlas Arena."
+      - "Run, verify, controls, and asset pipeline notes remain accurate."
+      - "Board receipt with lightweight verification."
+    allowed_files:
+      - "README.md"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+    verify:
+      - "npm run typecheck"
+      - "npm run verify"
+      - "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+    stop_if:
+      - "Requires code, package, generated asset, audio, test, build output, or gameplay changes."
+      - "README claims unsupported multiplayer, networking, external asset licensing, or final-complete status."
+      - "Files outside allowed_files are needed."
     receipt: null
   - id: T005
     type: worker

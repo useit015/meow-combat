@@ -11,6 +11,7 @@
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "verify": "npm run typecheck && npm test && npm run build",
+    "smoke:meowtal": "node scripts/smoke-meowtal-browser.mjs",
     "imagegen:preflight": "node scripts/imagegen-preflight.mjs",
     "imagegen:qa": "node scripts/asset-qa.mjs"
   },
