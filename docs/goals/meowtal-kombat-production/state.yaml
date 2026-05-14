@@ -83,7 +83,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T039
+active_task: T040
 
 tasks:
   - id: T000
@@ -1492,7 +1492,7 @@ tasks:
   - id: T039
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Visual QA gray-rabbit:crouch and ginger-tabby-cat:crouch source and normalized candidates, then decide whether to approve a separate narrow runtime-promotion Worker or require regeneration."
     inputs:
@@ -1519,6 +1519,61 @@ tasks:
       - "allowed_files"
       - "verify commands"
       - "stop_if conditions"
+    receipt:
+      result: done
+      verdict: approved
+      decision: "Approve the normalized gray-rabbit:crouch and ginger-tabby-cat:crouch candidates for a narrow runtime-promotion Worker. Do not regenerate."
+      next_allowed_task: T040
+      summary: "Both crouch rows pass the upright two-legged gate, read as low guard-ready fighting crouches rather than four-legged animal poses, sitting, collapse, or rest, and preserve fighter identity, proportions, markings, camera angle, lighting, scale, outline/detail level, and style consistency with approved locomotion rows. The normalized candidates are exactly 1024x256 RGBA with four separated 256x256 frames and no visible text/logos/watermarks/frame numbers/effects/background art/extra characters."
+      evidence:
+        - "assets/source/imagegen/fighters/gray-rabbit/crouch.png"
+        - "assets/source/imagegen/fighters/ginger-tabby-cat/crouch.png"
+        - "output/imagegen/gray-rabbit-crouch-normalized.png"
+        - "output/imagegen/ginger-tabby-cat-crouch-normalized.png"
+        - "public/assets/generated/fighters/gray-rabbit/idle.png"
+        - "public/assets/generated/fighters/ginger-tabby-cat/idle.png"
+        - "public/assets/generated/fighters/gray-rabbit/walk-forward.png"
+        - "public/assets/generated/fighters/ginger-tabby-cat/walk-forward.png"
+        - "public/assets/generated/fighters/gray-rabbit/walk-back.png"
+        - "public/assets/generated/fighters/ginger-tabby-cat/walk-back.png"
+      visual_qa:
+        - "Rabbit crouch is visually usable: gray rabbit, long ears, white paws/belly, compact athletic low guard, transparent/no arena art, and four separated cells."
+        - "Cat crouch is visually usable: ginger tabby, stripes, tail, paws, upright low guard, transparent/no arena art, and four separated cells."
+      blocked_tasks:
+        - "Do not generate or promote any row other than crouch in the next Worker."
+        - "Do not wire Meowtal fighters into gameplay selection yet; only publish and approve the two crouch runtime assets."
+        - "Runtime routing/switch, jump/attack/special/reaction/win/lose rows, parallax arena, UI/HUD/logo, particles, audio/effects, and broad all-assets work remain blocked until separately scoped."
+  - id: T040
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: low
+    objective: "Promote only the approved normalized Meowtal crouch rows to runtime assets. Copy normalized candidates into public runtime paths, update manifest provenance from generated/non-runtime to approved/runtime for only gray-rabbit:crouch and ginger-tabby-cat:crouch, update provenance docs/tests, and keep every other remaining animation row blocked."
+    allowed_files:
+      - "public/assets/generated/fighters/gray-rabbit/crouch.png"
+      - "public/assets/generated/fighters/ginger-tabby-cat/crouch.png"
+      - "src/assets/meowtalProductionManifest.ts"
+      - "docs/assets/meowtal-kombat-provenance.md"
+      - "test/meowtal-production-manifest.test.ts"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+    inputs:
+      - "output/imagegen/gray-rabbit-crouch-normalized.png"
+      - "output/imagegen/ginger-tabby-cat-crouch-normalized.png"
+      - "T039 approval receipt"
+    verify:
+      - "node scripts/normalize-fighter-rows.mjs --animation crouch --fighters gray-rabbit,ginger-tabby-cat"
+      - "sips -g pixelWidth -g pixelHeight -g hasAlpha public/assets/generated/fighters/gray-rabbit/crouch.png public/assets/generated/fighters/ginger-tabby-cat/crouch.png"
+      - "npm run typecheck"
+      - "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-qa.test.ts"
+      - "npm run imagegen:qa"
+      - "npm run verify"
+    stop_if:
+      - "Any row other than gray-rabbit:crouch or ginger-tabby-cat:crouch is edited, approved, generated, or given a runtime path."
+      - "Runtime roster/game config, scene behavior, gameplay, stage, UI/HUD/logo, particles, or audio need changes."
+      - "Any promoted runtime PNG is not 1024x256 RGBA with alpha."
+      - "Manifest/provenance cannot clearly record T039 visual approval and runtime promotion."
+      - "Files outside allowed_files are required."
+      - "Verification fails twice for the same underlying reason."
     receipt: null
   - id: T005
     type: worker
