@@ -68,24 +68,38 @@ canvas {
 @media (orientation: portrait) and (max-width: 720px) {
   #app {
     background:
-      radial-gradient(ellipse at 50% 24%, rgba(242, 207, 125, 0.18), transparent 18rem),
-      linear-gradient(180deg, rgba(16, 54, 50, 0.9), rgba(7, 19, 18, 0.98)),
+      linear-gradient(180deg, rgba(24, 77, 70, 0.7), rgba(7, 19, 18, 0.92) 64%, rgba(4, 11, 10, 0.98)),
       #0b1817;
+  }
+
+  #app::before {
+    background:
+      linear-gradient(180deg, rgba(7, 19, 18, 0.04), rgba(7, 19, 18, 0.34) 62%, rgba(7, 19, 18, 0.74)),
+      url("/assets/generated/stages/meowtal-courtyard/playfield-stone-courtyard.png") center bottom / 170% auto
+        no-repeat,
+      url("/assets/generated/stages/meowtal-courtyard/sky-lighting.png") center top / cover no-repeat;
+    filter: saturate(1.18) blur(1.5px);
+    opacity: 0.72;
+    transform: scale(1.02);
   }
 
   #app::after {
     background:
-      linear-gradient(90deg, transparent, rgba(242, 207, 125, 0.28), transparent) 50% 25% / 100% 1px no-repeat,
-      linear-gradient(90deg, transparent, rgba(242, 207, 125, 0.18), transparent) 50% calc(25% + 14rem) / 100% 1px
-        no-repeat,
-      radial-gradient(ellipse at 50% 31%, transparent 0 10rem, rgba(3, 9, 8, 0.42) 28rem);
+      linear-gradient(90deg, transparent, rgba(242, 207, 125, 0.34), transparent) 50% clamp(80px, 12svh, 118px) /
+        100% 1px no-repeat,
+      linear-gradient(90deg, transparent, rgba(46, 196, 182, 0.24), transparent) 50% calc(clamp(80px, 12svh, 118px) + 15rem) /
+        100% 1px no-repeat,
+      linear-gradient(180deg, rgba(7, 19, 18, 0), rgba(7, 19, 18, 0.58) 58%, rgba(7, 19, 18, 0.86)) 0 0 / 100% 100%
+        no-repeat;
+    opacity: 0.9;
   }
 
   canvas {
     border-block: 1px solid rgba(242, 207, 125, 0.38);
     box-shadow:
       0 0 0 1px rgba(248, 245, 233, 0.08),
-      0 18px 60px rgba(0, 0, 0, 0.48);
-    margin-top: clamp(112px, 20svh, 184px) !important;
+      0 18px 60px rgba(0, 0, 0, 0.42),
+      0 0 44px rgba(46, 196, 182, 0.14);
+    margin-top: clamp(80px, 12svh, 122px) !important;
   }
 }

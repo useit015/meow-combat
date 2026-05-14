@@ -349,6 +349,7 @@ export class MeowtalArenaScene extends Phaser.Scene {
         fontStyle: "700",
       })
       .setOrigin(0.5, 0)
+      .setShadow(0, 2, "#000000", 4, true, true)
       .setDepth(100);
     this.modeText = this.add
       .text(882, 82, "", {
@@ -358,6 +359,7 @@ export class MeowtalArenaScene extends Phaser.Scene {
         fontStyle: "700",
       })
       .setOrigin(0.5, 0)
+      .setShadow(0, 2, "#000000", 4, true, true)
       .setDepth(100);
     this.p1NameText = this.add
       .text(104, 24, "", {
@@ -367,6 +369,7 @@ export class MeowtalArenaScene extends Phaser.Scene {
         fontStyle: "800",
       })
       .setOrigin(0, 0)
+      .setShadow(0, 2, "#000000", 4, true, true)
       .setDepth(100);
     this.p2NameText = this.add
       .text(920, 24, "", {
@@ -376,6 +379,7 @@ export class MeowtalArenaScene extends Phaser.Scene {
         fontStyle: "800",
       })
       .setOrigin(1, 0)
+      .setShadow(0, 2, "#000000", 4, true, true)
       .setDepth(100);
     this.comboText = this.add
       .text(176, 132, "", {
@@ -913,17 +917,18 @@ export class MeowtalArenaScene extends Phaser.Scene {
 
     for (const zone of this.touchControlZones()) {
       const active = this.activeTouchControls.has(zone.id);
-      const fill = zone.group === "movement" ? 0x164943 : zone.group === "action" ? 0x1d2f3f : 0x3a2b12;
-      const stroke = active ? 0xfff1a8 : zone.group === "action" ? 0x5fc9ff : 0xf2cf7d;
-      const alpha = active ? 0.74 : 0.44;
+      const fill = zone.group === "movement" ? 0x123b36 : zone.group === "action" ? 0x14263a : 0x342814;
+      const stroke = active ? 0xfff1a8 : zone.group === "action" ? 0x8bd9ff : 0xf2cf7d;
+      const alpha = active ? 0.66 : zone.group === "system" ? 0.34 : 0.28;
+      const radius = zone.group === "system" ? 7 : 8;
 
-      g.fillStyle(fill, alpha).fillRoundedRect(zone.x, zone.y, zone.width, zone.height, 14);
-      g.lineStyle(active ? 3 : 2, stroke, active ? 0.95 : 0.58).strokeRoundedRect(zone.x, zone.y, zone.width, zone.height, 14);
+      g.fillStyle(fill, alpha).fillRoundedRect(zone.x, zone.y, zone.width, zone.height, radius);
+      g.lineStyle(active ? 3 : 2, stroke, active ? 0.92 : 0.46).strokeRoundedRect(zone.x, zone.y, zone.width, zone.height, radius);
 
       this.touchControlLabels[zone.id]
         .setText(zone.label)
         .setPosition(zone.x + zone.width / 2, zone.y + zone.height / 2)
-        .setAlpha(active ? 1 : 0.78)
+        .setAlpha(active ? 1 : 0.64)
         .setVisible(true);
     }
   }
@@ -1962,7 +1967,7 @@ function shellTitle(shell: ShellState, snapshot: MatchSnapshot, matchSet: MatchS
 
 function shellHelp(shell: ShellState, selectionLabel: string, controlFallbackLine: string): string {
   if (shell.phase === "ready") {
-    return `${GAME_SUBTITLE}\nPRESS ENTER\n${controlFallbackLine}\nDouble-tap D/B run  |  W+dir hop  |  Space/J light\nI kick  |  K heavy  |  L special  |  S,D,L super`;
+    return `${GAME_SUBTITLE}\nPRESS ENTER\n${controlFallbackLine}`;
   }
   if (shell.phase === "select") {
     return `${selectionLabel}\n${controlFallbackLine}\nA/D or B: P1 fighter  |  Arrow keys: P2 fighter\nEnter: fight  |  R: reset`;
