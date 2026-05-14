@@ -57,7 +57,7 @@ These are approved before animation rows as style locks only. Required sheet str
 
 ### Character Animation Rows
 
-Status: idle, walk-forward, walk-back, crouch, jump, light-punch, heavy-punch, light-kick, hitstun, and blockstun rows approved for runtime publication; all other rows remain blocked pending separate scoped generation.
+Status: idle, walk-forward, walk-back, crouch, jump, light-punch, heavy-punch, light-kick, hitstun, and blockstun rows approved for runtime publication; special source rows are generated candidates pending visual QA; knockdown, win, and lose remain blocked pending separate scoped generation.
 
 - `gray-rabbit:idle`
   - Source path: `assets/source/imagegen/fighters/gray-rabbit/idle.png`
@@ -219,6 +219,22 @@ Status: idle, walk-forward, walk-back, crouch, jump, light-punch, heavy-punch, l
   - License status: owned generated source asset
   - Runtime status: approved by T075 visual QA and promoted by T076
   - QA notes: eight separated upright two-legged ginger tabby low snap-kick frames with crouch-load, planted support, organic hip/knee front-foot extension, recoil, and guard recovery; no visible text/watermark/frame numbers, chroma-key removed to transparent alpha, normalized to 2048x256 RGBA.
+- `gray-rabbit:special`
+  - Source path: `assets/source/imagegen/fighters/gray-rabbit/special.png`
+  - Runtime path: none
+  - Provider: Codex built-in imagegen magenta chroma-key reference row plus local chroma removal
+  - Generated on: 2026-05-14
+  - License status: owned generated source asset
+  - Runtime status: not approved for runtime use; pending follow-up visual QA
+  - QA notes: ten separated upright two-legged gray rabbit rapid spinning tornado frames with crouch-load, readable spin build-up, character-attached green energy ribbons, deceleration, recovery, and guard settle; no visible text/watermark/frame numbers, magenta chroma-key removed to transparent alpha, normalized to 2560x256 RGBA QA candidate.
+- `ginger-tabby-cat:special`
+  - Source path: `assets/source/imagegen/fighters/ginger-tabby-cat/special.png`
+  - Runtime path: none
+  - Provider: Codex built-in imagegen magenta chroma-key reference row plus local chroma removal
+  - Generated on: 2026-05-14
+  - License status: owned generated source asset
+  - Runtime status: not approved for runtime use; pending follow-up visual QA
+  - QA notes: ten separated upright two-legged ginger tabby acrobatic flip-kick frames with planted chamber, readable mid-flip, green/yellow foot-attached aura crescents, controlled landing, recovery, and guard settle; no visible text/watermark/frame numbers, magenta chroma-key removed to transparent alpha, normalized to 2560x256 RGBA QA candidate.
 
 Each fighter needs rows for idle, walk-forward, walk-back, crouch, jump, light-punch, heavy-punch, light-kick, special, hitstun, blockstun, knockdown, win, and lose. Rows must preserve the shared upright two-legged rig, species identity, markings, proportions, lighting, camera angle, scale, outline/detail level, and rendering style.
 

@@ -83,7 +83,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T078
+active_task: T079
 
 tasks:
   - id: T000
@@ -3787,7 +3787,7 @@ tasks:
   - id: T078
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: low
     objective: "Generate and normalize source-only Meowtal special-attack candidates for exactly gray-rabbit:special and ginger-tabby-cat:special. Create production-usable source rows and normalized 10-frame 2560x256 QA candidates only, matching the repo special animation contract. Update manifest/provenance/tests/docs so these two special rows become generated-but-unapproved with runtimePath null, and keep knockdown/win/lose blocked. Do not promote runtime assets, switch runtime routing, or create other rows."
     inputs:
@@ -3817,6 +3817,84 @@ tasks:
       - "Normalized candidates cannot be exactly 2560x256 RGBA with ten separated 256x256 frames."
       - "Provenance cannot clearly mark these as generated source-only, non-runtime candidates pending Judge visual QA."
       - "Fixing verification requires gameplay, routing, stage, HUD, logo, audio, or broad asset-pipeline changes."
+    receipt:
+      result: done
+      summary: "Generated exactly the two scoped Meowtal special source rows as generated, non-runtime candidates: gray-rabbit:special and ginger-tabby-cat:special. Used fresh Codex imagegen rows on magenta chroma backgrounds so green/yellow special effects survive chroma removal, removed the key locally, normalized both rows to 10-frame 2560x256 RGBA QA candidates, and updated manifest/provenance/tests to track specials as generated with runtimePath null. No runtime special assets, routing, gameplay, stage, HUD/logo, audio, or other rows were touched."
+      changed_files:
+        - "assets/source/imagegen/fighters/gray-rabbit/special.png"
+        - "assets/source/imagegen/fighters/ginger-tabby-cat/special.png"
+        - "src/assets/meowtalProductionManifest.ts"
+        - "docs/assets/meowtal-kombat-provenance.md"
+        - "test/meowtal-production-manifest.test.ts"
+        - "test/asset-qa.test.ts"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+      evidence:
+        - "/Users/oussmustaine/.codex/generated_images/019e2479-3616-7872-a4fc-0c0b2f1dfb46/ig_04a355801a805853016a05d42e68a48191b93c4488e33a51da.png"
+        - "/Users/oussmustaine/.codex/generated_images/019e2479-3616-7872-a4fc-0c0b2f1dfb46/ig_04a355801a805853016a05d47c09f88191857bad2f10496168.png"
+        - "assets/source/imagegen/fighters/gray-rabbit/special.png"
+        - "assets/source/imagegen/fighters/ginger-tabby-cat/special.png"
+        - "output/imagegen/gray-rabbit-special-normalized.png"
+        - "output/imagegen/ginger-tabby-cat-special-normalized.png"
+        - "src/assets/meowtalProductionManifest.ts"
+        - "docs/assets/meowtal-kombat-provenance.md"
+      checksums:
+        gray_rabbit_special_source_sha256: "4b4ec8316a0f659314a17cd94fbf4a3ebb36ed873d07d9445a372009149316cc"
+        ginger_tabby_cat_special_source_sha256: "b0a2c6218849bdd5e2309ded90f879279d087723b5eac0d0c43b34cc31d666fa"
+        gray_rabbit_special_normalized_sha256: "944bf42138c156d93a9dc91c767a6bd1c1a7cdfb52be0de24bc7fc92265c5855"
+        ginger_tabby_cat_special_normalized_sha256: "e051b71926f450f8a6127a11dc0f3f3a3c3bf631942a276f4c678851ed8a210c"
+        meowtal_manifest_sha256: "e278a739208f66186c7a8803b2194366a3c51e622a07eafce4cbe41c219eb33d"
+        provenance_doc_sha256: "134a6ebbc958d8a7c556ca90b492b79bacf4d344ac1796097d4b5757e95bde07"
+        manifest_test_sha256: "246d51d6537b9e73d4f0edd403afaabe1fe2aa2161a90922e0724a57ef3177b9"
+        asset_qa_test_sha256: "c15039edaf7bb6827611deceecd803d8d165b1a7e434cbc4476929f405d3c78e"
+      commands:
+        - cmd: "python /Users/oussmustaine/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py --input /Users/oussmustaine/.codex/generated_images/019e2479-3616-7872-a4fc-0c0b2f1dfb46/ig_04a355801a805853016a05d42e68a48191b93c4488e33a51da.png --out output/imagegen/gray-rabbit-special-imagegen-transparent.png --auto-key border --soft-matte --transparent-threshold 18 --opaque-threshold 150 --despill --force"
+          status: pass
+        - cmd: "python /Users/oussmustaine/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py --input /Users/oussmustaine/.codex/generated_images/019e2479-3616-7872-a4fc-0c0b2f1dfb46/ig_04a355801a805853016a05d47c09f88191857bad2f10496168.png --out output/imagegen/ginger-tabby-cat-special-imagegen-transparent.png --auto-key border --soft-matte --transparent-threshold 18 --opaque-threshold 150 --despill --force"
+          status: pass
+        - cmd: "node scripts/normalize-fighter-rows.mjs --animation special --fighters gray-rabbit,ginger-tabby-cat"
+          status: pass
+        - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha output/imagegen/gray-rabbit-special-normalized.png output/imagegen/ginger-tabby-cat-special-normalized.png"
+          status: pass
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-qa.test.ts"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+      notes:
+        - "sips reported pixelWidth 2560, pixelHeight 256, hasAlpha yes for both normalized special QA candidates."
+        - "Focused manifest/asset QA tests passed with 2 files and 18 tests; asset QA now generates ignored Meowtal light-kick and special normalized candidates hermetically."
+        - "Full verify passed with 21 test files, 112 tests, and a successful Vite production build."
+        - "Magenta chroma key was used instead of green to preserve green/yellow special effects."
+        - "No public/assets/generated Meowtal special files, runtime paths, runtime roster/game config, stage, UI/HUD/logo, particles, audio, or other animation rows were touched."
+  - id: T079
+    type: judge
+    assignee: Judge
+    status: active
+    reasoning_hint: high
+    objective: "Visual QA only the two generated Meowtal special source candidates, gray-rabbit:special and ginger-tabby-cat:special, against approved runtime rows through light-kick. Decide whether they are approved for later runtime promotion or must be regenerated. Do not edit files."
+    inputs:
+      - "assets/source/imagegen/fighters/gray-rabbit/special.png"
+      - "assets/source/imagegen/fighters/ginger-tabby-cat/special.png"
+      - "output/imagegen/gray-rabbit-special-normalized.png"
+      - "output/imagegen/ginger-tabby-cat-special-normalized.png"
+      - "T078 generation receipt"
+      - "approved runtime rows through light-kick"
+    constraints:
+      - "Do not implement or edit files."
+      - "Reject if either fighter shifts into four-legged animal motion or if rabbit and cat stance conventions differ; both must stay upright two-legged unless a clearly acrobatic in-air flip frame remains readable and returns to upright stance."
+      - "Reject if special reads as crouch/walk/punch/kick reuse without a clear special attack expression."
+      - "Reject if rabbit tornado effects obscure species identity, detach as background clutter, or turn the rabbit into an unreadable ball of effects."
+      - "Reject if cat aura crescents detach as background/projectile clutter, tail acts as a support limb, or flip frames become unreadable/four-legged/rest poses."
+      - "Reject visible text, logos, watermarks, frame numbers, arena/background art, extra characters, visible chroma edge residue, clipped/detached feet, pasted effect artifacts, or non-transparent runtime-blocking artifacts."
+      - "Reject inconsistent species identity, markings, proportions, lighting, camera angle, scale, outline/detail level, or rendering style versus approved runtime rows."
+      - "Require normalized QA candidates to be exactly 2560x256 RGBA with ten separated 256x256 frames."
+      - "Do not approve runtime promotion for any row other than gray-rabbit:special and ginger-tabby-cat:special."
+    expected_output:
+      - "approved | regenerate"
+      - "Per-fighter visual QA notes"
+      - "Runtime promotion constraints if approved"
+      - "Regeneration notes if rejected"
     receipt: null
   - id: T005
     type: worker
