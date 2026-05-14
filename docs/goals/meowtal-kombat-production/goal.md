@@ -49,6 +49,39 @@ Discover the existing app shape, architecture, assets, rendering stack, and veri
 - Commit work in small, coherent batches throughout implementation; do not save all production-game work for one large final commit.
 - Character animation assets must look consistent across each fighter's move set. Reject completion if animation frames vary noticeably in species identity, costume/markings, body proportions, lighting, camera angle, scale, outline/detail level, or rendering style.
 
+## Visual References
+
+Use these repo-local vision images as aspirational art-direction targets for the production game. They are not final runtime assets.
+
+- `docs/visual-reference/meowtal-kombat/vision-01.png`
+- `docs/visual-reference/meowtal-kombat/vision-02.png`
+- `docs/visual-reference/meowtal-kombat/vision-03.png`
+- `docs/visual-reference/meowtal-kombat/vision-04.png`
+
+## Character Sheet Template
+
+Before generating animation frames, create canonical character sheets for the gray rabbit and ginger/orange tabby cat. Use the structure below, adapted only to original Meowtal Kombat characters. Do not request or copy copyrighted characters, franchise outfits, logos, or named IP.
+
+```text
+Create a complete polished character design sheet for [FIGHTER NAME], an original Meowtal Kombat fighter, on a clean light background. Show a faithful consistent depiction of [SPECIES AND ROLE] with [CORE SILHOUETTE], [FACE/PERSONALITY], [BODY PROPORTIONS], [FUR COLOR AND MARKINGS], [SIGNATURE COMBAT TRAITS], and [SPECIAL ENERGY COLOR].
+
+Present the sheet as professional production concept art with multiple sections and a neat panel layout. Include: full-body front view, side view, back view, 3/4 heroic pose, action-ready fighting pose, relaxed idle pose, large head close-up, and an expression sheet with calm idle, excited grin, battle focus, shocked comedic expression, hit reaction, and powering-up intensity.
+
+Also include detail callouts for silhouette, ears/tail/paws, fur markings, attack limbs, special-effect aura shape, readable gameplay pose shapes, and any fighter-specific props or visual motifs. Add a size reference section and color swatches.
+
+Render it in polished high-quality 2D arcade fighting game concept art style, clean linework, vibrant cel-shaded color, readable presentation, consistent proportions across all views, animation-friendly shapes, professional character design sheet, no watermark.
+```
+
+Rabbit-specific fill:
+- Fighter name: Gray Rabbit.
+- Core silhouette: long ears, compact athletic body, strong hind legs, springy hopping stance.
+- Signature traits: hopping movement, spinning kicks, tornado special, green energy trail.
+
+Cat-specific fill:
+- Fighter name: Ginger/Orange Tabby Cat.
+- Core silhouette: fluffy orange tabby fur, round expressive face, agile body, visible striped tail.
+- Signature traits: pounce attacks, tail strikes, loaf idle pose, acrobatic flips, yellow-green aura/projectile.
+
 ## Stop Rule
 
 Stop only when a final audit proves the full original outcome is complete.

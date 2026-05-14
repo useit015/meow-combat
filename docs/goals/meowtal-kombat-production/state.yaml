@@ -39,6 +39,8 @@ goal:
       - "Physics: jumping, knockback, ground bouncing, simple ragdoll-like heavy-hit reactions."
       - "Audio provider readiness checked: Pixabay API key works for official image/video API; ElevenLabs key can generate sound effects via /v1/sound-generation, but read/model endpoints are permission-limited. Do not store secret values in repo."
       - "Current asset quality concern: different animation frames for the same character sometimes look visually inconsistent; production work must normalize or regenerate animations so each fighter has consistent identity, proportions, lighting, scale, camera angle, and rendering style across all moves."
+      - "Use repo-local visual references as aspirational art direction: docs/visual-reference/meowtal-kombat/vision-01.png through vision-04.png."
+      - "Use canonical original-character sheet prompts before animation generation. Character sheets must include front/side/back/3-4 pose, action pose, relaxed idle, head close-up, expression sheet, detail callouts, size reference, and color swatches for each fighter."
 
 rules:
   pm_owns_state: true
@@ -60,6 +62,7 @@ rules:
   character_animation_style_consistency_required: true
   complete_visual_asset_pack_required: true
   parallax_arena_required: true
+  canonical_character_sheets_required_before_animation_generation: true
 
 agents:
   scout: installed
@@ -215,6 +218,34 @@ tasks:
       changed_files:
         - "docs/goals/meowtal-kombat-production/goal.md"
         - "docs/goals/meowtal-kombat-production/state.yaml"
+  - id: T017
+    type: pm
+    assignee: PM
+    status: done
+    reasoning_hint: low
+    objective: "Record visual references and canonical character-sheet template requirements for asset generation."
+    inputs:
+      - "User-provided character sheet template structure"
+      - "Generated Meowtal Kombat vision images"
+    constraints:
+      - "Use the user template as structure only; adapt it to original rabbit and cat fighters."
+      - "Do not request or copy copyrighted characters, franchise outfits, logos, or named IP."
+      - "Do not generate final animation assets in this PM task."
+    expected_output:
+      - "Repo-local visual reference paths recorded"
+      - "Original-character sheet template recorded"
+      - "Asset generation gates strengthened"
+    receipt:
+      result: done
+      summary: "Copied four generated vision images into docs/visual-reference/meowtal-kombat/ and recorded a reusable original-character sheet template for the gray rabbit and ginger/orange tabby cat. The asset pipeline must create canonical sheets before animation frames to reduce drift."
+      changed_files:
+        - "docs/visual-reference/meowtal-kombat/README.md"
+        - "docs/visual-reference/meowtal-kombat/vision-01.png"
+        - "docs/visual-reference/meowtal-kombat/vision-02.png"
+        - "docs/visual-reference/meowtal-kombat/vision-03.png"
+        - "docs/visual-reference/meowtal-kombat/vision-04.png"
+        - "docs/goals/meowtal-kombat-production/goal.md"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
   - id: T001
     type: scout
     assignee: Scout
@@ -237,6 +268,7 @@ tasks:
       - "Asset pipeline and current asset inventory"
       - "Missing production asset inventory for logo/title, parallax arena layers, HUD, menus, overlays, controls, particles, loading/fallback, and capture/promo surfaces"
       - "Current same-character animation consistency issues with concrete asset/file evidence"
+      - "How current assets compare to docs/visual-reference/meowtal-kombat/ vision references"
       - "Verification commands and dev server command"
       - "Production build/preview command if available"
       - "Risks, blockers, and safe first implementation slices"
@@ -258,6 +290,7 @@ tasks:
       - "Keep recommendations compatible with the existing project stack discovered in T001."
     expected_output:
       - "Recommended asset approach for rabbit, cat, layered parallax arena, logo/title mark, title/key art, HUD, portraits, menu panels, controls, overlays, particles, audio, loading/fallback, and capture artifacts"
+      - "Canonical character-sheet prompts for gray rabbit and ginger/orange tabby cat using the goal template"
       - "Candidate generation/editing steps and tools"
       - "Risks around performance, copyright, file sizes, visual consistency, and license manifest requirements"
       - "Animation consistency audit criteria and candidate normalization/regeneration strategy"
@@ -307,12 +340,13 @@ tasks:
     assignee: Worker
     status: queued
     reasoning_hint: low
-    objective: "Implement or integrate the complete production-quality asset pack for the selected project stack: characters, layered parallax arena, logo/title mark, title/key art, HUD, portraits, menu panels, controls, overlays, particles, audio, and effects, with animation consistency and source/prompt/license tracking."
+    objective: "Implement or integrate the complete production-quality asset pack for the selected project stack: canonical character sheets, characters, layered parallax arena, logo/title mark, title/key art, HUD, portraits, menu panels, controls, overlays, particles, audio, and effects, with animation consistency and source/prompt/license tracking."
     allowed_files: []
     verify: []
     stop_if:
       - "Need files outside allowed_files."
       - "Asset generation, source, attribution, or licensing approach is unclear."
+      - "Animation frames are being generated before canonical character sheets exist."
       - "Generated assets do not fit the visual style or character animation consistency bar after one retry."
       - "Verification fails twice for the same reason."
     receipt: null
