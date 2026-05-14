@@ -41,7 +41,7 @@ function fighterJobs(manifest: FighterAssetManifest): readonly ImagegenJob[] {
       requiredInputs: [],
       prompt: [
         `Create a canonical full-body reference for ${manifest.displayName}, ${manifest.archetype}.`,
-        `Design notes: ${manifest.moroccanDesignNotes.join(" ")}`,
+        `Design notes: ${manifest.designNotes.join(" ")}`,
         `Asymmetry notes: ${manifest.asymmetryNotes.join(" ")}`,
         "Style target: clean game-production fighter concept, readable silhouette, no text, no logos, no watermark.",
         "Use an original character design and avoid resemblance to existing fighting-game characters.",
@@ -84,7 +84,7 @@ function stageJobs(manifest: StageAssetManifest): readonly ImagegenJob[] {
       requiredInputs: [],
       prompt: [
         `Create the ${layer.id} layer for ${manifest.displayName}.`,
-        `Design notes: ${manifest.moroccanDesignNotes.join(" ")}`,
+        `Design notes: ${manifest.designNotes.join(" ")}`,
         `Layer intent: ${layer.promptIntent}`,
         `Parallax: ${layer.parallax}. Keep the fighting lane readable and avoid text, logos, and real brand marks.`,
       ].join("\n"),

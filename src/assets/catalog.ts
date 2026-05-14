@@ -110,7 +110,7 @@ export const fighterAssetManifests: readonly FighterAssetManifest[] = [
     displayName: "Atlas Lion",
     engineCharacterId: "atlas-lion",
     archetype: "balanced close-range striker",
-    moroccanDesignNotes: [
+    designNotes: [
       "Inspired by Atlas mountain strength and Moroccan geometric textile trim.",
       "Use original costume motifs only; do not copy existing fighting-game characters.",
       "Palette should stay readable over warm zellige and cedar-toned stages.",
@@ -129,7 +129,7 @@ export const fighterAssetManifests: readonly FighterAssetManifest[] = [
     displayName: "Sahara Viper",
     engineCharacterId: "sahara-viper",
     archetype: "fast evasive mid-range fighter",
-    moroccanDesignNotes: [
+    designNotes: [
       "Inspired by Sahara movement, wrapped travel fabric, and restrained desert palette.",
       "Keep silhouette distinct from Atlas Lion through lighter stance and sharper angles.",
       "Use original visual language; no trademarks or real-world logos.",
@@ -151,7 +151,7 @@ export const meowtalFighterAssetManifests: readonly FighterAssetManifest[] = [
     displayName: "Gray Rabbit",
     engineCharacterId: "gray-rabbit",
     archetype: "upright hopping kickboxer with rapid spin pressure",
-    moroccanDesignNotes: [
+    designNotes: [
       "Meowtal production fighter: fluffy gray rabbit, expressive ears, clean upright two-legged martial stance.",
       "Normal gameplay animation must not swap into four-legged locomotion; only knockdown and lose may go grounded.",
       "Readable pale-gray silhouette, energetic green special trails, and consistent scale against the ginger tabby.",
@@ -170,7 +170,7 @@ export const meowtalFighterAssetManifests: readonly FighterAssetManifest[] = [
     displayName: "Ginger Tabby Cat",
     engineCharacterId: "ginger-tabby-cat",
     archetype: "upright acrobatic claw-and-tail striker",
-    moroccanDesignNotes: [
+    designNotes: [
       "Meowtal production fighter: fluffy orange tabby cat with clear stripes, bright face, and upright two-legged guard.",
       "Normal gameplay animation must not swap into four-legged locomotion; loaf-like personality should read as an upright idle attitude, not a crawl.",
       "Warm orange silhouette, green-yellow special energy, and consistent proportions across all moves.",
@@ -190,7 +190,7 @@ export const stageAssetManifests: readonly StageAssetManifest[] = [
   {
     id: "marrakesh-rooftop",
     displayName: "Marrakesh Rooftop",
-    moroccanDesignNotes: [
+    designNotes: [
       "Warm rooftop training stage with zellige geometry, cedar beams, and distant medina architecture.",
       "Readable fighting lane must stay uncluttered behind character silhouettes.",
       "No real brand marks, signage, or copyrighted characters.",
@@ -240,7 +240,7 @@ export const meowtalStageAssetManifests: readonly StageAssetManifest[] = [
   {
     id: "meowtal-courtyard",
     displayName: "Meowtal Courtyard",
-    moroccanDesignNotes: [
+    designNotes: [
       "Bright outdoor stone-paved courtyard built as layered parallax art for Meowtal Kombat.",
       "Readable central fighting lane with trees, bushes, walls, pillars, city/hills, dust, leaves, and warm arcade lighting.",
       "No fighters, HUD, text, real brand marks, signage, watermarks, or copyrighted characters are baked into the stage layers.",

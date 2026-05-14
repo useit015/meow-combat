@@ -64,7 +64,7 @@ describe("stage asset manifests", () => {
     for (const manifest of stageAssetManifests) {
       expect(validateStageManifest(manifest)).toEqual({ ok: true, errors: [] });
       expect(manifest.layers.length).toBeGreaterThanOrEqual(3);
-      expect(manifest.moroccanDesignNotes.join(" ")).toContain("zellige");
+      expect(manifest.designNotes.join(" ")).toContain("zellige");
       for (const layer of manifest.layers) {
         expect(layer.source.status).toBe("approved");
         expect(layer.source.outputPath).toBe(`/assets/generated/stages/${manifest.id}/${layer.id}.png`);

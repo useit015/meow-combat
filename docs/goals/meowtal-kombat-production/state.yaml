@@ -85,7 +85,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T116
+active_task: T117
 
 tasks:
   - id: T000
@@ -6045,7 +6045,7 @@ tasks:
   - id: T116
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: low
     objective: "Rename the generic asset manifest field moroccanDesignNotes to designNotes so Meowtal production tooling no longer carries stale project-specific terminology, while preserving legacy manifest content and runtime behavior."
     inputs:
@@ -6075,6 +6075,54 @@ tasks:
     stop_if:
       - "Requires changing asset data semantics, generated files, scene/gameplay behavior, package metadata, dependencies, or files outside allowed_files."
       - "Rename cascades into broader architecture beyond direct manifest field consumers."
+    receipt:
+      result: done
+      summary: "Renamed the generic asset manifest field from moroccanDesignNotes to designNotes across the manifest types, catalog entries, imagegen prompt builder, and direct asset-pipeline test. The asset data, legacy manifest content, Meowtal manifest content, generated files, gameplay, scene behavior, package metadata, and dependencies were unchanged."
+      changed_files:
+        - "src/assets/types.ts"
+        - "src/assets/catalog.ts"
+        - "src/assets/imagegenJobs.ts"
+        - "test/asset-pipeline.test.ts"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+      commands:
+        - cmd: "rg -n \"moroccanDesignNotes\" src test || true"
+          status: pass
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm test -- --run test/asset-pipeline.test.ts test/imagegen-jobs.test.ts"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+          status: pass
+        - cmd: "git diff --check"
+          status: pass
+      judge:
+        agent: "019e2890-ece7-7973-817a-bbd7dc32fc15"
+        result: approve
+        summary: "Judge approved T116: mechanical field rename, allowed files only, catalog data unchanged except property key, no remaining src/test references to moroccanDesignNotes, and verification passed."
+      notes:
+        - "Judge residual risk: external consumers outside src/test are not exhaustively covered, though this is a private app and full verify passed."
+  - id: T117
+    type: pm
+    assignee: PM
+    status: active
+    reasoning_hint: medium
+    objective: "Reconcile the remaining broad queued placeholder tasks T005/T006/T007/T008/T009/T011 against the concrete completed slices and decide the next safe step toward final audit. Do not edit product code or claim full completion in this task."
+    inputs:
+      - "Done receipts T020-T116 covering assets, parallax stage, HUD/UI, animation rows, combat shell, mobile touch, input fallback, smoke runbook, and identity hardening."
+      - "Broad queued placeholder tasks T005/T006/T007/T008/T009/T011 still have empty allowed_files/verify and block final completion if left queued."
+      - "T010 final production audit remains queued."
+    constraints:
+      - "Only edit GoalBuddy state."
+      - "Do not mark the overall goal complete."
+      - "Do not activate broad placeholder tasks as written with empty allowed_files/verify."
+      - "Only mark a placeholder done/superseded if concrete receipts already cover its objective well enough for final Judge audit to verify."
+      - "If coverage is uncertain, create one narrow follow-up Worker task with explicit allowed_files, verify, and stop_if instead of closing the placeholder."
+    expected_output:
+      - "Coverage map from broad placeholders to concrete receipts"
+      - "Status decisions for T005/T006/T007/T008/T009/T011"
+      - "Next active task: final audit if placeholders are covered, or one narrow follow-up Worker if a real gap remains"
     receipt: null
   - id: T005
     type: worker

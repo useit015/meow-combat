@@ -56,7 +56,7 @@ export interface FighterAssetManifest {
   displayName: string;
   engineCharacterId: string;
   archetype: string;
-  moroccanDesignNotes: readonly string[];
+  designNotes: readonly string[];
   asymmetryNotes: readonly string[];
   canonicalReference: ImagegenSource;
   animations: readonly FighterAnimationSpec[];
@@ -72,7 +72,7 @@ export interface StageLayerSpec {
 export interface StageAssetManifest {
   id: string;
   displayName: string;
-  moroccanDesignNotes: readonly string[];
+  designNotes: readonly string[];
   layers: readonly StageLayerSpec[];
 }
 
