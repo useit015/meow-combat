@@ -1,9 +1,9 @@
 {
-  "name": "moroccan-kof-engine",
+  "name": "meowtal-kombat",
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Production-oriented TypeScript web fighting-game foundation with a deterministic combat core and Phaser shell.",
+  "description": "Production-oriented TypeScript web fighting game where a gray rabbit and ginger tabby cat clash in a bright parallax courtyard.",
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "build": "tsc -p tsconfig.json && vite build",

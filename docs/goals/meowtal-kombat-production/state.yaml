@@ -85,7 +85,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T113
+active_task: T114
 
 tasks:
   - id: T000
@@ -5869,7 +5869,7 @@ tasks:
   - id: T113
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: low
     objective: "Refresh package metadata so npm/package-lock identity matches Meowtal Kombat instead of the stale Moroccan KOF engine name, without changing scripts, dependencies, source code, assets, tests, or gameplay."
     inputs:
@@ -5896,6 +5896,64 @@ tasks:
     stop_if:
       - "Requires script changes, dependency changes, npm install lockfile churn beyond root package identity, source code, assets, tests, build output, or gameplay changes."
       - "Files outside allowed_files are needed."
+    receipt:
+      result: done
+      summary: "Updated package metadata from moroccan-kof-engine to meowtal-kombat, including package.json name/description and the package-lock root package name. Scripts, dependencies, devDependencies, lockfile dependency graph, source code, assets, tests, and gameplay behavior were unchanged."
+      changed_files:
+        - "package.json"
+        - "package-lock.json"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+      commands:
+        - cmd: "node -e \"const p=require('./package.json'); const l=require('./package-lock.json'); if (p.name !== 'meowtal-kombat' || l.name !== p.name || l.packages[''].name !== p.name) process.exit(1);\""
+          status: pass
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+          status: pass
+        - cmd: "git diff --check"
+          status: pass
+        - cmd: "rg -n \"moroccan-kof-engine\" package.json package-lock.json README.md || true"
+          status: pass
+      judge:
+        agent: "019e2890-ece7-7973-817a-bbd7dc32fc15"
+        result: approve
+        summary: "Judge approved T113: diff was limited to allowed package metadata files, package-lock root identity matches package.json, scripts/dependency counts stayed unchanged, and verification evidence passed."
+      notes:
+        - "Residual production gap: default asset job/readiness helpers still default to legacy Atlas/Marrakesh manifests unless callers pass Meowtal manifests explicitly."
+  - id: T114
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: low
+    objective: "Switch the default asset job/readiness helper APIs to the current Meowtal fighter and courtyard manifests while keeping legacy Atlas/Marrakesh manifests available for explicit tests or historical reuse."
+    inputs:
+      - "buildImagegenJobs() currently defaults to legacy fighterAssetManifests/stageAssetManifests."
+      - "buildAssetReadinessSummary() currently defaults to legacy fighterAssetManifests/stageAssetManifests."
+      - "Runtime scene already passes Meowtal manifests explicitly, but runbook/tooling defaults should match current production identity."
+    constraints:
+      - "Do not remove legacy Atlas/Marrakesh manifests, assets, or tests beyond the narrow default-helper expectation updates."
+      - "Do not change gameplay, scene rendering, generated assets, audio, package metadata, dependencies, or build output by hand."
+      - "Keep the slice to helper defaults and focused tests."
+    expected_output:
+      - "Default buildImagegenJobs() returns gray-rabbit/ginger-tabby-cat and meowtal-courtyard jobs."
+      - "Default buildAssetReadinessSummary() summarizes Meowtal production assets."
+      - "Focused tests prove explicit legacy manifests can still be passed if needed."
+    allowed_files:
+      - "src/assets/imagegenJobs.ts"
+      - "src/assets/readiness.ts"
+      - "test/imagegen-jobs.test.ts"
+      - "test/asset-readiness.test.ts"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+    verify:
+      - "npm run typecheck"
+      - "npm test -- --run test/imagegen-jobs.test.ts test/asset-readiness.test.ts"
+      - "npm run verify"
+      - "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+    stop_if:
+      - "Requires removing legacy manifests/assets, changing game scene behavior, generated assets, package metadata, dependencies, or files outside allowed_files."
+      - "Tests reveal broader architecture coupling that needs Scout/Judge decomposition before changing defaults."
     receipt: null
   - id: T005
     type: worker
