@@ -1,4 +1,4 @@
-import { fighterAssetManifests, stageAssetManifests } from "./catalog";
+import { meowtalFighterAssetManifests, meowtalStageAssetManifests } from "./catalog";
 import type {
   AssetGenerationStatus,
   FighterAnimationSpec,
@@ -22,14 +22,15 @@ export interface ImagegenJob {
 }
 
 export function buildImagegenJobs(
-  fighters: readonly FighterAssetManifest[] = fighterAssetManifests,
-  stages: readonly StageAssetManifest[] = stageAssetManifests,
+  fighters: readonly FighterAssetManifest[] = meowtalFighterAssetManifests,
+  stages: readonly StageAssetManifest[] = meowtalStageAssetManifests,
 ): readonly ImagegenJob[] {
   return [...fighters.flatMap(fighterJobs), ...stages.flatMap(stageJobs)];
 }
 
 function fighterJobs(manifest: FighterAssetManifest): readonly ImagegenJob[] {
-  const canonicalPath = `assets/source/imagegen/fighters/${manifest.id}/canonical-reference.png`;
+  const canonicalPath =
+    manifest.canonicalReference.outputPath ?? `assets/source/imagegen/fighters/${manifest.id}/canonical-reference.png`;
   return [
     sourceJob({
       id: `${manifest.id}:canonical-reference`,
@@ -40,7 +41,7 @@ function fighterJobs(manifest: FighterAssetManifest): readonly ImagegenJob[] {
       requiredInputs: [],
       prompt: [
         `Create a canonical full-body reference for ${manifest.displayName}, ${manifest.archetype}.`,
-        `Moroccan design notes: ${manifest.moroccanDesignNotes.join(" ")}`,
+        `Design notes: ${manifest.moroccanDesignNotes.join(" ")}`,
         `Asymmetry notes: ${manifest.asymmetryNotes.join(" ")}`,
         "Style target: clean game-production fighter concept, readable silhouette, no text, no logos, no watermark.",
         "Use an original character design and avoid resemblance to existing fighting-game characters.",
@@ -83,7 +84,7 @@ function stageJobs(manifest: StageAssetManifest): readonly ImagegenJob[] {
       requiredInputs: [],
       prompt: [
         `Create the ${layer.id} layer for ${manifest.displayName}.`,
-        `Moroccan design notes: ${manifest.moroccanDesignNotes.join(" ")}`,
+        `Design notes: ${manifest.moroccanDesignNotes.join(" ")}`,
         `Layer intent: ${layer.promptIntent}`,
         `Parallax: ${layer.parallax}. Keep the fighting lane readable and avoid text, logos, and real brand marks.`,
       ].join("\n"),

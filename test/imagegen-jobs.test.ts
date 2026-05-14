@@ -3,16 +3,21 @@ import {
   REQUIRED_FIGHTER_ANIMATIONS,
   buildImagegenJobs,
   fighterAssetManifests,
+  meowtalFighterAssetManifests,
+  meowtalStageAssetManifests,
   stageAssetManifests,
 } from "../src/assets";
 
 describe("imagegen jobs", () => {
   it("creates deterministic jobs for every fighter reference, animation row, and stage layer", () => {
     const jobs = buildImagegenJobs();
-    const expectedFighterJobs = fighterAssetManifests.length * (1 + REQUIRED_FIGHTER_ANIMATIONS.length);
-    const expectedStageJobs = stageAssetManifests.reduce((total, stage) => total + stage.layers.length, 0);
+    const expectedFighterJobs = meowtalFighterAssetManifests.length * (1 + REQUIRED_FIGHTER_ANIMATIONS.length);
+    const expectedStageJobs = meowtalStageAssetManifests.reduce((total, stage) => total + stage.layers.length, 0);
 
     expect(jobs).toHaveLength(expectedFighterJobs + expectedStageJobs);
+    expect(new Set(jobs.map((job) => job.subjectId))).toEqual(
+      new Set(["gray-rabbit", "ginger-tabby-cat", "meowtal-courtyard"]),
+    );
     expect(new Set(jobs.map((job) => job.id)).size).toBe(jobs.length);
     expect(new Set(jobs.map((job) => job.promptSlug)).size).toBe(jobs.length);
   });
@@ -23,7 +28,7 @@ describe("imagegen jobs", () => {
     expect(rowJobs.length).toBeGreaterThan(0);
     for (const job of rowJobs) {
       expect(job.requiredInputs).toHaveLength(1);
-      expect(job.requiredInputs[0]).toContain("/canonical-reference.png");
+      expect(job.requiredInputs[0]).toBe(`assets/source/imagegen/fighters/${job.subjectId}/canonical-character-sheet.png`);
       expect(job.outputPath).toMatch(/^assets\/source\/imagegen\/fighters\/.+\/.+\.png$/);
       expect(job.prompt).toContain("horizontal spritesheet row");
       expect(job.prompt).toContain("preserve face, outfit, proportions, palette, and silhouette");
@@ -37,43 +42,17 @@ describe("imagegen jobs", () => {
     const blockedJobs = jobs.filter((job) => job.status === "blocked");
 
     expect(generatedJobs.map((job) => job.id).sort()).toEqual([
-      "atlas-lion:canonical-reference",
-      "sahara-viper:canonical-reference",
+      "ginger-tabby-cat:canonical-reference",
+      "gray-rabbit:canonical-reference",
     ]);
-    expect(approvedJobs.map((job) => job.id).sort()).toEqual([
-      "atlas-lion:blockstun",
-      "atlas-lion:crouch",
-      "atlas-lion:heavy-punch",
-      "atlas-lion:hitstun",
-      "atlas-lion:idle",
-      "atlas-lion:jump",
-      "atlas-lion:knockdown",
-      "atlas-lion:light-kick",
-      "atlas-lion:light-punch",
-      "atlas-lion:lose",
-      "atlas-lion:special",
-      "atlas-lion:walk-back",
-      "atlas-lion:walk-forward",
-      "atlas-lion:win",
-      "marrakesh-rooftop:far-architecture",
-      "marrakesh-rooftop:foreground-props",
-      "marrakesh-rooftop:playfield",
-      "marrakesh-rooftop:sky",
-      "sahara-viper:blockstun",
-      "sahara-viper:crouch",
-      "sahara-viper:heavy-punch",
-      "sahara-viper:hitstun",
-      "sahara-viper:idle",
-      "sahara-viper:jump",
-      "sahara-viper:knockdown",
-      "sahara-viper:light-kick",
-      "sahara-viper:light-punch",
-      "sahara-viper:lose",
-      "sahara-viper:special",
-      "sahara-viper:walk-back",
-      "sahara-viper:walk-forward",
-      "sahara-viper:win",
-    ]);
+    const expectedApprovedIds = [
+      ...meowtalFighterAssetManifests.flatMap((fighter) =>
+        REQUIRED_FIGHTER_ANIMATIONS.map((animationId) => `${fighter.id}:${animationId}`),
+      ),
+      ...meowtalStageAssetManifests.flatMap((stage) => stage.layers.map((layer) => `${stage.id}:${layer.id}`)),
+    ].sort();
+
+    expect(approvedJobs.map((job) => job.id).sort()).toEqual(expectedApprovedIds);
     for (const job of generatedJobs) {
       expect(job.blocker).toBeUndefined();
       if (job.kind === "stage-layer") {
@@ -96,5 +75,14 @@ describe("imagegen jobs", () => {
       expect(job.blocker).toContain("OPENAI_API_KEY");
       expect(job.outputPath).toContain("assets/source/imagegen/");
     }
+  });
+
+  it("still supports legacy Atlas/Marrakesh jobs when manifests are passed explicitly", () => {
+    const jobs = buildImagegenJobs(fighterAssetManifests, stageAssetManifests);
+
+    expect(jobs.map((job) => job.id)).toContain("atlas-lion:canonical-reference");
+    expect(jobs.map((job) => job.id)).toContain("sahara-viper:canonical-reference");
+    expect(jobs.map((job) => job.id)).toContain("marrakesh-rooftop:sky");
+    expect(jobs.some((job) => job.subjectId === "gray-rabbit")).toBe(false);
   });
 });

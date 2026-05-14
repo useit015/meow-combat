@@ -85,7 +85,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T114
+active_task: T115
 
 tasks:
   - id: T000
@@ -5925,7 +5925,7 @@ tasks:
   - id: T114
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: low
     objective: "Switch the default asset job/readiness helper APIs to the current Meowtal fighter and courtyard manifests while keeping legacy Atlas/Marrakesh manifests available for explicit tests or historical reuse."
     inputs:
@@ -5954,6 +5954,64 @@ tasks:
     stop_if:
       - "Requires removing legacy manifests/assets, changing game scene behavior, generated assets, package metadata, dependencies, or files outside allowed_files."
       - "Tests reveal broader architecture coupling that needs Scout/Judge decomposition before changing defaults."
+    receipt:
+      result: done
+      summary: "Switched default buildImagegenJobs() and buildAssetReadinessSummary() helper APIs to current Meowtal fighter and courtyard manifests. Legacy Atlas/Marrakesh manifests remain exported and covered through explicit-argument tests, while no gameplay scene behavior, assets, dependencies, package metadata, or generated files changed."
+      changed_files:
+        - "src/assets/imagegenJobs.ts"
+        - "src/assets/readiness.ts"
+        - "test/imagegen-jobs.test.ts"
+        - "test/asset-readiness.test.ts"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+      commands:
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm test -- --run test/imagegen-jobs.test.ts test/asset-readiness.test.ts"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+          status: pass
+        - cmd: "git diff --check"
+          status: pass
+      judge:
+        agent: "019e2890-ece7-7973-817a-bbd7dc32fc15"
+        result: approve
+        summary: "Judge approved T114: diff stayed inside allowed files, default helper APIs now use Meowtal manifests, explicit legacy support remains tested, and required verification passed."
+      notes:
+        - "A non-required raw Node import of TypeScript source failed because extensionless TS imports are resolved by Vite/Vitest, not plain Node; Judge agreed this was not material to T114."
+        - "Residual production gap: runtime scene class/file naming still says MoroccanArenaScene."
+  - id: T115
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: low
+    objective: "Rename the Phaser scene class/file from MoroccanArenaScene to MeowtalArenaScene so runtime source naming matches the current product identity, without changing scene behavior, rendering, assets, combat, controls, or public routes."
+    inputs:
+      - "src/game/MoroccanArenaScene.ts is the only remaining runtime scene class/file with stale Moroccan product naming."
+      - "src/main.ts imports MoroccanArenaScene."
+      - "T112/T113/T114 already refreshed README, package metadata, and asset helper defaults."
+    constraints:
+      - "Rename only the scene class/file/import and internal Phaser scene key."
+      - "Do not change gameplay behavior, rendering, generated assets, combat, controls, input, package scripts, dependencies, tests beyond import/name expectations, or public URLs."
+      - "Keep one small coherent commit."
+    expected_output:
+      - "src/game/MeowtalArenaScene.ts exists and exports MeowtalArenaScene."
+      - "src/main.ts imports and registers MeowtalArenaScene."
+      - "No MoroccanArenaScene references remain in src/ or test/."
+    allowed_files:
+      - "src/game/MoroccanArenaScene.ts"
+      - "src/game/MeowtalArenaScene.ts"
+      - "src/main.ts"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+    verify:
+      - "rg -n \"MoroccanArenaScene\" src test || true"
+      - "npm run typecheck"
+      - "npm run verify"
+      - "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+    stop_if:
+      - "Requires gameplay/rendering/control/combat changes, route changes, dependency changes, generated asset changes, or files outside allowed_files."
+      - "Tests reveal external scene-key coupling that needs a compatibility decision before renaming."
     receipt: null
   - id: T005
     type: worker

@@ -1,4 +1,4 @@
-import { fighterAssetManifests, stageAssetManifests } from "./catalog";
+import { meowtalFighterAssetManifests, meowtalStageAssetManifests } from "./catalog";
 import { buildImagegenJobs } from "./imagegenJobs";
 import { resolveStageRuntimeLayers } from "./stageRuntime";
 import type { FighterAssetManifest, StageAssetManifest } from "./types";
@@ -19,8 +19,8 @@ export interface AssetReadinessSummary {
 }
 
 export function buildAssetReadinessSummary(
-  fighters: readonly FighterAssetManifest[] = fighterAssetManifests,
-  stages: readonly StageAssetManifest[] = stageAssetManifests,
+  fighters: readonly FighterAssetManifest[] = meowtalFighterAssetManifests,
+  stages: readonly StageAssetManifest[] = meowtalStageAssetManifests,
 ): AssetReadinessSummary {
   const jobs = buildImagegenJobs(fighters, stages);
   const stageRuntimeLayers = stages.flatMap((stage) => resolveStageRuntimeLayers(stage));
