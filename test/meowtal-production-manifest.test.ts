@@ -11,7 +11,7 @@ import {
 } from "../src/assets/meowtalProductionManifest";
 
 describe("Meowtal production manifest", () => {
-  it("defines the production asset families without approving runtime files", () => {
+  it("defines the production asset families without switching broad runtime content", () => {
     expect(meowtalProductionManifest.title).toBe("Meowtal Kombat");
     expect(meowtalProductionManifest.fighters.map((fighter) => fighter.id)).toEqual([
       "gray-rabbit",
@@ -31,11 +31,16 @@ describe("Meowtal production manifest", () => {
     expect(meowtalProductionManifest.audioCues.map((cue) => cue.id)).toContain("cat-aura-blast");
 
     const entries = collectMeowtalProvenanceEntries();
+    const runtimeEntries = entries.filter((entry) => entry.runtimePath !== null);
     expect(entries).toHaveLength(2 + 2 * REQUIRED_FIGHTER_ANIMATIONS.length + 6 + 15 + 11);
-    expect(entries.every((entry) => entry.runtimePath === null)).toBe(true);
+    expect(runtimeEntries.map((entry) => entry.assetId).sort()).toEqual([
+      "ginger-tabby-cat:idle",
+      "gray-rabbit:idle",
+    ]);
+    expect(runtimeEntries.every((entry) => entry.status === "approved")).toBe(true);
   });
 
-  it("tracks generated idle rows while keeping non-idle rows blocked", () => {
+  it("tracks approved idle rows while keeping non-idle rows blocked", () => {
     expect(canonicalSheetsApproved()).toBe(true);
 
     const blockedRows = blockedAnimationRowsUntilCanonicalApproved();
@@ -46,24 +51,25 @@ describe("Meowtal production manifest", () => {
 
     expect(animationRows).toHaveLength(2 * REQUIRED_FIGHTER_ANIMATIONS.length);
     expect(idleRows).toHaveLength(2);
-    expect(idleRows.every((row) => row.provenance.status === "generated")).toBe(true);
-    expect(idleRows.every((row) => row.provenance.runtimePath === null)).toBe(true);
+    expect(idleRows.every((row) => row.provenance.status === "approved")).toBe(true);
+    expect(idleRows.every((row) => row.provenance.runtimePath?.includes("/assets/generated/fighters/"))).toBe(true);
     expect(nonIdleRows.every((row) => row.provenance.status === "blocked")).toBe(true);
-    expect(nonIdleRows.every((row) => row.provenance.blocker?.includes("idle row QA"))).toBe(true);
+    expect(nonIdleRows.every((row) => row.provenance.blocker?.includes("separate scoped generation task"))).toBe(true);
   });
 
-  it("tracks generated idle source files without approving runtime use", () => {
+  it("tracks approved idle source and runtime files", () => {
     for (const fighter of meowtalProductionManifest.fighters) {
       const idleRow = fighter.animationRows.find((row) => row.animationId === "idle");
 
-      expect(idleRow?.provenance.status).toBe("generated");
+      expect(idleRow?.provenance.status).toBe("approved");
       expect(idleRow?.provenance.sourcePath).toBe(`assets/source/imagegen/fighters/${fighter.id}/idle.png`);
-      expect(idleRow?.provenance.runtimePath).toBeNull();
+      expect(idleRow?.provenance.runtimePath).toBe(`/assets/generated/fighters/${fighter.id}/idle.png`);
       expect(idleRow?.provenance.license.kind).toBe("owned-generated");
-      expect(idleRow?.provenance.approvalNotes).toContain("Generated source idle row candidate");
+      expect(idleRow?.provenance.approvalNotes).toContain("Approved runtime idle row");
       expect(idleRow?.provenance.approvalNotes).toContain("upright two-legged");
       expect(idleRow?.provenance.approvalNotes).toContain("transparent alpha");
       expect(existsSync(join(process.cwd(), idleRow?.provenance.sourcePath ?? ""))).toBe(true);
+      expect(existsSync(join(process.cwd(), "public", idleRow?.provenance.runtimePath ?? ""))).toBe(true);
     }
   });
 

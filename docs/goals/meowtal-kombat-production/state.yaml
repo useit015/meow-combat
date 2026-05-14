@@ -83,7 +83,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T028
+active_task: T029
 
 tasks:
   - id: T000
@@ -843,7 +843,7 @@ tasks:
   - id: T028
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: low
     objective: "Promote only the approved normalized Meowtal idle rows to runtime assets. Copy normalized candidates into public runtime paths, update manifest provenance from generated/non-runtime to approved/runtime for only gray-rabbit:idle and ginger-tabby-cat:idle, update provenance docs/tests, and keep every non-idle Meowtal row blocked."
     allowed_files:
@@ -869,6 +869,66 @@ tasks:
       - "Any non-idle animation row, canonical sheet, stage, UI, HUD, audio, game config, or selectable runtime character switch needs editing."
       - "Any source imagegen PNG must be regenerated or touched."
       - "Manifest validation cannot represent only these two idle rows as approved while all non-idle rows remain blocked."
+    receipt:
+      result: done
+      summary: "Promoted only the two approved normalized Meowtal idle rows into public runtime assets and updated the Meowtal manifest/docs/tests so gray-rabbit:idle and ginger-tabby-cat:idle are approved runtime assets. Every non-idle Meowtal row remains blocked behind a separate scoped generation task, and no runtime character selection or gameplay config was switched."
+      changed_files:
+        - "public/assets/generated/fighters/gray-rabbit/idle.png"
+        - "public/assets/generated/fighters/ginger-tabby-cat/idle.png"
+        - "src/assets/meowtalProductionManifest.ts"
+        - "docs/assets/meowtal-kombat-provenance.md"
+        - "test/meowtal-production-manifest.test.ts"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+      evidence:
+        - "public/assets/generated/fighters/gray-rabbit/idle.png"
+        - "public/assets/generated/fighters/ginger-tabby-cat/idle.png"
+        - "src/assets/meowtalProductionManifest.ts"
+      checksums:
+        gray_rabbit_idle_runtime_sha256: "5e0823f8019afea540a02efe856347b1335fb92da2829d9c6921d7e9d4479a71"
+        ginger_tabby_cat_idle_runtime_sha256: "a15b46df6b6510c51d164caaf30b9217d99370d133c0d41d13eb6ecbd5d890f5"
+      commands:
+        - cmd: "node scripts/normalize-fighter-rows.mjs --animation idle --fighters gray-rabbit,ginger-tabby-cat"
+          status: pass
+        - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha public/assets/generated/fighters/gray-rabbit/idle.png public/assets/generated/fighters/ginger-tabby-cat/idle.png"
+          status: pass
+        - cmd: "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-qa.test.ts"
+          status: pass
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+      notes:
+        - "sips reported pixelWidth 2048, pixelHeight 256, hasAlpha yes for both public runtime PNGs."
+        - "Full verify passed with 21 test files and 102 tests."
+        - "No non-idle rows, canonical sheets, stage, UI, HUD, audio, game config, selectable runtime character switch, or source imagegen PNGs were touched."
+  - id: T029
+    type: judge
+    assignee: Judge
+    status: active
+    reasoning_hint: high
+    objective: "Scope the next small animation-row generation batch after approved idle runtime rows. Choose a bounded follow-up that moves toward a complete Meowtal fighter set while preserving visual consistency and small commits."
+    inputs:
+      - "T027 idle visual QA approval"
+      - "T028 idle runtime promotion receipt"
+      - "assets/source/imagegen/fighters/gray-rabbit/canonical-character-sheet.png"
+      - "assets/source/imagegen/fighters/ginger-tabby-cat/canonical-character-sheet.png"
+      - "public/assets/generated/fighters/gray-rabbit/idle.png"
+      - "public/assets/generated/fighters/ginger-tabby-cat/idle.png"
+      - "src/assets/meowtalProductionManifest.ts"
+      - "Goal requirement: complete consistent fighter animation set, upright two-legged rig, and small committed batches"
+    constraints:
+      - "Do not implement."
+      - "Do not switch runtime character selection to Meowtal yet."
+      - "Do not generate stage, UI, HUD, logo, particles, audio, or broad asset-pack files in the next animation-row slice."
+      - "Prefer the smallest row set that proves motion consistency beyond idle without creating a large review burden."
+      - "Require visual QA gates for stance, species identity, markings, proportions, camera angle, lighting, scale, outline/detail level, frame separation, and no text/watermarks/background art."
+    expected_output:
+      - "Decision and rationale"
+      - "Exact next Worker objective"
+      - "allowed_files"
+      - "verify commands"
+      - "stop_if conditions"
+      - "visual QA expectations"
     receipt: null
   - id: T005
     type: worker
@@ -1020,15 +1080,15 @@ checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T026
+    task: T028
     commands:
-      - cmd: "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-readiness.test.ts"
-        status: pass
       - cmd: "node scripts/normalize-fighter-rows.mjs --animation idle --fighters gray-rabbit,ginger-tabby-cat"
         status: pass
-      - cmd: "npm run imagegen:qa"
+      - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha public/assets/generated/fighters/gray-rabbit/idle.png public/assets/generated/fighters/ginger-tabby-cat/idle.png"
         status: pass
-      - cmd: "npm test -- --run test/asset-qa.test.ts"
+      - cmd: "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-qa.test.ts"
+        status: pass
+      - cmd: "npm run typecheck"
         status: pass
       - cmd: "npm run verify"
         status: pass

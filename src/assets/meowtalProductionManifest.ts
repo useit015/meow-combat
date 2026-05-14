@@ -125,11 +125,16 @@ const idleRowSourcePaths: Readonly<Record<MeowtalFighterId, string>> = {
   "ginger-tabby-cat": "assets/source/imagegen/fighters/ginger-tabby-cat/idle.png",
 };
 
+const idleRowRuntimePaths: Readonly<Record<MeowtalFighterId, string>> = {
+  "gray-rabbit": "/assets/generated/fighters/gray-rabbit/idle.png",
+  "ginger-tabby-cat": "/assets/generated/fighters/ginger-tabby-cat/idle.png",
+};
+
 const idleRowQaNotes: Readonly<Record<MeowtalFighterId, string>> = {
   "gray-rabbit":
-    "Generated source idle row candidate. Visual QA: eight separated upright two-legged gray rabbit idle frames, no visible text/watermark/frame numbers, same stance and proportions as the canonical sheet, chroma-key removed to transparent alpha, pending normalized-row review before runtime approval.",
+    "Approved runtime idle row. Visual QA: eight separated upright two-legged gray rabbit idle frames, no visible text/watermark/frame numbers, same stance and proportions as the canonical sheet, chroma-key removed to transparent alpha, normalized to 2048x256 RGBA, and approved for runtime publication by T027.",
   "ginger-tabby-cat":
-    "Generated source idle row candidate. Visual QA: eight separated upright two-legged ginger tabby idle frames, no visible text/watermark/frame numbers, same stance and proportions as the canonical sheet, chroma-key removed to transparent alpha, pending normalized-row review before runtime approval.",
+    "Approved runtime idle row. Visual QA: eight separated upright two-legged ginger tabby idle frames, no visible text/watermark/frame numbers, same stance and proportions as the canonical sheet, chroma-key removed to transparent alpha, normalized to 2048x256 RGBA, and approved for runtime publication by T027.",
 };
 
 const animationFrameCounts: Readonly<Record<FighterAnimationId, number>> = {
@@ -268,18 +273,18 @@ export function validateMeowtalProductionManifest(
     }
     for (const row of fighter.animationRows) {
       if (row.animationId === "idle") {
-        if (row.provenance.status !== "generated") {
-          errors.push(`${row.provenance.assetId}: idle row should be generated after T026`);
+        if (row.provenance.status !== "approved") {
+          errors.push(`${row.provenance.assetId}: idle row should be runtime-approved after T028`);
         }
-        if (row.provenance.runtimePath) {
-          errors.push(`${row.provenance.assetId}: generated idle row is not runtime-approved yet`);
+        if (!row.provenance.runtimePath?.includes("/assets/generated/fighters/")) {
+          errors.push(`${row.provenance.assetId}: approved idle row requires a generated runtime path`);
         }
       } else {
         if (row.provenance.status !== "blocked") {
           errors.push(`${row.provenance.assetId}: non-idle animation rows must remain blocked`);
         }
-        if (!row.provenance.blocker?.includes("idle row QA")) {
-          errors.push(`${row.provenance.assetId}: non-idle row blocker must reference idle row QA`);
+        if (!row.provenance.blocker?.includes("separate scoped generation task")) {
+          errors.push(`${row.provenance.assetId}: non-idle row blocker must reference a separate scoped generation task`);
         }
       }
     }
@@ -322,7 +327,7 @@ function makeFighters(): readonly MeowtalFighterAssetPlan[] {
         cellSize: 256,
         provenance:
           animationId === "idle"
-            ? generatedIdleRowProvenance(fighterId, details)
+            ? approvedIdleRowProvenance(fighterId, details)
             : blockedAnimationRowProvenance(fighterId, animationId, details),
       })),
     };
@@ -339,11 +344,11 @@ function blockedAnimationRowProvenance(
     promptSlug: `${fighterId}-${animationId}-animation-row`,
     prompt: animationRowPrompt(details.displayName, animationId),
     status: "blocked",
-    blocker: "Wait for idle row QA and runtime-row approval before generating additional animation rows.",
+    blocker: "Idle row QA/runtime approval is complete; wait for a separate scoped generation task before generating this non-idle animation row.",
   });
 }
 
-function generatedIdleRowProvenance(
+function approvedIdleRowProvenance(
   fighterId: MeowtalFighterId,
   details: (typeof fighterDetails)[MeowtalFighterId],
 ): AssetProvenance {
@@ -352,14 +357,15 @@ function generatedIdleRowProvenance(
       assetId: `${fighterId}:idle`,
       promptSlug: `${fighterId}-idle-animation-row`,
       prompt: animationRowPrompt(details.displayName, "idle"),
-      status: "generated",
+      status: "approved",
       blocker: "",
     }),
     sourcePath: idleRowSourcePaths[fighterId],
-    runtimePath: null,
+    runtimePath: idleRowRuntimePaths[fighterId],
     license: {
       kind: "owned-generated",
-      summary: "Generated with Codex built-in imagegen for this project; source row only, pending normalized-row QA before runtime use.",
+      summary:
+        "Generated with Codex built-in imagegen for this project; approved normalized runtime idle row after T027 visual QA.",
       sourceUrl: null,
       attribution: null,
       checkedOn: generatedOn,
@@ -368,6 +374,7 @@ function generatedIdleRowProvenance(
     transforms: [
       "Copied selected built-in imagegen output into the repo source asset tree.",
       "Removed generated chroma-key background to transparent alpha with the imagegen remove_chroma_key helper.",
+      "Normalized to an 8-frame 2048x256 runtime spritesheet and copied into public/assets/generated.",
     ],
     approvalNotes: idleRowQaNotes[fighterId],
     blocker: null,

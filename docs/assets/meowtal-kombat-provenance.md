@@ -1,13 +1,13 @@
 # Meowtal Kombat Asset Provenance
 
-This file is the production provenance ledger for Meowtal Kombat assets. T020 only creates the source-level scaffold; no binary image or audio assets were generated or approved by this task.
+This file is the production provenance ledger for Meowtal Kombat assets. T020 created the source-level scaffold; later tasks append generated, reviewed, and approved runtime assets in small batches.
 
 ## Rules
 
 - Do not commit API keys or provider secrets.
 - Do not use untracked external images, audio, fonts, logos, or copied fighting-game branding.
 - Every runtime asset needs an asset id, source or provider, prompt or source URL, license or terms summary, creation or download date, transform notes, approval notes, and runtime path.
-- Character animation rows stay blocked until both canonical character sheets are generated, reviewed, and approved.
+- Character animation rows stay blocked until both canonical character sheets are generated, reviewed, and approved; non-idle rows require a separate scoped generation task after idle runtime approval.
 - The arena must be built as layered parallax art, not a single flat backdrop.
 - External library assets such as Pixabay require source URL, license review, attribution where required, and download date before approval.
 
@@ -57,22 +57,24 @@ These are approved before animation rows as style locks only. Required sheet str
 
 ### Character Animation Rows
 
-Status: idle source candidates generated; all non-idle rows remain blocked pending idle row QA.
+Status: idle rows approved for runtime publication; all non-idle rows remain blocked pending separate scoped generation.
 
 - `gray-rabbit:idle`
   - Source path: `assets/source/imagegen/fighters/gray-rabbit/idle.png`
+  - Runtime path: `/assets/generated/fighters/gray-rabbit/idle.png`
   - Provider: Codex built-in imagegen
   - Generated on: 2026-05-14
   - License status: owned generated source asset
-  - Runtime status: not approved; normalize and QA before copying to `public/assets/generated`
-  - QA notes: eight separated upright two-legged gray rabbit idle frames, no visible text/watermark/frame numbers, chroma-key removed to transparent alpha, pending normalized-row review.
+  - Runtime status: approved by T027 visual QA and promoted by T028
+  - QA notes: eight separated upright two-legged gray rabbit idle frames, no visible text/watermark/frame numbers, chroma-key removed to transparent alpha, normalized to 2048x256 RGBA.
 - `ginger-tabby-cat:idle`
   - Source path: `assets/source/imagegen/fighters/ginger-tabby-cat/idle.png`
+  - Runtime path: `/assets/generated/fighters/ginger-tabby-cat/idle.png`
   - Provider: Codex built-in imagegen
   - Generated on: 2026-05-14
   - License status: owned generated source asset
-  - Runtime status: not approved; normalize and QA before copying to `public/assets/generated`
-  - QA notes: eight separated upright two-legged ginger tabby idle frames, no visible text/watermark/frame numbers, chroma-key removed to transparent alpha, pending normalized-row review.
+  - Runtime status: approved by T027 visual QA and promoted by T028
+  - QA notes: eight separated upright two-legged ginger tabby idle frames, no visible text/watermark/frame numbers, chroma-key removed to transparent alpha, normalized to 2048x256 RGBA.
 
 Each fighter needs rows for idle, walk-forward, walk-back, crouch, jump, light-punch, heavy-punch, light-kick, special, hitstun, blockstun, knockdown, win, and lose. Rows must preserve the shared upright two-legged rig, species identity, markings, proportions, lighting, camera angle, scale, outline/detail level, and rendering style.
 
