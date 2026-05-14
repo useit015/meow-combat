@@ -85,7 +85,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T095
+active_task: T096
 
 tasks:
   - id: T000
@@ -4833,7 +4833,7 @@ tasks:
   - id: T095
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Perform strict visual QA on the six T094 source-only Meowtal HUD/logo/UI candidates and decide whether they are approved for a later narrow runtime-promotion task or require touch-up/regeneration. Do not modify assets or promote runtime UI."
     inputs:
@@ -4853,6 +4853,59 @@ tasks:
       - "Any source image contains copied Mortal Kombat branding, real brand marks, watermarks, extra characters, baked fighter sprites, illegible text, or unusable alpha/key artifacts."
       - "Any UI candidate is not production-promotable after one narrow touch-up/regeneration pass."
       - "The next step would require runtime UI rendering, gameplay/combat, audio, fighter, or stage changes before QA decision."
+    receipt:
+      completed_at: "2026-05-14"
+      result: done
+      summary: "Judge approved all six T094 source-only UI candidates for a later narrow runtime-promotion task. The title/announcement text is crisp and readable, the HUD frame/health bars/timer frame are production-promotable and visually fit the Meowtal courtyard/fighter direction, no copied Mortal Kombat branding or real brand marks were found, and manifest/provenance remained generated source-only with runtimePath null."
+      evidence:
+        - "Visual QA approved readable MEOWTAL KOMBAT, FIGHT!, K.O., RABBIT WINS, and TABBY WINS lettering."
+        - "Visual QA approved HUD frame, rabbit health bar, cat health bar, and timer frame as transparent-friendly source candidates."
+        - "No copied Mortal Kombat dragon/symbol branding, real brand marks, watermarks, extra characters, baked fighter sprites, illegible text, or visible magenta artifacts found."
+        - "npm test -- --run test/meowtal-production-manifest.test.ts passed during Judge audit."
+      commands:
+        - cmd: "Visual inspection of assets/source/imagegen/ui/meowtal/*.png"
+          status: pass
+        - cmd: "npm test -- --run test/meowtal-production-manifest.test.ts"
+          status: pass
+      decision:
+        approved_for_later_runtime_promotion: true
+        next_allowed_task: T096
+  - id: T096
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: low
+    objective: "Promote only the six T095-approved Meowtal UI source candidates to runtime UI files and update provenance/tests to mark those six surfaces approved with runtime paths. Do not route or render the runtime UI yet, and do not touch fighter, stage, combat/gameplay, audio, particles, or scene HUD code."
+    inputs:
+      - "T095 Judge approved_complete receipt"
+      - "assets/source/imagegen/ui/meowtal/logo-title-mark.png"
+      - "assets/source/imagegen/ui/meowtal/hud-frame.png"
+      - "assets/source/imagegen/ui/meowtal/health-bar-rabbit.png"
+      - "assets/source/imagegen/ui/meowtal/health-bar-cat.png"
+      - "assets/source/imagegen/ui/meowtal/timer-frame.png"
+      - "assets/source/imagegen/ui/meowtal/fight-ko-victory-overlays.png"
+    allowed_files:
+      - "public/assets/generated/ui/meowtal/logo-title-mark.png"
+      - "public/assets/generated/ui/meowtal/hud-frame.png"
+      - "public/assets/generated/ui/meowtal/health-bar-rabbit.png"
+      - "public/assets/generated/ui/meowtal/health-bar-cat.png"
+      - "public/assets/generated/ui/meowtal/timer-frame.png"
+      - "public/assets/generated/ui/meowtal/fight-ko-victory-overlays.png"
+      - "src/assets/meowtalProductionManifest.ts"
+      - "docs/assets/meowtal-kombat-provenance.md"
+      - "test/meowtal-production-manifest.test.ts"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+    verify:
+      - "sips -g pixelWidth -g pixelHeight -g hasAlpha public/assets/generated/ui/meowtal/*.png"
+      - "npm run typecheck"
+      - "npm test -- --run test/meowtal-production-manifest.test.ts"
+      - "npm run verify"
+    stop_if:
+      - "Runtime scene/HUD rendering code would need to change."
+      - "Any unapproved UI surface outside the six T095-approved files would need promotion."
+      - "Fighter, stage, combat/gameplay, audio, particles, or broad presentation files would need changes."
+      - "Promoted files are not 1024x576 RGBA with usable transparency."
+      - "Provenance cannot cleanly record T095 approval and runtime paths."
     receipt: null
   - id: T005
     type: worker
