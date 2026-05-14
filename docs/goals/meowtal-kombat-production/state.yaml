@@ -83,7 +83,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T068
+active_task: T069
 
 tasks:
   - id: T000
@@ -3205,7 +3205,7 @@ tasks:
   - id: T068
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: low
     objective: "Promote only the T067-approved normalized Meowtal heavy-punch rows to runtime assets. Copy normalized candidates into public runtime paths, update manifest/provenance/tests so only gray-rabbit:heavy-punch and ginger-tabby-cat:heavy-punch become approved runtime rows, and keep every other remaining Meowtal row blocked. Do not switch runtime character selection or start any other asset slice."
     allowed_files:
@@ -3231,6 +3231,67 @@ tasks:
       - "Promoted runtime PNGs are not exactly 2048x256 RGBA/alpha with eight separated 256x256 frames."
       - "Manifest/provenance cannot clearly record T067 approval for only these two rows."
       - "Verification fails for reasons outside the narrow promotion scope."
+    receipt:
+      result: done
+      summary: "Promoted only the T067-approved normalized Meowtal heavy-punch rows into public runtime assets and updated the Meowtal manifest, provenance docs, and manifest tests so gray-rabbit:heavy-punch and ginger-tabby-cat:heavy-punch are approved runtime rows. Idle, walk-forward, walk-back, crouch, jump, light-punch, heavy-punch, hitstun, and blockstun are now the approved Meowtal runtime rows; every remaining row stays blocked pending a separate scoped generation task. Runtime character selection, gameplay behavior, arena, UI/HUD/logo, particles, audio, and additional animation rows were not touched."
+      changed_files:
+        - "public/assets/generated/fighters/gray-rabbit/heavy-punch.png"
+        - "public/assets/generated/fighters/ginger-tabby-cat/heavy-punch.png"
+        - "src/assets/meowtalProductionManifest.ts"
+        - "docs/assets/meowtal-kombat-provenance.md"
+        - "test/meowtal-production-manifest.test.ts"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+      evidence:
+        - "public/assets/generated/fighters/gray-rabbit/heavy-punch.png"
+        - "public/assets/generated/fighters/ginger-tabby-cat/heavy-punch.png"
+        - "src/assets/meowtalProductionManifest.ts"
+        - "docs/assets/meowtal-kombat-provenance.md"
+      checksums:
+        gray_rabbit_heavy_punch_runtime_sha256: "56e883a16af3ab1ac9b1bfde3e95ba5fd635123d17e495da0c170d511a495fe7"
+        ginger_tabby_cat_heavy_punch_runtime_sha256: "933221a2cb4123bb4015978aea8c940cf99ee8a7969bfd2a99936b978fd00c7a"
+        meowtal_manifest_sha256: "f8dcd87d64779702999438d67f75a50051186122a3ec396a930907b303755fb8"
+        provenance_doc_sha256: "12c8c8fe233970812c10d8a131a5308dbc5e2a3777bd91413494c0fb0ab9dc46"
+        manifest_test_sha256: "bec7806a53799bc65edcb82f5e6cb122559532063edda4b0e0050a0946eb0e8d"
+      commands:
+        - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha public/assets/generated/fighters/gray-rabbit/heavy-punch.png public/assets/generated/fighters/ginger-tabby-cat/heavy-punch.png"
+          status: pass
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-qa.test.ts"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+      notes:
+        - "sips reported pixelWidth 2048, pixelHeight 256, hasAlpha yes for both public heavy-punch runtime PNGs."
+        - "Focused manifest/asset QA tests passed with 2 files and 16 tests."
+        - "Full verify passed with 21 test files, 110 tests, and a successful Vite production build."
+        - "No row besides gray-rabbit:heavy-punch and ginger-tabby-cat:heavy-punch was promoted or modified."
+  - id: T069
+    type: judge
+    assignee: Judge
+    status: active
+    reasoning_hint: high
+    objective: "Scope the next small Meowtal production slice after idle, walk-forward, walk-back, crouch, jump, light-punch, heavy-punch, hitstun, and blockstun runtime rows are approved. Decide whether to continue fighter animation coverage, begin parallax arena asset generation, begin logo/HUD/UI surface generation, or prepare runtime routing."
+    inputs:
+      - "T068 heavy-punch runtime promotion receipt"
+      - "src/assets/meowtalProductionManifest.ts"
+      - "docs/assets/meowtal-kombat-provenance.md"
+      - "Goal requirements: complete fighter animation set, parallax arena, complete HUD/logo/UI assets, audio/effects, Tough Love Arena-level feel, small commits, no PoC completion"
+      - "User stance requirement: rabbit and cat must use one shared stance convention; current Meowtal assets are locked to upright two-legged."
+    constraints:
+      - "Do not implement."
+      - "Do not choose a broad all-assets task."
+      - "Prefer a small reviewable Worker task with tight allowed_files and verification."
+      - "Preserve upright two-legged fighter consistency and defer runtime character switch until enough attack/reaction coverage exists."
+      - "If choosing more animation rows, runtime approval must be deferred to a later Judge task."
+      - "If choosing non-character assets, require provenance/license docs and visual QA gates."
+    expected_output:
+      - "Decision and rationale"
+      - "Exact next Worker objective"
+      - "allowed_files"
+      - "verify commands"
+      - "stop_if conditions"
+      - "visual QA or runtime verification expectations"
     receipt: null
   - id: T005
     type: worker
@@ -3382,17 +3443,13 @@ checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T066
+    task: T068
     commands:
-      - cmd: "node scripts/normalize-fighter-rows.mjs --animation heavy-punch --fighters gray-rabbit,ginger-tabby-cat"
-        status: pass
-      - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha output/imagegen/gray-rabbit-heavy-punch-normalized.png output/imagegen/ginger-tabby-cat-heavy-punch-normalized.png"
+      - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha public/assets/generated/fighters/gray-rabbit/heavy-punch.png public/assets/generated/fighters/ginger-tabby-cat/heavy-punch.png"
         status: pass
       - cmd: "npm run typecheck"
         status: pass
       - cmd: "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-qa.test.ts"
-        status: pass
-      - cmd: "npm run imagegen:qa"
         status: pass
       - cmd: "npm run verify"
         status: pass

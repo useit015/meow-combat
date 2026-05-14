@@ -205,6 +205,11 @@ const heavyPunchRowSourcePaths: Readonly<Record<MeowtalFighterId, string>> = {
   "ginger-tabby-cat": "assets/source/imagegen/fighters/ginger-tabby-cat/heavy-punch.png",
 };
 
+const heavyPunchRowRuntimePaths: Readonly<Record<MeowtalFighterId, string>> = {
+  "gray-rabbit": "/assets/generated/fighters/gray-rabbit/heavy-punch.png",
+  "ginger-tabby-cat": "/assets/generated/fighters/ginger-tabby-cat/heavy-punch.png",
+};
+
 const idleRowQaNotes: Readonly<Record<MeowtalFighterId, string>> = {
   "gray-rabbit":
     "Approved runtime idle row. Visual QA: eight separated upright two-legged gray rabbit idle frames, no visible text/watermark/frame numbers, same stance and proportions as the canonical sheet, chroma-key removed to transparent alpha, normalized to 2048x256 RGBA, and approved for runtime publication by T027.",
@@ -263,9 +268,9 @@ const blockstunRowQaNotes: Readonly<Record<MeowtalFighterId, string>> = {
 
 const heavyPunchRowQaNotes: Readonly<Record<MeowtalFighterId, string>> = {
   "gray-rabbit":
-    "Generated source heavy-punch row candidate. Visual self-check: eight separated upright two-legged gray rabbit committed heavy paw-strike frames, no visible text/watermark/frame numbers, same stance convention and proportions as approved idle/walk-forward/walk-back/crouch/jump/light-punch/hitstun/blockstun, chroma-key removed to transparent alpha, normalized to a 2048x256 RGBA QA candidate, and pending follow-up visual QA before runtime publication.",
+    "Approved runtime heavy-punch row. Visual QA: eight separated upright two-legged gray rabbit committed heavy paw-strike frames with crouch-load, planted weight shift, committed extension, follow-through, and recovery; no visible text/watermark/frame numbers, same stance convention and proportions as approved idle/walk-forward/walk-back/crouch/jump/light-punch/hitstun/blockstun, deterministic transparent source construction from approved rows, normalized to 2048x256 RGBA, and approved for runtime publication by T067.",
   "ginger-tabby-cat":
-    "Generated source heavy-punch row candidate. Visual self-check: eight separated upright two-legged ginger tabby committed heavy paw-strike frames, no visible text/watermark/frame numbers, same stance convention and proportions as approved idle/walk-forward/walk-back/crouch/jump/light-punch/hitstun/blockstun, chroma-key removed to transparent alpha, normalized to a 2048x256 RGBA QA candidate, and pending follow-up visual QA before runtime publication.",
+    "Approved runtime heavy-punch row. Visual QA: eight separated upright two-legged ginger tabby committed heavy paw-strike frames with crouch-load, planted weight shift, committed extension, follow-through, and recovery; no visible text/watermark/frame numbers, same stance convention and proportions as approved idle/walk-forward/walk-back/crouch/jump/light-punch/hitstun/blockstun, deterministic transparent source construction from approved rows, normalized to 2048x256 RGBA, and approved for runtime publication by T067.",
 };
 
 const animationFrameCounts: Readonly<Record<FighterAnimationId, number>> = {
@@ -460,18 +465,18 @@ export function validateMeowtalProductionManifest(
           errors.push(`${row.provenance.assetId}: approved blockstun row requires a generated runtime path`);
         }
       } else if (row.animationId === "heavy-punch") {
-        if (row.provenance.status !== "generated") {
-          errors.push(`${row.provenance.assetId}: heavy-punch row should remain generated until follow-up visual QA`);
+        if (row.provenance.status !== "approved") {
+          errors.push(`${row.provenance.assetId}: heavy-punch row should be runtime-approved after T068`);
         }
-        if (row.provenance.runtimePath !== null) {
-          errors.push(`${row.provenance.assetId}: generated heavy-punch row must not have a runtime path before QA`);
+        if (!row.provenance.runtimePath?.includes("/assets/generated/fighters/")) {
+          errors.push(`${row.provenance.assetId}: approved heavy-punch row requires a generated runtime path`);
         }
       } else {
         if (row.provenance.status !== "blocked") {
           errors.push(`${row.provenance.assetId}: remaining animation rows must remain blocked`);
         }
-        if (!row.provenance.blocker?.includes("heavy-punch row QA")) {
-          errors.push(`${row.provenance.assetId}: remaining row blocker must reference heavy-punch row QA`);
+        if (!row.provenance.blocker?.includes("separate scoped generation task")) {
+          errors.push(`${row.provenance.assetId}: remaining row blocker must reference a separate scoped generation task`);
         }
       }
     }
@@ -530,7 +535,7 @@ function makeFighters(): readonly MeowtalFighterAssetPlan[] {
                         : animationId === "blockstun"
                           ? approvedBlockstunRowProvenance(fighterId, details)
                           : animationId === "heavy-punch"
-                            ? generatedHeavyPunchRowProvenance(fighterId, details)
+                            ? approvedHeavyPunchRowProvenance(fighterId, details)
                       : blockedAnimationRowProvenance(fighterId, animationId, details),
       })),
     };
@@ -548,11 +553,11 @@ function blockedAnimationRowProvenance(
     prompt: animationRowPrompt(details.displayName, animationId),
     status: "blocked",
     blocker:
-      "Wait for heavy-punch row QA and a separate scoped generation task before generating this remaining animation row.",
+      "Wait for a separate scoped generation task before generating this remaining animation row.",
   });
 }
 
-function generatedHeavyPunchRowProvenance(
+function approvedHeavyPunchRowProvenance(
   fighterId: MeowtalFighterId,
   details: (typeof fighterDetails)[MeowtalFighterId],
 ): AssetProvenance {
@@ -561,25 +566,24 @@ function generatedHeavyPunchRowProvenance(
       assetId: `${fighterId}:heavy-punch`,
       promptSlug: `${fighterId}-heavy-punch-animation-row`,
       prompt: animationRowPrompt(details.displayName, "heavy-punch"),
-      status: "generated",
+      status: "approved",
       blocker: "",
     }),
     sourcePath: heavyPunchRowSourcePaths[fighterId],
-    runtimePath: null,
+    runtimePath: heavyPunchRowRuntimePaths[fighterId],
     license: {
       kind: "owned-generated",
       summary:
-        "Generated with Codex built-in imagegen for this project; retained as a non-runtime heavy-punch row candidate pending follow-up visual QA.",
+        "Generated with Codex built-in imagegen style-lock assets and deterministic transparent row construction for this project; approved normalized runtime heavy-punch row after T067 visual QA.",
       sourceUrl: null,
       attribution: null,
       checkedOn: generatedOn,
     },
     createdOrDownloadedOn: generatedOn,
     transforms: [
-      "Copied selected built-in imagegen output into the repo source asset tree.",
-      "Removed generated chroma-key background to transparent alpha with the imagegen remove_chroma_key helper.",
-      "Separated the eight large connected fighter components into a transparent source row with consistent gutters.",
-      "Normalized to an 8-frame 2048x256 QA candidate under output/imagegen for visual review only.",
+      "Constructed a clean transparent 8-frame source row from approved idle, crouch, and light-punch runtime style-lock components.",
+      "Added crouch-load, planted weight shift, top-body shear into impact, follow-through, and recovery to distinguish heavy-punch from light-punch.",
+      "Normalized to an 8-frame 2048x256 runtime spritesheet and copied into public/assets/generated.",
     ],
     approvalNotes: heavyPunchRowQaNotes[fighterId],
     blocker: null,

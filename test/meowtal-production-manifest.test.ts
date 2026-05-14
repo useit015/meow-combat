@@ -36,6 +36,7 @@ describe("Meowtal production manifest", () => {
     expect(runtimeEntries.map((entry) => entry.assetId).sort()).toEqual([
       "ginger-tabby-cat:blockstun",
       "ginger-tabby-cat:crouch",
+      "ginger-tabby-cat:heavy-punch",
       "ginger-tabby-cat:hitstun",
       "ginger-tabby-cat:idle",
       "ginger-tabby-cat:jump",
@@ -44,6 +45,7 @@ describe("Meowtal production manifest", () => {
       "ginger-tabby-cat:walk-forward",
       "gray-rabbit:blockstun",
       "gray-rabbit:crouch",
+      "gray-rabbit:heavy-punch",
       "gray-rabbit:hitstun",
       "gray-rabbit:idle",
       "gray-rabbit:jump",
@@ -54,7 +56,7 @@ describe("Meowtal production manifest", () => {
     expect(runtimeEntries.every((entry) => entry.status === "approved")).toBe(true);
   });
 
-  it("tracks approved rows, generated heavy-punch candidates, and remaining blocked rows", () => {
+  it("tracks approved heavy-punch rows and remaining blocked rows", () => {
     expect(canonicalSheetsApproved()).toBe(true);
 
     const blockedRows = blockedAnimationRowsUntilCanonicalApproved();
@@ -108,10 +110,10 @@ describe("Meowtal production manifest", () => {
     expect(blockstunRows.every((row) => row.provenance.status === "approved")).toBe(true);
     expect(blockstunRows.every((row) => row.provenance.runtimePath?.includes("/assets/generated/fighters/"))).toBe(true);
     expect(heavyPunchRows).toHaveLength(2);
-    expect(heavyPunchRows.every((row) => row.provenance.status === "generated")).toBe(true);
-    expect(heavyPunchRows.every((row) => row.provenance.runtimePath === null)).toBe(true);
+    expect(heavyPunchRows.every((row) => row.provenance.status === "approved")).toBe(true);
+    expect(heavyPunchRows.every((row) => row.provenance.runtimePath?.includes("/assets/generated/fighters/"))).toBe(true);
     expect(remainingRows.every((row) => row.provenance.status === "blocked")).toBe(true);
-    expect(remainingRows.every((row) => row.provenance.blocker?.includes("heavy-punch row QA"))).toBe(true);
+    expect(remainingRows.every((row) => row.provenance.blocker?.includes("separate scoped generation task"))).toBe(true);
   });
 
   it("tracks approved idle source and runtime files", () => {
@@ -246,18 +248,19 @@ describe("Meowtal production manifest", () => {
     }
   });
 
-  it("tracks generated heavy-punch source files without approving runtime use", () => {
+  it("tracks approved heavy-punch source and runtime files", () => {
     for (const fighter of meowtalProductionManifest.fighters) {
       const heavyPunchRow = fighter.animationRows.find((row) => row.animationId === "heavy-punch");
 
-      expect(heavyPunchRow?.provenance.status).toBe("generated");
+      expect(heavyPunchRow?.provenance.status).toBe("approved");
       expect(heavyPunchRow?.provenance.sourcePath).toBe(`assets/source/imagegen/fighters/${fighter.id}/heavy-punch.png`);
-      expect(heavyPunchRow?.provenance.runtimePath).toBeNull();
+      expect(heavyPunchRow?.provenance.runtimePath).toBe(`/assets/generated/fighters/${fighter.id}/heavy-punch.png`);
       expect(heavyPunchRow?.provenance.license.kind).toBe("owned-generated");
-      expect(heavyPunchRow?.provenance.approvalNotes).toContain("Generated source heavy-punch row candidate");
+      expect(heavyPunchRow?.provenance.approvalNotes).toContain("Approved runtime heavy-punch row");
       expect(heavyPunchRow?.provenance.approvalNotes).toContain("upright two-legged");
-      expect(heavyPunchRow?.provenance.approvalNotes).toContain("transparent alpha");
+      expect(heavyPunchRow?.provenance.approvalNotes).toContain("deterministic transparent source construction");
       expect(existsSync(join(process.cwd(), heavyPunchRow?.provenance.sourcePath ?? ""))).toBe(true);
+      expect(existsSync(join(process.cwd(), "public", heavyPunchRow?.provenance.runtimePath ?? ""))).toBe(true);
     }
   });
 
