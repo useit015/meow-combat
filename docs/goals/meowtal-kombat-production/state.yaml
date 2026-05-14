@@ -83,7 +83,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T077
+active_task: T078
 
 tasks:
   - id: T000
@@ -3746,7 +3746,7 @@ tasks:
   - id: T077
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Scope the next smallest safe production asset slice after light-kick runtime promotion. Decide whether to proceed with exactly two paired Meowtal special-attack source rows, gray-rabbit:special and ginger-tabby-cat:special, or choose a different narrow blocker-removing slice. Do not edit files."
     inputs:
@@ -3769,6 +3769,53 @@ tasks:
       - "verification commands"
       - "stop conditions"
       - "why this advances production readiness without becoming broad asset-pack work"
+    receipt:
+      result: done
+      decision: "Generate paired source-only special rows next."
+      next_allowed_task: T078
+      summary: "Judge selected exactly two paired source-only Meowtal special-attack candidates as the next smallest production-relevant slice: gray-rabbit:special and ginger-tabby-cat:special. Runtime promotion, runtime routing, gameplay, stage, HUD/logo, audio, and broad asset-pack work remain out of scope until later tasks."
+      scoped_assets:
+        - "gray-rabbit:special"
+        - "ginger-tabby-cat:special"
+      notes:
+        - "Special rows should be generated and normalized as source-only QA candidates, not promoted."
+        - "Gray rabbit special: upright two-legged rapid spinning tornado with green character-attached energy trail; rabbit must remain readable in every frame."
+        - "Ginger tabby special: upright two-legged acrobatic flip kick with green/yellow character-attached aura or short projectile burst; no four-legged landing/rest frames."
+        - "Both rows must preserve approved runtime style, camera angle, scale, lighting, outline/detail level, markings, proportions, and shared upright two-legged stance."
+        - "This advances production readiness because specials are the last major combat-expression row before knockdown/end-state coverage and later runtime routing."
+  - id: T078
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: low
+    objective: "Generate and normalize source-only Meowtal special-attack candidates for exactly gray-rabbit:special and ginger-tabby-cat:special. Create production-usable source rows and normalized 8-frame 2048x256 QA candidates only. Update manifest/provenance/tests/docs so these two special rows become generated-but-unapproved with runtimePath null, and keep knockdown/win/lose blocked. Do not promote runtime assets, switch runtime routing, or create other rows."
+    inputs:
+      - "T077 scoping receipt"
+      - "Approved runtime rows through light-kick"
+      - "Original special concepts: rabbit rapid spinning tornado with green energy trail; cat acrobatic flip kick plus green/yellow projectile or aura blast"
+    allowed_files:
+      - "assets/source/imagegen/fighters/gray-rabbit/special.png"
+      - "assets/source/imagegen/fighters/ginger-tabby-cat/special.png"
+      - "src/assets/meowtalProductionManifest.ts"
+      - "docs/assets/meowtal-kombat-provenance.md"
+      - "test/meowtal-production-manifest.test.ts"
+      - "test/asset-qa.test.ts"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+    verify:
+      - "node scripts/normalize-fighter-rows.mjs --animation special --fighters gray-rabbit,ginger-tabby-cat"
+      - "sips -g pixelWidth -g pixelHeight -g hasAlpha output/imagegen/gray-rabbit-special-normalized.png output/imagegen/ginger-tabby-cat-special-normalized.png"
+      - "npm run typecheck"
+      - "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-qa.test.ts"
+      - "npm run verify"
+    stop_if:
+      - "Any file outside allowed_files is needed, except ignored output/imagegen/*-special-normalized.png verification candidates."
+      - "Any runtime file under public/assets/generated/fighters/**/special.png is created or changed."
+      - "Any row besides special is generated, normalized, promoted, or approved."
+      - "Either fighter shifts to four-legged motion, tail/support-limb posing, crawl/rest collapse, or a different stance convention."
+      - "Special effects become detached background/UI clutter rather than character-attached attack motion."
+      - "Normalized candidates cannot be exactly 2048x256 RGBA with eight separated 256x256 frames."
+      - "Provenance cannot clearly mark these as generated source-only, non-runtime candidates pending Judge visual QA."
+      - "Fixing verification requires gameplay, routing, stage, HUD, logo, audio, or broad asset-pipeline changes."
     receipt: null
   - id: T005
     type: worker
