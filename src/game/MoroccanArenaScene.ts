@@ -220,11 +220,7 @@ export class MoroccanArenaScene extends Phaser.Scene {
     this.demoMode === "hop" ||
     this.demoMode === "run-forward" ||
     this.demoMode === "backdash" ||
-    this.demoMode === "knockdown" ||
-    this.demoMode === "ko" ||
-    this.demoMode === "win" ||
-    this.demoMode === "cat-win" ||
-    this.demoMode === "hud-low";
+    this.demoMode === "knockdown";
   private effects: readonly CombatEffect[] = [];
   private impactFlash: ImpactFlash | null = null;
   private shellFrame = 0;
@@ -248,6 +244,7 @@ export class MoroccanArenaScene extends Phaser.Scene {
   private readonly graphicsKey = "arena-debug";
   private readonly effectsGraphicsKey = "arena-effects";
   private readonly runtimeUiMeterGraphicsKey = "arena-runtime-ui-meters";
+  private readonly shellOverlayGraphicsKey = "arena-shell-overlay";
   private readonly stageRuntimeLayers = resolveStageRuntimeLayers(GAME_CONFIG.stage);
 
   constructor() {
@@ -676,6 +673,7 @@ export class MoroccanArenaScene extends Phaser.Scene {
     this.renderRuntimeUiMeters(showFightLayer && runtimeUiReady);
     this.renderEffectOverlay(showFightLayer);
     drawShellBackdrop(g, this.shell, stageImagesRendered, runtimeUiReady);
+    this.renderShellOverlay();
     this.statusText.setText(hudCenterLabel(this.snapshot, this.matchSet));
     this.roundText.setText(roundLabel(this.matchSet));
     this.modeText.setText(this.p2CpuEnabled ? `P2 CPU ${this.cpuDifficulty.toUpperCase()}` : "P2 MANUAL");
@@ -755,6 +753,20 @@ export class MoroccanArenaScene extends Phaser.Scene {
     if (!showRuntimeUi) return;
 
     drawRuntimeHudMeters(g, this.snapshot, this.matchSet);
+  }
+
+  private renderShellOverlay(): void {
+    const graphics = this.children.getByName(this.shellOverlayGraphicsKey) as Phaser.GameObjects.Graphics | null;
+    const g = graphics ?? this.add.graphics();
+    if (!graphics) {
+      g.setName(this.shellOverlayGraphicsKey);
+      g.setDepth(94);
+    }
+
+    g.clear();
+    if (this.shell.phase === "paused") {
+      drawPauseOptionsPanel(g);
+    }
   }
 
   private runtimeOverlaySlot(): RuntimeUiImageSlot | null {
@@ -1275,6 +1287,7 @@ export class MoroccanArenaScene extends Phaser.Scene {
     this.shellPhaseFrame = 24;
     this.matchSet = {
       ...this.matchSet,
+      round: 2,
       wins: { p1: 1, p2: 0 },
       lastRoundWinner: "p1",
       matchWinner: null,
@@ -1313,6 +1326,7 @@ export class MoroccanArenaScene extends Phaser.Scene {
     this.shellPhaseFrame = 72;
     this.matchSet = {
       ...this.matchSet,
+      round: 2,
       wins: p1Won ? { p1: this.matchSet.targetWins, p2: 0 } : { p1: 0, p2: this.matchSet.targetWins },
       lastRoundWinner: winner,
       matchWinner: winner,
@@ -1483,6 +1497,13 @@ export class MoroccanArenaScene extends Phaser.Scene {
       this.titleText.setPosition(512, 148);
       this.titleText.setFontSize(48);
       this.helpText.setPosition(512, this.canRenderRuntimeUi() ? 334 : 264);
+      this.helpText.setFontSize(16);
+      this.helpText.setAlpha(1);
+    } else if (this.shell.phase === "paused") {
+      this.titleText.setText("PAUSED");
+      this.titleText.setPosition(512, 194);
+      this.titleText.setFontSize(34);
+      this.helpText.setPosition(512, 286);
       this.helpText.setFontSize(16);
       this.helpText.setAlpha(1);
     } else {
@@ -1678,7 +1699,7 @@ function shellHelp(shell: ShellState, selectionLabel: string): string {
     return "Enter: new match\nR: reset to ready";
   }
   if (shell.phase === "paused") {
-    return "P/Esc: resume\nR: reset to ready";
+    return "RESUME FIGHT\nRESET TO READY\nFULLSCREEN\nCPU SETTINGS";
   }
   return "Double-tap D/B run  |  W+dir hop  |  Space/J light  |  I kick  |  K heavy  |  L special  |  S,D,L super  |  C CPU  |  V level  |  P pause  |  F full";
 }
@@ -1766,6 +1787,10 @@ function drawShellBackdrop(
     g.fillStyle(0x071312, shell.phase === "select" ? 0.48 : 0.34).fillRect(0, 0, 1024, 576);
     drawZelligeRail(g, 0, shell.phase === "select" ? 0.84 : 0.72);
   }
+  if (shell.phase === "paused") {
+    g.fillStyle(0x071312, 0.52).fillRect(0, 0, 1024, 576);
+    return;
+  }
   if (shell.phase === "select") {
     g.fillStyle(0x071312, 0.72).fillRoundedRect(70, 74, 884, 468, 6);
     g.lineStyle(2, 0xf2cf7d, 0.9).strokeRoundedRect(70, 74, 884, 468, 6);
@@ -1795,6 +1820,28 @@ function drawZelligeRail(g: Phaser.GameObjects.Graphics, y: number, alpha: numbe
     g.fillTriangle(x, y + 24, x + 20, y + 6, x + 40, y + 24);
   }
   g.fillStyle(0x2ec4b6, 0.78).fillRect(0, y + 22, 1024, 2);
+}
+
+function drawPauseOptionsPanel(g: Phaser.GameObjects.Graphics): void {
+  g.fillStyle(0x071312, 0.66).fillRect(0, 0, 1024, 576);
+  g.fillStyle(0x0b1817, 0.98).fillRoundedRect(326, 132, 372, 314, 8);
+  g.lineStyle(2, 0xf2cf7d, 0.92).strokeRoundedRect(326, 132, 372, 314, 8);
+  g.lineStyle(1, 0xf8f5e9, 0.24).strokeRoundedRect(338, 144, 348, 290, 5);
+  g.fillStyle(0xff3434, 0.9).fillRect(370, 160, 100, 4);
+  g.fillStyle(0x338dff, 0.9).fillRect(554, 160, 100, 4);
+  g.fillStyle(0xfff1a8, 0.95).fillTriangle(488, 184, 512, 154, 536, 184);
+  g.fillStyle(0x071312, 1).fillCircle(512, 194, 36);
+  g.lineStyle(2, 0xf2cf7d, 0.9).strokeCircle(512, 194, 36);
+  g.lineStyle(1, 0xf8f5e9, 0.28).strokeCircle(512, 194, 24);
+
+  const rowX = 382;
+  for (let index = 0; index < 4; index += 1) {
+    const y = 234 + index * 28;
+    const accent = index % 2 === 0 ? 0x2ec4b6 : 0xff9f1c;
+    g.fillStyle(0xf8f5e9, index === 0 ? 0.16 : 0.1).fillRoundedRect(rowX, y, 260, 27, 4);
+    g.fillStyle(accent, 0.95).fillRect(rowX, y, 5, 27);
+    g.lineStyle(1, 0xf2cf7d, index === 0 ? 0.56 : 0.28).strokeRoundedRect(rowX, y, 260, 27, 4);
+  }
 }
 
 function drawTitlePortraitFrame(

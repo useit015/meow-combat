@@ -132,5 +132,28 @@ describe("shell flow", () => {
         },
       ),
     ).toEqual(initialShellState);
+
+    expect(
+      reduceShellState(
+        { phase: "match-over" },
+        {
+          resetPressed: true,
+          matchStatus: "round-over",
+          matchSetStatus: "complete",
+        },
+      ),
+    ).toEqual(initialShellState);
+  });
+
+  it("does not start or rematch accidentally while paused", () => {
+    expect(
+      reduceShellState(
+        { phase: "paused" },
+        {
+          startPressed: true,
+          matchStatus: "fighting",
+        },
+      ),
+    ).toEqual({ phase: "paused" });
   });
 });

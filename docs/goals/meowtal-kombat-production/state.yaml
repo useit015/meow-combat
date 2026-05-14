@@ -85,7 +85,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T102
+active_task: T103
 
 tasks:
   - id: T000
@@ -5235,7 +5235,7 @@ tasks:
   - id: T102
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: low
     objective: "Build a bounded arcade-shell polish slice using existing assets only: improve pause/options presentation and verify restart/rematch flow on desktop and mobile without changing combat rules or generating assets."
     inputs:
@@ -5260,6 +5260,62 @@ tasks:
       - "Requires changes to combat simulation, frame data, fighter assets, stage assets, audio, particles, or animation rows."
       - "Restart/rematch behavior requires broad state-machine rearchitecture beyond this bounded shell slice."
       - "Browser smoke shows unreadable shell panels, missing UI assets, console/page errors, or gameplay regression after one scoped fix attempt."
+    receipt:
+      result: done
+      summary: "Improved the arcade shell using existing assets only. Pause/options now renders through a high-depth shell overlay above fighters with a readable dimmed modal; pause/resume, reset-to-ready, round-over next-round, and match-over new-match flows were verified on desktop and mobile. Presentation-only demo states remain scoped to smoke evidence, and no combat rules, assets, audio, particles, stage, fighter, or frame-data files changed."
+      changed_files:
+        - "src/game/MoroccanArenaScene.ts"
+        - "test/shell-flow.test.ts"
+      commands:
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm test -- --run test/presentation.test.ts test/shell-flow.test.ts"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "Direct Playwright smoke grid for pause/resume/reset/next-round/new-match at desktop 1024x576 and mobile 390x844"
+          status: pass
+      evidence:
+        - "output/web-game/meowtal-shell-t102/report.json"
+        - "output/web-game/meowtal-shell-t102/desktop-1024x576/paused.png"
+        - "output/web-game/meowtal-shell-t102/desktop-1024x576/reset-ready.png"
+        - "output/web-game/meowtal-shell-t102/desktop-1024x576/next-round.png"
+        - "output/web-game/meowtal-shell-t102/desktop-1024x576/new-match.png"
+        - "output/web-game/meowtal-shell-t102/mobile-390x844/paused-page.png"
+        - "output/web-game/meowtal-shell-t102/mobile-390x844/new-match.png"
+      judge:
+        decision: approve
+        agent: "019e2815-c0f6-7500-b9c1-146df34d7742"
+        summary: "Judge approved T102: diff is limited to MoroccanArenaScene.ts and shell-flow tests, no asset/combat/frame/stage/audio/particle files changed, pause overlay is isolated through arena-shell-overlay, and smoke report covers desktop/mobile pause/resume/reset/round-over/match-over/new-match with errors 0 and expected transitions."
+      notes:
+        - "Unit coverage now confirms reset from match-over returns to ready and start does not accidentally unpause."
+        - "Mobile portrait remains letterboxed but readable; next slice should focus on mobile/page framing using existing assets only."
+  - id: T103
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: low
+    objective: "Polish mobile/page framing for portrait viewports using existing assets only. Improve how the landscape canvas is positioned/framed on tall mobile screens, preserve desktop layout, and verify shell/game readability without changing combat rules or generating assets."
+    inputs:
+      - "T102 Judge recommendation"
+      - "Existing Phaser FIT scale setup"
+      - "Current mobile smoke artifacts showing readable but heavily letterboxed portrait framing"
+    allowed_files:
+      - "src/style.css"
+      - "src/main.ts"
+      - "src/game/MoroccanArenaScene.ts"
+      - "test/presentation.test.ts"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+    verify:
+      - "npm run typecheck"
+      - "npm test -- --run test/presentation.test.ts"
+      - "npm run verify"
+      - "Browser/Playwright smoke: ready/select/fight/pause/K.O./victory on desktop landscape and mobile portrait should have no missing assets, no console/page errors, canvas contained in viewport, and improved portrait framing/readability."
+    stop_if:
+      - "Requires generating, editing, or promoting additional assets."
+      - "Requires changes to combat simulation, frame data, fighter assets, stage assets, audio, particles, or animation rows."
+      - "Requires a broad responsive UI rearchitecture or real touch-control design beyond page/canvas framing."
+      - "Desktop layout regresses or mobile smoke shows hidden/clipped gameplay, unreadable shell UI, missing UI assets, or console/page errors after one scoped fix attempt."
     receipt: null
   - id: T005
     type: worker
