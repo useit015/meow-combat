@@ -57,7 +57,7 @@ These are approved before animation rows as style locks only. Required sheet str
 
 ### Character Animation Rows
 
-Status: idle, walk-forward, walk-back, crouch, jump, light-punch, heavy-punch, light-kick, special, hitstun, blockstun, and knockdown rows approved for runtime publication; win and lose remain blocked pending separate scoped generation.
+Status: idle, walk-forward, walk-back, crouch, jump, light-punch, heavy-punch, light-kick, special, hitstun, blockstun, and knockdown rows approved for runtime publication; win and lose rows are generated source-only candidates pending separate visual QA.
 
 - `gray-rabbit:idle`
   - Source path: `assets/source/imagegen/fighters/gray-rabbit/idle.png`
@@ -251,6 +251,38 @@ Status: idle, walk-forward, walk-back, crouch, jump, light-punch, heavy-punch, l
   - License status: owned generated source asset
   - Runtime status: approved by T083 visual QA and promoted by T084
   - QA notes: eight separated ginger tabby fighting-game knockdown frames with upright two-legged hurt/fall anticipation, loss of balance, ground impact, and dazed grounded hit-reaction hold; no crawl/rest/sleeping or stance-convention reset, no visible text/watermark/frame numbers, chroma-key removed to transparent alpha, normalized to 2048x256 RGBA.
+- `gray-rabbit:win`
+  - Source path: `assets/source/imagegen/fighters/gray-rabbit/win.png`
+  - Runtime path: none; source-only candidate
+  - Provider: Codex built-in imagegen green chroma-key reference row plus local chroma removal
+  - Generated on: 2026-05-14
+  - License status: owned generated source asset
+  - Runtime status: pending separate visual QA and promotion task
+  - QA notes: eight separated upright two-legged gray rabbit arcade victory frames with guard recovery, hop, fist pump, playful flourish, confident smile, and held victory pose; no four-legged stance/crawl/rest/sleeping, no visible text/watermark/frame numbers, chroma-key removed to transparent alpha, normalized QA candidate is 2048x256 RGBA.
+- `ginger-tabby-cat:win`
+  - Source path: `assets/source/imagegen/fighters/ginger-tabby-cat/win.png`
+  - Runtime path: none; source-only candidate
+  - Provider: Codex built-in imagegen green chroma-key reference row plus local chroma removal
+  - Generated on: 2026-05-14
+  - License status: owned generated source asset
+  - Runtime status: pending separate visual QA and promotion task
+  - QA notes: eight separated upright two-legged ginger tabby arcade victory frames with guard recovery, proud tail flick, bounce, paw flourish, grin, and held smug victory pose; no four-legged stance/crawl/rest/sleeping, no visible text/watermark/frame numbers, chroma-key removed to transparent alpha, normalized QA candidate is 2048x256 RGBA.
+- `gray-rabbit:lose`
+  - Source path: `assets/source/imagegen/fighters/gray-rabbit/lose.png`
+  - Runtime path: none; source-only candidate
+  - Provider: Codex built-in imagegen green chroma-key reference row plus local chroma removal
+  - Generated on: 2026-05-14
+  - License status: owned generated source asset
+  - Runtime status: pending separate visual QA and promotion task
+  - QA notes: six separated gray rabbit arcade defeated/KO frames with upright two-legged stunned wobble, buckling, collapse, impact, and dazed grounded KO hold; no crawl/rest/sleeping or peaceful nap expression, no visible text/watermark/frame numbers, chroma-key removed to transparent alpha, normalized QA candidate is 1536x256 RGBA.
+- `ginger-tabby-cat:lose`
+  - Source path: `assets/source/imagegen/fighters/ginger-tabby-cat/lose.png`
+  - Runtime path: none; source-only candidate
+  - Provider: Codex built-in imagegen green chroma-key reference row plus local chroma removal
+  - Generated on: 2026-05-14
+  - License status: owned generated source asset
+  - Runtime status: pending separate visual QA and promotion task
+  - QA notes: six separated ginger tabby arcade defeated/KO frames with upright two-legged stunned wobble, buckling, collapse, impact, and dazed grounded KO hold; no crawl/rest/sleeping or peaceful nap expression, no visible text/watermark/frame numbers, chroma-key removed to transparent alpha, normalized QA candidate is 1536x256 RGBA.
 
 Each fighter needs rows for idle, walk-forward, walk-back, crouch, jump, light-punch, heavy-punch, light-kick, special, hitstun, blockstun, knockdown, win, and lose. Rows must preserve the shared upright two-legged rig, species identity, markings, proportions, lighting, camera angle, scale, outline/detail level, and rendering style. Do not mix two-legged and four-legged normal stance conventions; ordinary stance and movement stay upright two-legged for both fighters, and grounded/prone poses are allowed only when they clearly read as hit reactions.
 

@@ -105,6 +105,8 @@ export interface MeowtalProductionManifest {
   audioCues: readonly MeowtalAudioCuePlan[];
 }
 
+type MeowtalEndStateAnimationId = Extract<FighterAnimationId, "win" | "lose">;
+
 const binaryBlocker = "Planned production asset only; no binary image or audio generated in the T020 scaffold.";
 const generatedOn = "2026-05-14";
 
@@ -230,6 +232,18 @@ const knockdownRowRuntimePaths: Readonly<Record<MeowtalFighterId, string>> = {
   "ginger-tabby-cat": "/assets/generated/fighters/ginger-tabby-cat/knockdown.png",
 };
 
+const endStateRowSourcePaths: Readonly<Record<MeowtalFighterId, Readonly<Record<MeowtalEndStateAnimationId, string>>>> =
+  {
+    "gray-rabbit": {
+      win: "assets/source/imagegen/fighters/gray-rabbit/win.png",
+      lose: "assets/source/imagegen/fighters/gray-rabbit/lose.png",
+    },
+    "ginger-tabby-cat": {
+      win: "assets/source/imagegen/fighters/ginger-tabby-cat/win.png",
+      lose: "assets/source/imagegen/fighters/ginger-tabby-cat/lose.png",
+    },
+  };
+
 const heavyPunchRowSourcePaths: Readonly<Record<MeowtalFighterId, string>> = {
   "gray-rabbit": "assets/source/imagegen/fighters/gray-rabbit/heavy-punch.png",
   "ginger-tabby-cat": "assets/source/imagegen/fighters/ginger-tabby-cat/heavy-punch.png",
@@ -322,6 +336,17 @@ const knockdownRowQaNotes: Readonly<Record<MeowtalFighterId, string>> = {
     "Approved runtime knockdown row. Visual QA: eight separated gray rabbit fighting-game knockdown frames with upright two-legged hurt/fall anticipation, loss of balance, ground impact, and dazed grounded hit-reaction hold; no crawl/rest/sleeping or stance-convention reset, no visible text/watermark/frame numbers, green chroma-key removed to transparent alpha, normalized to 2048x256 RGBA, and approved for runtime publication by T083.",
   "ginger-tabby-cat":
     "Approved runtime knockdown row. Visual QA: eight separated ginger tabby fighting-game knockdown frames with upright two-legged hurt/fall anticipation, loss of balance, ground impact, and dazed grounded hit-reaction hold; no crawl/rest/sleeping or stance-convention reset, no visible text/watermark/frame numbers, green chroma-key removed to transparent alpha, normalized to 2048x256 RGBA, and approved for runtime publication by T083.",
+};
+
+const endStateRowQaNotes: Readonly<Record<MeowtalFighterId, Readonly<Record<MeowtalEndStateAnimationId, string>>>> = {
+  "gray-rabbit": {
+    win: "Generated source-only win row candidate. QA notes: eight separated upright two-legged gray rabbit arcade victory frames with guard recovery, hop, fist pump, playful flourish, confident smile, and held victory pose; no four-legged stance/crawl/rest/sleeping, no visible text/watermark/frame numbers, green chroma-key removed to transparent alpha, normalized QA candidate is 2048x256 RGBA, pending Judge visual QA before runtime publication.",
+    lose: "Generated source-only lose row candidate. QA notes: six separated gray rabbit arcade defeated/KO frames with upright two-legged stunned wobble, buckling, collapse, impact, and dazed grounded KO hold; no crawl/rest/sleeping or peaceful nap expression, no visible text/watermark/frame numbers, green chroma-key removed to transparent alpha, normalized QA candidate is 1536x256 RGBA, pending Judge visual QA before runtime publication.",
+  },
+  "ginger-tabby-cat": {
+    win: "Generated source-only win row candidate. QA notes: eight separated upright two-legged ginger tabby arcade victory frames with guard recovery, proud tail flick, bounce, paw flourish, grin, and held smug victory pose; no four-legged stance/crawl/rest/sleeping, no visible text/watermark/frame numbers, green chroma-key removed to transparent alpha, normalized QA candidate is 2048x256 RGBA, pending Judge visual QA before runtime publication.",
+    lose: "Generated source-only lose row candidate. QA notes: six separated ginger tabby arcade defeated/KO frames with upright two-legged stunned wobble, buckling, collapse, impact, and dazed grounded KO hold; no crawl/rest/sleeping or peaceful nap expression, no visible text/watermark/frame numbers, green chroma-key removed to transparent alpha, normalized QA candidate is 1536x256 RGBA, pending Judge visual QA before runtime publication.",
+  },
 };
 
 const animationFrameCounts: Readonly<Record<FighterAnimationId, number>> = {
@@ -546,6 +571,16 @@ export function validateMeowtalProductionManifest(
         if (row.provenance.sourcePath !== knockdownRowSourcePaths[fighter.id]) {
           errors.push(`${row.provenance.assetId}: knockdown row requires the scoped generated source path`);
         }
+      } else if (row.animationId === "win" || row.animationId === "lose") {
+        if (row.provenance.status !== "generated") {
+          errors.push(`${row.provenance.assetId}: ${row.animationId} row should be source-generated after T086`);
+        }
+        if (row.provenance.runtimePath !== null) {
+          errors.push(`${row.provenance.assetId}: source-only ${row.animationId} row must not have a runtime path before QA`);
+        }
+        if (row.provenance.sourcePath !== endStateRowSourcePaths[fighter.id][row.animationId]) {
+          errors.push(`${row.provenance.assetId}: ${row.animationId} row requires the scoped generated source path`);
+        }
       } else {
         if (row.provenance.status !== "blocked") {
           errors.push(`${row.provenance.assetId}: remaining animation rows must remain blocked`);
@@ -617,6 +652,8 @@ function makeFighters(): readonly MeowtalFighterAssetPlan[] {
                                 ? approvedSpecialRowProvenance(fighterId, details)
                                 : animationId === "knockdown"
                                   ? approvedKnockdownRowProvenance(fighterId, details)
+                                  : animationId === "win" || animationId === "lose"
+                                    ? generatedEndStateRowProvenance(fighterId, animationId, details)
                                   : blockedAnimationRowProvenance(fighterId, animationId, details),
       })),
     };
@@ -668,6 +705,42 @@ function approvedKnockdownRowProvenance(
       "Normalized to an 8-frame 2048x256 QA candidate under output/imagegen and promoted the approved row to public runtime assets after T083 visual QA.",
     ],
     approvalNotes: knockdownRowQaNotes[fighterId],
+    blocker: null,
+  };
+}
+
+function generatedEndStateRowProvenance(
+  fighterId: MeowtalFighterId,
+  animationId: MeowtalEndStateAnimationId,
+  details: (typeof fighterDetails)[MeowtalFighterId],
+): AssetProvenance {
+  const frameCount = animationFrameCounts[animationId];
+  const width = frameCount * 256;
+  return {
+    ...imageProvenance({
+      assetId: `${fighterId}:${animationId}`,
+      promptSlug: `${fighterId}-${animationId}-animation-row`,
+      prompt: animationRowPrompt(details.displayName, animationId),
+      status: "generated",
+      blocker: "",
+    }),
+    sourcePath: endStateRowSourcePaths[fighterId][animationId],
+    runtimePath: null,
+    license: {
+      kind: "owned-generated",
+      summary:
+        "Generated with Codex built-in imagegen as a chroma-keyed end-state reference row for this project; source-only candidate pending visual QA.",
+      sourceUrl: null,
+      attribution: null,
+      checkedOn: generatedOn,
+    },
+    createdOrDownloadedOn: generatedOn,
+    transforms: [
+      "Generated green chroma-keyed imagegen win/lose reference rows after T085 scoped paired source-only end-state candidates.",
+      "Removed the green chroma-key background with soft matte and despill to produce transparent source rows.",
+      `Normalized to a ${frameCount}-frame ${width}x256 QA candidate under output/imagegen; runtime publication remains blocked pending Judge visual QA.`,
+    ],
+    approvalNotes: endStateRowQaNotes[fighterId][animationId],
     blocker: null,
   };
 }
@@ -1040,7 +1113,7 @@ function animationRowPrompt(displayName: string, animationId: FighterAnimationId
     `Using the approved canonical character sheet for ${displayName}, create the ${animationId} animation row.`,
     "Use the same upright two-legged fighting-game rig as the canonical sheet.",
     "Do not switch between two-legged and four-legged normal stance conventions; ordinary stance and movement stay upright two-legged for both fighters.",
-    "For knockdown only, prone or grounded poses are acceptable when they clearly read as hit reactions, not crawl, rest, sleeping, or a new normal stance.",
+    "For knockdown and lose only, prone or grounded poses are acceptable when they clearly read as hit reactions or defeated arcade poses, not crawl, rest, sleeping, or a new normal stance.",
     "Keep the fighter identity, species, markings, proportions, camera angle, lighting, scale, and render style consistent.",
     "Do not include detached hit sparks, dust, text, logos, watermarks, frame numbers, or background art in the row.",
   ].join("\n");
