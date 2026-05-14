@@ -83,7 +83,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T023
+active_task: T024
 
 tasks:
   - id: T000
@@ -619,7 +619,7 @@ tasks:
   - id: T023
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Audit the generated gray rabbit and ginger/orange tabby canonical character sheets and decide whether they can be approved as the style lock for animation generation or require regeneration/touch-up."
     inputs:
@@ -642,6 +642,42 @@ tasks:
       - "allowed_files"
       - "verify commands"
       - "stop_if conditions"
+    receipt:
+      result: done
+      verdict: approved
+      decision: "Approve both generated canonical sheets as the style lock for animation generation. They pass the reject gates and share an upright two-legged arcade concept-art model suitable for row generation."
+      next_allowed_task: T024
+      summary: "Rabbit and cat canonical sheets have no visible text/watermark/branding, use readable species anatomy, preserve the requested upright biped stance, and share a coherent polished 2D arcade concept-art style close enough to anchor animation rows."
+      evidence:
+        - "assets/source/imagegen/fighters/gray-rabbit/canonical-character-sheet.png"
+        - "assets/source/imagegen/fighters/ginger-tabby-cat/canonical-character-sheet.png"
+      visual_qa:
+        - "Rabbit: readable gray rabbit anatomy, long ears, white paws, compact athletic body, green tornado language, front/side/back/three-quarter/action/idle/expression/detail views usable, upright biped throughout."
+        - "Cat: readable ginger tabby anatomy, ears, stripes, tail, paws, yellow-green energy language, front/side/back/action/idle/expression/detail views usable, upright biped throughout."
+        - "Pair: coherent polished 2D arcade concept-art style, clean linework, cel-shaded color, light sheet background, similar production-sheet layout."
+      blocked_tasks:
+        - "Do not generate animation rows until T024 records style-lock approval with clear non-runtime provenance semantics."
+  - id: T024
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: low
+    objective: "Mark both canonical sheets approved as animation style-lock references only. Update provenance/manifest notes and tests so canonicalSheetsApproved() becomes true while all animation rows remain blocked. Do not generate animation rows or expose runtime sprites."
+    allowed_files:
+      - "src/assets/meowtalProductionManifest.ts"
+      - "docs/assets/meowtal-kombat-provenance.md"
+      - "test/meowtal-production-manifest.test.ts"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+    verify:
+      - "npm test -- --run test/meowtal-production-manifest.test.ts"
+      - "npm run build"
+      - "npm run verify"
+    stop_if:
+      - "Approval would require image edits, regeneration, or additional binary assets."
+      - "Animation rows, runtime sprites, parallax arena, UI/HUD, or audio would be generated or exposed."
+      - "Provenance semantics become ambiguous between approved style-lock reference and approved runtime asset."
+      - "Tests require broad unrelated rewrites."
+      - "Need files outside allowed_files."
     receipt: null
   - id: T005
     type: worker
