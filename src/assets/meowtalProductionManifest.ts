@@ -200,6 +200,11 @@ const blockstunRowRuntimePaths: Readonly<Record<MeowtalFighterId, string>> = {
   "ginger-tabby-cat": "/assets/generated/fighters/ginger-tabby-cat/blockstun.png",
 };
 
+const heavyPunchRowSourcePaths: Readonly<Record<MeowtalFighterId, string>> = {
+  "gray-rabbit": "assets/source/imagegen/fighters/gray-rabbit/heavy-punch.png",
+  "ginger-tabby-cat": "assets/source/imagegen/fighters/ginger-tabby-cat/heavy-punch.png",
+};
+
 const idleRowQaNotes: Readonly<Record<MeowtalFighterId, string>> = {
   "gray-rabbit":
     "Approved runtime idle row. Visual QA: eight separated upright two-legged gray rabbit idle frames, no visible text/watermark/frame numbers, same stance and proportions as the canonical sheet, chroma-key removed to transparent alpha, normalized to 2048x256 RGBA, and approved for runtime publication by T027.",
@@ -254,6 +259,13 @@ const blockstunRowQaNotes: Readonly<Record<MeowtalFighterId, string>> = {
     "Approved runtime blockstun row. Visual QA: five separated upright two-legged gray rabbit guarded block-recoil frames, no visible text/watermark/frame numbers, same stance convention and proportions as approved idle/walk-forward/walk-back/crouch/jump/light-punch/hitstun, chroma-key removed to transparent alpha, normalized to 1280x256 RGBA, and approved for runtime publication by T055.",
   "ginger-tabby-cat":
     "Approved runtime blockstun row. Visual QA: five separated upright two-legged ginger tabby guarded block-recoil frames, no visible text/watermark/frame numbers, same stance convention and proportions as approved idle/walk-forward/walk-back/crouch/jump/light-punch/hitstun, chroma-key removed to transparent alpha, normalized to 1280x256 RGBA, and approved for runtime publication by T055.",
+};
+
+const heavyPunchRowQaNotes: Readonly<Record<MeowtalFighterId, string>> = {
+  "gray-rabbit":
+    "Generated source heavy-punch row candidate. Visual self-check: eight separated upright two-legged gray rabbit committed heavy paw-strike frames, no visible text/watermark/frame numbers, same stance convention and proportions as approved idle/walk-forward/walk-back/crouch/jump/light-punch/hitstun/blockstun, chroma-key removed to transparent alpha, normalized to a 2048x256 RGBA QA candidate, and pending follow-up visual QA before runtime publication.",
+  "ginger-tabby-cat":
+    "Generated source heavy-punch row candidate. Visual self-check: eight separated upright two-legged ginger tabby committed heavy paw-strike frames, no visible text/watermark/frame numbers, same stance convention and proportions as approved idle/walk-forward/walk-back/crouch/jump/light-punch/hitstun/blockstun, chroma-key removed to transparent alpha, normalized to a 2048x256 RGBA QA candidate, and pending follow-up visual QA before runtime publication.",
 };
 
 const animationFrameCounts: Readonly<Record<FighterAnimationId, number>> = {
@@ -447,12 +459,19 @@ export function validateMeowtalProductionManifest(
         if (!row.provenance.runtimePath?.includes("/assets/generated/fighters/")) {
           errors.push(`${row.provenance.assetId}: approved blockstun row requires a generated runtime path`);
         }
+      } else if (row.animationId === "heavy-punch") {
+        if (row.provenance.status !== "generated") {
+          errors.push(`${row.provenance.assetId}: heavy-punch row should remain generated until follow-up visual QA`);
+        }
+        if (row.provenance.runtimePath !== null) {
+          errors.push(`${row.provenance.assetId}: generated heavy-punch row must not have a runtime path before QA`);
+        }
       } else {
         if (row.provenance.status !== "blocked") {
           errors.push(`${row.provenance.assetId}: remaining animation rows must remain blocked`);
         }
-        if (!row.provenance.blocker?.includes("blockstun runtime promotion")) {
-          errors.push(`${row.provenance.assetId}: remaining row blocker must reference blockstun runtime promotion`);
+        if (!row.provenance.blocker?.includes("heavy-punch row QA")) {
+          errors.push(`${row.provenance.assetId}: remaining row blocker must reference heavy-punch row QA`);
         }
       }
     }
@@ -510,6 +529,8 @@ function makeFighters(): readonly MeowtalFighterAssetPlan[] {
                         ? approvedHitstunRowProvenance(fighterId, details)
                         : animationId === "blockstun"
                           ? approvedBlockstunRowProvenance(fighterId, details)
+                          : animationId === "heavy-punch"
+                            ? generatedHeavyPunchRowProvenance(fighterId, details)
                       : blockedAnimationRowProvenance(fighterId, animationId, details),
       })),
     };
@@ -527,8 +548,42 @@ function blockedAnimationRowProvenance(
     prompt: animationRowPrompt(details.displayName, animationId),
     status: "blocked",
     blocker:
-      "Wait for blockstun runtime promotion and a separate scoped generation task before generating this remaining animation row.",
+      "Wait for heavy-punch row QA and a separate scoped generation task before generating this remaining animation row.",
   });
+}
+
+function generatedHeavyPunchRowProvenance(
+  fighterId: MeowtalFighterId,
+  details: (typeof fighterDetails)[MeowtalFighterId],
+): AssetProvenance {
+  return {
+    ...imageProvenance({
+      assetId: `${fighterId}:heavy-punch`,
+      promptSlug: `${fighterId}-heavy-punch-animation-row`,
+      prompt: animationRowPrompt(details.displayName, "heavy-punch"),
+      status: "generated",
+      blocker: "",
+    }),
+    sourcePath: heavyPunchRowSourcePaths[fighterId],
+    runtimePath: null,
+    license: {
+      kind: "owned-generated",
+      summary:
+        "Generated with Codex built-in imagegen for this project; retained as a non-runtime heavy-punch row candidate pending follow-up visual QA.",
+      sourceUrl: null,
+      attribution: null,
+      checkedOn: generatedOn,
+    },
+    createdOrDownloadedOn: generatedOn,
+    transforms: [
+      "Copied selected built-in imagegen output into the repo source asset tree.",
+      "Removed generated chroma-key background to transparent alpha with the imagegen remove_chroma_key helper.",
+      "Separated the eight large connected fighter components into a transparent source row with consistent gutters.",
+      "Normalized to an 8-frame 2048x256 QA candidate under output/imagegen for visual review only.",
+    ],
+    approvalNotes: heavyPunchRowQaNotes[fighterId],
+    blocker: null,
+  };
 }
 
 function approvedBlockstunRowProvenance(

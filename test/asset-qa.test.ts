@@ -82,9 +82,9 @@ describe("imagegen asset QA command", () => {
     });
     const summary = JSON.parse(output) as AssetQaSummary;
 
-    expect(summary.checked).toBe(88);
-    expect(summary.runtimeReady).toBe(44);
-    expect(summary.needsNormalization).toBe(44);
+    expect(summary.checked).toBe(92);
+    expect(summary.runtimeReady).toBe(46);
+    expect(summary.needsNormalization).toBe(46);
     expect(summary.rows.map((row) => `${row.kind}:${row.fighterId}:${row.animationId}`).sort()).toEqual([
       "normalized-candidate:atlas-lion:blockstun",
       "normalized-candidate:atlas-lion:crouch",
@@ -102,6 +102,7 @@ describe("imagegen asset QA command", () => {
       "normalized-candidate:atlas-lion:win",
       "normalized-candidate:ginger-tabby-cat:blockstun",
       "normalized-candidate:ginger-tabby-cat:crouch",
+      "normalized-candidate:ginger-tabby-cat:heavy-punch",
       "normalized-candidate:ginger-tabby-cat:hitstun",
       "normalized-candidate:ginger-tabby-cat:idle",
       "normalized-candidate:ginger-tabby-cat:jump",
@@ -110,6 +111,7 @@ describe("imagegen asset QA command", () => {
       "normalized-candidate:ginger-tabby-cat:walk-forward",
       "normalized-candidate:gray-rabbit:blockstun",
       "normalized-candidate:gray-rabbit:crouch",
+      "normalized-candidate:gray-rabbit:heavy-punch",
       "normalized-candidate:gray-rabbit:hitstun",
       "normalized-candidate:gray-rabbit:idle",
       "normalized-candidate:gray-rabbit:jump",
@@ -146,6 +148,7 @@ describe("imagegen asset QA command", () => {
       "source:atlas-lion:win",
       "source:ginger-tabby-cat:blockstun",
       "source:ginger-tabby-cat:crouch",
+      "source:ginger-tabby-cat:heavy-punch",
       "source:ginger-tabby-cat:hitstun",
       "source:ginger-tabby-cat:idle",
       "source:ginger-tabby-cat:jump",
@@ -154,6 +157,7 @@ describe("imagegen asset QA command", () => {
       "source:ginger-tabby-cat:walk-forward",
       "source:gray-rabbit:blockstun",
       "source:gray-rabbit:crouch",
+      "source:gray-rabbit:heavy-punch",
       "source:gray-rabbit:hitstun",
       "source:gray-rabbit:idle",
       "source:gray-rabbit:jump",
@@ -194,6 +198,7 @@ describe("imagegen asset QA command", () => {
       "atlas-lion:win",
       "ginger-tabby-cat:blockstun",
       "ginger-tabby-cat:crouch",
+      "ginger-tabby-cat:heavy-punch",
       "ginger-tabby-cat:hitstun",
       "ginger-tabby-cat:idle",
       "ginger-tabby-cat:jump",
@@ -202,6 +207,7 @@ describe("imagegen asset QA command", () => {
       "ginger-tabby-cat:walk-forward",
       "gray-rabbit:blockstun",
       "gray-rabbit:crouch",
+      "gray-rabbit:heavy-punch",
       "gray-rabbit:hitstun",
       "gray-rabbit:idle",
       "gray-rabbit:jump",
@@ -243,7 +249,7 @@ describe("imagegen asset QA command", () => {
     }
 
     const normalizedRows = summary.rows.filter((row) => row.kind === "normalized-candidate");
-    expect(normalizedRows).toHaveLength(44);
+    expect(normalizedRows).toHaveLength(46);
     for (const row of normalizedRows) {
       expect(row.expected).toEqual({ width: row.frameCount * 256, height: 256 });
       expect(row.dimensions).toEqual(row.expected);
