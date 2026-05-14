@@ -85,7 +85,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T088
+active_task: T089
 
 tasks:
   - id: T000
@@ -4367,7 +4367,7 @@ tasks:
   - id: T088
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: low
     objective: "Promote exactly the four T087-approved Meowtal end-state rows, gray-rabbit:win, ginger-tabby-cat:win, gray-rabbit:lose, and ginger-tabby-cat:lose, from normalized QA candidates into runtime assets. Update manifest/provenance/tests so these four rows become approved runtime rows with public asset paths. Do not change gameplay/routing, arena, HUD, audio, effects, or other assets."
     inputs:
@@ -4401,6 +4401,62 @@ tasks:
       - "Promoted win PNGs are not exactly 2048x256 with alpha, or promoted lose PNGs are not exactly 1536x256 with alpha."
       - "Manifest/provenance cannot clearly record T087 approval before runtime promotion."
       - "Verification failures require changes outside the allowed files."
+    receipt:
+      result: done
+      summary: "Promoted exactly the four T087-approved Meowtal end-state rows into runtime assets. Manifest, provenance, and manifest tests now mark gray-rabbit:win, ginger-tabby-cat:win, gray-rabbit:lose, and ginger-tabby-cat:lose as approved runtime rows with public asset paths. All required Meowtal fighter animation rows are now runtime-approved. No gameplay/routing, arena, HUD, audio, effects, or other assets were changed."
+      changed_files:
+        - "public/assets/generated/fighters/gray-rabbit/win.png"
+        - "public/assets/generated/fighters/ginger-tabby-cat/win.png"
+        - "public/assets/generated/fighters/gray-rabbit/lose.png"
+        - "public/assets/generated/fighters/ginger-tabby-cat/lose.png"
+        - "src/assets/meowtalProductionManifest.ts"
+        - "docs/assets/meowtal-kombat-provenance.md"
+        - "test/meowtal-production-manifest.test.ts"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+      checksums:
+        gray_rabbit_win_runtime_sha256: "8248608e745602cdd92bc30455eebf589f811a536e90d7587a245f7dd48e0a4a"
+        ginger_tabby_win_runtime_sha256: "a10bef2b3e3db690658d634c84eb5cb0b2b4ad14f157e03d40e7a656ed35162f"
+        gray_rabbit_lose_runtime_sha256: "1f3181c9c6c24a381b6999cc856ee961d2d5a960e2935ab2dca07c076075ca40"
+        ginger_tabby_lose_runtime_sha256: "d1f68a1a400aac8646846dd9ce706718b8910ebb219e9e14f9a0c2370906b8d5"
+      commands:
+        - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha public/assets/generated/fighters/gray-rabbit/win.png public/assets/generated/fighters/ginger-tabby-cat/win.png public/assets/generated/fighters/gray-rabbit/lose.png public/assets/generated/fighters/ginger-tabby-cat/lose.png"
+          status: pass
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-qa.test.ts"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+      notes:
+        - "Focused tests passed with 2 files and 20 tests."
+        - "Full verify passed with 21 test files and 114 tests plus a production Vite build."
+        - "All required Meowtal fighter animation rows are now approved runtime assets."
+        - "Runtime character routing/switch, stage, UI/HUD/logo, particles, audio, and gameplay code were not touched."
+  - id: T089
+    type: judge
+    assignee: Judge
+    status: active
+    reasoning_hint: high
+    objective: "Scope the next smallest safe production slice after all Meowtal fighter animation rows are approved. Decide whether to switch runtime character routing to the Meowtal rabbit/cat assets, generate parallax arena layers, generate HUD/logo/UI assets, or choose another narrow production blocker. Do not edit files."
+    inputs:
+      - "T088 promotion receipt"
+      - "All required Meowtal fighter animation rows are approved runtime assets."
+      - "Original owner requirement: complete production-ready game, parallax arena, HUD/logo/UI assets, audio, effects, smooth gameplay feel, and Tough Love Arena benchmark."
+      - "Current runtime may still be Atlas/Moroccan themed until a routing/content slice switches it."
+    constraints:
+      - "Do not implement or edit files."
+      - "Prefer the smallest slice that unlocks playable Meowtal validation without creating a broad asset dump."
+      - "Do not choose a flashy visual slice if runtime still cannot show the Meowtal fighters."
+      - "Do not choose routing if required manifest/config/test evidence shows missing assets would make runtime broken or misleading."
+      - "Keep allowed_files tight enough for a small coherent commit."
+      - "Avoid PoC/demo-level completion shortcuts."
+    expected_output:
+      - "decision"
+      - "next_allowed_task"
+      - "allowed_files"
+      - "verification commands"
+      - "stop conditions"
+      - "why this advances production readiness"
     receipt: null
   - id: T005
     type: worker

@@ -244,6 +244,18 @@ const endStateRowSourcePaths: Readonly<Record<MeowtalFighterId, Readonly<Record<
     },
   };
 
+const endStateRowRuntimePaths: Readonly<Record<MeowtalFighterId, Readonly<Record<MeowtalEndStateAnimationId, string>>>> =
+  {
+    "gray-rabbit": {
+      win: "/assets/generated/fighters/gray-rabbit/win.png",
+      lose: "/assets/generated/fighters/gray-rabbit/lose.png",
+    },
+    "ginger-tabby-cat": {
+      win: "/assets/generated/fighters/ginger-tabby-cat/win.png",
+      lose: "/assets/generated/fighters/ginger-tabby-cat/lose.png",
+    },
+  };
+
 const heavyPunchRowSourcePaths: Readonly<Record<MeowtalFighterId, string>> = {
   "gray-rabbit": "assets/source/imagegen/fighters/gray-rabbit/heavy-punch.png",
   "ginger-tabby-cat": "assets/source/imagegen/fighters/ginger-tabby-cat/heavy-punch.png",
@@ -340,12 +352,12 @@ const knockdownRowQaNotes: Readonly<Record<MeowtalFighterId, string>> = {
 
 const endStateRowQaNotes: Readonly<Record<MeowtalFighterId, Readonly<Record<MeowtalEndStateAnimationId, string>>>> = {
   "gray-rabbit": {
-    win: "Generated source-only win row candidate. QA notes: eight separated upright two-legged gray rabbit arcade victory frames with guard recovery, hop, fist pump, playful flourish, confident smile, and held victory pose; no four-legged stance/crawl/rest/sleeping, no visible text/watermark/frame numbers, green chroma-key removed to transparent alpha, normalized QA candidate is 2048x256 RGBA, pending Judge visual QA before runtime publication.",
-    lose: "Generated source-only lose row candidate. QA notes: six separated gray rabbit arcade defeated/KO frames with upright two-legged stunned wobble, buckling, collapse, impact, and dazed grounded KO hold; no crawl/rest/sleeping or peaceful nap expression, no visible text/watermark/frame numbers, green chroma-key removed to transparent alpha, normalized QA candidate is 1536x256 RGBA, pending Judge visual QA before runtime publication.",
+    win: "Approved runtime win row. Visual QA: eight separated upright two-legged gray rabbit arcade victory frames with guard recovery, hop, fist pump, playful flourish, confident smile, and held victory pose; no four-legged stance/crawl/rest/sleeping, no visible text/watermark/frame numbers, green chroma-key removed to transparent alpha, normalized to 2048x256 RGBA, and approved for runtime publication by T087.",
+    lose: "Approved runtime lose row. Visual QA: six separated gray rabbit arcade defeated/KO frames with upright two-legged stunned wobble, buckling, collapse, impact, and dazed grounded KO hold; no crawl/rest/sleeping or peaceful nap expression, no visible text/watermark/frame numbers, green chroma-key removed to transparent alpha, normalized to 1536x256 RGBA, and approved for runtime publication by T087.",
   },
   "ginger-tabby-cat": {
-    win: "Generated source-only win row candidate. QA notes: eight separated upright two-legged ginger tabby arcade victory frames with guard recovery, proud tail flick, bounce, paw flourish, grin, and held smug victory pose; no four-legged stance/crawl/rest/sleeping, no visible text/watermark/frame numbers, green chroma-key removed to transparent alpha, normalized QA candidate is 2048x256 RGBA, pending Judge visual QA before runtime publication.",
-    lose: "Generated source-only lose row candidate. QA notes: six separated ginger tabby arcade defeated/KO frames with upright two-legged stunned wobble, buckling, collapse, impact, and dazed grounded KO hold; no crawl/rest/sleeping or peaceful nap expression, no visible text/watermark/frame numbers, green chroma-key removed to transparent alpha, normalized QA candidate is 1536x256 RGBA, pending Judge visual QA before runtime publication.",
+    win: "Approved runtime win row. Visual QA: eight separated upright two-legged ginger tabby arcade victory frames with guard recovery, proud tail flick, bounce, paw flourish, grin, and held smug victory pose; no four-legged stance/crawl/rest/sleeping, no visible text/watermark/frame numbers, green chroma-key removed to transparent alpha, normalized to 2048x256 RGBA, and approved for runtime publication by T087.",
+    lose: "Approved runtime lose row. Visual QA: six separated ginger tabby arcade defeated/KO frames with upright two-legged stunned wobble, buckling, collapse, impact, and dazed grounded KO hold; no crawl/rest/sleeping or peaceful nap expression, no visible text/watermark/frame numbers, green chroma-key removed to transparent alpha, normalized to 1536x256 RGBA, and approved for runtime publication by T087.",
   },
 };
 
@@ -572,11 +584,11 @@ export function validateMeowtalProductionManifest(
           errors.push(`${row.provenance.assetId}: knockdown row requires the scoped generated source path`);
         }
       } else if (row.animationId === "win" || row.animationId === "lose") {
-        if (row.provenance.status !== "generated") {
-          errors.push(`${row.provenance.assetId}: ${row.animationId} row should be source-generated after T086`);
+        if (row.provenance.status !== "approved") {
+          errors.push(`${row.provenance.assetId}: ${row.animationId} row should be runtime-approved after T088`);
         }
-        if (row.provenance.runtimePath !== null) {
-          errors.push(`${row.provenance.assetId}: source-only ${row.animationId} row must not have a runtime path before QA`);
+        if (!row.provenance.runtimePath?.includes("/assets/generated/fighters/")) {
+          errors.push(`${row.provenance.assetId}: approved ${row.animationId} row requires a generated runtime path`);
         }
         if (row.provenance.sourcePath !== endStateRowSourcePaths[fighter.id][row.animationId]) {
           errors.push(`${row.provenance.assetId}: ${row.animationId} row requires the scoped generated source path`);
@@ -653,7 +665,7 @@ function makeFighters(): readonly MeowtalFighterAssetPlan[] {
                                 : animationId === "knockdown"
                                   ? approvedKnockdownRowProvenance(fighterId, details)
                                   : animationId === "win" || animationId === "lose"
-                                    ? generatedEndStateRowProvenance(fighterId, animationId, details)
+                                    ? approvedEndStateRowProvenance(fighterId, animationId, details)
                                   : blockedAnimationRowProvenance(fighterId, animationId, details),
       })),
     };
@@ -709,7 +721,7 @@ function approvedKnockdownRowProvenance(
   };
 }
 
-function generatedEndStateRowProvenance(
+function approvedEndStateRowProvenance(
   fighterId: MeowtalFighterId,
   animationId: MeowtalEndStateAnimationId,
   details: (typeof fighterDetails)[MeowtalFighterId],
@@ -721,15 +733,15 @@ function generatedEndStateRowProvenance(
       assetId: `${fighterId}:${animationId}`,
       promptSlug: `${fighterId}-${animationId}-animation-row`,
       prompt: animationRowPrompt(details.displayName, animationId),
-      status: "generated",
+      status: "approved",
       blocker: "",
     }),
     sourcePath: endStateRowSourcePaths[fighterId][animationId],
-    runtimePath: null,
+    runtimePath: endStateRowRuntimePaths[fighterId][animationId],
     license: {
       kind: "owned-generated",
       summary:
-        "Generated with Codex built-in imagegen as a chroma-keyed end-state reference row for this project; source-only candidate pending visual QA.",
+        "Generated with Codex built-in imagegen as a chroma-keyed end-state reference row for this project; approved normalized runtime end-state row after T087 visual QA.",
       sourceUrl: null,
       attribution: null,
       checkedOn: generatedOn,
@@ -738,7 +750,7 @@ function generatedEndStateRowProvenance(
     transforms: [
       "Generated green chroma-keyed imagegen win/lose reference rows after T085 scoped paired source-only end-state candidates.",
       "Removed the green chroma-key background with soft matte and despill to produce transparent source rows.",
-      `Normalized to a ${frameCount}-frame ${width}x256 QA candidate under output/imagegen; runtime publication remains blocked pending Judge visual QA.`,
+      `Normalized to a ${frameCount}-frame ${width}x256 QA candidate under output/imagegen and promoted the approved row to public runtime assets after T087 visual QA.`,
     ],
     approvalNotes: endStateRowQaNotes[fighterId][animationId],
     blocker: null,
