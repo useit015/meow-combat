@@ -83,7 +83,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T020
+active_task: T021
 
 tasks:
   - id: T000
@@ -479,7 +479,7 @@ tasks:
   - id: T020
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: low
     objective: "Add a typed Meowtal production asset/provenance scaffold for the gray rabbit, ginger tabby, bright courtyard stage, UI/HUD/logo surfaces, and audio cue inventory. Include canonical character-sheet entries for both fighters, provenance/license fields, and tests proving that animation rows remain unavailable until canonical sheets are approved. Do not switch runtime content yet and do not generate binary assets."
     allowed_files:
@@ -501,6 +501,52 @@ tasks:
       - "Files outside allowed_files are required."
       - "Existing Atlas runtime tests must be weakened to pass."
       - "Verification fails twice for the same underlying reason."
+    receipt:
+      result: done
+      summary: "Added a typed Meowtal production asset/provenance scaffold without switching runtime content or generating binary assets. The manifest names gray rabbit and ginger tabby canonical sheets, blocks all animation rows until canonical approval, defines the layered courtyard, UI/HUD/logo/effects surfaces, and audio cue inventory, and records the provenance ledger rules."
+      changed_files:
+        - "src/assets/meowtalProductionManifest.ts"
+        - "src/assets/provenance.ts"
+        - "src/assets/index.ts"
+        - "test/meowtal-production-manifest.test.ts"
+        - "docs/assets/meowtal-kombat-provenance.md"
+      commands:
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm test -- --run test/meowtal-production-manifest.test.ts test/imagegen-jobs.test.ts test/asset-readiness.test.ts"
+          status: pass
+        - cmd: "npm run build"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+      notes:
+        - "The asset barrel exports Meowtal manifest types only; prompt-heavy value data stays out of the gameplay bundle unless directly imported by tooling/tests."
+        - "Full verify passed with 21 test files and 99 tests."
+  - id: T021
+    type: judge
+    assignee: Judge
+    status: active
+    reasoning_hint: high
+    objective: "Scope the canonical character sheet generation slice for the gray rabbit and ginger/orange tabby cat. Select the exact Worker task, allowed files, verification, and stop conditions needed to generate or integrate canonical sheets with provenance before any animation rows."
+    inputs:
+      - "T020 Meowtal production manifest and provenance scaffold"
+      - "docs/visual-reference/meowtal-kombat/vision-01.png through vision-04.png"
+      - "docs/assets/meowtal-kombat-provenance.md"
+      - "Goal character sheet template"
+      - "Goal requirement: animation consistency requires canonical sheets before animation rows"
+    constraints:
+      - "Do not implement in the Judge task."
+      - "Do not generate animation rows."
+      - "Do not switch runtime content from Atlas Arena to Meowtal Kombat."
+      - "Keep generated or integrated binary assets limited to canonical sheet files if the next Worker is allowed to generate assets."
+      - "Require provenance updates and visual QA evidence for each sheet."
+    expected_output:
+      - "Decision and rationale"
+      - "Exact canonical-sheet Worker objective"
+      - "allowed_files"
+      - "verify commands"
+      - "stop_if conditions"
+      - "visual QA expectations"
     receipt: null
   - id: T005
     type: worker
@@ -652,15 +698,13 @@ checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T004
+    task: T020
     commands:
       - cmd: "npm run typecheck"
         status: pass
-      - cmd: "npm test -- --run test/game-config.test.ts test/character-select.test.ts"
+      - cmd: "npm test -- --run test/meowtal-production-manifest.test.ts test/imagegen-jobs.test.ts test/asset-readiness.test.ts"
         status: pass
       - cmd: "npm run build"
-        status: pass
-      - cmd: "node /Users/oussmustaine/.codex/skills/develop-web-game/scripts/web_game_playwright_client.js --url 'http://127.0.0.1:5173/?demo=super' --actions-json '{\"steps\":[{\"frames\":4}]}' --iterations 1 --pause-ms 250 --screenshot-dir output/meowtal-t004"
         status: pass
       - cmd: "npm run verify"
         status: pass

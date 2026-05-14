@@ -1,6 +1,8 @@
 export * from "./animationMap";
 export * from "./catalog";
 export * from "./imagegenJobs";
+export type * from "./meowtalProductionManifest";
+export type * from "./provenance";
 export * from "./runtime";
 export * from "./readiness";
 export * from "./stageRuntime";

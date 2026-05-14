@@ -1,0 +1,419 @@
+import { REQUIRED_FIGHTER_ANIMATIONS, type FighterAnimationId } from "./types";
+import {
+  approvedAssetIds,
+  plannedLicense,
+  validateProvenanceEntries,
+  type AssetProvenance,
+  type AssetSourceKind,
+  type ProvenanceStatus,
+  type ProvenanceValidationResult,
+} from "./provenance";
+
+export type MeowtalFighterId = "gray-rabbit" | "ginger-tabby-cat";
+export type MeowtalStageLayerId =
+  | "sky-lighting"
+  | "distant-hills-city"
+  | "background-walls-pillars"
+  | "midground-trees-bushes"
+  | "playfield-stone-courtyard"
+  | "foreground-dust-leaves";
+export type MeowtalVisualSurfaceId =
+  | "logo-title-mark"
+  | "title-key-art"
+  | "hud-frame"
+  | "rabbit-portrait"
+  | "cat-portrait"
+  | "health-bar-rabbit"
+  | "health-bar-cat"
+  | "super-meter"
+  | "timer-frame"
+  | "fight-ko-victory-overlays"
+  | "pause-options-panel"
+  | "touch-controls"
+  | "loading-fallback"
+  | "particle-atlas"
+  | "damage-number-style";
+export type MeowtalAudioCueId =
+  | "music-loop"
+  | "ui-confirm"
+  | "fight-announcer"
+  | "hit-light"
+  | "hit-heavy"
+  | "block-impact"
+  | "dash-whoosh"
+  | "rabbit-tornado"
+  | "cat-aura-blast"
+  | "ko-burst"
+  | "victory-sting";
+
+export interface MeowtalCanonicalSheetPlan {
+  fighterId: MeowtalFighterId;
+  requiredBeforeAnimationRows: true;
+  provenance: AssetProvenance;
+}
+
+export interface MeowtalAnimationRowPlan {
+  fighterId: MeowtalFighterId;
+  animationId: FighterAnimationId;
+  frameCount: number;
+  cellSize: 256;
+  provenance: AssetProvenance;
+}
+
+export interface MeowtalFighterAssetPlan {
+  id: MeowtalFighterId;
+  displayName: string;
+  engineCharacterId: string;
+  silhouette: string;
+  personality: string;
+  specialEnergy: string;
+  canonicalSheet: MeowtalCanonicalSheetPlan;
+  animationRows: readonly MeowtalAnimationRowPlan[];
+}
+
+export interface MeowtalStageLayerPlan {
+  id: MeowtalStageLayerId;
+  parallax: number;
+  role: string;
+  provenance: AssetProvenance;
+}
+
+export interface MeowtalVisualSurfacePlan {
+  id: MeowtalVisualSurfaceId;
+  role: string;
+  provenance: AssetProvenance;
+}
+
+export interface MeowtalAudioCuePlan {
+  id: MeowtalAudioCueId;
+  role: string;
+  provenance: AssetProvenance;
+}
+
+export interface MeowtalProductionManifest {
+  id: "meowtal-kombat-production";
+  title: "Meowtal Kombat";
+  provenanceDocument: "docs/assets/meowtal-kombat-provenance.md";
+  visualReferences: readonly string[];
+  fighters: readonly MeowtalFighterAssetPlan[];
+  stage: {
+    id: "meowtal-courtyard";
+    displayName: "Bright Courtyard";
+    layers: readonly MeowtalStageLayerPlan[];
+  };
+  visualSurfaces: readonly MeowtalVisualSurfacePlan[];
+  audioCues: readonly MeowtalAudioCuePlan[];
+}
+
+const canonicalBlocker = "Generate and approve the canonical character sheet before creating animation rows.";
+const binaryBlocker = "Planned production asset only; no binary image or audio generated in the T020 scaffold.";
+
+const animationFrameCounts: Readonly<Record<FighterAnimationId, number>> = {
+  idle: 8,
+  "walk-forward": 8,
+  "walk-back": 8,
+  crouch: 4,
+  jump: 6,
+  "light-punch": 6,
+  "heavy-punch": 8,
+  "light-kick": 8,
+  special: 10,
+  hitstun: 5,
+  blockstun: 5,
+  knockdown: 8,
+  win: 8,
+  lose: 6,
+};
+
+const fighterDetails: Readonly<
+  Record<
+    MeowtalFighterId,
+    {
+      displayName: string;
+      silhouette: string;
+      personality: string;
+      body: string;
+      markings: string;
+      signatureTraits: string;
+      specialEnergy: string;
+    }
+  >
+> = {
+  "gray-rabbit": {
+    displayName: "Gray Rabbit",
+    silhouette: "long ears, compact athletic body, strong hind legs, springy hopping stance",
+    personality: "cute, alert, determined, slightly comedic",
+    body: "small athletic animal body with powerful hind legs and readable kicking shapes",
+    markings: "soft gray fur, lighter belly, dark ear tips, white paws",
+    signatureTraits: "hopping movement, spinning kicks, tornado special, green energy trail",
+    specialEnergy: "green tornado energy",
+  },
+  "ginger-tabby-cat": {
+    displayName: "Ginger/Orange Tabby Cat",
+    silhouette: "fluffy orange tabby fur, round expressive face, agile body, visible striped tail",
+    personality: "playful, confident, mischievous, dramatic",
+    body: "agile house-cat body with acrobatic pounce poses and clear tail-attack silhouettes",
+    markings: "orange tabby stripes, lighter muzzle and chest, fluffy striped tail",
+    signatureTraits: "pounce attacks, tail strikes, loaf idle pose, acrobatic flips, yellow-green aura projectile",
+    specialEnergy: "yellow-green aura and projectile energy",
+  },
+};
+
+export const meowtalProductionManifest: MeowtalProductionManifest = {
+  id: "meowtal-kombat-production",
+  title: "Meowtal Kombat",
+  provenanceDocument: "docs/assets/meowtal-kombat-provenance.md",
+  visualReferences: [
+    "docs/visual-reference/meowtal-kombat/vision-01.png",
+    "docs/visual-reference/meowtal-kombat/vision-02.png",
+    "docs/visual-reference/meowtal-kombat/vision-03.png",
+    "docs/visual-reference/meowtal-kombat/vision-04.png",
+  ],
+  fighters: makeFighters(),
+  stage: {
+    id: "meowtal-courtyard",
+    displayName: "Bright Courtyard",
+    layers: [
+      stageLayer("sky-lighting", 0.08, "Vibrant blue sky, warm sun rays, lens flare, and soft atmosphere."),
+      stageLayer("distant-hills-city", 0.18, "Distant colorful hills and city shapes behind the arena."),
+      stageLayer("background-walls-pillars", 0.34, "Low stone walls, courtyard pillars, and readable architectural depth."),
+      stageLayer("midground-trees-bushes", 0.58, "Scattered trees and bushes that frame the fight without covering silhouettes."),
+      stageLayer("playfield-stone-courtyard", 1, "Bright stone-paved fighting lane with stable gameplay readability."),
+      stageLayer("foreground-dust-leaves", 1.16, "Subtle foreground leaves, dust puffs, and edge props for parallax motion."),
+    ],
+  },
+  visualSurfaces: [
+    visualSurface("logo-title-mark", "Production Meowtal Kombat title mark for title and loading surfaces."),
+    visualSurface("title-key-art", "Hero key art showing rabbit versus tabby without becoming runtime animation."),
+    visualSurface("hud-frame", "Mortal-Kombat-inspired HUD frame with original shapes and no copied branding."),
+    visualSurface("rabbit-portrait", "Gray Rabbit HUD/select portrait grounded in canonical sheet."),
+    visualSurface("cat-portrait", "Ginger tabby HUD/select portrait grounded in canonical sheet."),
+    visualSurface("health-bar-rabbit", "Red rabbit health bar treatment."),
+    visualSurface("health-bar-cat", "Blue cat health bar treatment."),
+    visualSurface("super-meter", "Bottom special/super meter treatment with readable fill states."),
+    visualSurface("timer-frame", "Top center 99 timer frame."),
+    visualSurface("fight-ko-victory-overlays", "FIGHT, K.O., round, and victory overlays with explosive particles."),
+    visualSurface("pause-options-panel", "Pause/options/rematch panel art."),
+    visualSurface("touch-controls", "Mobile touch-control button art and icons."),
+    visualSurface("loading-fallback", "Loading and graceful fallback surface."),
+    visualSurface("particle-atlas", "Hit sparks, dust, aura, projectile, tornado, flash, and meter particles."),
+    visualSurface("damage-number-style", "Damage number typography/style sprites or procedural style source."),
+  ],
+  audioCues: [
+    audioCue("music-loop", "Short arcade fight music loop for the courtyard match.", "manual"),
+    audioCue("ui-confirm", "Menu confirm and select tick.", "procedural"),
+    audioCue("fight-announcer", "FIGHT announcement voice or stylized bark.", "elevenlabs-sound-generation"),
+    audioCue("hit-light", "Light hit impact.", "procedural"),
+    audioCue("hit-heavy", "Heavy impact with hitstop punch.", "procedural"),
+    audioCue("block-impact", "Guard impact clack.", "procedural"),
+    audioCue("dash-whoosh", "Dash and hop movement whoosh.", "procedural"),
+    audioCue("rabbit-tornado", "Rabbit tornado special spin.", "elevenlabs-sound-generation"),
+    audioCue("cat-aura-blast", "Cat aura projectile or flip-kick special.", "elevenlabs-sound-generation"),
+    audioCue("ko-burst", "K.O. burst and particle explosion.", "elevenlabs-sound-generation"),
+    audioCue("victory-sting", "Short victory sting.", "elevenlabs-sound-generation"),
+  ],
+};
+
+export function collectMeowtalProvenanceEntries(
+  manifest: MeowtalProductionManifest = meowtalProductionManifest,
+): readonly AssetProvenance[] {
+  return [
+    ...manifest.fighters.flatMap((fighter) => [
+      fighter.canonicalSheet.provenance,
+      ...fighter.animationRows.map((row) => row.provenance),
+    ]),
+    ...manifest.stage.layers.map((layer) => layer.provenance),
+    ...manifest.visualSurfaces.map((surface) => surface.provenance),
+    ...manifest.audioCues.map((cue) => cue.provenance),
+  ];
+}
+
+export function validateMeowtalProductionManifest(
+  manifest: MeowtalProductionManifest = meowtalProductionManifest,
+): ProvenanceValidationResult {
+  const errors = [...validateProvenanceEntries(collectMeowtalProvenanceEntries(manifest)).errors];
+  if (manifest.fighters.length !== 2) errors.push("Meowtal production manifest requires exactly two fighters.");
+  if (manifest.stage.layers.length < 5) errors.push("Meowtal courtyard requires at least five parallax layers.");
+
+  for (const fighter of manifest.fighters) {
+    if (!fighter.canonicalSheet.requiredBeforeAnimationRows) {
+      errors.push(`${fighter.id}: canonical sheet must gate animation rows`);
+    }
+    if (fighter.animationRows.length !== REQUIRED_FIGHTER_ANIMATIONS.length) {
+      errors.push(`${fighter.id}: missing animation row plans`);
+    }
+    for (const row of fighter.animationRows) {
+      if (row.provenance.status !== "blocked") {
+        errors.push(`${row.provenance.assetId}: animation rows must remain blocked before canonical approval`);
+      }
+      if (!row.provenance.blocker?.includes("canonical character sheet")) {
+        errors.push(`${row.provenance.assetId}: animation row blocker must reference canonical sheet approval`);
+      }
+    }
+  }
+
+  return { ok: errors.length === 0, errors };
+}
+
+export function canonicalSheetsApproved(manifest: MeowtalProductionManifest = meowtalProductionManifest): boolean {
+  const approved = new Set(approvedAssetIds(collectMeowtalProvenanceEntries(manifest)));
+  return manifest.fighters.every((fighter) => approved.has(fighter.canonicalSheet.provenance.assetId));
+}
+
+export function blockedAnimationRowsUntilCanonicalApproved(
+  manifest: MeowtalProductionManifest = meowtalProductionManifest,
+): readonly MeowtalAnimationRowPlan[] {
+  if (canonicalSheetsApproved(manifest)) return [];
+  return manifest.fighters.flatMap((fighter) => fighter.animationRows);
+}
+
+function makeFighters(): readonly MeowtalFighterAssetPlan[] {
+  return (Object.keys(fighterDetails) as MeowtalFighterId[]).map((fighterId) => {
+    const details = fighterDetails[fighterId];
+    return {
+      id: fighterId,
+      displayName: details.displayName,
+      engineCharacterId: fighterId,
+      silhouette: details.silhouette,
+      personality: details.personality,
+      specialEnergy: details.specialEnergy,
+      canonicalSheet: {
+        fighterId,
+        requiredBeforeAnimationRows: true,
+        provenance: imageProvenance({
+          assetId: `${fighterId}:canonical-character-sheet`,
+          promptSlug: `${fighterId}-canonical-character-sheet`,
+          prompt: canonicalSheetPrompt(fighterId),
+          blocker: binaryBlocker,
+        }),
+      },
+      animationRows: REQUIRED_FIGHTER_ANIMATIONS.map((animationId) => ({
+        fighterId,
+        animationId,
+        frameCount: animationFrameCounts[animationId],
+        cellSize: 256,
+        provenance: imageProvenance({
+          assetId: `${fighterId}:${animationId}`,
+          promptSlug: `${fighterId}-${animationId}-animation-row`,
+          prompt: [
+            `Using the approved canonical character sheet for ${details.displayName}, create the ${animationId} animation row.`,
+            "Keep the fighter identity, species, markings, proportions, camera angle, lighting, scale, and render style consistent.",
+            "Do not include detached hit sparks, dust, text, logos, watermarks, frame numbers, or background art in the row.",
+          ].join("\n"),
+          status: "blocked",
+          blocker: canonicalBlocker,
+        }),
+      })),
+    };
+  });
+}
+
+function canonicalSheetPrompt(fighterId: MeowtalFighterId): string {
+  const details = fighterDetails[fighterId];
+  return [
+    `Create a complete polished character design sheet for ${details.displayName}, an original Meowtal Kombat fighter, on a clean light background.`,
+    `Show a faithful consistent depiction with ${details.silhouette}, ${details.personality} expression, ${details.body}, ${details.markings}, ${details.signatureTraits}, and ${details.specialEnergy}.`,
+    "Present the sheet as professional production concept art with full-body front view, side view, back view, 3/4 heroic pose, action-ready fighting pose, relaxed idle pose, large head close-up, and expression sheet.",
+    "Include calm idle, excited grin, battle focus, shocked comedic expression, hit reaction, and powering-up intensity.",
+    "Include detail callouts for silhouette, ears/tail/paws, fur markings, attack limbs, special-effect aura shape, readable gameplay pose shapes, size reference, and color swatches.",
+    "Render as polished high-quality 2D arcade fighting game concept art, clean linework, vibrant cel-shaded color, animation-friendly shapes, consistent proportions, no watermark.",
+  ].join("\n");
+}
+
+function stageLayer(id: MeowtalStageLayerId, parallax: number, role: string): MeowtalStageLayerPlan {
+  return {
+    id,
+    parallax,
+    role,
+    provenance: imageProvenance({
+      assetId: `meowtal-courtyard:${id}`,
+      promptSlug: `meowtal-courtyard-${id}`,
+      prompt: `Create the ${id} parallax layer for Meowtal Kombat's bright outdoor stone courtyard. ${role} Keep fighters and HUD readable. No text, logos, watermarks, or real brand marks.`,
+      blocker: binaryBlocker,
+    }),
+  };
+}
+
+function visualSurface(id: MeowtalVisualSurfaceId, role: string): MeowtalVisualSurfacePlan {
+  return {
+    id,
+    role,
+    provenance: imageProvenance({
+      assetId: `ui:${id}`,
+      promptSlug: `meowtal-ui-${id}`,
+      prompt: `Create the ${id} visual surface for Meowtal Kombat. ${role} Keep it original, readable, arcade-polished, and free of copied fighting-game branding.`,
+      blocker: binaryBlocker,
+    }),
+  };
+}
+
+function audioCue(id: MeowtalAudioCueId, role: string, sourceKind: AssetSourceKind): MeowtalAudioCuePlan {
+  return {
+    id,
+    role,
+    provenance: {
+      ...baseProvenance({
+        assetId: `audio:${id}`,
+        sourceKind,
+        promptSlug: `meowtal-audio-${id}`,
+        prompt: `Create or synthesize ${id} for Meowtal Kombat. ${role}`,
+        blocker: binaryBlocker,
+      }),
+      medium: "audio",
+    },
+  };
+}
+
+function imageProvenance(input: {
+  assetId: string;
+  promptSlug: string;
+  prompt: string;
+  status?: ProvenanceStatus;
+  blocker: string;
+}): AssetProvenance {
+  return {
+    ...baseProvenance({
+      assetId: input.assetId,
+      sourceKind: "codex-imagegen",
+      promptSlug: input.promptSlug,
+      prompt: input.prompt,
+      status: input.status,
+      blocker: input.blocker,
+    }),
+    medium: "image",
+  };
+}
+
+function baseProvenance(input: {
+  assetId: string;
+  sourceKind: AssetSourceKind;
+  promptSlug: string;
+  prompt: string;
+  status?: ProvenanceStatus;
+  blocker: string;
+}): AssetProvenance {
+  return {
+    assetId: input.assetId,
+    medium: "image",
+    status: input.status ?? "planned",
+    sourceKind: input.sourceKind,
+    provider: providerFor(input.sourceKind),
+    promptSlug: input.promptSlug,
+    prompt: input.prompt,
+    sourcePath: null,
+    runtimePath: null,
+    license: plannedLicense("Pending generated, procedural, or vetted-source asset approval before runtime use."),
+    createdOrDownloadedOn: null,
+    transforms: [],
+    approvalNotes: "Not approved for runtime use yet.",
+    blocker: input.blocker,
+  };
+}
+
+function providerFor(sourceKind: AssetSourceKind): string {
+  if (sourceKind === "codex-imagegen") return "Codex imagegen";
+  if (sourceKind === "elevenlabs-sound-generation") return "ElevenLabs sound generation";
+  if (sourceKind === "pixabay") return "Pixabay";
+  if (sourceKind === "procedural") return "WebAudio/procedural synthesis";
+  return "Manual production";
+}
