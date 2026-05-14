@@ -150,6 +150,15 @@ function checkPauseReadability(state, scenario, failures) {
   );
 }
 
+function checkControlFallback(state, scenario, failures) {
+  const controls = state.controls;
+  assert(controls?.keyboardSupported === true, failures, `${scenario} should report keyboard support`);
+  assert(typeof controls?.fallbackLine === "string", failures, `${scenario} should report a control fallback line`);
+  assert(controls?.fallbackLine?.includes("GAMEPAD"), failures, `${scenario} fallback should mention gamepad status`);
+  assert(controls?.fallbackLine?.includes("KEYBOARD"), failures, `${scenario} fallback should mention keyboard fallback`);
+  assert(Number.isInteger(controls?.connectedGamepads), failures, `${scenario} should report connected gamepad count`);
+}
+
 async function screenshot(page, outDir, name) {
   const file = path.join(outDir, `${name}.png`);
   await page.screenshot({ path: file, fullPage: true });
@@ -195,6 +204,7 @@ async function runDesktop(browser, url, outDir) {
 
   const shot = await screenshot(page, outDir, "desktop-keyboard-fight");
   assert(state.touchControls?.visible === false, failures, "desktop should not show touch controls");
+  checkControlFallback(state, "desktop", failures);
   assert(state.shellPhase === "fighting", failures, `desktop expected fighting phase, got ${state.shellPhase}`);
   assert(state.fighters?.p1?.state === "lightAttack", failures, `desktop J expected lightAttack, got ${state.fighters?.p1?.state}`);
   assert(missingRuntimeUi(state).length === 0, failures, `desktop missing runtime UI: ${missingRuntimeUi(state).join(", ")}`);
@@ -222,6 +232,7 @@ async function runMobile(browser, url, outDir, name, viewport, expectedLayout) {
   assert(state.shellPhase === "fighting", failures, `${name} expected fighting phase, got ${state.shellPhase}`);
   assert(state.touchControls?.visible === true, failures, `${name} should show touch controls`);
   assert(state.touchControls?.layout === expectedLayout, failures, `${name} expected ${expectedLayout}, got ${state.touchControls?.layout}`);
+  checkControlFallback(state, name, failures);
   await checkTouchReadability(page, state, name, failures);
 
   state = await holdControl(page, "right", 10);

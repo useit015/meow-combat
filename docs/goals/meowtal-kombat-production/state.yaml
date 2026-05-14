@@ -85,7 +85,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T108
+active_task: T109
 
 tasks:
   - id: T000
@@ -5590,7 +5590,7 @@ tasks:
   - id: T108
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: low
     objective: "Add a small production input-fallback slice for gamepad readiness or explicit in-game fallback messaging, so players without keyboard/touch support get a clear supported-control path without changing combat rules."
     inputs:
@@ -5613,6 +5613,61 @@ tasks:
       - "Requires changes to combat simulation rules, frame data timings, damage, physics, fighter assets, audio, particles, or animation rows."
       - "Files outside allowed_files are needed."
       - "Keyboard or mobile touch flows regress after one scoped fix attempt."
+    receipt:
+      result: done
+      summary: "Added explicit supported-control fallback messaging and runtime telemetry. The ready/select shell now tells players without a detected gamepad to use keyboard or phone touch, and render_game_to_text reports keyboard support, touch support, Gamepad API support, connected gamepad count, and the fallback line."
+      changed_files:
+        - "src/game/MoroccanArenaScene.ts"
+        - "scripts/smoke-meowtal-browser.mjs"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+      commands:
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm test -- --run test/presentation.test.ts test/touch-controls.test.ts"
+          status: pass
+        - cmd: "node --check scripts/smoke-meowtal-browser.mjs"
+          status: pass
+        - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules node scripts/smoke-meowtal-browser.mjs --url http://127.0.0.1:4173/ --out-dir output/web-game/meowtal-input-fallback-t108"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+      evidence:
+        - "output/web-game/meowtal-input-fallback-t108/report.json"
+        - "output/web-game/meowtal-input-fallback-t108/portrait-ready.png"
+        - "output/web-game/meowtal-input-fallback-t108/landscape-ready.png"
+        - "output/web-game/meowtal-input-fallback-t108/desktop-keyboard-fight.png"
+      judge:
+        agent: "019e2878-e3ff-7731-8b09-e782917f8751"
+        result: approve
+        summary: "Judge approved T108: scope stayed narrow, fallback telemetry and visible ready/select messaging are present, smoke asserts desktop/portrait/landscape control fallback telemetry, and no combat/assets/audio/dependency changes were made."
+      notes:
+        - "Residual risk: connected-gamepad and unsupported-Gamepad-API branches are not directly exercised yet."
+        - "This is explicit fallback/readiness messaging, not full gamepad combat support."
+  - id: T109
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: low
+    objective: "Harden T108 fallback verification by moving the control-fallback helper into a pure module and unit-testing connected-gamepad, no-gamepad, and unsupported-Gamepad-API states without changing gameplay behavior."
+    inputs:
+      - "T108 Judge residual risk"
+      - "Existing control fallback telemetry in MoroccanArenaScene"
+      - "Small-batch commit rule"
+    allowed_files:
+      - "src/game/MoroccanArenaScene.ts"
+      - "src/game/controlFallback.ts"
+      - "test/control-fallback.test.ts"
+      - "test/presentation.test.ts"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+    verify:
+      - "npm run typecheck"
+      - "npm test -- --run test/control-fallback.test.ts test/presentation.test.ts"
+      - "npm run verify"
+    stop_if:
+      - "Requires changing combat simulation rules, input routing, frame data timings, damage, physics, fighter assets, audio, particles, or animation rows."
+      - "Requires external libraries, browser permissions, hardware gamepad verification, or full gamepad implementation."
+      - "Files outside allowed_files are needed."
+      - "Keyboard or mobile touch smoke behavior would need product changes beyond pure helper extraction."
     receipt: null
   - id: T005
     type: worker
@@ -5764,17 +5819,17 @@ checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T107
+    task: T108
     commands:
       - cmd: "npm run typecheck"
         status: pass
-      - cmd: "npm test -- --run test/touch-controls.test.ts test/presentation.test.ts"
+      - cmd: "npm test -- --run test/presentation.test.ts test/touch-controls.test.ts"
         status: pass
       - cmd: "node --check scripts/smoke-meowtal-browser.mjs"
         status: pass
-      - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules node scripts/smoke-meowtal-browser.mjs --url http://127.0.0.1:4173/ --out-dir output/web-game/meowtal-touch-t107"
+      - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules node scripts/smoke-meowtal-browser.mjs --url http://127.0.0.1:4173/ --out-dir output/web-game/meowtal-input-fallback-t108"
         status: pass
       - cmd: "npm run verify"
         status: pass
-      - cmd: "Browser/Playwright smoke at output/web-game/meowtal-touch-t107/report.json"
+      - cmd: "Browser/Playwright smoke at output/web-game/meowtal-input-fallback-t108/report.json"
         status: pass

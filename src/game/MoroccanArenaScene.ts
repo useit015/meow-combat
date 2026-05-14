@@ -52,6 +52,13 @@ import {
 type KeyMap = Record<string, Phaser.Input.Keyboard.Key>;
 type ImpactFlash = { color: number; alpha: number; remainingFrames: number; totalFrames: number };
 type StageLayerImage = { layer: StageRuntimeLayer; image: Phaser.GameObjects.Image };
+type ControlFallbackState = {
+  keyboardSupported: boolean;
+  touchSupported: boolean;
+  gamepadSupported: boolean;
+  connectedGamepads: number;
+  fallbackLine: string;
+};
 type RuntimeUiImageSlot =
   | "title-logo"
   | "hud-frame"
@@ -510,6 +517,7 @@ export class MoroccanArenaScene extends Phaser.Scene {
         p1: spriteStanceConventionForAnimation(runtimeVisuals.p1.animationId),
         p2: spriteStanceConventionForAnimation(runtimeVisuals.p2.animationId),
       },
+      controls: this.controlFallbackState(),
       touchControls: {
         visible: this.shouldShowTouchControls(),
         layout: this.touchControlLayout(),
@@ -1639,7 +1647,7 @@ export class MoroccanArenaScene extends Phaser.Scene {
 
   private renderShellText(): void {
     this.titleText.setText(shellTitle(this.shell, this.snapshot, this.matchSet));
-    this.helpText.setText(shellHelp(this.shell, this.selectionLabel()));
+    this.helpText.setText(shellHelp(this.shell, this.selectionLabel(), this.controlFallbackState().fallbackLine));
     this.titleText.setVisible(true);
     this.versusText.setVisible(this.shell.phase === "select");
     this.helpText.setVisible(true);
@@ -1784,6 +1792,17 @@ export class MoroccanArenaScene extends Phaser.Scene {
     this.input.keyboard?.on("keydown", () => this.audio.unlock());
   }
 
+  private controlFallbackState(): ControlFallbackState {
+    const gamepadSupported = typeof navigator.getGamepads === "function";
+    const gamepads = gamepadSupported ? navigator.getGamepads() : [];
+    const connectedGamepads = Array.from(gamepads).filter((gamepad) => gamepad?.connected).length;
+    return buildControlFallbackState({
+      connectedGamepads,
+      gamepadSupported,
+      touchSupported: this.shouldShowTouchControls(),
+    });
+  }
+
   private toggleFullscreen(): void {
     if (this.scale.isFullscreen) {
       this.scale.stopFullscreen();
@@ -1851,12 +1870,38 @@ function shellTitle(shell: ShellState, snapshot: MatchSnapshot, matchSet: MatchS
   return "";
 }
 
-function shellHelp(shell: ShellState, selectionLabel: string): string {
+export function buildControlFallbackState(input: {
+  connectedGamepads: number;
+  gamepadSupported: boolean;
+  touchSupported: boolean;
+}): ControlFallbackState {
+  if (input.connectedGamepads > 0) {
+    return {
+      keyboardSupported: true,
+      touchSupported: input.touchSupported,
+      gamepadSupported: input.gamepadSupported,
+      connectedGamepads: input.connectedGamepads,
+      fallbackLine: `${input.connectedGamepads} GAMEPAD DETECTED  |  KEYBOARD${input.touchSupported ? " / TOUCH" : ""} READY`,
+    };
+  }
+
+  return {
+    keyboardSupported: true,
+    touchSupported: input.touchSupported,
+    gamepadSupported: input.gamepadSupported,
+    connectedGamepads: 0,
+    fallbackLine: input.gamepadSupported
+      ? "NO GAMEPAD?  KEYBOARD / PHONE TOUCH"
+      : "GAMEPAD UNAVAILABLE  |  KEYBOARD / PHONE TOUCH",
+  };
+}
+
+function shellHelp(shell: ShellState, selectionLabel: string, controlFallbackLine: string): string {
   if (shell.phase === "ready") {
-    return `${GAME_SUBTITLE}\nPRESS ENTER\nDouble-tap D/B run  |  W+dir hop  |  Space/J light\nI kick  |  K heavy  |  L special  |  S,D,L super`;
+    return `${GAME_SUBTITLE}\nPRESS ENTER\n${controlFallbackLine}\nDouble-tap D/B run  |  W+dir hop  |  Space/J light\nI kick  |  K heavy  |  L special  |  S,D,L super`;
   }
   if (shell.phase === "select") {
-    return `${selectionLabel}\nA/D or B: P1 fighter  |  Arrow keys: P2 fighter\nEnter: fight  |  R: reset`;
+    return `${selectionLabel}\n${controlFallbackLine}\nA/D or B: P1 fighter  |  Arrow keys: P2 fighter\nEnter: fight  |  R: reset`;
   }
   if (shell.phase === "round-over") {
     return "Enter: next round\nR: reset to ready";
