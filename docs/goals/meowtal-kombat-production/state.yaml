@@ -83,7 +83,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T035
+active_task: T036
 
 tasks:
   - id: T000
@@ -1257,7 +1257,7 @@ tasks:
   - id: T035
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Visual QA gray-rabbit:walk-back and ginger-tabby-cat:walk-back source and normalized candidates, then decide whether to approve a narrow runtime promotion task or require regeneration."
     inputs:
@@ -1282,6 +1282,58 @@ tasks:
       - "allowed_files"
       - "verify commands"
       - "stop_if conditions"
+    receipt:
+      result: done
+      verdict: approved
+      decision: "Approve gray-rabbit:walk-back and ginger-tabby-cat:walk-back for a narrow runtime-promotion Worker. Do not regenerate."
+      summary: "Both rows preserve upright two-legged biped rigs, guarded stance, species identity, markings, proportions, camera angle, lighting, scale, outline/detail level, and style consistency with approved idle/walk-forward rows. Backward locomotion is readable enough for runtime: both sheets show defensive footwork and frame-to-frame leg separation without becoming four-legged movement or static sliding. No visible text, logos, watermarks, frame numbers, detached effects, arena/background art, or extra characters."
+      evidence:
+        - "assets/source/imagegen/fighters/gray-rabbit/walk-back.png"
+        - "assets/source/imagegen/fighters/ginger-tabby-cat/walk-back.png"
+        - "output/imagegen/gray-rabbit-walk-back-normalized.png"
+        - "output/imagegen/ginger-tabby-cat-walk-back-normalized.png"
+        - "src/assets/meowtalProductionManifest.ts"
+      next_allowed_task: T036
+      visual_qa:
+        - "Both normalized walk-back candidates are 2048x256 with alpha."
+        - "Manifest/readiness check passed with 2 files and 11 tests before approval."
+      blocked_tasks:
+        - "Do not regenerate gray-rabbit:walk-back or ginger-tabby-cat:walk-back."
+        - "Do not runtime-integrate any other row in the next task."
+  - id: T036
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: low
+    objective: "Promote only the approved normalized Meowtal walk-back rows to runtime assets. Copy normalized candidates into public runtime paths, update manifest/provenance/tests so only gray-rabbit:walk-back and ginger-tabby-cat:walk-back become approved runtime rows, and keep every other remaining Meowtal row blocked."
+    allowed_files:
+      - "public/assets/generated/fighters/gray-rabbit/walk-back.png"
+      - "public/assets/generated/fighters/ginger-tabby-cat/walk-back.png"
+      - "src/assets/meowtalProductionManifest.ts"
+      - "docs/assets/meowtal-kombat-provenance.md"
+      - "test/meowtal-production-manifest.test.ts"
+      - "test/asset-qa.test.ts"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+    inputs:
+      - "output/imagegen/gray-rabbit-walk-back-normalized.png"
+      - "output/imagegen/ginger-tabby-cat-walk-back-normalized.png"
+      - "T035 approval receipt"
+    verify:
+      - "node scripts/normalize-fighter-rows.mjs --animation walk-back --fighters gray-rabbit,ginger-tabby-cat"
+      - "sips -g pixelWidth -g pixelHeight -g hasAlpha output/imagegen/gray-rabbit-walk-back-normalized.png output/imagegen/ginger-tabby-cat-walk-back-normalized.png"
+      - "sips -g pixelWidth -g pixelHeight -g hasAlpha public/assets/generated/fighters/gray-rabbit/walk-back.png public/assets/generated/fighters/ginger-tabby-cat/walk-back.png"
+      - "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-readiness.test.ts"
+      - "npm run imagegen:qa"
+      - "npm test -- --run test/asset-qa.test.ts"
+      - "npm run verify"
+    stop_if:
+      - "Any file outside allowed_files is needed, except ignored output/imagegen/*-walk-back-normalized.png verification candidates."
+      - "Either source walk-back row must be regenerated or edited."
+      - "Either public runtime walk-back asset is not 2048x256 RGBA/alpha after promotion."
+      - "Any row other than gray-rabbit:walk-back or ginger-tabby-cat:walk-back is edited, approved, generated, or given a runtime/public path."
+      - "Runtime character selection, gameplay config, stage, UI, HUD, logo, particles, audio, or broad asset-pack files need editing."
+      - "Existing approved idle or walk-forward runtime rows are changed."
+      - "Atlas/KOF-era assets or tests are weakened to make Meowtal promotion pass."
     receipt: null
   - id: T005
     type: worker
