@@ -405,6 +405,44 @@ tasks:
       - "Arena loses parallax depth."
       - "Stage becomes less readable for fighting."
     receipt: null
+  - id: T014
+    type: worker
+    assignee: Worker
+    status: done
+    reasoning_hint: medium
+    objective: "Polish the portrait letterbox shell so the required 16:9 game canvas feels intentionally staged on tall phones rather than surrounded by empty dark space."
+    allowed_files:
+      - "src/style.css"
+      - "docs/goals/meowtal-kombat-quality-rebuild/state.yaml"
+    verify:
+      - "npm run build"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/meowtal-quality-portrait-shell-t014"
+    stop_if:
+      - "Canvas aspect ratio or gameplay coordinate mapping would need to change."
+      - "Portrait shell becomes visually busier than the game canvas."
+      - "Responsive smoke fails."
+    receipt:
+      result: done
+      summary: "Polished the tall-phone shell around the fixed 16:9 game canvas. The portrait viewport now uses brighter sky, visible stone-court extension, and subtle teal/gold rails so the letterbox area reads as an intentional arcade/stage surround without changing canvas aspect ratio, gameplay coordinates, or touch zones."
+      changed_files:
+        - "src/style.css"
+        - "docs/goals/meowtal-kombat-quality-rebuild/state.yaml"
+      commands:
+        - cmd: "npm run build"
+          status: pass
+        - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/meowtal-quality-portrait-shell-t014"
+          status: pass
+      evidence:
+        - "output/web-game/meowtal-quality-portrait-shell-t014/portrait-ready.png"
+        - "output/web-game/meowtal-quality-portrait-shell-t014/portrait-fight.png"
+        - "output/web-game/meowtal-quality-portrait-shell-t014/landscape-fight.png"
+        - "output/web-game/meowtal-quality-portrait-shell-t014/desktop-keyboard-fight.png"
+        - "output/web-game/meowtal-quality-portrait-shell-t014/report.json"
+      quality_delta:
+        - "Tall-phone whitespace now carries the game's sky and stone-court material instead of reading as generic empty darkness."
+        - "The fight canvas remains centered and undistorted, preserving all smoke-tested touch mapping."
+        - "Landscape and desktop captures remain visually unchanged except for the already-approved gameplay UI polish."
+      next_task: T999
   - id: T999
     type: judge
     assignee: Judge
@@ -436,13 +474,9 @@ checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T011
+    task: T014
     commands:
-      - cmd: "npm test -- --run test/touch-controls.test.ts"
-        status: pass
-      - cmd: "npm run typecheck"
-        status: pass
       - cmd: "npm run build"
         status: pass
-      - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/meowtal-quality-ui-t011"
+      - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/meowtal-quality-portrait-shell-t014"
         status: pass
