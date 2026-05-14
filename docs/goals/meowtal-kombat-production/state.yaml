@@ -83,7 +83,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T070
+active_task: T071
 
 tasks:
   - id: T000
@@ -3316,7 +3316,7 @@ tasks:
   - id: T070
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: low
     objective: "Generate or integrate exactly two Meowtal source animation rows: gray-rabbit:light-kick and ginger-tabby-cat:light-kick. Use approved runtime rows through heavy-punch as style locks, preserve the shared upright two-legged stance, normalize both rows to 8-frame 2048x256 QA candidates, update provenance/manifest/tests/docs so only these two light-kick rows become generated-but-unapproved with runtimePath null, and keep all other remaining rows blocked. Do not approve runtime use."
     allowed_files:
@@ -3341,6 +3341,74 @@ tasks:
       - "Normalized candidates cannot be exactly 2048x256 RGBA with eight separated 256x256 frames."
       - "Provenance cannot clearly distinguish source generation, normalization, and non-runtime candidate status."
       - "Fixing verification would require touching scripts, gameplay, routing, UI, arena, audio, or unrelated files."
+    receipt:
+      result: done
+      summary: "Generated and integrated exactly the two scoped Meowtal light-kick source rows as generated, non-runtime candidates. Both rows use deterministic transparent construction from approved runtime style-lock rows, preserve the shared upright two-legged stance, and normalize to 8-frame 2048x256 RGBA QA candidates. Manifest, provenance docs, and tests now track only gray-rabbit:light-kick and ginger-tabby-cat:light-kick as generated-but-unapproved with runtimePath null; every other remaining row stays blocked pending light-kick visual QA and a separate scoped generation task. No public/runtime light-kick assets or unrelated rows were created or approved."
+      changed_files:
+        - "assets/source/imagegen/fighters/gray-rabbit/light-kick.png"
+        - "assets/source/imagegen/fighters/ginger-tabby-cat/light-kick.png"
+        - "src/assets/meowtalProductionManifest.ts"
+        - "docs/assets/meowtal-kombat-provenance.md"
+        - "test/meowtal-production-manifest.test.ts"
+        - "test/asset-qa.test.ts"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+      evidence:
+        - "assets/source/imagegen/fighters/gray-rabbit/light-kick.png"
+        - "assets/source/imagegen/fighters/ginger-tabby-cat/light-kick.png"
+        - "output/imagegen/gray-rabbit-light-kick-normalized.png"
+        - "output/imagegen/ginger-tabby-cat-light-kick-normalized.png"
+        - "src/assets/meowtalProductionManifest.ts"
+      checksums:
+        gray_rabbit_light_kick_source_sha256: "6bffa78a615b17401385b0260e64dc14dbc02ed64d6a4dd5f2adc5a587026014"
+        ginger_tabby_cat_light_kick_source_sha256: "743e20ee1bb6b447b164cff5e34791c59f88f174bbf5df628eca042af53dd142"
+        gray_rabbit_light_kick_normalized_sha256: "25f16074fb08f867a1dca7870f59b85de3c1a7826d7bb178e4e6f961cab34e23"
+        ginger_tabby_cat_light_kick_normalized_sha256: "9d904fe9e830638fc7f2b51fc24e4fc92dcd50682b1c25567a794f89a5a0b64e"
+        meowtal_manifest_sha256: "10cffa12c2d52f155805c022fc734668c87d4060fb5d3c8204b6ff4c9cf55b24"
+        provenance_doc_sha256: "33e3c9fb01d85e291c6c65addb334cc61f72e79496e93624a1a5a71d418c2e2c"
+        manifest_test_sha256: "4353234deb05bbc6d73a9c80cdf134266c82a0551eccfc014cc994b231e29b69"
+        asset_qa_test_sha256: "1a2ef88b308589461e7d832e290c99436527d9702eb0eddb3a4565bb22217808"
+      commands:
+        - cmd: "node scripts/normalize-fighter-rows.mjs --animation light-kick --fighters gray-rabbit,ginger-tabby-cat"
+          status: pass
+        - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha output/imagegen/gray-rabbit-light-kick-normalized.png output/imagegen/ginger-tabby-cat-light-kick-normalized.png"
+          status: pass
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-qa.test.ts"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+      notes:
+        - "sips reported pixelWidth 2048, pixelHeight 256, hasAlpha yes for both normalized light-kick QA candidates."
+        - "Focused manifest/asset QA tests passed with 2 files and 17 tests."
+        - "Full verify passed with 21 test files, 111 tests, and a successful Vite production build."
+        - "No public/assets/generated Meowtal light-kick files, runtime paths, runtime roster/game config, stage, UI/HUD/logo, particles, audio, or other animation rows were touched."
+  - id: T071
+    type: judge
+    assignee: Judge
+    status: active
+    reasoning_hint: high
+    objective: "Visual QA only the two generated Meowtal light-kick candidates, gray-rabbit:light-kick and ginger-tabby-cat:light-kick, against approved runtime rows through heavy-punch. Decide whether they are approved for later runtime promotion or must be regenerated. Do not edit files."
+    inputs:
+      - "assets/source/imagegen/fighters/gray-rabbit/light-kick.png"
+      - "assets/source/imagegen/fighters/ginger-tabby-cat/light-kick.png"
+      - "output/imagegen/gray-rabbit-light-kick-normalized.png"
+      - "output/imagegen/ginger-tabby-cat-light-kick-normalized.png"
+      - "T070 generation receipt"
+      - "approved runtime rows through heavy-punch"
+    constraints:
+      - "Do not implement or edit files."
+      - "Reject if either fighter shifts into four-legged animal motion or if rabbit and cat stance conventions differ; both must stay upright two-legged."
+      - "Reject if light-kick reads as punch reuse, walk reuse, crouch reuse, jump reuse, collapse, rest, detached limb effect, or unreadable posing."
+      - "Reject visible text, logos, watermarks, frame numbers, detached effects, background/arena art, extra characters, visible chroma edge residue, clipped/detached feet, pasted-box artifacts, or non-transparent runtime-blocking artifacts."
+      - "Reject inconsistent species identity, markings, proportions, lighting, camera angle, scale, outline/detail level, or rendering style versus approved runtime rows."
+      - "Require normalized QA candidates to be exactly 2048x256 RGBA with eight separated 256x256 frames."
+      - "Do not approve runtime promotion for any row other than gray-rabbit:light-kick and ginger-tabby-cat:light-kick."
+    expected_output:
+      - "approved | regenerate"
+      - "Per-fighter visual QA notes"
+      - "Runtime promotion constraints if approved"
+      - "Regeneration notes if rejected"
     receipt: null
   - id: T005
     type: worker
@@ -3492,9 +3560,11 @@ checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T068
+    task: T070
     commands:
-      - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha public/assets/generated/fighters/gray-rabbit/heavy-punch.png public/assets/generated/fighters/ginger-tabby-cat/heavy-punch.png"
+      - cmd: "node scripts/normalize-fighter-rows.mjs --animation light-kick --fighters gray-rabbit,ginger-tabby-cat"
+        status: pass
+      - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha output/imagegen/gray-rabbit-light-kick-normalized.png output/imagegen/ginger-tabby-cat-light-kick-normalized.png"
         status: pass
       - cmd: "npm run typecheck"
         status: pass

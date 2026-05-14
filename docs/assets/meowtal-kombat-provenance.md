@@ -57,7 +57,7 @@ These are approved before animation rows as style locks only. Required sheet str
 
 ### Character Animation Rows
 
-Status: idle, walk-forward, walk-back, crouch, jump, light-punch, heavy-punch, hitstun, and blockstun rows approved for runtime publication; all other rows remain blocked pending separate scoped generation.
+Status: idle, walk-forward, walk-back, crouch, jump, light-punch, heavy-punch, hitstun, and blockstun rows approved for runtime publication; light-kick source rows are generated candidates pending visual QA; all other rows remain blocked pending separate scoped generation.
 
 - `gray-rabbit:idle`
   - Source path: `assets/source/imagegen/fighters/gray-rabbit/idle.png`
@@ -203,6 +203,22 @@ Status: idle, walk-forward, walk-back, crouch, jump, light-punch, heavy-punch, h
   - License status: owned generated source asset
   - Runtime status: approved by T067 visual QA and promoted by T068
   - QA notes: eight separated upright two-legged ginger tabby committed heavy paw-strike frames with crouch-load, planted weight shift, committed extension, follow-through, and recovery; no visible text/watermark/frame numbers, deterministic transparent source construction from approved rows, normalized to 2048x256 RGBA.
+- `gray-rabbit:light-kick`
+  - Source path: `assets/source/imagegen/fighters/gray-rabbit/light-kick.png`
+  - Runtime path: none
+  - Provider: Codex built-in imagegen style-lock assets plus deterministic transparent row construction
+  - Generated on: 2026-05-14
+  - License status: owned generated source asset
+  - Runtime status: not approved for runtime use; pending follow-up visual QA
+  - QA notes: eight separated upright two-legged gray rabbit low snap-kick frames with crouch-load, front foot extension, landing, and guard recovery; no visible text/watermark/frame numbers, deterministic transparent source construction from approved rows, normalized to 2048x256 RGBA QA candidate.
+- `ginger-tabby-cat:light-kick`
+  - Source path: `assets/source/imagegen/fighters/ginger-tabby-cat/light-kick.png`
+  - Runtime path: none
+  - Provider: Codex built-in imagegen style-lock assets plus deterministic transparent row construction
+  - Generated on: 2026-05-14
+  - License status: owned generated source asset
+  - Runtime status: not approved for runtime use; pending follow-up visual QA
+  - QA notes: eight separated upright two-legged ginger tabby low snap-kick frames with crouch-load, front foot extension, landing, and guard recovery; no visible text/watermark/frame numbers, deterministic transparent source construction from approved rows, normalized to 2048x256 RGBA QA candidate.
 
 Each fighter needs rows for idle, walk-forward, walk-back, crouch, jump, light-punch, heavy-punch, light-kick, special, hitstun, blockstun, knockdown, win, and lose. Rows must preserve the shared upright two-legged rig, species identity, markings, proportions, lighting, camera angle, scale, outline/detail level, and rendering style.
 

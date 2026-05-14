@@ -71,6 +71,7 @@ describe("Meowtal production manifest", () => {
     const hitstunRows = animationRows.filter((row) => row.animationId === "hitstun");
     const blockstunRows = animationRows.filter((row) => row.animationId === "blockstun");
     const heavyPunchRows = animationRows.filter((row) => row.animationId === "heavy-punch");
+    const lightKickRows = animationRows.filter((row) => row.animationId === "light-kick");
     const remainingRows = animationRows.filter(
       (row) =>
         row.animationId !== "idle" &&
@@ -81,7 +82,8 @@ describe("Meowtal production manifest", () => {
         row.animationId !== "light-punch" &&
         row.animationId !== "hitstun" &&
         row.animationId !== "blockstun" &&
-        row.animationId !== "heavy-punch",
+        row.animationId !== "heavy-punch" &&
+        row.animationId !== "light-kick",
     );
 
     expect(animationRows).toHaveLength(2 * REQUIRED_FIGHTER_ANIMATIONS.length);
@@ -112,8 +114,11 @@ describe("Meowtal production manifest", () => {
     expect(heavyPunchRows).toHaveLength(2);
     expect(heavyPunchRows.every((row) => row.provenance.status === "approved")).toBe(true);
     expect(heavyPunchRows.every((row) => row.provenance.runtimePath?.includes("/assets/generated/fighters/"))).toBe(true);
+    expect(lightKickRows).toHaveLength(2);
+    expect(lightKickRows.every((row) => row.provenance.status === "generated")).toBe(true);
+    expect(lightKickRows.every((row) => row.provenance.runtimePath === null)).toBe(true);
     expect(remainingRows.every((row) => row.provenance.status === "blocked")).toBe(true);
-    expect(remainingRows.every((row) => row.provenance.blocker?.includes("separate scoped generation task"))).toBe(true);
+    expect(remainingRows.every((row) => row.provenance.blocker?.includes("light-kick row QA"))).toBe(true);
   });
 
   it("tracks approved idle source and runtime files", () => {
@@ -261,6 +266,21 @@ describe("Meowtal production manifest", () => {
       expect(heavyPunchRow?.provenance.approvalNotes).toContain("deterministic transparent source construction");
       expect(existsSync(join(process.cwd(), heavyPunchRow?.provenance.sourcePath ?? ""))).toBe(true);
       expect(existsSync(join(process.cwd(), "public", heavyPunchRow?.provenance.runtimePath ?? ""))).toBe(true);
+    }
+  });
+
+  it("tracks generated light-kick source files without approving runtime use", () => {
+    for (const fighter of meowtalProductionManifest.fighters) {
+      const lightKickRow = fighter.animationRows.find((row) => row.animationId === "light-kick");
+
+      expect(lightKickRow?.provenance.status).toBe("generated");
+      expect(lightKickRow?.provenance.sourcePath).toBe(`assets/source/imagegen/fighters/${fighter.id}/light-kick.png`);
+      expect(lightKickRow?.provenance.runtimePath).toBeNull();
+      expect(lightKickRow?.provenance.license.kind).toBe("owned-generated");
+      expect(lightKickRow?.provenance.approvalNotes).toContain("Generated source light-kick row candidate");
+      expect(lightKickRow?.provenance.approvalNotes).toContain("upright two-legged");
+      expect(lightKickRow?.provenance.approvalNotes).toContain("deterministic transparent source construction");
+      expect(existsSync(join(process.cwd(), lightKickRow?.provenance.sourcePath ?? ""))).toBe(true);
     }
   });
 
