@@ -83,7 +83,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T079
+active_task: T080
 
 tasks:
   - id: T000
@@ -3870,7 +3870,7 @@ tasks:
   - id: T079
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Visual QA only the two generated Meowtal special source candidates, gray-rabbit:special and ginger-tabby-cat:special, against approved runtime rows through light-kick. Decide whether they are approved for later runtime promotion or must be regenerated. Do not edit files."
     inputs:
@@ -3895,6 +3895,55 @@ tasks:
       - "Per-fighter visual QA notes"
       - "Runtime promotion constraints if approved"
       - "Regeneration notes if rejected"
+    receipt:
+      result: done
+      decision: approved
+      summary: "Judge approved the T078 generated Meowtal special source candidates for later runtime promotion. Both normalized rows passed the 2560x256 alpha gate with ten separated frames, preserved source-only status, kept the shared upright two-legged convention with acceptable acrobatic frames, and read as production-usable special attacks."
+      evidence:
+        - "assets/source/imagegen/fighters/gray-rabbit/special.png"
+        - "assets/source/imagegen/fighters/ginger-tabby-cat/special.png"
+        - "output/imagegen/gray-rabbit-special-normalized.png"
+        - "output/imagegen/ginger-tabby-cat-special-normalized.png"
+      notes:
+        - "gray-rabbit:special approved: rapid spinning tornado with character-attached green energy; dense frames remain identifiable enough through ears, face, and body silhouette."
+        - "ginger-tabby-cat:special approved: acrobatic flip kick into green/yellow foot-attached aura crescents; inverted frame is acceptable airborne acrobatics and low recovery does not read as four-legged/rest."
+        - "No visible magenta residue, text, background, extra characters, detached limbs, detached projectile clutter, tail-as-support, or runtime-blocking artifacts observed."
+        - "Next step is runtime promotion limited to these two runtime PNGs plus manifest/provenance/tests/board updates; do not generate or promote knockdown, win, lose, arena, UI, logo, audio, effects, or runtime routing."
+  - id: T080
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: low
+    objective: "Promote exactly the two Judge-approved Meowtal special rows, gray-rabbit:special and ginger-tabby-cat:special, from normalized QA candidates into runtime assets. Update manifest/provenance/tests so these two rows become approved runtime rows with public asset paths. Do not generate or approve knockdown, win, lose, arena, UI, logo, audio, effects, or runtime routing."
+    inputs:
+      - "T079 approval receipt"
+      - "output/imagegen/gray-rabbit-special-normalized.png"
+      - "output/imagegen/ginger-tabby-cat-special-normalized.png"
+      - "assets/source/imagegen/fighters/gray-rabbit/special.png"
+      - "assets/source/imagegen/fighters/ginger-tabby-cat/special.png"
+    allowed_files:
+      - "public/assets/generated/fighters/gray-rabbit/special.png"
+      - "public/assets/generated/fighters/ginger-tabby-cat/special.png"
+      - "src/assets/meowtalProductionManifest.ts"
+      - "docs/assets/meowtal-kombat-provenance.md"
+      - "test/meowtal-production-manifest.test.ts"
+      - "test/asset-qa.test.ts"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+    verify:
+      - "cp output/imagegen/gray-rabbit-special-normalized.png public/assets/generated/fighters/gray-rabbit/special.png"
+      - "cp output/imagegen/ginger-tabby-cat-special-normalized.png public/assets/generated/fighters/ginger-tabby-cat/special.png"
+      - "sips -g pixelWidth -g pixelHeight -g hasAlpha public/assets/generated/fighters/gray-rabbit/special.png public/assets/generated/fighters/ginger-tabby-cat/special.png"
+      - "npm run typecheck"
+      - "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-qa.test.ts"
+      - "npm run verify"
+    stop_if:
+      - "Any file outside allowed_files is needed."
+      - "Any runtime asset besides public/assets/generated/fighters/gray-rabbit/special.png and public/assets/generated/fighters/ginger-tabby-cat/special.png is created or changed."
+      - "Any animation besides special is generated, normalized, promoted, or approved."
+      - "Runtime routing, game config fighter selection, arena, UI/HUD/logo, particles, audio, or gameplay code would need changes."
+      - "Promoted files are not exactly 2560x256 RGBA with ten 256x256 frames."
+      - "Manifest/provenance cannot clearly distinguish source generation, visual QA approval, and runtime promotion."
+      - "Verification fails after one focused fix."
     receipt: null
   - id: T005
     type: worker
