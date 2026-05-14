@@ -83,7 +83,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T049
+active_task: T050
 
 tasks:
   - id: T000
@@ -2108,7 +2108,7 @@ tasks:
   - id: T049
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Scope the next small Meowtal production slice after idle, walk-forward, walk-back, crouch, jump, and light-punch runtime rows are approved. Decide whether to continue fighter animation coverage, begin parallax arena asset generation, begin logo/HUD/UI surface generation, or prepare runtime routing."
     inputs:
@@ -2135,6 +2135,63 @@ tasks:
       - "verify commands"
       - "stop_if conditions"
       - "visual QA or runtime verification expectations"
+    receipt:
+      result: done
+      decision: "Continue fighter animation coverage with exactly two paired hitstun source rows: gray-rabbit:hitstun and ginger-tabby-cat:hitstun. Runtime approval is deferred to a later Judge task."
+      next_allowed_task: T050
+      summary: "Runtime routing is still premature with only one attack and no reaction rows. Hitstun is the smallest high-value reaction state because it pairs with the approved light-punch row and starts proving combat readability before heavier attacks, specials, knockdown, win/lose, arena, HUD, or routing work. Parallax and HUD/UI remain required but should stay separate asset slices with their own visual QA gates."
+      fighter_animation_pairs:
+        - "gray-rabbit:hitstun"
+        - "ginger-tabby-cat:hitstun"
+      visual_qa_expectations:
+        - "Both rows remain the same upright two-legged characters from approved idle/walk/crouch/jump/light-punch rows."
+        - "Hitstun reads as a quick hurt/recoil reaction, not idle reuse, attack reuse, knockdown, collapse, four-legged animal motion, or unreadable posing."
+        - "Rabbit keeps long ears, gray fur, lighter belly, white paws, compact athletic hind-leg silhouette, and readable hurt/recoil shapes."
+        - "Cat keeps orange tabby stripes, light muzzle/chest, visible striped tail, upright biped body, and readable hurt/recoil shapes."
+        - "Motion has clear frame separation, stable scale, consistent head/camera height, and style consistency with approved idle/walk-forward/walk-back/crouch/jump/light-punch rows."
+        - "No text, watermark, logo, frame numbers, background art, detached hit sparks, dust, projectiles, or other detached effects."
+      blocked_tasks:
+        - "Do not approve hitstun for runtime in T050."
+        - "Do not copy hitstun rows into public/assets/generated."
+        - "Do not switch runtime character selection to Meowtal."
+        - "Do not generate blockstun, heavy-punch, light-kick, special, knockdown, win, or lose rows in this batch."
+        - "Do not generate stage, UI, HUD, logo, particles, audio, or broad asset-pack files."
+  - id: T050
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: low
+    objective: "Generate or integrate exactly two Meowtal source animation rows: gray-rabbit:hitstun and ginger-tabby-cat:hitstun. Use approved canonical sheets plus approved idle, walk-forward, walk-back, crouch, jump, and light-punch runtime rows as style locks. Normalize both rows to 5-frame 1280x256 QA candidates, update provenance/manifest/tests/docs so only these two hitstun rows are generated-but-unapproved with runtimePath: null, and keep all other remaining rows blocked. Do not approve runtime use."
+    allowed_files:
+      - "assets/source/imagegen/fighters/gray-rabbit/hitstun.png"
+      - "assets/source/imagegen/fighters/ginger-tabby-cat/hitstun.png"
+      - "src/assets/meowtalProductionManifest.ts"
+      - "docs/assets/meowtal-kombat-provenance.md"
+      - "test/meowtal-production-manifest.test.ts"
+      - "test/asset-qa.test.ts"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+    verify:
+      - "node scripts/normalize-fighter-rows.mjs --animation hitstun --fighters gray-rabbit,ginger-tabby-cat"
+      - "sips -g pixelWidth -g pixelHeight -g hasAlpha output/imagegen/gray-rabbit-hitstun-normalized.png output/imagegen/ginger-tabby-cat-hitstun-normalized.png"
+      - "npm run typecheck"
+      - "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-qa.test.ts"
+      - "npm run imagegen:qa"
+      - "npm run verify"
+    stop_if:
+      - "Any file outside allowed_files is needed, except ignored output/imagegen/*-hitstun-normalized.png verification candidates."
+      - "Any public/assets/generated Meowtal hitstun runtime asset is created."
+      - "Any hitstun row is marked approved or given a runtimePath."
+      - "Any row other than gray-rabbit:hitstun or ginger-tabby-cat:hitstun is generated, edited, approved, or given a runtime/public path."
+      - "Runtime roster/game config, scene behavior, gameplay, stage, UI/HUD/logo, particles, or audio need changes."
+      - "Either row cannot normalize to 1280x256 with five separated 256x256 RGBA frames."
+      - "Either fighter drifts from upright two-legged stance, species identity, markings, proportions, camera angle, lighting, scale, outline/detail level, or render style after one retry."
+      - "Hitstun reads as idle reuse, attack reuse, knockdown, collapse, four-legged animal motion, or unreadable posing."
+      - "Rows contain text, logos, watermarks, frame numbers, detached hit sparks/effects, background/arena art, or extra characters."
+    visual_qa_expectations:
+      - "Both rows read as quick hitstun/hurt-recoil motion, not idle reuse, attack reuse, knockdown, collapse, four-legged animal motion, or unreadable posing."
+      - "Rabbit keeps long ears, gray fur, lighter belly, white paws, compact athletic hind-leg silhouette, and readable hurt/recoil shapes."
+      - "Cat keeps orange tabby stripes, light muzzle/chest, visible striped tail, upright biped body, and readable hurt/recoil shapes."
+      - "Motion has clear frame separation, stable scale, consistent head/camera height, and consistency with approved idle/walk-forward/walk-back/crouch/jump/light-punch rows."
     receipt: null
   - id: T005
     type: worker
