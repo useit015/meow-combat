@@ -83,7 +83,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T075
+active_task: T076
 
 tasks:
   - id: T000
@@ -3624,7 +3624,7 @@ tasks:
   - id: T075
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Visual QA only the imagegen-derived Meowtal light-kick candidates from T074, gray-rabbit:light-kick and ginger-tabby-cat:light-kick, against approved runtime rows through heavy-punch. Decide whether they are approved for later runtime promotion or must be regenerated again. Do not edit files."
     inputs:
@@ -3649,6 +3649,55 @@ tasks:
       - "Per-fighter visual QA notes"
       - "Runtime promotion constraints if approved"
       - "Regeneration notes if rejected"
+    receipt:
+      result: done
+      decision: approved
+      summary: "Judge approved the T074 imagegen-derived Meowtal light-kick candidates for later runtime promotion. Both normalized rows passed the 2048x256 alpha gate with eight separated frames, preserved the shared upright two-legged stance, read as clear low snap-kicks, and no longer showed crouch-only or tube-composited limb issues. No runtime light-kick files were present during approval."
+      evidence:
+        - "assets/source/imagegen/fighters/gray-rabbit/light-kick.png"
+        - "assets/source/imagegen/fighters/ginger-tabby-cat/light-kick.png"
+        - "output/imagegen/gray-rabbit-light-kick-normalized.png"
+        - "output/imagegen/ginger-tabby-cat-light-kick-normalized.png"
+      notes:
+        - "gray-rabbit:light-kick approved: upright two-legged, readable low snap-kick, acceptable limb connection, foot extension, recovery, species identity, scale, and style."
+        - "ginger-tabby-cat:light-kick approved: readable planted support leg, hip/knee extension, recovery, acceptable style/proportion drift, coherent with approved runtime rows."
+        - "No visible chroma residue, text, background, extra characters, detached feet, pasted limb masses, or tube-like limb artifacts observed."
+        - "Next step is runtime promotion limited to these two runtime PNGs plus manifest/provenance/tests/board updates; do not generate or approve other rows, and do not switch runtime character routing yet."
+  - id: T076
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: low
+    objective: "Promote exactly the two Judge-approved Meowtal light-kick rows, gray-rabbit:light-kick and ginger-tabby-cat:light-kick, from normalized QA candidates into runtime assets. Update manifest/provenance/tests so these two rows become approved runtime rows with public asset paths. Do not generate or approve any other animation rows and do not switch runtime character routing yet."
+    inputs:
+      - "T075 approval receipt"
+      - "output/imagegen/gray-rabbit-light-kick-normalized.png"
+      - "output/imagegen/ginger-tabby-cat-light-kick-normalized.png"
+      - "assets/source/imagegen/fighters/gray-rabbit/light-kick.png"
+      - "assets/source/imagegen/fighters/ginger-tabby-cat/light-kick.png"
+    allowed_files:
+      - "public/assets/generated/fighters/gray-rabbit/light-kick.png"
+      - "public/assets/generated/fighters/ginger-tabby-cat/light-kick.png"
+      - "src/assets/meowtalProductionManifest.ts"
+      - "docs/assets/meowtal-kombat-provenance.md"
+      - "test/meowtal-production-manifest.test.ts"
+      - "test/asset-qa.test.ts"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+    verify:
+      - "cp output/imagegen/gray-rabbit-light-kick-normalized.png public/assets/generated/fighters/gray-rabbit/light-kick.png"
+      - "cp output/imagegen/ginger-tabby-cat-light-kick-normalized.png public/assets/generated/fighters/ginger-tabby-cat/light-kick.png"
+      - "sips -g pixelWidth -g pixelHeight -g hasAlpha public/assets/generated/fighters/gray-rabbit/light-kick.png public/assets/generated/fighters/ginger-tabby-cat/light-kick.png"
+      - "npm run typecheck"
+      - "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-qa.test.ts"
+      - "npm run verify"
+    stop_if:
+      - "Any file outside allowed_files is needed."
+      - "Any runtime asset besides public/assets/generated/fighters/gray-rabbit/light-kick.png and public/assets/generated/fighters/ginger-tabby-cat/light-kick.png is created or changed."
+      - "Any animation besides light-kick is generated, normalized, promoted, or approved."
+      - "Runtime routing, game config fighter selection, arena, UI/HUD/logo, particles, audio, or gameplay code would need changes."
+      - "Promoted files are not exactly 2048x256 RGBA with eight 256x256 frames."
+      - "Manifest/provenance cannot clearly distinguish source generation, visual QA approval, and runtime promotion."
+      - "Verification fails after one focused fix."
     receipt: null
   - id: T005
     type: worker
