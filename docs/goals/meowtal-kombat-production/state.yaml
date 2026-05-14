@@ -83,7 +83,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T032
+active_task: T033
 
 tasks:
   - id: T000
@@ -1073,7 +1073,7 @@ tasks:
   - id: T032
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: low
     objective: "Promote only the approved normalized Meowtal walk-forward rows to runtime assets. Copy normalized candidates into public runtime paths, update manifest provenance from generated/non-runtime to approved/runtime for only gray-rabbit:walk-forward and ginger-tabby-cat:walk-forward, update provenance docs/tests, and keep every other non-idle row blocked."
     allowed_files:
@@ -1100,6 +1100,64 @@ tasks:
       - "Any row other than gray-rabbit:walk-forward or ginger-tabby-cat:walk-forward is edited, approved, or given a runtime/public path."
       - "Any canonical sheet, stage, UI, HUD, logo, particle, audio, gameplay config, or selectable runtime character switch needs editing."
       - "Manifest validation cannot represent only idle plus these two walk-forward rows as approved while all other rows remain blocked."
+    receipt:
+      result: done
+      summary: "Promoted only the two approved normalized Meowtal walk-forward rows into public runtime assets and updated the Meowtal manifest/docs/tests so gray-rabbit:walk-forward and ginger-tabby-cat:walk-forward are approved runtime assets. Idle plus walk-forward are now the only approved Meowtal runtime rows; every other non-idle row remains blocked, and no runtime character selection or gameplay config was switched."
+      changed_files:
+        - "public/assets/generated/fighters/gray-rabbit/walk-forward.png"
+        - "public/assets/generated/fighters/ginger-tabby-cat/walk-forward.png"
+        - "src/assets/meowtalProductionManifest.ts"
+        - "docs/assets/meowtal-kombat-provenance.md"
+        - "test/meowtal-production-manifest.test.ts"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+      evidence:
+        - "public/assets/generated/fighters/gray-rabbit/walk-forward.png"
+        - "public/assets/generated/fighters/ginger-tabby-cat/walk-forward.png"
+        - "src/assets/meowtalProductionManifest.ts"
+      checksums:
+        gray_rabbit_walk_forward_runtime_sha256: "101351dcd65771ecc5b6c45e2d6bb921d97e2eabcc3e03fa9f1c236be22c8d16"
+        ginger_tabby_cat_walk_forward_runtime_sha256: "fce97ab864ec63c71ca9d851378ecabd86e578ccb2b8aaf8963ab3a9bd4f79ca"
+      commands:
+        - cmd: "node scripts/normalize-fighter-rows.mjs --animation walk-forward --fighters gray-rabbit,ginger-tabby-cat"
+          status: pass
+        - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha public/assets/generated/fighters/gray-rabbit/walk-forward.png public/assets/generated/fighters/ginger-tabby-cat/walk-forward.png"
+          status: pass
+        - cmd: "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-qa.test.ts"
+          status: pass
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+      notes:
+        - "sips reported pixelWidth 2048, pixelHeight 256, hasAlpha yes for both public walk-forward runtime PNGs."
+        - "Full verify passed with 21 test files and 103 tests."
+        - "No source imagegen PNGs, other rows, canonical sheets, stage, UI, HUD, logo, particle, audio, gameplay config, or selectable runtime character switch were touched."
+  - id: T033
+    type: judge
+    assignee: Judge
+    status: active
+    reasoning_hint: high
+    objective: "Scope the next small Meowtal production slice after idle and walk-forward runtime rows are approved. Decide whether the next safest slice should be another animation-row batch, parallax arena asset generation, UI/HUD/logo work, or a runtime routing/prep step."
+    inputs:
+      - "T028 idle runtime promotion receipt"
+      - "T032 walk-forward runtime promotion receipt"
+      - "src/assets/meowtalProductionManifest.ts"
+      - "docs/assets/meowtal-kombat-provenance.md"
+      - "Goal requirements: complete fighter animation set, parallax arena, complete HUD/logo/UI assets, Tough Love Arena-level feel, small commits, no PoC completion"
+    constraints:
+      - "Do not implement."
+      - "Do not choose a broad all-assets task."
+      - "Prefer a small reviewable Worker task with tight allowed_files and verification."
+      - "Preserve upright two-legged fighter consistency and defer runtime character switch until enough asset coverage exists."
+      - "If choosing more animation rows, keep runtime approval deferred to a later Judge task."
+      - "If choosing non-character assets, require provenance/license docs and visual QA gates."
+    expected_output:
+      - "Decision and rationale"
+      - "Exact next Worker objective"
+      - "allowed_files"
+      - "verify commands"
+      - "stop_if conditions"
+      - "visual QA or runtime verification expectations"
     receipt: null
   - id: T005
     type: worker
@@ -1251,17 +1309,15 @@ checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T030
+    task: T032
     commands:
-      - cmd: "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-readiness.test.ts"
-        status: pass
       - cmd: "node scripts/normalize-fighter-rows.mjs --animation walk-forward --fighters gray-rabbit,ginger-tabby-cat"
         status: pass
-      - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha output/imagegen/gray-rabbit-walk-forward-normalized.png output/imagegen/ginger-tabby-cat-walk-forward-normalized.png"
+      - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha public/assets/generated/fighters/gray-rabbit/walk-forward.png public/assets/generated/fighters/ginger-tabby-cat/walk-forward.png"
         status: pass
-      - cmd: "npm run imagegen:qa"
+      - cmd: "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-qa.test.ts"
         status: pass
-      - cmd: "npm test -- --run test/asset-qa.test.ts"
+      - cmd: "npm run typecheck"
         status: pass
       - cmd: "npm run verify"
         status: pass
