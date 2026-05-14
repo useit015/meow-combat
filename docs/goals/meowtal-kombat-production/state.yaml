@@ -85,7 +85,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T103
+active_task: T104
 
 tasks:
   - id: T000
@@ -5293,7 +5293,7 @@ tasks:
   - id: T103
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: low
     objective: "Polish mobile/page framing for portrait viewports using existing assets only. Improve how the landscape canvas is positioned/framed on tall mobile screens, preserve desktop layout, and verify shell/game readability without changing combat rules or generating assets."
     inputs:
@@ -5316,6 +5316,72 @@ tasks:
       - "Requires changes to combat simulation, frame data, fighter assets, stage assets, audio, particles, or animation rows."
       - "Requires a broad responsive UI rearchitecture or real touch-control design beyond page/canvas framing."
       - "Desktop layout regresses or mobile smoke shows hidden/clipped gameplay, unreadable shell UI, missing UI assets, or console/page errors after one scoped fix attempt."
+    receipt:
+      result: done
+      summary: "Polished mobile/page framing for portrait viewports using existing assets only. The app shell now uses the approved courtyard sky-lighting asset as a subtle page backdrop, adds non-interactive framing treatments behind the canvas, and raises the landscape canvas on tall mobile screens while preserving the desktop full-frame layout. No combat rules, scene logic, fighter assets, generated assets, audio, particles, or animation rows changed."
+      changed_files:
+        - "src/style.css"
+      commands:
+        - cmd: "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-update.mjs --json"
+          status: pass
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm test -- --run test/presentation.test.ts"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "Direct Playwright smoke grid for ready/select/fight/pause/K.O./victory at desktop 1024x576 and mobile portrait 390x844"
+          status: pass
+      evidence:
+        - "output/web-game/meowtal-framing-t103/report.json"
+        - "output/web-game/meowtal-framing-t103/desktop-1024x576/fight-page.png"
+        - "output/web-game/meowtal-framing-t103/mobile-390x844/ready-page.png"
+        - "output/web-game/meowtal-framing-t103/mobile-390x844/fight-page.png"
+        - "output/web-game/meowtal-framing-t103/mobile-390x844/pause-page.png"
+        - "output/web-game/meowtal-framing-t103/mobile-390x844/ko-page.png"
+        - "output/web-game/meowtal-framing-t103/mobile-390x844/victory-page.png"
+      smoke:
+        desktop_canvas: "x=0,y=0,w=1024,h=576"
+        mobile_canvas: "x=0,y=168.796875,w=390,h=219.375"
+        ui_status: "runtimeUi.allLoaded true and missingUi [] for every captured state"
+        errors: "No console or page errors in desktop or mobile smoke."
+      judge:
+        decision: approve
+        agent: "019e2830-1e78-7c31-a4c3-b5582cb9d7c9"
+        summary: "Judge approved T103: the diff is limited to src/style.css, uses only the existing sky-lighting asset, preserves desktop geometry, improves portrait framing, and avoids combat, scene, fighter, audio, particle, animation, and generated asset changes."
+      notes:
+        - "Portrait remains a framed landscape game rather than a full mobile UX; real touch controls and larger responsive rearchitecture remain separate tasks."
+        - "The next task should address the owner stance requirement: both fighters must share upright two-legged normal stance, with prone/grounded frames reserved only for hit reactions and K.O./defeat presentation."
+  - id: T104
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: low
+    objective: "Audit and enforce the shared fighter stance convention in runtime presentation: the gray rabbit and ginger/orange tabby cat must both use upright two-legged normal stance/movement/attack presentation, while prone or grounded poses are allowed only for knockdown, K.O., lose, or other explicit hit-reaction/defeat states. Do not generate assets or change combat rules."
+    inputs:
+      - "Owner clarification: both the rabbit and cat should either stand on 2 or 4 legs."
+      - "Current production direction: upright two-legged ordinary stance/movement/attacks for both fighters; grounded/prone only for hit reactions and defeat/K.O."
+      - "T103 Judge recommendation"
+      - "Existing approved Meowtal fighter runtime rows and animation-state wiring"
+    allowed_files:
+      - "src/assets/catalog.ts"
+      - "src/game/MoroccanArenaScene.ts"
+      - "src/game/spriteFrame.ts"
+      - "test/asset-runtime.test.ts"
+      - "test/sprite-frame.test.ts"
+      - "test/presentation.test.ts"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+    verify:
+      - "npm run typecheck"
+      - "npm test -- --run test/asset-runtime.test.ts test/sprite-frame.test.ts test/presentation.test.ts"
+      - "npm run verify"
+      - "Browser/Playwright smoke: ready/select/fight plus light/heavy/special/block/hit/K.O./victory presentation should show both fighters sharing the same upright normal stance convention, no normal-state four-legged/crawl/loaf drift, no missing assets, and no console/page errors."
+    stop_if:
+      - "Requires generating, editing, or promoting fighter animation assets."
+      - "Requires changing combat simulation rules, frame data timings, damage, physics, stage, UI, audio, or particles."
+      - "A normal-state asset is visually inconsistent enough that code wiring cannot honestly fix it without regeneration."
+      - "Requires broad runtime character-selection rearchitecture or files outside allowed_files."
+      - "Browser smoke shows stance mismatch, hidden/clipped fighters, missing assets, or console/page errors after one scoped fix attempt."
     receipt: null
   - id: T005
     type: worker

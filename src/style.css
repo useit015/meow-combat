@@ -19,9 +19,36 @@ body,
 }
 
 #app {
+  background:
+    radial-gradient(circle at 50% 42%, rgba(242, 207, 125, 0.1), transparent 32rem),
+    linear-gradient(180deg, rgba(12, 35, 32, 0.82), rgba(8, 18, 17, 0.98)),
+    #0b1817;
   overflow: hidden;
   position: relative;
   touch-action: none;
+}
+
+#app::before,
+#app::after {
+  content: "";
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+}
+
+#app::before {
+  background:
+    linear-gradient(180deg, rgba(7, 19, 18, 0.28), rgba(7, 19, 18, 0.86)),
+    url("/assets/generated/stages/meowtal-courtyard/sky-lighting.png") center / cover no-repeat;
+  filter: saturate(1.15) blur(2px);
+  opacity: 0.34;
+  transform: scale(1.04);
+}
+
+#app::after {
+  background:
+    linear-gradient(90deg, transparent, rgba(242, 207, 125, 0.24), transparent) 50% 50% / 100% 1px no-repeat,
+    radial-gradient(ellipse at 50% 45%, transparent 0 17rem, rgba(3, 9, 8, 0.38) 38rem);
 }
 
 body {
@@ -34,4 +61,31 @@ body {
 canvas {
   display: block;
   outline: 1px solid rgba(248, 245, 233, 0.16);
+  position: relative;
+  z-index: 1;
+}
+
+@media (orientation: portrait) and (max-width: 720px) {
+  #app {
+    background:
+      radial-gradient(ellipse at 50% 24%, rgba(242, 207, 125, 0.18), transparent 18rem),
+      linear-gradient(180deg, rgba(16, 54, 50, 0.9), rgba(7, 19, 18, 0.98)),
+      #0b1817;
+  }
+
+  #app::after {
+    background:
+      linear-gradient(90deg, transparent, rgba(242, 207, 125, 0.28), transparent) 50% 25% / 100% 1px no-repeat,
+      linear-gradient(90deg, transparent, rgba(242, 207, 125, 0.18), transparent) 50% calc(25% + 14rem) / 100% 1px
+        no-repeat,
+      radial-gradient(ellipse at 50% 31%, transparent 0 10rem, rgba(3, 9, 8, 0.42) 28rem);
+  }
+
+  canvas {
+    border-block: 1px solid rgba(242, 207, 125, 0.38);
+    box-shadow:
+      0 0 0 1px rgba(248, 245, 233, 0.08),
+      0 18px 60px rgba(0, 0, 0, 0.48);
+    margin-top: clamp(112px, 20svh, 184px) !important;
+  }
 }
