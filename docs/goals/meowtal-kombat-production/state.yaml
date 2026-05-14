@@ -83,7 +83,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T057
+active_task: T058
 
 tasks:
   - id: T000
@@ -2596,7 +2596,7 @@ tasks:
   - id: T057
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Scope the next small Meowtal production slice after idle, walk-forward, walk-back, crouch, jump, light-punch, hitstun, and blockstun runtime rows are approved. Decide whether to continue fighter animation coverage, begin parallax arena asset generation, begin logo/HUD/UI surface generation, or prepare runtime routing."
     inputs:
@@ -2619,6 +2619,63 @@ tasks:
       - "verify commands"
       - "stop_if conditions"
       - "visual QA or runtime verification expectations"
+    receipt:
+      result: done
+      decision: "Continue fighter animation coverage with exactly two paired heavy-punch source rows: gray-rabbit:heavy-punch and ginger-tabby-cat:heavy-punch. Runtime approval is deferred to a later Judge task."
+      next_allowed_task: T058
+      summary: "Runtime routing is still premature: the fighter set now has locomotion, guard, one light attack, and hit/block reactions, but still lacks heavy attack coverage. Heavy-punch is the next smallest combat-completeness slice because it proves a more committed strike while keeping scope to two source rows, provenance/tests, and non-runtime QA candidates. Arena and HUD/UI remain required but should stay separate visual-asset slices with their own QA gates."
+      fighter_animation_pairs:
+        - "gray-rabbit:heavy-punch"
+        - "ginger-tabby-cat:heavy-punch"
+      visual_qa_expectations:
+        - "Both rows remain the same upright two-legged characters from approved idle/walk/crouch/jump/light-punch/hitstun/blockstun rows."
+        - "Heavy-punch reads as a committed heavy paw strike, not idle reuse, light-punch duplicate, walk reuse, collapse, four-legged animal motion, or unreadable posing."
+        - "Rabbit keeps long ears, gray fur, lighter belly, white paws, compact athletic hind-leg silhouette, and readable heavy-strike windup/impact/recovery shapes."
+        - "Cat keeps orange tabby stripes, light muzzle/chest, visible striped tail, upright biped body, and readable heavy-strike windup/impact/recovery shapes."
+        - "Motion has clear frame separation, stable scale, consistent head/camera height, and style consistency with approved rows."
+        - "No text, watermark, logo, frame numbers, background art, detached hit sparks, dust, projectiles, or other detached effects."
+      blocked_tasks:
+        - "Do not approve heavy-punch for runtime in T058."
+        - "Do not copy heavy-punch rows into public/assets/generated."
+        - "Do not switch runtime character selection to Meowtal."
+        - "Do not generate light-kick, special, knockdown, win, or lose rows in this batch."
+        - "Do not generate stage, UI, HUD, logo, particles, audio, or broad asset-pack files."
+  - id: T058
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: low
+    objective: "Generate or integrate exactly two Meowtal source animation rows: gray-rabbit:heavy-punch and ginger-tabby-cat:heavy-punch. Use approved canonical sheets plus approved idle, walk-forward, walk-back, crouch, jump, light-punch, hitstun, and blockstun runtime rows as style locks. Normalize both rows to 8-frame 2048x256 QA candidates, update provenance/manifest/tests/docs so only these two heavy-punch rows are generated-but-unapproved with runtimePath: null, and keep all other remaining rows blocked. Do not approve runtime use."
+    allowed_files:
+      - "assets/source/imagegen/fighters/gray-rabbit/heavy-punch.png"
+      - "assets/source/imagegen/fighters/ginger-tabby-cat/heavy-punch.png"
+      - "src/assets/meowtalProductionManifest.ts"
+      - "docs/assets/meowtal-kombat-provenance.md"
+      - "test/meowtal-production-manifest.test.ts"
+      - "test/asset-qa.test.ts"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+    verify:
+      - "node scripts/normalize-fighter-rows.mjs --animation heavy-punch --fighters gray-rabbit,ginger-tabby-cat"
+      - "sips -g pixelWidth -g pixelHeight -g hasAlpha output/imagegen/gray-rabbit-heavy-punch-normalized.png output/imagegen/ginger-tabby-cat-heavy-punch-normalized.png"
+      - "npm run typecheck"
+      - "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-qa.test.ts"
+      - "npm run imagegen:qa"
+      - "npm run verify"
+    stop_if:
+      - "Any file outside allowed_files is needed, except ignored output/imagegen/*-heavy-punch-normalized.png verification candidates."
+      - "Any public/assets/generated Meowtal heavy-punch runtime asset is created."
+      - "Any heavy-punch row is marked approved or given a runtimePath."
+      - "Any row other than gray-rabbit:heavy-punch or ginger-tabby-cat:heavy-punch is generated, edited, approved, or given a runtime/public path."
+      - "Runtime roster/game config, scene behavior, gameplay, stage, UI/HUD/logo, particles, or audio need changes."
+      - "Either row cannot normalize to 2048x256 with eight separated 256x256 RGBA frames."
+      - "Either fighter drifts from upright two-legged stance, species identity, markings, proportions, camera angle, lighting, scale, outline/detail level, or render style after one retry."
+      - "Heavy-punch reads as idle reuse, light-punch duplicate, walk reuse, collapse, four-legged animal motion, or unreadable posing."
+      - "Rows contain text, logos, watermarks, frame numbers, detached hit sparks/effects, background/arena art, or extra characters."
+    visual_qa_expectations:
+      - "Both rows read as committed heavy paw-strike motion, not idle reuse, light-punch duplicate, walk reuse, collapse, four-legged animal motion, or unreadable posing."
+      - "Rabbit keeps long ears, gray fur, lighter belly, white paws, compact athletic hind-leg silhouette, and readable heavy-strike windup/impact/recovery shapes."
+      - "Cat keeps orange tabby stripes, light muzzle/chest, visible striped tail, upright biped body, and readable heavy-strike windup/impact/recovery shapes."
+      - "Motion has clear frame separation, stable scale, consistent head/camera height, and consistency with approved idle/walk-forward/walk-back/crouch/jump/light-punch/hitstun/blockstun rows."
     receipt: null
   - id: T005
     type: worker
