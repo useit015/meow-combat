@@ -83,7 +83,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T022
+active_task: T023
 
 tasks:
   - id: T000
@@ -562,7 +562,7 @@ tasks:
   - id: T022
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: low
     objective: "Generate or integrate exactly two production canonical sheet PNGs for gray-rabbit:canonical-character-sheet and ginger-tabby-cat:canonical-character-sheet. Use the existing manifest prompts and visual references. Save selected final outputs as source assets, update provenance to generated, record license/provider/date/source path/QA notes, and add tests proving canonical sheets exist while every animation row remains blocked."
     allowed_files:
@@ -589,6 +589,59 @@ tasks:
       - "Rabbit sheet preserves long ears, compact athletic body, strong hind legs, soft gray fur, lighter belly, dark ear tips, white paws, and green tornado energy language."
       - "Cat sheet preserves orange tabby stripes, lighter muzzle/chest, fluffy striped tail, agile body, playful confident expression, and yellow-green aura/projectile language."
       - "Both sheets share clean 2D arcade fighting-game concept style, camera language, cel shading, outline/detail level, and animation-friendly silhouettes."
+    receipt:
+      result: done
+      summary: "Generated and integrated exactly two source canonical sheet PNGs: Gray Rabbit and Ginger/Orange Tabby Cat. Addressed owner stance feedback by keeping both canonical fighters on an upright two-legged fighting-game rig. Provenance is marked generated, not approved; canonicalSheetsApproved() remains false and all animation rows remain blocked."
+      changed_files:
+        - "src/assets/meowtalProductionManifest.ts"
+        - "test/meowtal-production-manifest.test.ts"
+        - "docs/assets/meowtal-kombat-provenance.md"
+        - "assets/source/imagegen/fighters/gray-rabbit/canonical-character-sheet.png"
+        - "assets/source/imagegen/fighters/ginger-tabby-cat/canonical-character-sheet.png"
+      evidence:
+        - "assets/source/imagegen/fighters/gray-rabbit/canonical-character-sheet.png"
+        - "assets/source/imagegen/fighters/ginger-tabby-cat/canonical-character-sheet.png"
+      checksums:
+        gray_rabbit_sha256: "dcc958aad091f18cf946b13c728581b8f32b6f923a7c1af50ef134f9ad1a0ad4"
+        ginger_tabby_cat_sha256: "cccb18cb86120d32bbc28fd3b53795195afb2a914cc39dc4afb70c7c1cedde5e"
+      commands:
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm test -- --run test/meowtal-production-manifest.test.ts"
+          status: pass
+        - cmd: "npm run build"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+      notes:
+        - "Focused manifest test now verifies generated source files exist and that canonical prompts plus animation row prompts preserve the upright two-legged fighting-game rig."
+        - "Full verify passed with 21 test files and 101 tests."
+  - id: T023
+    type: judge
+    assignee: Judge
+    status: active
+    reasoning_hint: high
+    objective: "Audit the generated gray rabbit and ginger/orange tabby canonical character sheets and decide whether they can be approved as the style lock for animation generation or require regeneration/touch-up."
+    inputs:
+      - "assets/source/imagegen/fighters/gray-rabbit/canonical-character-sheet.png"
+      - "assets/source/imagegen/fighters/ginger-tabby-cat/canonical-character-sheet.png"
+      - "src/assets/meowtalProductionManifest.ts"
+      - "docs/assets/meowtal-kombat-provenance.md"
+      - "Owner feedback: both fighters should use the same two-legged or four-legged stance; T022 chose upright two-legged."
+      - "Goal visual QA expectations and animation consistency requirement"
+    constraints:
+      - "Do not implement."
+      - "Do not generate or edit images."
+      - "Reject if either sheet has visible text/watermark, copied branding, unreadable anatomy, inconsistent species traits, or stance mismatch."
+      - "Reject if the two sheets do not share a coherent arcade concept-art style suitable for animation rows."
+      - "If approved, scope a small Worker to mark canonical sheets approved and unblock only the next safe animation-generation planning step."
+    expected_output:
+      - "approved | rejected"
+      - "Visual QA findings"
+      - "Exact next Worker task if approved or regeneration task if rejected"
+      - "allowed_files"
+      - "verify commands"
+      - "stop_if conditions"
     receipt: null
   - id: T005
     type: worker
@@ -740,11 +793,11 @@ checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T020
+    task: T022
     commands:
       - cmd: "npm run typecheck"
         status: pass
-      - cmd: "npm test -- --run test/meowtal-production-manifest.test.ts test/imagegen-jobs.test.ts test/asset-readiness.test.ts"
+      - cmd: "npm test -- --run test/meowtal-production-manifest.test.ts"
         status: pass
       - cmd: "npm run build"
         status: pass

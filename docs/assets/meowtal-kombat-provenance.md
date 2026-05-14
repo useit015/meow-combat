@@ -36,18 +36,28 @@ The current art-direction references are aspirational only and are not runtime a
 
 ### Canonical Character Sheets
 
-Status: planned.
+Status: generated source candidates, not approved for runtime.
 
 - `gray-rabbit:canonical-character-sheet`
+  - Source path: `assets/source/imagegen/fighters/gray-rabbit/canonical-character-sheet.png`
+  - Provider: Codex built-in imagegen
+  - Generated on: 2026-05-14
+  - License status: owned generated candidate, pending explicit approval before runtime use
+  - QA notes: rabbit-only upright two-legged sheet, no visible text/watermark, includes front/side/back/three-quarter pose, action pose, idle pose, head close-up, expressions, detail callouts, size reference, color swatches, green tornado language, and consistent gray rabbit proportions.
 - `ginger-tabby-cat:canonical-character-sheet`
+  - Source path: `assets/source/imagegen/fighters/ginger-tabby-cat/canonical-character-sheet.png`
+  - Provider: Codex built-in imagegen
+  - Generated on: 2026-05-14
+  - License status: owned generated candidate, pending explicit approval before runtime use
+  - QA notes: cat-only upright two-legged sheet, no visible text/watermark, includes front/side/back views, upright combat poses, upright idle, head close-up, expressions, detail callouts, size reference, color swatches, yellow-green energy language, and consistent orange tabby markings.
 
-These must be generated and approved before animation rows. Required sheet structure includes front, side, back, 3/4 heroic pose, action pose, relaxed idle, head close-up, expression sheet, detail callouts, size reference, and color swatches.
+These must be approved before animation rows. Required sheet structure includes front, side, back, 3/4 heroic pose, action pose, relaxed idle, head close-up, expression sheet, detail callouts, size reference, and color swatches. Both fighters use an upright two-legged fighting-game rig for animation consistency.
 
 ### Character Animation Rows
 
 Status: blocked by canonical character sheet approval.
 
-Each fighter needs rows for idle, walk-forward, walk-back, crouch, jump, light-punch, heavy-punch, light-kick, special, hitstun, blockstun, knockdown, win, and lose. Rows must preserve species identity, markings, proportions, lighting, camera angle, scale, outline/detail level, and rendering style.
+Each fighter needs rows for idle, walk-forward, walk-back, crouch, jump, light-punch, heavy-punch, light-kick, special, hitstun, blockstun, knockdown, win, and lose. Rows must preserve the shared upright two-legged rig, species identity, markings, proportions, lighting, camera angle, scale, outline/detail level, and rendering style.
 
 ### Parallax Courtyard
 

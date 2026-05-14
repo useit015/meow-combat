@@ -107,6 +107,19 @@ export interface MeowtalProductionManifest {
 
 const canonicalBlocker = "Generate and approve the canonical character sheet before creating animation rows.";
 const binaryBlocker = "Planned production asset only; no binary image or audio generated in the T020 scaffold.";
+const generatedOn = "2026-05-14";
+
+const canonicalSheetSourcePaths: Readonly<Record<MeowtalFighterId, string>> = {
+  "gray-rabbit": "assets/source/imagegen/fighters/gray-rabbit/canonical-character-sheet.png",
+  "ginger-tabby-cat": "assets/source/imagegen/fighters/ginger-tabby-cat/canonical-character-sheet.png",
+};
+
+const canonicalSheetQaNotes: Readonly<Record<MeowtalFighterId, string>> = {
+  "gray-rabbit":
+    "Generated canonical sheet candidate. Visual QA: rabbit-only upright two-legged sheet, no visible text/watermark, includes front/side/back/three-quarter pose, action pose, idle pose, head close-up, expressions, detail callouts, size reference, color swatches, green tornado language, and consistent gray rabbit proportions.",
+  "ginger-tabby-cat":
+    "Generated canonical sheet candidate. Visual QA: cat-only upright two-legged sheet, no visible text/watermark, includes front/side/back views, upright combat poses, upright idle, head close-up, expressions, detail callouts, size reference, color swatches, yellow-green energy language, and consistent orange tabby markings.",
+};
 
 const animationFrameCounts: Readonly<Record<FighterAnimationId, number>> = {
   idle: 8,
@@ -141,20 +154,20 @@ const fighterDetails: Readonly<
 > = {
   "gray-rabbit": {
     displayName: "Gray Rabbit",
-    silhouette: "long ears, compact athletic body, strong hind legs, springy hopping stance",
+    silhouette: "upright two-legged stance, long ears, compact athletic body, strong hind legs, springy hopping stance",
     personality: "cute, alert, determined, slightly comedic",
-    body: "small athletic animal body with powerful hind legs and readable kicking shapes",
+    body: "small upright biped animal body with powerful hind legs and readable kicking shapes",
     markings: "soft gray fur, lighter belly, dark ear tips, white paws",
     signatureTraits: "hopping movement, spinning kicks, tornado special, green energy trail",
     specialEnergy: "green tornado energy",
   },
   "ginger-tabby-cat": {
     displayName: "Ginger/Orange Tabby Cat",
-    silhouette: "fluffy orange tabby fur, round expressive face, agile body, visible striped tail",
+    silhouette: "upright two-legged stance, fluffy orange tabby fur, round expressive face, agile body, visible striped tail",
     personality: "playful, confident, mischievous, dramatic",
-    body: "agile house-cat body with acrobatic pounce poses and clear tail-attack silhouettes",
+    body: "agile upright biped house-cat body with acrobatic pounce poses and clear tail-attack silhouettes",
     markings: "orange tabby stripes, lighter muzzle and chest, fluffy striped tail",
-    signatureTraits: "pounce attacks, tail strikes, loaf idle pose, acrobatic flips, yellow-green aura projectile",
+    signatureTraits: "pounce attacks, tail strikes, compact loaf-inspired upright idle stance, acrobatic flips, yellow-green aura projectile",
     specialEnergy: "yellow-green aura and projectile energy",
   },
 };
@@ -280,12 +293,7 @@ function makeFighters(): readonly MeowtalFighterAssetPlan[] {
       canonicalSheet: {
         fighterId,
         requiredBeforeAnimationRows: true,
-        provenance: imageProvenance({
-          assetId: `${fighterId}:canonical-character-sheet`,
-          promptSlug: `${fighterId}-canonical-character-sheet`,
-          prompt: canonicalSheetPrompt(fighterId),
-          blocker: binaryBlocker,
-        }),
+        provenance: generatedCanonicalSheetProvenance(fighterId),
       },
       animationRows: REQUIRED_FIGHTER_ANIMATIONS.map((animationId) => ({
         fighterId,
@@ -297,6 +305,7 @@ function makeFighters(): readonly MeowtalFighterAssetPlan[] {
           promptSlug: `${fighterId}-${animationId}-animation-row`,
           prompt: [
             `Using the approved canonical character sheet for ${details.displayName}, create the ${animationId} animation row.`,
+            "Use the same upright two-legged fighting-game rig as the canonical sheet.",
             "Keep the fighter identity, species, markings, proportions, camera angle, lighting, scale, and render style consistent.",
             "Do not include detached hit sparks, dust, text, logos, watermarks, frame numbers, or background art in the row.",
           ].join("\n"),
@@ -308,11 +317,37 @@ function makeFighters(): readonly MeowtalFighterAssetPlan[] {
   });
 }
 
+function generatedCanonicalSheetProvenance(fighterId: MeowtalFighterId): AssetProvenance {
+  return {
+    ...imageProvenance({
+      assetId: `${fighterId}:canonical-character-sheet`,
+      promptSlug: `${fighterId}-canonical-character-sheet`,
+      prompt: canonicalSheetPrompt(fighterId),
+      status: "generated",
+      blocker: "",
+    }),
+    sourcePath: canonicalSheetSourcePaths[fighterId],
+    runtimePath: null,
+    license: {
+      kind: "owned-generated",
+      summary: "Generated with Codex built-in imagegen for this project; pending explicit approval before runtime use.",
+      sourceUrl: null,
+      attribution: null,
+      checkedOn: generatedOn,
+    },
+    createdOrDownloadedOn: generatedOn,
+    transforms: ["Copied selected built-in imagegen output into the repo source asset tree without runtime normalization."],
+    approvalNotes: canonicalSheetQaNotes[fighterId],
+    blocker: null,
+  };
+}
+
 function canonicalSheetPrompt(fighterId: MeowtalFighterId): string {
   const details = fighterDetails[fighterId];
   return [
     `Create a complete polished character design sheet for ${details.displayName}, an original Meowtal Kombat fighter, on a clean light background.`,
     `Show a faithful consistent depiction with ${details.silhouette}, ${details.personality} expression, ${details.body}, ${details.markings}, ${details.signatureTraits}, and ${details.specialEnergy}.`,
+    "All full-body views and combat poses must use one consistent upright two-legged fighting-game rig.",
     "Present the sheet as professional production concept art with full-body front view, side view, back view, 3/4 heroic pose, action-ready fighting pose, relaxed idle pose, large head close-up, and expression sheet.",
     "Include calm idle, excited grin, battle focus, shocked comedic expression, hit reaction, and powering-up intensity.",
     "Include detail callouts for silhouette, ears/tail/paws, fur markings, attack limbs, special-effect aura shape, readable gameplay pose shapes, size reference, and color swatches.",

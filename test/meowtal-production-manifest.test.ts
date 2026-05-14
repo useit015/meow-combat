@@ -1,3 +1,5 @@
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { REQUIRED_FIGHTER_ANIMATIONS } from "../src/assets";
 import {
@@ -43,6 +45,22 @@ describe("Meowtal production manifest", () => {
     expect(blockedRows.every((row) => row.provenance.blocker?.includes("canonical character sheet"))).toBe(true);
   });
 
+  it("tracks generated canonical sheet source files without approving them for runtime", () => {
+    for (const fighter of meowtalProductionManifest.fighters) {
+      const provenance = fighter.canonicalSheet.provenance;
+
+      expect(provenance.status).toBe("generated");
+      expect(provenance.sourceKind).toBe("codex-imagegen");
+      expect(provenance.sourcePath).toBe(`assets/source/imagegen/fighters/${fighter.id}/canonical-character-sheet.png`);
+      expect(provenance.runtimePath).toBeNull();
+      expect(provenance.license.kind).toBe("owned-generated");
+      expect(provenance.createdOrDownloadedOn).toBe("2026-05-14");
+      expect(provenance.approvalNotes).toContain("Generated canonical sheet candidate");
+      expect(provenance.approvalNotes).toContain("upright two-legged");
+      expect(existsSync(join(process.cwd(), provenance.sourcePath ?? ""))).toBe(true);
+    }
+  });
+
   it("includes canonical sheet prompts with the required production-sheet structure", () => {
     for (const fighter of meowtalProductionManifest.fighters) {
       const prompt = fighter.canonicalSheet.provenance.prompt;
@@ -56,6 +74,15 @@ describe("Meowtal production manifest", () => {
       expect(prompt).toContain("expression sheet");
       expect(prompt).toContain("size reference");
       expect(prompt).toContain("color swatches");
+      expect(prompt).toContain("upright two-legged fighting-game rig");
+    }
+  });
+
+  it("keeps every planned animation row tied to the same two-legged rig", () => {
+    for (const fighter of meowtalProductionManifest.fighters) {
+      for (const row of fighter.animationRows) {
+        expect(row.provenance.prompt).toContain("upright two-legged fighting-game rig");
+      }
     }
   });
 
