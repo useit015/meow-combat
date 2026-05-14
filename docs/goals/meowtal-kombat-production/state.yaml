@@ -83,7 +83,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T071
+active_task: T072
 
 tasks:
   - id: T000
@@ -3386,7 +3386,7 @@ tasks:
   - id: T071
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Visual QA only the two generated Meowtal light-kick candidates, gray-rabbit:light-kick and ginger-tabby-cat:light-kick, against approved runtime rows through heavy-punch. Decide whether they are approved for later runtime promotion or must be regenerated. Do not edit files."
     inputs:
@@ -3409,6 +3409,53 @@ tasks:
       - "Per-fighter visual QA notes"
       - "Runtime promotion constraints if approved"
       - "Regeneration notes if rejected"
+    receipt:
+      result: done
+      decision: regenerate
+      summary: "Judge rejected the two T070 light-kick source candidates. Dimensions, alpha, species identity, transparent rows, and the shared upright two-legged convention were acceptable, but both fighters read too much like crouch variations instead of clear low light-kick attacks. Runtime promotion remains blocked."
+      evidence:
+        - "assets/source/imagegen/fighters/gray-rabbit/light-kick.png"
+        - "assets/source/imagegen/fighters/ginger-tabby-cat/light-kick.png"
+        - "output/imagegen/gray-rabbit-light-kick-normalized.png"
+        - "output/imagegen/ginger-tabby-cat-light-kick-normalized.png"
+      notes:
+        - "gray-rabbit:light-kick blocker: active frames are too close to crouch reuse with an ambiguous gray leg/foot mass in front of the body."
+        - "ginger-tabby-cat:light-kick blocker: too crouch-like and timid; the extended foot/leg is not separated strongly enough from the crouched body."
+        - "Follow-up must be source-only regeneration/touch-up with a more distinct snap-kick silhouette: planted support leg, clear kicking foot extension, readable recoil, and less body/limb overlap."
+        - "Do not promote runtime light-kick assets until a later Judge task approves regenerated rows."
+  - id: T072
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: low
+    objective: "Regenerate exactly two Meowtal light-kick source rows, gray-rabbit:light-kick and ginger-tabby-cat:light-kick, to address T071 visual QA blockers. Keep them source-only non-runtime candidates, preserve the shared upright two-legged stance, create a clearer planted-support-leg plus extended-foot snap-kick silhouette, normalize both rows to 8-frame 2048x256 QA candidates, and update provenance/manifest/tests/docs only if needed to reflect the regeneration. Do not approve runtime use."
+    inputs:
+      - "T071 regenerate receipt"
+      - "T070 generated light-kick source rows"
+      - "approved runtime rows through heavy-punch"
+    allowed_files:
+      - "assets/source/imagegen/fighters/gray-rabbit/light-kick.png"
+      - "assets/source/imagegen/fighters/ginger-tabby-cat/light-kick.png"
+      - "src/assets/meowtalProductionManifest.ts"
+      - "docs/assets/meowtal-kombat-provenance.md"
+      - "test/meowtal-production-manifest.test.ts"
+      - "test/asset-qa.test.ts"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+    verify:
+      - "node scripts/normalize-fighter-rows.mjs --animation light-kick --fighters gray-rabbit,ginger-tabby-cat"
+      - "sips -g pixelWidth -g pixelHeight -g hasAlpha output/imagegen/gray-rabbit-light-kick-normalized.png output/imagegen/ginger-tabby-cat-light-kick-normalized.png"
+      - "npm run typecheck"
+      - "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-qa.test.ts"
+      - "npm run verify"
+    stop_if:
+      - "Any file outside allowed_files is needed, except ignored output/imagegen/*-light-kick-normalized.png verification candidates."
+      - "Any runtime asset under public/assets/generated/**/light-kick.png is created or changed."
+      - "Any animation besides light-kick is generated, normalized, promoted, or approved."
+      - "Either fighter drifts into four-legged motion, mixed stance conventions, sitting/rest poses, collapse/rest, or unreadable kicking."
+      - "Regenerated active frames still read as crouch, walk, jump, punch reuse, or timid pose shifts instead of clear low snap-kicks."
+      - "Regeneration introduces pasted-box artifacts, detached limb effects, clipped/detached feet, visible chroma residue, backgrounds, extra characters, text/logos/watermarks, or frame numbers."
+      - "Normalized candidates cannot be exactly 2048x256 RGBA with eight separated 256x256 frames."
+      - "Fixing verification would require touching scripts, gameplay, routing, UI, arena, audio, or unrelated files."
     receipt: null
   - id: T005
     type: worker
