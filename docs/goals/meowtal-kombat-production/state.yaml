@@ -85,7 +85,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T120
+active_task: T010
 
 tasks:
   - id: T000
@@ -6268,7 +6268,7 @@ tasks:
   - id: T120
     type: pm
     assignee: PM
-    status: active
+    status: done
     reasoning_hint: medium
     objective: "Reconcile the remaining queued broad placeholders T005/T007/T011 now that T119 closed the manifest/audio/damage gaps, and decide whether to activate final production audit T010. Do not edit product code or claim full completion in this task."
     inputs:
@@ -6284,22 +6284,49 @@ tasks:
     expected_output:
       - "Status decisions for T005/T007/T011"
       - "Next active task: T010 final production audit if broad placeholders are covered, or one narrow follow-up if a real gap remains"
-    receipt: null
+    receipt:
+      result: done
+      summary: "Reconciled the remaining broad placeholder tasks against concrete completed receipts after T119 closed the last manifest, damage-number, and audio-cue gaps. T005, T007, and T011 are now closed as covered by specific asset, presentation, shell, verification, provenance, and hardening slices rather than reactivating unsafe broad placeholders. Activated T010 as the final production-readiness audit; this PM task does not mark the overall goal complete."
+      changed_files:
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+      decisions:
+        T005: "done; complete production asset pack is covered by canonical sheets, approved runtime fighter rows, parallax stage layers, title/logo/HUD/portraits/meters/overlays, generated UI routing, procedural shell/effects/damage styling, procedural audio provenance, and manifest cleanup through T119."
+        T007: "done; arcade presentation is covered by HUD, health/timer/super, FIGHT/K.O./victory flow, particles, hit sparks, camera shake, impact flashes, damage numbers, and distinct procedural combat/audio cues through T119."
+        T011: "done; production hardening is covered by build/preview/smoke scripts, run instructions, loading/fallback states, asset manifest/provenance, repeatable browser capture evidence, identity cleanup, and T119's final asset/audio ledger closure."
+      commands:
+        - cmd: "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+          status: pass
+      next_task: T010
   - id: T005
     type: worker
     assignee: Worker
-    status: queued
+    status: done
     reasoning_hint: low
     objective: "Implement or integrate the complete production-quality asset pack for the selected project stack: canonical character sheets, characters, layered parallax arena, logo/title mark, title/key art, HUD, portraits, menu panels, controls, overlays, particles, audio, and effects, with animation consistency and source/prompt/license tracking."
-    allowed_files: []
-    verify: []
+    allowed_files:
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+    verify:
+      - "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
     stop_if:
       - "Need files outside allowed_files."
       - "Asset generation, source, attribution, or licensing approach is unclear."
       - "Animation frames are being generated before canonical character sheets exist."
       - "Generated assets do not fit the visual style or character animation consistency bar after one retry."
       - "Verification fails twice for the same reason."
-    receipt: null
+    receipt:
+      result: done
+      summary: "Closed as covered by concrete asset-generation, runtime-promotion, QA, routing, and provenance receipts rather than activating the unsafe broad placeholder. The production asset pack now includes canonical character sheets, approved consistent Meowtal fighter runtime rows, layered parallax courtyard assets, generated title/logo/HUD/portraits/meters/overlays, procedural UI shells and touch/loading/fallback surfaces, procedural particles/effects/damage-number styling, distinct procedural audio cues, and a manifest/provenance ledger with no remaining planned visual or audio blockers."
+      changed_files:
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+      commands:
+        - cmd: "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+          status: pass
+      evidence:
+        - "T020-T089 generated, QA'd, and promoted the complete consistent Meowtal fighter row set."
+        - "T092-T100 generated and routed the parallax stage, title/logo, HUD, portraits, meters, menu panels, overlays, and runtime UI."
+        - "T103-T104 verified portrait framing and shared upright two-legged stance consistency."
+        - "T118 reconciled generated/procedural visual surface provenance."
+        - "T119 approved damage-number styling and all distinct procedural audio cues in the manifest/provenance ledger."
   - id: T006
     type: worker
     assignee: Worker
@@ -6333,17 +6360,32 @@ tasks:
   - id: T007
     type: worker
     assignee: Worker
-    status: queued
+    status: done
     reasoning_hint: low
     objective: "Implement arcade presentation: Mortal Kombat-style HUD, health/timer/super meters, FIGHT/K.O. screens, damage numbers, particles, screen shake, impact flashes, audio cues, and camera feel."
-    allowed_files: []
-    verify: []
+    allowed_files:
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+    verify:
+      - "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
     stop_if:
       - "Need files outside allowed_files."
       - "Effects harm performance or readability."
       - "Audio dependencies or browser restrictions need PM/Judge decision."
       - "Verification fails twice for the same reason."
-    receipt: null
+    receipt:
+      result: done
+      summary: "Closed as covered by concrete presentation and effects receipts. The runtime now has Meowtal HUD health/timer/super bars, portraits, FIGHT/K.O./victory and round flow, camera shake, impact flashes, sparks, dust, aura/projectile effects, floating per-hit damage numbers, move-specific damage-number styling, and distinct owned procedural audio for fight start, light/heavy hits, block, dash/hop, rabbit tornado, cat aura/blast, K.O. burst, and victory sting. Final T010 remains responsible for rejecting if the result is not readable, smooth, or satisfying enough."
+      changed_files:
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+      commands:
+        - cmd: "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+          status: pass
+      evidence:
+        - "T094-T100 routed the approved Meowtal stage, HUD, logo, portraits, meters, overlays, and presentation shell."
+        - "T101 verified K.O., victory, timer/health/super depletion, and desktop/mobile HUD fit."
+        - "T104 verified the shared upright two-legged runtime stance presentation."
+        - "T111/T115 produced repeatable production-preview browser smoke captures."
+        - "T119 added floating damage numbers and distinct procedural combat/audio cues."
   - id: T008
     type: worker
     assignee: Worker
@@ -6405,21 +6447,36 @@ tasks:
   - id: T011
     type: worker
     assignee: Worker
-    status: queued
+    status: done
     reasoning_hint: low
     objective: "Production hardening pass: build/preview readiness, asset preload/compression, loading/fallback states, error-free console, run instructions, asset/license manifest, and final cleanup."
-    allowed_files: []
-    verify: []
+    allowed_files:
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+    verify:
+      - "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
     stop_if:
       - "Need files outside allowed_files."
       - "A production build or preview command cannot be established."
       - "External asset/license provenance is incomplete."
       - "Verification fails twice for the same reason."
-    receipt: null
+    receipt:
+      result: done
+      summary: "Closed as covered by concrete production-hardening receipts. The project has production build/preview instructions, an npm smoke command, repeatable browser capture artifacts, loading and fallback behavior, asset helper cleanup, manifest/provenance tests, approved generated/procedural asset and audio provenance, and no known remaining placeholder/provenance blockers before the strict readiness audit."
+      changed_files:
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+      commands:
+        - cmd: "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+          status: pass
+      evidence:
+        - "T111 added npm run smoke:meowtal and documented the production preview/smoke workflow."
+        - "T112-T116 hardened asset helpers, loading/fallback behavior, and naming identity cleanup."
+        - "T118 reconciled manifest/provenance status for generated and procedural runtime surfaces."
+        - "T119 closed the remaining damage-number and audio-cue provenance blockers."
+        - "Latest T119 verification passed typecheck, focused tests, full verify, production-preview smoke, custom damage capture, state checker, and diff check."
   - id: T010
     type: judge
     assignee: Judge
-    status: queued
+    status: active
     reasoning_hint: high
     objective: "Audit production readiness before final completion: gameplay feel, assets, audio, architecture, performance, responsiveness, accessibility/readability, production build readiness, and full scoped-game completeness."
     inputs:
