@@ -1,6 +1,6 @@
-# Atlas Arena
+# Meowtal Kombat
 
-A Moroccan-themed, KOF-style TypeScript web fighting game with a deterministic combat core, Phaser shell, generated fighter sprites, a generated Marrakesh rooftop stage, and polished arcade presentation.
+A production-oriented TypeScript web fighting game where a gray rabbit and a ginger tabby cat clash in a bright parallax courtyard with generated fighter sprites, arcade HUD presentation, responsive controls, and repeatable production smoke checks.
 
 ## Run
 
@@ -11,7 +11,7 @@ npm run dev
 
 Open the local game at `http://127.0.0.1:5173/`.
 
-The GoalBuddy board lives in `docs/goals/kof-moroccan-game/state.yaml`; the local board URL is recorded there.
+The active GoalBuddy board lives in `docs/goals/meowtal-kombat-production/state.yaml`; the local board URL is recorded there.
 
 ## Verify
 
@@ -45,10 +45,10 @@ npm test
 npm run build
 ```
 
-Browser smoke proof used during development:
+Repeatable browser smoke entrypoint:
 
 ```bash
-node /Users/oussmustaine/.codex/skills/develop-web-game/scripts/web_game_playwright_client.js --url 'http://127.0.0.1:5173/?demo=win' --actions-json '{"steps":[{"buttons":[],"frames":3}]}' --iterations 1 --pause-ms 250 --screenshot-dir output/web-game
+npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/meowtal-smoke-local
 ```
 
 ## Controls
@@ -65,6 +65,8 @@ node /Users/oussmustaine/.codex/skills/develop-web-game/scripts/web_game_playwri
 - `P` or `Esc`: pause/resume.
 - `F`: toggle fullscreen.
 - `R`: reset to title.
+- Touch controls appear on phone-sized portrait and landscape viewports.
+- Gamepad detection is surfaced in-game; keyboard and phone touch remain the supported fallback when no gamepad is connected.
 
 ## Current Scope
 
@@ -72,14 +74,15 @@ Implemented locally:
 
 - Deterministic TypeScript combat core with fixed-step snapshots.
 - Phaser shell with title, fighter select, pause, round flow, match flow, HUD, and browser verification hooks.
-- Product-branded `ATLAS ARENA` title/select presentation using approved generated stage art, transparent fighter showcases, arcade frames, and VS card composition instead of debug fallback geometry.
+- Product-branded `MEOWTAL KOMBAT` title/select presentation using approved generated stage art, transparent fighter showcases, arcade frames, and VS card composition instead of debug fallback geometry.
 - Runtime-sprite fighter select cards using approved transparent idle sprites, with concept-sheet art retained only as a fallback.
-- Atlas Lion and Sahara Viper fighter definitions.
+- Gray Rabbit and Ginger Tabby Cat fighter definitions with a shared upright two-legged normal stance convention.
 - CPU sparring with deterministic difficulty profiles.
 - Hit/block effects, camera impact feedback, procedural audio cues, low-volume procedural music, combo tracking, timer outcomes, score pips, and best-of-three match state.
-- Generated Marrakesh rooftop stage layers rendered behind the fighters.
+- Generated bright Meowtal Courtyard parallax stage layers rendered behind and around the fighters.
 - Approved generated runtime sprites for every required fighter row: idle, walk-forward, walk-back, crouch, jump, light-punch, light-kick, heavy-punch, special, hitstun, blockstun, knockdown, win, and lose.
 - Match-over presentation that renders winner `win` sprites and defeated fighter `lose` sprites.
+- Responsive phone portrait/landscape touch controls, keyboard controls, pause/reset affordances, and explicit gamepad fallback messaging.
 - Asset manifests, imagegen job specs, QA reports, and readiness summaries showing zero blocked imagegen jobs and zero runtime fallbacks.
 - Production build chunking that isolates the Phaser engine vendor chunk from the smaller game/application chunk.
 

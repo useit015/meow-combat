@@ -85,7 +85,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T112
+active_task: T113
 
 tasks:
   - id: T000
@@ -5816,7 +5816,7 @@ tasks:
   - id: T112
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: low
     objective: "Refresh README product identity and runbook wording so it describes the current Meowtal Kombat production game instead of stale Atlas Arena/Moroccan KOF language, without changing code, assets, package scripts, or gameplay."
     inputs:
@@ -5842,6 +5842,59 @@ tasks:
     stop_if:
       - "Requires code, package, generated asset, audio, test, build output, or gameplay changes."
       - "README claims unsupported multiplayer, networking, external asset licensing, or final-complete status."
+      - "Files outside allowed_files are needed."
+    receipt:
+      result: done
+      summary: "Refreshed README identity and runbook wording from stale Atlas Arena/Moroccan KOF language to current Meowtal Kombat production wording. The README now points at the active Meowtal GoalBuddy board, describes Gray Rabbit vs Ginger Tabby Cat in the parallax courtyard, preserves run/verify/smoke instructions, and documents phone touch plus gamepad fallback behavior."
+      changed_files:
+        - "README.md"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+      commands:
+        - cmd: "rg -n \"Atlas|Moroccan|KOF|kof-moroccan|Marrakesh|ATLAS|Sahara|Lion|Viper\" README.md || true"
+          status: pass
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+          status: pass
+        - cmd: "git diff --check"
+          status: pass
+      judge:
+        agent: "019e2890-ece7-7973-817a-bbd7dc32fc15"
+        result: approve
+        summary: "Judge approved T112: README-only diff stayed in allowed scope, no code/package/assets/tests/build/gameplay files changed, stale README identity references were removed, and verification evidence passed."
+      notes:
+        - "Residual risk: package metadata still uses the older moroccan-kof-engine name and should be cleaned in a separate metadata-only slice."
+  - id: T113
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: low
+    objective: "Refresh package metadata so npm/package-lock identity matches Meowtal Kombat instead of the stale Moroccan KOF engine name, without changing scripts, dependencies, source code, assets, tests, or gameplay."
+    inputs:
+      - "package.json name is still moroccan-kof-engine."
+      - "package-lock.json root package name is still moroccan-kof-engine."
+      - "README now describes Meowtal Kombat accurately."
+    constraints:
+      - "Only change package identity/description metadata needed for the rename."
+      - "Do not change scripts, dependency versions, lockfile dependency graph, source code, generated assets, tests, build output, or gameplay behavior."
+      - "Keep one small coherent commit."
+    expected_output:
+      - "package.json name/description match Meowtal Kombat."
+      - "package-lock.json root identity matches package.json."
+      - "Verification receipt with package metadata checks and standard build/test verification."
+    allowed_files:
+      - "package.json"
+      - "package-lock.json"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+    verify:
+      - "node -e \"const p=require('./package.json'); const l=require('./package-lock.json'); if (p.name !== 'meowtal-kombat' || l.name !== p.name || l.packages[''].name !== p.name) process.exit(1);\""
+      - "npm run typecheck"
+      - "npm run verify"
+      - "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+    stop_if:
+      - "Requires script changes, dependency changes, npm install lockfile churn beyond root package identity, source code, assets, tests, build output, or gameplay changes."
       - "Files outside allowed_files are needed."
     receipt: null
   - id: T005
