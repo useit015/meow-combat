@@ -3779,6 +3779,7 @@ tasks:
         - "ginger-tabby-cat:special"
       notes:
         - "Special rows should be generated and normalized as source-only QA candidates, not promoted."
+        - "PM correction after Judge scoping: the repo animation contract requires 10 special frames normalized to 2560x256, not 8 frames normalized to 2048x256."
         - "Gray rabbit special: upright two-legged rapid spinning tornado with green character-attached energy trail; rabbit must remain readable in every frame."
         - "Ginger tabby special: upright two-legged acrobatic flip kick with green/yellow character-attached aura or short projectile burst; no four-legged landing/rest frames."
         - "Both rows must preserve approved runtime style, camera angle, scale, lighting, outline/detail level, markings, proportions, and shared upright two-legged stance."
@@ -3788,7 +3789,7 @@ tasks:
     assignee: Worker
     status: active
     reasoning_hint: low
-    objective: "Generate and normalize source-only Meowtal special-attack candidates for exactly gray-rabbit:special and ginger-tabby-cat:special. Create production-usable source rows and normalized 8-frame 2048x256 QA candidates only. Update manifest/provenance/tests/docs so these two special rows become generated-but-unapproved with runtimePath null, and keep knockdown/win/lose blocked. Do not promote runtime assets, switch runtime routing, or create other rows."
+    objective: "Generate and normalize source-only Meowtal special-attack candidates for exactly gray-rabbit:special and ginger-tabby-cat:special. Create production-usable source rows and normalized 10-frame 2560x256 QA candidates only, matching the repo special animation contract. Update manifest/provenance/tests/docs so these two special rows become generated-but-unapproved with runtimePath null, and keep knockdown/win/lose blocked. Do not promote runtime assets, switch runtime routing, or create other rows."
     inputs:
       - "T077 scoping receipt"
       - "Approved runtime rows through light-kick"
@@ -3813,7 +3814,7 @@ tasks:
       - "Any row besides special is generated, normalized, promoted, or approved."
       - "Either fighter shifts to four-legged motion, tail/support-limb posing, crawl/rest collapse, or a different stance convention."
       - "Special effects become detached background/UI clutter rather than character-attached attack motion."
-      - "Normalized candidates cannot be exactly 2048x256 RGBA with eight separated 256x256 frames."
+      - "Normalized candidates cannot be exactly 2560x256 RGBA with ten separated 256x256 frames."
       - "Provenance cannot clearly mark these as generated source-only, non-runtime candidates pending Judge visual QA."
       - "Fixing verification requires gameplay, routing, stage, HUD, logo, audio, or broad asset-pipeline changes."
     receipt: null
