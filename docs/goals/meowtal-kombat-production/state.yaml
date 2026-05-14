@@ -83,7 +83,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T067
+active_task: T068
 
 tasks:
   - id: T000
@@ -3159,7 +3159,7 @@ tasks:
   - id: T067
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Visual QA only the T066 distinct rebuilt Meowtal heavy-punch candidates, gray-rabbit:heavy-punch and ginger-tabby-cat:heavy-punch, against approved runtime rows through blockstun. Decide whether they are approved for later runtime promotion or must be regenerated again. Do not edit files."
     inputs:
@@ -3183,6 +3183,54 @@ tasks:
       - "Per-fighter visual QA notes"
       - "Runtime promotion constraints if approved"
       - "Regeneration notes if rejected"
+    receipt:
+      result: done
+      verdict: approved
+      decision: "Approve gray-rabbit:heavy-punch and ginger-tabby-cat:heavy-punch for a narrow runtime-promotion Worker. Do not regenerate."
+      summary: "Judge approved the T066 heavy-punch candidates. Both rows preserve the shared upright two-legged stance convention, keep species markings/style/scale consistent enough with approved rows, and now read as distinct committed heavy strikes rather than extended light-punch rows. The crouch-load, planted weight shift, committed extension, follow-through, and recovery are readable. No visible chroma residue, clipped/detached fists, corrupted silhouettes, text, background, extra characters, or runtime-blocking artifacts were found."
+      evidence:
+        - "assets/source/imagegen/fighters/gray-rabbit/heavy-punch.png"
+        - "assets/source/imagegen/fighters/ginger-tabby-cat/heavy-punch.png"
+        - "output/imagegen/gray-rabbit-heavy-punch-normalized.png"
+        - "output/imagegen/ginger-tabby-cat-heavy-punch-normalized.png"
+      visual_qa:
+        - "gray-rabbit: upright two-legged stance preserved; clear crouch-load, planted weight shift, committed extension, follow-through, and recovery."
+        - "ginger-tabby-cat: upright two-legged stance preserved and matches rabbit stance convention; distinct from light-punch via deeper load and stronger body commitment."
+        - "Normalized candidates are 2048x256 RGBA with eight separated 256x256 frames; source sheets are 4096x512 with alpha."
+      next_allowed_task: T068
+      blocked_tasks:
+        - "Do not begin the next animation row in T068."
+        - "Do not switch runtime character selection in T068."
+        - "Do not start parallax arena, HUD/logo/UI, particles, audio, or effects in T068."
+  - id: T068
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: low
+    objective: "Promote only the T067-approved normalized Meowtal heavy-punch rows to runtime assets. Copy normalized candidates into public runtime paths, update manifest/provenance/tests so only gray-rabbit:heavy-punch and ginger-tabby-cat:heavy-punch become approved runtime rows, and keep every other remaining Meowtal row blocked. Do not switch runtime character selection or start any other asset slice."
+    allowed_files:
+      - "public/assets/generated/fighters/gray-rabbit/heavy-punch.png"
+      - "public/assets/generated/fighters/ginger-tabby-cat/heavy-punch.png"
+      - "src/assets/meowtalProductionManifest.ts"
+      - "docs/assets/meowtal-kombat-provenance.md"
+      - "test/meowtal-production-manifest.test.ts"
+      - "test/asset-qa.test.ts"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+    inputs:
+      - "output/imagegen/gray-rabbit-heavy-punch-normalized.png"
+      - "output/imagegen/ginger-tabby-cat-heavy-punch-normalized.png"
+      - "T067 approval receipt"
+    verify:
+      - "sips -g pixelWidth -g pixelHeight -g hasAlpha public/assets/generated/fighters/gray-rabbit/heavy-punch.png public/assets/generated/fighters/ginger-tabby-cat/heavy-punch.png"
+      - "npm run typecheck"
+      - "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-qa.test.ts"
+      - "npm run verify"
+    stop_if:
+      - "Any row besides gray-rabbit:heavy-punch or ginger-tabby-cat:heavy-punch needs promotion or modification."
+      - "Runtime routing, gameplay behavior, UI, arena, audio, particles/effects, or additional animation generation becomes necessary."
+      - "Promoted runtime PNGs are not exactly 2048x256 RGBA/alpha with eight separated 256x256 frames."
+      - "Manifest/provenance cannot clearly record T067 approval for only these two rows."
+      - "Verification fails for reasons outside the narrow promotion scope."
     receipt: null
   - id: T005
     type: worker
