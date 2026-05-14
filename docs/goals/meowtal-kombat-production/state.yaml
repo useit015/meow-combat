@@ -83,7 +83,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T051
+active_task: T052
 
 tasks:
   - id: T000
@@ -2234,7 +2234,7 @@ tasks:
   - id: T051
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Visual QA only the two generated Meowtal hitstun candidates, gray-rabbit:hitstun and ginger-tabby-cat:hitstun, against the approved two-legged style-lock rows. Decide whether they are approved for later runtime promotion or must be regenerated. Do not edit files."
     inputs:
@@ -2268,6 +2268,54 @@ tasks:
       - "Per-fighter visual QA notes"
       - "Runtime promotion constraints if approved"
       - "Regeneration notes if rejected"
+    receipt:
+      result: done
+      decision: approved
+      summary: "Judge approved both generated hitstun rows for later runtime promotion. Rabbit and cat both stay upright two-legged, use the same stance convention, read as quick hurt/recoil reactions, preserve approved-row identity/style, and have no disallowed artifacts. Metadata gate passed: both normalized candidates are 1280x256 RGBA with five separated 256x256 frames."
+      evidence:
+        - "assets/source/imagegen/fighters/gray-rabbit/hitstun.png"
+        - "assets/source/imagegen/fighters/ginger-tabby-cat/hitstun.png"
+        - "output/imagegen/gray-rabbit-hitstun-normalized.png"
+        - "output/imagegen/ginger-tabby-cat-hitstun-normalized.png"
+      visual_qa:
+        - "Rabbit hitstun is visually usable: quick lean-back hurt/recoil with guarded recovery, upright two-legged, gray rabbit identity/proportions/lighting/camera/outline/style preserved, and no text/logos/watermarks/frame numbers/detached effects/background/extra characters."
+        - "Cat hitstun is visually usable: clear stagger and recovery, upright two-legged with the same stance convention as the rabbit, orange tabby markings/proportions/lighting/camera/outline/style preserved, and no disallowed artifacts."
+      runtime_promotion_constraints:
+        - "Promote only gray-rabbit:hitstun and ginger-tabby-cat:hitstun."
+        - "Do not edit, generate, approve, or route any non-hitstun asset or gameplay/runtime selection file."
+        - "Public runtime PNGs must be exactly 1280x256 RGBA with alpha."
+        - "Manifest and provenance must clearly record T051 visual approval."
+  - id: T052
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: low
+    objective: "Promote only the approved normalized Meowtal hitstun rows to runtime assets. Copy normalized candidates into public runtime paths, update manifest provenance from generated/non-runtime to approved/runtime for only gray-rabbit:hitstun and ginger-tabby-cat:hitstun, update provenance docs/tests, and keep every other remaining animation row blocked."
+    allowed_files:
+      - "public/assets/generated/fighters/gray-rabbit/hitstun.png"
+      - "public/assets/generated/fighters/ginger-tabby-cat/hitstun.png"
+      - "src/assets/meowtalProductionManifest.ts"
+      - "docs/assets/meowtal-kombat-provenance.md"
+      - "test/meowtal-production-manifest.test.ts"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+    inputs:
+      - "output/imagegen/gray-rabbit-hitstun-normalized.png"
+      - "output/imagegen/ginger-tabby-cat-hitstun-normalized.png"
+      - "T051 approval receipt"
+    verify:
+      - "node scripts/normalize-fighter-rows.mjs --animation hitstun --fighters gray-rabbit,ginger-tabby-cat"
+      - "sips -g pixelWidth -g pixelHeight -g hasAlpha public/assets/generated/fighters/gray-rabbit/hitstun.png public/assets/generated/fighters/ginger-tabby-cat/hitstun.png"
+      - "npm run typecheck"
+      - "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-qa.test.ts"
+      - "npm run imagegen:qa"
+      - "npm run verify"
+    stop_if:
+      - "Any row other than gray-rabbit:hitstun or ginger-tabby-cat:hitstun is edited, approved, generated, or given a runtime path."
+      - "Runtime roster/game config, scene behavior, gameplay, stage, UI/HUD/logo, particles, audio, or character-selection routing need changes."
+      - "Any promoted runtime PNG is not 1280x256 RGBA with alpha."
+      - "Manifest/provenance cannot clearly record T051 visual approval and runtime promotion."
+      - "Files outside allowed_files are required."
+      - "Verification fails twice for the same underlying reason."
     receipt: null
   - id: T005
     type: worker
