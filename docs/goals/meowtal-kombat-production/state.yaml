@@ -83,7 +83,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T004
+active_task: T019
 
 tasks:
   - id: T000
@@ -400,7 +400,7 @@ tasks:
   - id: T004
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: low
     objective: "Extract game-facing content configuration from MoroccanArenaScene into a small typed config module while preserving current Atlas runtime behavior exactly. Include title/subtitle, CPU difficulties, roster/default selections, concept sheet metadata, runtime spritesheet metadata, stage manifest selection, asset version, and sprite cell size. Do not rename to Meowtal or replace assets yet."
     allowed_files:
@@ -419,6 +419,52 @@ tasks:
       - "render_game_to_text() loses existing presentation, selected fighter, concept art, runtime visual, stage, audio, or match-set fields."
       - "Config extraction requires broad Phaser scene rewrite."
       - "Verification fails twice for the same reason."
+    receipt:
+      result: done
+      summary: "Extracted Atlas-facing game content into src/game/gameConfig.ts and pointed MoroccanArenaScene through that typed config for title/subtitle, CPU difficulty order, roster/default selections, concept sheet crops, runtime spritesheet metadata, stage manifest, sprite cell size, and asset version. Current Atlas runtime behavior and render_game_to_text() fields were preserved."
+      changed_files:
+        - "src/game/gameConfig.ts"
+        - "src/game/MoroccanArenaScene.ts"
+        - "test/game-config.test.ts"
+        - "test/character-select.test.ts"
+      evidence:
+        - "output/meowtal-t004/shot-0.png"
+        - "output/meowtal-t004/state-0.json"
+      commands:
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm test -- --run test/game-config.test.ts test/character-select.test.ts"
+          status: pass
+        - cmd: "npm run build"
+          status: pass
+        - cmd: "node /Users/oussmustaine/.codex/skills/develop-web-game/scripts/web_game_playwright_client.js --url 'http://127.0.0.1:5173/?demo=super' --actions-json '{\"steps\":[{\"frames\":4}]}' --iterations 1 --pause-ms 250 --screenshot-dir output/meowtal-t004"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+  - id: T019
+    type: judge
+    assignee: Judge
+    status: active
+    reasoning_hint: high
+    objective: "Scope the next small production slice after the config extraction. Choose a bounded Worker task that moves toward Meowtal content/assets without starting a giant asset dump, and provide allowed_files, verify commands, and stop_if conditions."
+    inputs:
+      - "T001 repo/runtime map"
+      - "T002 asset/audio/effects plan"
+      - "T004 config extraction receipt"
+      - "Goal requirement: canonical character sheets before animation rows"
+      - "Goal requirement: complete visual asset pack, parallax arena, provenance, and Tough Love Arena feel benchmark"
+    constraints:
+      - "Do not implement."
+      - "Do not generate binary image/audio assets in the Judge task."
+      - "Prefer a small slice that improves content routing, provenance, or asset scaffolding before final generation."
+      - "Do not allow animation rows before canonical rabbit/cat character sheets and provenance scaffolding exist."
+      - "Keep allowed_files tight enough for a small coherent commit."
+    expected_output:
+      - "Decision and rationale"
+      - "Exact next Worker objective"
+      - "allowed_files"
+      - "verify commands"
+      - "stop_if conditions"
     receipt: null
   - id: T005
     type: worker
@@ -570,7 +616,15 @@ checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T012
+    task: T004
     commands:
-      - cmd: "node /Users/oussmustaine/.codex/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+      - cmd: "npm run typecheck"
+        status: pass
+      - cmd: "npm test -- --run test/game-config.test.ts test/character-select.test.ts"
+        status: pass
+      - cmd: "npm run build"
+        status: pass
+      - cmd: "node /Users/oussmustaine/.codex/skills/develop-web-game/scripts/web_game_playwright_client.js --url 'http://127.0.0.1:5173/?demo=super' --actions-json '{\"steps\":[{\"frames\":4}]}' --iterations 1 --pause-ms 250 --screenshot-dir output/meowtal-t004"
+        status: pass
+      - cmd: "npm run verify"
         status: pass

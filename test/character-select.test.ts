@@ -1,7 +1,17 @@
 import { describe, expect, it } from "vitest";
 import { ATLAS_LION, FightingSimulation, SAHARA_VIPER } from "../src/core";
+import { atlasArenaConfig, selectedFighterFromConfig } from "../src/game/gameConfig";
 
 describe("character selection support", () => {
+  it("uses the configured default character order for player slots", () => {
+    expect(selectedFighterFromConfig(atlasArenaConfig, atlasArenaConfig.defaultSelections.p1).displayName).toBe(
+      "Atlas Lion",
+    );
+    expect(selectedFighterFromConfig(atlasArenaConfig, atlasArenaConfig.defaultSelections.p2).displayName).toBe(
+      "Sahara Viper",
+    );
+  });
+
   it("lets the simulation start with selected fighter definitions", () => {
     const simulation = new FightingSimulation({
       p1Definition: SAHARA_VIPER,

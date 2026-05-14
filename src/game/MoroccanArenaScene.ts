@@ -9,12 +9,9 @@ import {
   type FighterRuntimeAsset,
   resolveManifestRuntimeAsset,
   resolveStageRuntimeLayers,
-  stageAssetManifests,
 } from "../assets";
 import {
   FightingSimulation,
-  ATLAS_LION,
-  SAHARA_VIPER,
   buttonsFromKeys,
   createCpuInput,
   createInput,
@@ -24,63 +21,35 @@ import {
   POWER_METER_STOCK,
   TICK_MS,
   type CpuDifficulty,
-  type FighterDefinition,
   type MatchSetState,
   type MatchSnapshot,
 } from "../core";
 import { ArenaAudio, audioCueForCombatEvents, audioCueForMatchTransition } from "./audio";
 import { effectsFromSnapshot, tickCombatEffects, type CombatEffect } from "./effects";
+import {
+  atlasArenaConfig,
+  nextCpuDifficultyFromConfig,
+  selectedFighterFromConfig,
+  versionedAssetFromConfig,
+} from "./gameConfig";
 import { impactFeedbackCue } from "./presentation";
 import { initialShellState, reduceShellState, type ShellState } from "./shellFlow";
 import { selectSpritePose } from "./spriteFrame";
 
 type KeyMap = Record<string, Phaser.Input.Keyboard.Key>;
 type ImpactFlash = { color: number; alpha: number; remainingFrames: number; totalFrames: number };
-const GAME_TITLE = "ATLAS ARENA";
-const GAME_SUBTITLE = "MARRAKESH ROOFTOP DUEL";
-const CPU_DIFFICULTIES: readonly CpuDifficulty[] = ["easy", "normal", "hard"];
-const FIGHTER_ROSTER: readonly FighterDefinition[] = [ATLAS_LION, SAHARA_VIPER];
-const CONCEPT_SHEET_KEY = "moroccan-fighters-concept-sheet";
-const CONCEPT_SHEET_PATH = "/assets/generated/moroccan-fighters-concept-sheet.png";
-const CONCEPT_PREVIEW_CROPS = {
-  p1: { x: 245, y: 20, width: 550, height: 900 },
-  p2: { x: 760, y: 20, width: 580, height: 900 },
-} as const;
-const RUNTIME_SPRITESHEETS = [
-  { key: "atlas-lion:idle", path: "/assets/generated/fighters/atlas-lion/idle.png" },
-  { key: "atlas-lion:walk-forward", path: "/assets/generated/fighters/atlas-lion/walk-forward.png" },
-  { key: "atlas-lion:walk-back", path: "/assets/generated/fighters/atlas-lion/walk-back.png" },
-  { key: "atlas-lion:crouch", path: "/assets/generated/fighters/atlas-lion/crouch.png" },
-  { key: "atlas-lion:jump", path: "/assets/generated/fighters/atlas-lion/jump.png" },
-  { key: "atlas-lion:light-punch", path: "/assets/generated/fighters/atlas-lion/light-punch.png" },
-  { key: "atlas-lion:light-kick", path: "/assets/generated/fighters/atlas-lion/light-kick.png" },
-  { key: "atlas-lion:heavy-punch", path: "/assets/generated/fighters/atlas-lion/heavy-punch.png" },
-  { key: "atlas-lion:special", path: "/assets/generated/fighters/atlas-lion/special.png" },
-  { key: "atlas-lion:hitstun", path: "/assets/generated/fighters/atlas-lion/hitstun.png" },
-  { key: "atlas-lion:blockstun", path: "/assets/generated/fighters/atlas-lion/blockstun.png" },
-  { key: "atlas-lion:knockdown", path: "/assets/generated/fighters/atlas-lion/knockdown.png" },
-  { key: "atlas-lion:win", path: "/assets/generated/fighters/atlas-lion/win.png" },
-  { key: "atlas-lion:lose", path: "/assets/generated/fighters/atlas-lion/lose.png" },
-  { key: "sahara-viper:idle", path: "/assets/generated/fighters/sahara-viper/idle.png" },
-  { key: "sahara-viper:walk-forward", path: "/assets/generated/fighters/sahara-viper/walk-forward.png" },
-  { key: "sahara-viper:walk-back", path: "/assets/generated/fighters/sahara-viper/walk-back.png" },
-  { key: "sahara-viper:crouch", path: "/assets/generated/fighters/sahara-viper/crouch.png" },
-  { key: "sahara-viper:jump", path: "/assets/generated/fighters/sahara-viper/jump.png" },
-  { key: "sahara-viper:light-punch", path: "/assets/generated/fighters/sahara-viper/light-punch.png" },
-  { key: "sahara-viper:light-kick", path: "/assets/generated/fighters/sahara-viper/light-kick.png" },
-  { key: "sahara-viper:heavy-punch", path: "/assets/generated/fighters/sahara-viper/heavy-punch.png" },
-  { key: "sahara-viper:special", path: "/assets/generated/fighters/sahara-viper/special.png" },
-  { key: "sahara-viper:hitstun", path: "/assets/generated/fighters/sahara-viper/hitstun.png" },
-  { key: "sahara-viper:blockstun", path: "/assets/generated/fighters/sahara-viper/blockstun.png" },
-  { key: "sahara-viper:knockdown", path: "/assets/generated/fighters/sahara-viper/knockdown.png" },
-  { key: "sahara-viper:win", path: "/assets/generated/fighters/sahara-viper/win.png" },
-  { key: "sahara-viper:lose", path: "/assets/generated/fighters/sahara-viper/lose.png" },
-] as const;
-const RUNTIME_SPRITE_CELL_SIZE = 256;
-const ASSET_VERSION = "timeline-polish-1";
+const GAME_CONFIG = atlasArenaConfig;
+const GAME_TITLE = GAME_CONFIG.title;
+const GAME_SUBTITLE = GAME_CONFIG.subtitle;
+const FIGHTER_ROSTER = GAME_CONFIG.roster;
+const CONCEPT_SHEET_KEY = GAME_CONFIG.conceptSheet.key;
+const CONCEPT_SHEET_PATH = GAME_CONFIG.conceptSheet.path;
+const CONCEPT_PREVIEW_CROPS = GAME_CONFIG.conceptSheet.previewCrops;
+const RUNTIME_SPRITESHEETS = GAME_CONFIG.runtimeSpritesheets;
+const RUNTIME_SPRITE_CELL_SIZE = GAME_CONFIG.runtimeSpriteCellSize;
 
 export class MoroccanArenaScene extends Phaser.Scene {
-  private selectedFighterIndex: Record<"p1" | "p2", number> = { p1: 0, p2: 1 };
+  private selectedFighterIndex: Record<"p1" | "p2", number> = { ...GAME_CONFIG.defaultSelections };
   private simulation = this.createSimulation();
   private accumulator = 0;
   private snapshot: MatchSnapshot = this.simulation.snapshot();
@@ -124,7 +93,7 @@ export class MoroccanArenaScene extends Phaser.Scene {
   private stageLayerImages: Phaser.GameObjects.Image[] = [];
   private readonly graphicsKey = "arena-debug";
   private readonly effectsGraphicsKey = "arena-effects";
-  private readonly stageRuntimeLayers = resolveStageRuntimeLayers(stageAssetManifests[0]);
+  private readonly stageRuntimeLayers = resolveStageRuntimeLayers(GAME_CONFIG.stage);
 
   constructor() {
     super("MoroccanArenaScene");
@@ -1334,12 +1303,11 @@ function shellHelp(shell: ShellState, selectionLabel: string): string {
 }
 
 function nextCpuDifficulty(current: CpuDifficulty): CpuDifficulty {
-  const index = CPU_DIFFICULTIES.indexOf(current);
-  return CPU_DIFFICULTIES[(index + 1) % CPU_DIFFICULTIES.length];
+  return nextCpuDifficultyFromConfig(GAME_CONFIG, current);
 }
 
-function selectedFighter(index: number): FighterDefinition {
-  return FIGHTER_ROSTER[index % FIGHTER_ROSTER.length];
+function selectedFighter(index: number) {
+  return selectedFighterFromConfig(GAME_CONFIG, index);
 }
 
 function selectSpritePlacement(shell: ShellState, player: "p1" | "p2"): { x: number; y: number; scale: number } {
@@ -1390,7 +1358,7 @@ function manifestForCharacter(characterId: string) {
 }
 
 function versionedAsset(path: string): string {
-  return `${path}?v=${ASSET_VERSION}`;
+  return versionedAssetFromConfig(GAME_CONFIG, path);
 }
 
 function drawShellBackdrop(g: Phaser.GameObjects.Graphics, shell: ShellState, stageArtVisible: boolean): void {
