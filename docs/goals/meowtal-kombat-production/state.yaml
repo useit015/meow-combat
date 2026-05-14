@@ -28,11 +28,12 @@ goal:
     existing_plan_facts:
       - "Title: Meowtal Kombat."
       - "Original concept says short polished fighting game demo, but owner clarified that the final product must be a full polished production-ready game for the defined scope, not an unfinished PoC."
-      - "Arena: bright outdoor stone-paved courtyard with low walls, pillars, trees/bushes, distant cityscape or hills, vibrant lighting, lens flares, particles."
+      - "Arena: bright outdoor stone-paved courtyard with low walls, pillars, trees/bushes, distant cityscape or hills, vibrant lighting, lens flares, particles, and layered parallax depth."
       - "Characters: gray rabbit with hopping, spinning, kicking; ginger/orange tabby cat with pouncing, tail attacks, loaf idle, acrobatic flips."
       - "Need idle, walk, jump, attack, special, hit, knockout, and victory animations."
       - "Effects: hit sparks, energy auras, dust clouds, screen shake, bright particles, damage numbers."
       - "HUD: red rabbit health, blue cat health, portraits, 99 timer, bottom special meters, FIGHT announcement, K.O. finish."
+      - "Generate or implement the full production asset pack, including Meowtal Kombat logo/title mark, title/key art, parallax arena layers, HUD frames, health/super/timer treatments, character portraits, buttons/icons, pause/options panels, round/victory/K.O. overlays, damage-number styling, mobile/touch controls, loading/fallback states, particle sprites, and capture/promo artwork as needed."
       - "Controls: movement, jump, light/heavy/special attacks, block, dash, optional gamepad."
       - "Combat: simple 2-3 hit combos, 4-5 unique attacks per character, rabbit tornado special, cat flip kick plus green/yellow projectile or aura blast."
       - "Physics: jumping, knockback, ground bouncing, simple ragdoll-like heavy-hit reactions."
@@ -57,6 +58,8 @@ rules:
   console_runtime_layout_performance_failures_block_completion: true
   commit_in_small_batches: true
   character_animation_style_consistency_required: true
+  complete_visual_asset_pack_required: true
+  parallax_arena_required: true
 
 agents:
   scout: installed
@@ -192,6 +195,26 @@ tasks:
       changed_files:
         - "docs/goals/meowtal-kombat-production/goal.md"
         - "docs/goals/meowtal-kombat-production/state.yaml"
+  - id: T016
+    type: pm
+    assignee: PM
+    status: done
+    reasoning_hint: low
+    objective: "Record that all non-character production assets must be generated or implemented, including HUD and logo assets."
+    inputs:
+      - "User instruction: also generate all other needed assets like HUD and logo."
+    constraints:
+      - "Do not generate assets in this PM task."
+      - "Do not modify product implementation files until a Worker task allows it."
+    expected_output:
+      - "Complete asset-pack requirement recorded"
+      - "Asset Scout/Worker/Audit gates strengthened"
+    receipt:
+      result: done
+      summary: "Recorded that production completion requires a complete visual asset pack: logo/title mark, title/key art, parallax arena layers, HUD frames, health/super/timer treatments, portraits, buttons/icons, pause/options panels, round/victory/K.O. overlays, damage-number styling, mobile/touch controls, loading/fallback states, particle sprites, and capture/promo artwork as needed."
+      changed_files:
+        - "docs/goals/meowtal-kombat-production/goal.md"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
   - id: T001
     type: scout
     assignee: Scout
@@ -212,6 +235,7 @@ tasks:
       - "Repo/app map with key files and ownership boundaries"
       - "Existing game architecture and rendering loop assessment"
       - "Asset pipeline and current asset inventory"
+      - "Missing production asset inventory for logo/title, parallax arena layers, HUD, menus, overlays, controls, particles, loading/fallback, and capture/promo surfaces"
       - "Current same-character animation consistency issues with concrete asset/file evidence"
       - "Verification commands and dev server command"
       - "Production build/preview command if available"
@@ -233,7 +257,7 @@ tasks:
       - "Do not generate final assets unless promoted to a Worker task."
       - "Keep recommendations compatible with the existing project stack discovered in T001."
     expected_output:
-      - "Recommended asset approach for rabbit, cat, arena, HUD portraits, particles, audio, and capture artifacts"
+      - "Recommended asset approach for rabbit, cat, layered parallax arena, logo/title mark, title/key art, HUD, portraits, menu panels, controls, overlays, particles, audio, loading/fallback, and capture artifacts"
       - "Candidate generation/editing steps and tools"
       - "Risks around performance, copyright, file sizes, visual consistency, and license manifest requirements"
       - "Animation consistency audit criteria and candidate normalization/regeneration strategy"
@@ -283,7 +307,7 @@ tasks:
     assignee: Worker
     status: queued
     reasoning_hint: low
-    objective: "Implement or integrate production-quality character, arena, portrait, UI, audio, and effects assets for the selected project stack, with animation consistency and source/prompt/license tracking."
+    objective: "Implement or integrate the complete production-quality asset pack for the selected project stack: characters, layered parallax arena, logo/title mark, title/key art, HUD, portraits, menu panels, controls, overlays, particles, audio, and effects, with animation consistency and source/prompt/license tracking."
     allowed_files: []
     verify: []
     stop_if:
@@ -380,6 +404,8 @@ tasks:
       - "Reject if the full arcade package scope lacks obvious user-facing flow."
       - "Reject if the result still feels like a prototype, mockup, or tech demo."
       - "Reject if there are placeholder/unlicensed assets, missing run instructions, production build failures, console errors, or obvious layout/performance defects."
+      - "Reject if any visible game surface still uses placeholder, generic, or missing production assets."
+      - "Reject if the arena is a flat single-layer backdrop instead of a readable layered parallax stage."
       - "Reject if any fighter's animation set has visibly inconsistent identity, proportions, lighting, camera angle, scale, outline/detail level, or rendering style."
     expected_output:
       - "production_ready | not_ready"
@@ -407,6 +433,7 @@ tasks:
       - "Reject completion if the game cannot be run locally by the user."
       - "Reject completion if the result is an unfinished PoC, visual-only demo, or dev-only build."
       - "Reject completion if production build/preview, asset/license manifest, or run instructions are missing."
+      - "Reject completion if logo/title, parallax arena, HUD, menus, overlays, controls, loading/fallback, particles, or capture/promo surfaces still need production assets."
       - "Reject completion if character animations look mismatched across a fighter's moves."
     expected_output:
       - "complete | not_complete"
