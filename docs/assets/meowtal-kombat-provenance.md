@@ -57,7 +57,7 @@ These are approved before animation rows as style locks only. Required sheet str
 
 ### Character Animation Rows
 
-Status: idle and walk-forward rows approved for runtime publication; all other non-idle rows remain blocked pending separate scoped generation.
+Status: idle and walk-forward rows approved for runtime publication; walk-back source candidates generated; all other non-idle rows remain blocked pending walk-back QA and separate scoped generation.
 
 - `gray-rabbit:idle`
   - Source path: `assets/source/imagegen/fighters/gray-rabbit/idle.png`
@@ -91,6 +91,20 @@ Status: idle and walk-forward rows approved for runtime publication; all other n
   - License status: owned generated source asset
   - Runtime status: approved by T031 visual QA and promoted by T032
   - QA notes: eight separated upright two-legged ginger tabby guarded walk frames, no visible text/watermark/frame numbers, chroma-key removed to transparent alpha, normalized to 2048x256 RGBA.
+- `gray-rabbit:walk-back`
+  - Source path: `assets/source/imagegen/fighters/gray-rabbit/walk-back.png`
+  - Provider: Codex built-in imagegen
+  - Generated on: 2026-05-14
+  - License status: owned generated source asset
+  - Runtime status: not approved; normalize and QA before copying to `public/assets/generated`
+  - QA notes: eight separated upright two-legged gray rabbit guarded backward-footwork frames, no visible text/watermark/frame numbers, chroma-key removed to transparent alpha, pending normalized-row review.
+- `ginger-tabby-cat:walk-back`
+  - Source path: `assets/source/imagegen/fighters/ginger-tabby-cat/walk-back.png`
+  - Provider: Codex built-in imagegen
+  - Generated on: 2026-05-14
+  - License status: owned generated source asset
+  - Runtime status: not approved; normalize and QA before copying to `public/assets/generated`
+  - QA notes: eight separated upright two-legged ginger tabby guarded backward-footwork frames, no visible text/watermark/frame numbers, chroma-key removed to transparent alpha, pending normalized-row review.
 
 Each fighter needs rows for idle, walk-forward, walk-back, crouch, jump, light-punch, heavy-punch, light-kick, special, hitstun, blockstun, knockdown, win, and lose. Rows must preserve the shared upright two-legged rig, species identity, markings, proportions, lighting, camera angle, scale, outline/detail level, and rendering style.
 
