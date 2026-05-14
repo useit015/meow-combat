@@ -36,17 +36,19 @@ describe("Meowtal production manifest", () => {
     expect(runtimeEntries.map((entry) => entry.assetId).sort()).toEqual([
       "ginger-tabby-cat:crouch",
       "ginger-tabby-cat:idle",
+      "ginger-tabby-cat:jump",
       "ginger-tabby-cat:walk-back",
       "ginger-tabby-cat:walk-forward",
       "gray-rabbit:crouch",
       "gray-rabbit:idle",
+      "gray-rabbit:jump",
       "gray-rabbit:walk-back",
       "gray-rabbit:walk-forward",
     ]);
     expect(runtimeEntries.every((entry) => entry.status === "approved")).toBe(true);
   });
 
-  it("tracks approved locomotion/crouch rows, generated jump candidates, and remaining blocked rows", () => {
+  it("tracks approved locomotion, crouch, and jump rows while keeping remaining rows blocked", () => {
     expect(canonicalSheetsApproved()).toBe(true);
 
     const blockedRows = blockedAnimationRowsUntilCanonicalApproved();
@@ -80,10 +82,10 @@ describe("Meowtal production manifest", () => {
     expect(crouchRows.every((row) => row.provenance.status === "approved")).toBe(true);
     expect(crouchRows.every((row) => row.provenance.runtimePath?.includes("/assets/generated/fighters/"))).toBe(true);
     expect(jumpRows).toHaveLength(2);
-    expect(jumpRows.every((row) => row.provenance.status === "generated")).toBe(true);
-    expect(jumpRows.every((row) => row.provenance.runtimePath === null)).toBe(true);
+    expect(jumpRows.every((row) => row.provenance.status === "approved")).toBe(true);
+    expect(jumpRows.every((row) => row.provenance.runtimePath?.includes("/assets/generated/fighters/"))).toBe(true);
     expect(remainingRows.every((row) => row.provenance.status === "blocked")).toBe(true);
-    expect(remainingRows.every((row) => row.provenance.blocker?.includes("jump row QA"))).toBe(true);
+    expect(remainingRows.every((row) => row.provenance.blocker?.includes("jump runtime promotion"))).toBe(true);
   });
 
   it("tracks approved idle source and runtime files", () => {
@@ -152,18 +154,19 @@ describe("Meowtal production manifest", () => {
     }
   });
 
-  it("tracks generated jump source files without approving runtime use", () => {
+  it("tracks approved jump source and runtime files", () => {
     for (const fighter of meowtalProductionManifest.fighters) {
       const jumpRow = fighter.animationRows.find((row) => row.animationId === "jump");
 
-      expect(jumpRow?.provenance.status).toBe("generated");
+      expect(jumpRow?.provenance.status).toBe("approved");
       expect(jumpRow?.provenance.sourcePath).toBe(`assets/source/imagegen/fighters/${fighter.id}/jump.png`);
-      expect(jumpRow?.provenance.runtimePath).toBeNull();
+      expect(jumpRow?.provenance.runtimePath).toBe(`/assets/generated/fighters/${fighter.id}/jump.png`);
       expect(jumpRow?.provenance.license.kind).toBe("owned-generated");
-      expect(jumpRow?.provenance.approvalNotes).toContain("Generated source jump row candidate");
+      expect(jumpRow?.provenance.approvalNotes).toContain("Approved runtime jump row");
       expect(jumpRow?.provenance.approvalNotes).toContain("upright two-legged");
       expect(jumpRow?.provenance.approvalNotes).toContain("transparent alpha");
       expect(existsSync(join(process.cwd(), jumpRow?.provenance.sourcePath ?? ""))).toBe(true);
+      expect(existsSync(join(process.cwd(), "public", jumpRow?.provenance.runtimePath ?? ""))).toBe(true);
     }
   });
 

@@ -165,6 +165,11 @@ const jumpRowSourcePaths: Readonly<Record<MeowtalFighterId, string>> = {
   "ginger-tabby-cat": "assets/source/imagegen/fighters/ginger-tabby-cat/jump.png",
 };
 
+const jumpRowRuntimePaths: Readonly<Record<MeowtalFighterId, string>> = {
+  "gray-rabbit": "/assets/generated/fighters/gray-rabbit/jump.png",
+  "ginger-tabby-cat": "/assets/generated/fighters/ginger-tabby-cat/jump.png",
+};
+
 const idleRowQaNotes: Readonly<Record<MeowtalFighterId, string>> = {
   "gray-rabbit":
     "Approved runtime idle row. Visual QA: eight separated upright two-legged gray rabbit idle frames, no visible text/watermark/frame numbers, same stance and proportions as the canonical sheet, chroma-key removed to transparent alpha, normalized to 2048x256 RGBA, and approved for runtime publication by T027.",
@@ -195,9 +200,9 @@ const crouchRowQaNotes: Readonly<Record<MeowtalFighterId, string>> = {
 
 const jumpRowQaNotes: Readonly<Record<MeowtalFighterId, string>> = {
   "gray-rabbit":
-    "Generated source jump row candidate. Visual self-check: six separated upright two-legged gray rabbit jump/hop frames, no visible text/watermark/frame numbers, same stance and proportions as approved idle/walk-forward/walk-back/crouch, chroma-key removed to transparent alpha, normalized to a 1536x256 RGBA QA candidate, and pending follow-up visual QA before runtime publication.",
+    "Approved runtime jump row. Visual QA: six separated upright two-legged gray rabbit jump/hop frames, no visible text/watermark/frame numbers, same stance and proportions as approved idle/walk-forward/walk-back/crouch, chroma-key removed to transparent alpha, normalized to 1536x256 RGBA, and approved for runtime publication by T043.",
   "ginger-tabby-cat":
-    "Generated source jump row candidate. Visual self-check: six separated upright two-legged ginger tabby jump/hop frames, no visible text/watermark/frame numbers, same stance and proportions as approved idle/walk-forward/walk-back/crouch, chroma-key removed to transparent alpha, normalized to a 1536x256 RGBA QA candidate, and pending follow-up visual QA before runtime publication.",
+    "Approved runtime jump row. Visual QA: six separated upright two-legged ginger tabby jump/hop frames, no visible text/watermark/frame numbers, same stance and proportions as approved idle/walk-forward/walk-back/crouch, chroma-key removed to transparent alpha, normalized to 1536x256 RGBA, and approved for runtime publication by T043.",
 };
 
 const animationFrameCounts: Readonly<Record<FighterAnimationId, number>> = {
@@ -364,18 +369,18 @@ export function validateMeowtalProductionManifest(
           errors.push(`${row.provenance.assetId}: approved crouch row requires a generated runtime path`);
         }
       } else if (row.animationId === "jump") {
-        if (row.provenance.status !== "generated") {
-          errors.push(`${row.provenance.assetId}: jump row should remain generated until follow-up visual QA`);
+        if (row.provenance.status !== "approved") {
+          errors.push(`${row.provenance.assetId}: jump row should be runtime-approved after T044`);
         }
-        if (row.provenance.runtimePath !== null) {
-          errors.push(`${row.provenance.assetId}: generated jump row must not have a runtime path before QA`);
+        if (!row.provenance.runtimePath?.includes("/assets/generated/fighters/")) {
+          errors.push(`${row.provenance.assetId}: approved jump row requires a generated runtime path`);
         }
       } else {
         if (row.provenance.status !== "blocked") {
           errors.push(`${row.provenance.assetId}: remaining animation rows must remain blocked`);
         }
-        if (!row.provenance.blocker?.includes("jump row QA")) {
-          errors.push(`${row.provenance.assetId}: remaining row blocker must reference jump row QA`);
+        if (!row.provenance.blocker?.includes("jump runtime promotion")) {
+          errors.push(`${row.provenance.assetId}: remaining row blocker must reference jump runtime promotion`);
         }
       }
     }
@@ -426,7 +431,7 @@ function makeFighters(): readonly MeowtalFighterAssetPlan[] {
                 : animationId === "crouch"
                   ? approvedCrouchRowProvenance(fighterId, details)
                   : animationId === "jump"
-                    ? generatedJumpRowProvenance(fighterId, details)
+                    ? approvedJumpRowProvenance(fighterId, details)
                   : blockedAnimationRowProvenance(fighterId, animationId, details),
       })),
     };
@@ -443,11 +448,12 @@ function blockedAnimationRowProvenance(
     promptSlug: `${fighterId}-${animationId}-animation-row`,
     prompt: animationRowPrompt(details.displayName, animationId),
     status: "blocked",
-    blocker: "Wait for jump row QA and a separate scoped generation task before generating this remaining animation row.",
+    blocker:
+      "Wait for jump runtime promotion and a separate scoped generation task before generating this remaining animation row.",
   });
 }
 
-function generatedJumpRowProvenance(
+function approvedJumpRowProvenance(
   fighterId: MeowtalFighterId,
   details: (typeof fighterDetails)[MeowtalFighterId],
 ): AssetProvenance {
@@ -456,15 +462,15 @@ function generatedJumpRowProvenance(
       assetId: `${fighterId}:jump`,
       promptSlug: `${fighterId}-jump-animation-row`,
       prompt: animationRowPrompt(details.displayName, "jump"),
-      status: "generated",
+      status: "approved",
       blocker: "",
     }),
     sourcePath: jumpRowSourcePaths[fighterId],
-    runtimePath: null,
+    runtimePath: jumpRowRuntimePaths[fighterId],
     license: {
       kind: "owned-generated",
       summary:
-        "Generated with Codex built-in imagegen for this project; retained as a non-runtime jump row candidate pending follow-up visual QA.",
+        "Generated with Codex built-in imagegen for this project; approved normalized runtime jump row after T043 visual QA.",
       sourceUrl: null,
       attribution: null,
       checkedOn: generatedOn,
@@ -473,7 +479,7 @@ function generatedJumpRowProvenance(
     transforms: [
       "Copied selected built-in imagegen output into the repo source asset tree.",
       "Removed generated chroma-key background to transparent alpha with the imagegen remove_chroma_key helper.",
-      "Normalized to a 6-frame 1536x256 QA candidate under output/imagegen for visual review only.",
+      "Normalized to a 6-frame 1536x256 runtime spritesheet and copied into public/assets/generated.",
     ],
     approvalNotes: jumpRowQaNotes[fighterId],
     blocker: null,

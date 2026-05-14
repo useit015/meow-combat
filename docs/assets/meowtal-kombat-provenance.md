@@ -57,7 +57,7 @@ These are approved before animation rows as style locks only. Required sheet str
 
 ### Character Animation Rows
 
-Status: idle, walk-forward, walk-back, and crouch rows approved for runtime publication; jump source rows are generated candidates pending visual QA; all other rows remain blocked pending separate scoped generation.
+Status: idle, walk-forward, walk-back, crouch, and jump rows approved for runtime publication; all other rows remain blocked pending separate scoped generation.
 
 - `gray-rabbit:idle`
   - Source path: `assets/source/imagegen/fighters/gray-rabbit/idle.png`
@@ -125,20 +125,20 @@ Status: idle, walk-forward, walk-back, and crouch rows approved for runtime publ
   - QA notes: four separated upright two-legged ginger tabby crouch/guard frames, no visible text/watermark/frame numbers, chroma-key removed to transparent alpha, normalized to 1024x256 RGBA.
 - `gray-rabbit:jump`
   - Source path: `assets/source/imagegen/fighters/gray-rabbit/jump.png`
-  - Runtime path: none
+  - Runtime path: `/assets/generated/fighters/gray-rabbit/jump.png`
   - Provider: Codex built-in imagegen
   - Generated on: 2026-05-14
   - License status: owned generated source asset
-  - Runtime status: not approved for runtime use; pending follow-up visual QA
-  - QA notes: six separated upright two-legged gray rabbit jump/hop frames, no visible text/watermark/frame numbers, chroma-key removed to transparent alpha, normalized to 1536x256 RGBA QA candidate.
+  - Runtime status: approved by T043 visual QA and promoted by T044
+  - QA notes: six separated upright two-legged gray rabbit jump/hop frames, no visible text/watermark/frame numbers, chroma-key removed to transparent alpha, normalized to 1536x256 RGBA.
 - `ginger-tabby-cat:jump`
   - Source path: `assets/source/imagegen/fighters/ginger-tabby-cat/jump.png`
-  - Runtime path: none
+  - Runtime path: `/assets/generated/fighters/ginger-tabby-cat/jump.png`
   - Provider: Codex built-in imagegen
   - Generated on: 2026-05-14
   - License status: owned generated source asset
-  - Runtime status: not approved for runtime use; pending follow-up visual QA
-  - QA notes: six separated upright two-legged ginger tabby jump/hop frames, no visible text/watermark/frame numbers, chroma-key removed to transparent alpha, normalized to 1536x256 RGBA QA candidate.
+  - Runtime status: approved by T043 visual QA and promoted by T044
+  - QA notes: six separated upright two-legged ginger tabby jump/hop frames, no visible text/watermark/frame numbers, chroma-key removed to transparent alpha, normalized to 1536x256 RGBA.
 
 Each fighter needs rows for idle, walk-forward, walk-back, crouch, jump, light-punch, heavy-punch, light-kick, special, hitstun, blockstun, knockdown, win, and lose. Rows must preserve the shared upright two-legged rig, species identity, markings, proportions, lighting, camera angle, scale, outline/detail level, and rendering style.
 
