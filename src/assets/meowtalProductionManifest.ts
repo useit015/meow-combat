@@ -145,6 +145,11 @@ const walkBackRowSourcePaths: Readonly<Record<MeowtalFighterId, string>> = {
   "ginger-tabby-cat": "assets/source/imagegen/fighters/ginger-tabby-cat/walk-back.png",
 };
 
+const walkBackRowRuntimePaths: Readonly<Record<MeowtalFighterId, string>> = {
+  "gray-rabbit": "/assets/generated/fighters/gray-rabbit/walk-back.png",
+  "ginger-tabby-cat": "/assets/generated/fighters/ginger-tabby-cat/walk-back.png",
+};
+
 const idleRowQaNotes: Readonly<Record<MeowtalFighterId, string>> = {
   "gray-rabbit":
     "Approved runtime idle row. Visual QA: eight separated upright two-legged gray rabbit idle frames, no visible text/watermark/frame numbers, same stance and proportions as the canonical sheet, chroma-key removed to transparent alpha, normalized to 2048x256 RGBA, and approved for runtime publication by T027.",
@@ -161,9 +166,9 @@ const walkForwardRowQaNotes: Readonly<Record<MeowtalFighterId, string>> = {
 
 const walkBackRowQaNotes: Readonly<Record<MeowtalFighterId, string>> = {
   "gray-rabbit":
-    "Generated source walk-back row candidate. Visual QA: eight separated upright two-legged gray rabbit guarded backward-footwork frames, no visible text/watermark/frame numbers, same stance and proportions as approved idle/walk-forward, chroma-key removed to transparent alpha, pending normalized-row review before runtime approval.",
+    "Approved runtime walk-back row. Visual QA: eight separated upright two-legged gray rabbit guarded backward-footwork frames, no visible text/watermark/frame numbers, same stance and proportions as approved idle/walk-forward, chroma-key removed to transparent alpha, normalized to 2048x256 RGBA, and approved for runtime publication by T035.",
   "ginger-tabby-cat":
-    "Generated source walk-back row candidate. Visual QA: eight separated upright two-legged ginger tabby guarded backward-footwork frames, no visible text/watermark/frame numbers, same stance and proportions as approved idle/walk-forward, chroma-key removed to transparent alpha, pending normalized-row review before runtime approval.",
+    "Approved runtime walk-back row. Visual QA: eight separated upright two-legged ginger tabby guarded backward-footwork frames, no visible text/watermark/frame numbers, same stance and proportions as approved idle/walk-forward, chroma-key removed to transparent alpha, normalized to 2048x256 RGBA, and approved for runtime publication by T035.",
 };
 
 const animationFrameCounts: Readonly<Record<FighterAnimationId, number>> = {
@@ -316,11 +321,11 @@ export function validateMeowtalProductionManifest(
           errors.push(`${row.provenance.assetId}: approved walk-forward row requires a generated runtime path`);
         }
       } else if (row.animationId === "walk-back") {
-        if (row.provenance.status !== "generated") {
-          errors.push(`${row.provenance.assetId}: walk-back row should be generated but not runtime-approved after T034`);
+        if (row.provenance.status !== "approved") {
+          errors.push(`${row.provenance.assetId}: walk-back row should be runtime-approved after T036`);
         }
-        if (row.provenance.runtimePath) {
-          errors.push(`${row.provenance.assetId}: generated walk-back row is not runtime-approved yet`);
+        if (!row.provenance.runtimePath?.includes("/assets/generated/fighters/")) {
+          errors.push(`${row.provenance.assetId}: approved walk-back row requires a generated runtime path`);
         }
       } else {
         if (row.provenance.status !== "blocked") {
@@ -374,7 +379,7 @@ function makeFighters(): readonly MeowtalFighterAssetPlan[] {
             : animationId === "walk-forward"
               ? approvedWalkForwardRowProvenance(fighterId, details)
               : animationId === "walk-back"
-                ? generatedWalkBackRowProvenance(fighterId, details)
+                ? approvedWalkBackRowProvenance(fighterId, details)
                 : blockedAnimationRowProvenance(fighterId, animationId, details),
       })),
     };
@@ -395,7 +400,7 @@ function blockedAnimationRowProvenance(
   });
 }
 
-function generatedWalkBackRowProvenance(
+function approvedWalkBackRowProvenance(
   fighterId: MeowtalFighterId,
   details: (typeof fighterDetails)[MeowtalFighterId],
 ): AssetProvenance {
@@ -404,15 +409,15 @@ function generatedWalkBackRowProvenance(
       assetId: `${fighterId}:walk-back`,
       promptSlug: `${fighterId}-walk-back-animation-row`,
       prompt: animationRowPrompt(details.displayName, "walk-back"),
-      status: "generated",
+      status: "approved",
       blocker: "",
     }),
     sourcePath: walkBackRowSourcePaths[fighterId],
-    runtimePath: null,
+    runtimePath: walkBackRowRuntimePaths[fighterId],
     license: {
       kind: "owned-generated",
       summary:
-        "Generated with Codex built-in imagegen for this project; source row only, pending walk-back visual QA before runtime use.",
+        "Generated with Codex built-in imagegen for this project; approved normalized runtime walk-back row after T035 visual QA.",
       sourceUrl: null,
       attribution: null,
       checkedOn: generatedOn,
@@ -421,7 +426,7 @@ function generatedWalkBackRowProvenance(
     transforms: [
       "Copied selected built-in imagegen output into the repo source asset tree.",
       "Removed generated chroma-key background to transparent alpha with the imagegen remove_chroma_key helper.",
-      "Normalized QA candidate generated under output/imagegen; not copied to public runtime assets.",
+      "Normalized to an 8-frame 2048x256 runtime spritesheet and copied into public/assets/generated.",
     ],
     approvalNotes: walkBackRowQaNotes[fighterId],
     blocker: null,

@@ -83,7 +83,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T036
+active_task: T037
 
 tasks:
   - id: T000
@@ -1303,7 +1303,7 @@ tasks:
   - id: T036
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: low
     objective: "Promote only the approved normalized Meowtal walk-back rows to runtime assets. Copy normalized candidates into public runtime paths, update manifest/provenance/tests so only gray-rabbit:walk-back and ginger-tabby-cat:walk-back become approved runtime rows, and keep every other remaining Meowtal row blocked."
     allowed_files:
@@ -1334,6 +1334,69 @@ tasks:
       - "Runtime character selection, gameplay config, stage, UI, HUD, logo, particles, audio, or broad asset-pack files need editing."
       - "Existing approved idle or walk-forward runtime rows are changed."
       - "Atlas/KOF-era assets or tests are weakened to make Meowtal promotion pass."
+    receipt:
+      result: done
+      summary: "Promoted only the two approved normalized Meowtal walk-back rows into public runtime assets and updated the Meowtal manifest/docs/tests so gray-rabbit:walk-back and ginger-tabby-cat:walk-back are approved runtime assets. Idle, walk-forward, and walk-back are now the only approved Meowtal runtime rows; every other animation row remains blocked, and no runtime character selection or gameplay config was switched."
+      changed_files:
+        - "public/assets/generated/fighters/gray-rabbit/walk-back.png"
+        - "public/assets/generated/fighters/ginger-tabby-cat/walk-back.png"
+        - "src/assets/meowtalProductionManifest.ts"
+        - "docs/assets/meowtal-kombat-provenance.md"
+        - "test/meowtal-production-manifest.test.ts"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+      evidence:
+        - "public/assets/generated/fighters/gray-rabbit/walk-back.png"
+        - "public/assets/generated/fighters/ginger-tabby-cat/walk-back.png"
+        - "src/assets/meowtalProductionManifest.ts"
+      checksums:
+        gray_rabbit_walk_back_runtime_sha256: "0f5a6efffd0adae027397c462a08ad953e565a52a943a8c08125848edeff6ba7"
+        ginger_tabby_cat_walk_back_runtime_sha256: "2e10db8955f3563e8d52aa2af200e233fecf2cb4321d92c5f394ed4c37ca6a65"
+      commands:
+        - cmd: "node scripts/normalize-fighter-rows.mjs --animation walk-back --fighters gray-rabbit,ginger-tabby-cat"
+          status: pass
+        - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha output/imagegen/gray-rabbit-walk-back-normalized.png output/imagegen/ginger-tabby-cat-walk-back-normalized.png"
+          status: pass
+        - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha public/assets/generated/fighters/gray-rabbit/walk-back.png public/assets/generated/fighters/ginger-tabby-cat/walk-back.png"
+          status: pass
+        - cmd: "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-readiness.test.ts"
+          status: pass
+        - cmd: "npm run imagegen:qa"
+          status: pass
+        - cmd: "npm test -- --run test/asset-qa.test.ts"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+      notes:
+        - "sips reported pixelWidth 2048, pixelHeight 256, hasAlpha yes for both public walk-back runtime PNGs."
+        - "Full verify passed with 21 test files and 104 tests."
+        - "No source imagegen PNGs, other rows, canonical sheets, stage, UI, HUD, logo, particle, audio, gameplay config, or selectable runtime character switch were touched."
+  - id: T037
+    type: judge
+    assignee: Judge
+    status: active
+    reasoning_hint: high
+    objective: "Scope the next small Meowtal production slice after idle, walk-forward, and walk-back runtime rows are approved. Decide whether to continue fighter animation coverage, begin parallax arena asset generation, begin logo/HUD/UI surface generation, or prepare runtime routing."
+    inputs:
+      - "T028 idle runtime promotion receipt"
+      - "T032 walk-forward runtime promotion receipt"
+      - "T036 walk-back runtime promotion receipt"
+      - "src/assets/meowtalProductionManifest.ts"
+      - "docs/assets/meowtal-kombat-provenance.md"
+      - "Goal requirements: complete fighter animation set, parallax arena, complete HUD/logo/UI assets, audio/effects, Tough Love Arena-level feel, small commits, no PoC completion"
+    constraints:
+      - "Do not implement."
+      - "Do not choose a broad all-assets task."
+      - "Prefer a small reviewable Worker task with tight allowed_files and verification."
+      - "Preserve upright two-legged fighter consistency and defer runtime character switch until enough asset coverage exists."
+      - "If choosing more animation rows, runtime approval must be deferred to a later Judge task."
+      - "If choosing non-character assets, require provenance/license docs and visual QA gates."
+    expected_output:
+      - "Decision and rationale"
+      - "Exact next Worker objective"
+      - "allowed_files"
+      - "verify commands"
+      - "stop_if conditions"
+      - "visual QA or runtime verification expectations"
     receipt: null
   - id: T005
     type: worker
@@ -1485,13 +1548,15 @@ checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T034
+    task: T036
     commands:
-      - cmd: "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-readiness.test.ts"
-        status: pass
       - cmd: "node scripts/normalize-fighter-rows.mjs --animation walk-back --fighters gray-rabbit,ginger-tabby-cat"
         status: pass
       - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha output/imagegen/gray-rabbit-walk-back-normalized.png output/imagegen/ginger-tabby-cat-walk-back-normalized.png"
+        status: pass
+      - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha public/assets/generated/fighters/gray-rabbit/walk-back.png public/assets/generated/fighters/ginger-tabby-cat/walk-back.png"
+        status: pass
+      - cmd: "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-readiness.test.ts"
         status: pass
       - cmd: "npm run imagegen:qa"
         status: pass

@@ -35,14 +35,16 @@ describe("Meowtal production manifest", () => {
     expect(entries).toHaveLength(2 + 2 * REQUIRED_FIGHTER_ANIMATIONS.length + 6 + 15 + 11);
     expect(runtimeEntries.map((entry) => entry.assetId).sort()).toEqual([
       "ginger-tabby-cat:idle",
+      "ginger-tabby-cat:walk-back",
       "ginger-tabby-cat:walk-forward",
       "gray-rabbit:idle",
+      "gray-rabbit:walk-back",
       "gray-rabbit:walk-forward",
     ]);
     expect(runtimeEntries.every((entry) => entry.status === "approved")).toBe(true);
   });
 
-  it("tracks approved locomotion rows and generated walk-back rows while keeping the remaining rows blocked", () => {
+  it("tracks approved locomotion rows while keeping the remaining rows blocked", () => {
     expect(canonicalSheetsApproved()).toBe(true);
 
     const blockedRows = blockedAnimationRowsUntilCanonicalApproved();
@@ -63,8 +65,8 @@ describe("Meowtal production manifest", () => {
     expect(walkForwardRows.every((row) => row.provenance.status === "approved")).toBe(true);
     expect(walkForwardRows.every((row) => row.provenance.runtimePath?.includes("/assets/generated/fighters/"))).toBe(true);
     expect(walkBackRows).toHaveLength(2);
-    expect(walkBackRows.every((row) => row.provenance.status === "generated")).toBe(true);
-    expect(walkBackRows.every((row) => row.provenance.runtimePath === null)).toBe(true);
+    expect(walkBackRows.every((row) => row.provenance.status === "approved")).toBe(true);
+    expect(walkBackRows.every((row) => row.provenance.runtimePath?.includes("/assets/generated/fighters/"))).toBe(true);
     expect(remainingRows.every((row) => row.provenance.status === "blocked")).toBe(true);
     expect(remainingRows.every((row) => row.provenance.blocker?.includes("walk-back row QA"))).toBe(true);
   });
@@ -103,18 +105,19 @@ describe("Meowtal production manifest", () => {
     }
   });
 
-  it("tracks generated walk-back source files without approving runtime use", () => {
+  it("tracks approved walk-back source and runtime files", () => {
     for (const fighter of meowtalProductionManifest.fighters) {
       const walkBackRow = fighter.animationRows.find((row) => row.animationId === "walk-back");
 
-      expect(walkBackRow?.provenance.status).toBe("generated");
+      expect(walkBackRow?.provenance.status).toBe("approved");
       expect(walkBackRow?.provenance.sourcePath).toBe(`assets/source/imagegen/fighters/${fighter.id}/walk-back.png`);
-      expect(walkBackRow?.provenance.runtimePath).toBeNull();
+      expect(walkBackRow?.provenance.runtimePath).toBe(`/assets/generated/fighters/${fighter.id}/walk-back.png`);
       expect(walkBackRow?.provenance.license.kind).toBe("owned-generated");
-      expect(walkBackRow?.provenance.approvalNotes).toContain("Generated source walk-back row candidate");
+      expect(walkBackRow?.provenance.approvalNotes).toContain("Approved runtime walk-back row");
       expect(walkBackRow?.provenance.approvalNotes).toContain("upright two-legged");
       expect(walkBackRow?.provenance.approvalNotes).toContain("transparent alpha");
       expect(existsSync(join(process.cwd(), walkBackRow?.provenance.sourcePath ?? ""))).toBe(true);
+      expect(existsSync(join(process.cwd(), "public", walkBackRow?.provenance.runtimePath ?? ""))).toBe(true);
     }
   });
 
