@@ -83,7 +83,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T038
+active_task: T039
 
 tasks:
   - id: T000
@@ -1419,7 +1419,7 @@ tasks:
   - id: T038
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: low
     objective: "Generate or integrate exactly two Meowtal source animation rows: gray-rabbit:crouch and ginger-tabby-cat:crouch. Use the approved canonical sheets plus approved idle, walk-forward, and walk-back runtime rows as style locks. Normalize both rows to 4-frame 1024x256 candidates, update provenance/manifest/tests/docs so only these two crouch rows are generated-but-unapproved with runtimePath: null, and keep every other remaining row blocked. Do not approve runtime use."
     allowed_files:
@@ -1451,11 +1451,48 @@ tasks:
       - "Rabbit keeps long ears, gray fur, lighter belly, white paws, compact athletic hind-leg silhouette, and readable crouch defense."
       - "Cat keeps orange tabby stripes, light muzzle/chest, visible striped tail, upright biped body, and readable crouch defense."
       - "Motion has clear frame separation, stable scale, grounded feet/paws, and consistency with approved idle/walk-forward/walk-back rows."
-    receipt: null
+    receipt:
+      result: done
+      summary: "Generated and integrated exactly two Meowtal crouch source rows for the gray rabbit and ginger/orange tabby cat. Both rows preserve the approved upright two-legged fighting-game rig, were chroma-key cleaned to transparent-alpha RGBA source PNGs, normalize to 4-frame 1024x256 QA candidates, remain non-runtime with runtimePath null, and keep every other remaining animation row blocked pending crouch-row QA."
+      changed_files:
+        - "assets/source/imagegen/fighters/gray-rabbit/crouch.png"
+        - "assets/source/imagegen/fighters/ginger-tabby-cat/crouch.png"
+        - "src/assets/meowtalProductionManifest.ts"
+        - "docs/assets/meowtal-kombat-provenance.md"
+        - "test/meowtal-production-manifest.test.ts"
+        - "test/asset-qa.test.ts"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+      evidence:
+        - "assets/source/imagegen/fighters/gray-rabbit/crouch.png"
+        - "assets/source/imagegen/fighters/ginger-tabby-cat/crouch.png"
+        - "output/imagegen/gray-rabbit-crouch-normalized.png"
+        - "output/imagegen/ginger-tabby-cat-crouch-normalized.png"
+      checksums:
+        gray_rabbit_crouch_source_sha256: "4644ac1391801232e27fcb144a7918cde522830b94352be80f1754bc05d35e53"
+        ginger_tabby_cat_crouch_source_sha256: "d72c3d6eb941e0d19e8e697abc9ec3c17d0f3d0ff16c5eeace532f70b0a982a5"
+        gray_rabbit_crouch_normalized_sha256: "0acd1e3ee55704449d5b7ada53681e8dc0502f972525dc43648d0109e26cadb1"
+        ginger_tabby_cat_crouch_normalized_sha256: "ee5206a90b0109832cc7d173f077c3d3fdc41acbca93f126df7aa8fdb6a1fe04"
+      commands:
+        - cmd: "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-readiness.test.ts"
+          status: pass
+        - cmd: "node scripts/normalize-fighter-rows.mjs --animation crouch --fighters gray-rabbit,ginger-tabby-cat"
+          status: pass
+        - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha output/imagegen/gray-rabbit-crouch-normalized.png output/imagegen/ginger-tabby-cat-crouch-normalized.png"
+          status: pass
+        - cmd: "npm run imagegen:qa"
+          status: pass
+        - cmd: "npm test -- --run test/asset-qa.test.ts"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+      notes:
+        - "sips reported pixelWidth 1024, pixelHeight 256, hasAlpha yes for both normalized crouch QA candidates."
+        - "Full verify passed with 21 test files and 105 tests."
+        - "No public/runtime crouch assets, other animation rows, stage, UI, HUD, logo, particle, audio, gameplay config, or selectable runtime character switch were added."
   - id: T039
     type: judge
     assignee: Judge
-    status: queued
+    status: active
     reasoning_hint: high
     objective: "Visual QA gray-rabbit:crouch and ginger-tabby-cat:crouch source and normalized candidates, then decide whether to approve a separate narrow runtime-promotion Worker or require regeneration."
     inputs:
@@ -1633,15 +1670,13 @@ checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T036
+    task: T038
     commands:
-      - cmd: "node scripts/normalize-fighter-rows.mjs --animation walk-back --fighters gray-rabbit,ginger-tabby-cat"
-        status: pass
-      - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha output/imagegen/gray-rabbit-walk-back-normalized.png output/imagegen/ginger-tabby-cat-walk-back-normalized.png"
-        status: pass
-      - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha public/assets/generated/fighters/gray-rabbit/walk-back.png public/assets/generated/fighters/ginger-tabby-cat/walk-back.png"
-        status: pass
       - cmd: "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-readiness.test.ts"
+        status: pass
+      - cmd: "node scripts/normalize-fighter-rows.mjs --animation crouch --fighters gray-rabbit,ginger-tabby-cat"
+        status: pass
+      - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha output/imagegen/gray-rabbit-crouch-normalized.png output/imagegen/ginger-tabby-cat-crouch-normalized.png"
         status: pass
       - cmd: "npm run imagegen:qa"
         status: pass

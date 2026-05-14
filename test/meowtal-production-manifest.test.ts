@@ -44,7 +44,7 @@ describe("Meowtal production manifest", () => {
     expect(runtimeEntries.every((entry) => entry.status === "approved")).toBe(true);
   });
 
-  it("tracks approved locomotion rows while keeping the remaining rows blocked", () => {
+  it("tracks approved locomotion rows, generated crouch candidates, and remaining blocked rows", () => {
     expect(canonicalSheetsApproved()).toBe(true);
 
     const blockedRows = blockedAnimationRowsUntilCanonicalApproved();
@@ -53,8 +53,13 @@ describe("Meowtal production manifest", () => {
     const idleRows = animationRows.filter((row) => row.animationId === "idle");
     const walkForwardRows = animationRows.filter((row) => row.animationId === "walk-forward");
     const walkBackRows = animationRows.filter((row) => row.animationId === "walk-back");
+    const crouchRows = animationRows.filter((row) => row.animationId === "crouch");
     const remainingRows = animationRows.filter(
-      (row) => row.animationId !== "idle" && row.animationId !== "walk-forward" && row.animationId !== "walk-back",
+      (row) =>
+        row.animationId !== "idle" &&
+        row.animationId !== "walk-forward" &&
+        row.animationId !== "walk-back" &&
+        row.animationId !== "crouch",
     );
 
     expect(animationRows).toHaveLength(2 * REQUIRED_FIGHTER_ANIMATIONS.length);
@@ -67,8 +72,11 @@ describe("Meowtal production manifest", () => {
     expect(walkBackRows).toHaveLength(2);
     expect(walkBackRows.every((row) => row.provenance.status === "approved")).toBe(true);
     expect(walkBackRows.every((row) => row.provenance.runtimePath?.includes("/assets/generated/fighters/"))).toBe(true);
+    expect(crouchRows).toHaveLength(2);
+    expect(crouchRows.every((row) => row.provenance.status === "generated")).toBe(true);
+    expect(crouchRows.every((row) => row.provenance.runtimePath === null)).toBe(true);
     expect(remainingRows.every((row) => row.provenance.status === "blocked")).toBe(true);
-    expect(remainingRows.every((row) => row.provenance.blocker?.includes("walk-back row QA"))).toBe(true);
+    expect(remainingRows.every((row) => row.provenance.blocker?.includes("crouch row QA"))).toBe(true);
   });
 
   it("tracks approved idle source and runtime files", () => {
@@ -118,6 +126,21 @@ describe("Meowtal production manifest", () => {
       expect(walkBackRow?.provenance.approvalNotes).toContain("transparent alpha");
       expect(existsSync(join(process.cwd(), walkBackRow?.provenance.sourcePath ?? ""))).toBe(true);
       expect(existsSync(join(process.cwd(), "public", walkBackRow?.provenance.runtimePath ?? ""))).toBe(true);
+    }
+  });
+
+  it("tracks generated crouch source files without approving runtime use", () => {
+    for (const fighter of meowtalProductionManifest.fighters) {
+      const crouchRow = fighter.animationRows.find((row) => row.animationId === "crouch");
+
+      expect(crouchRow?.provenance.status).toBe("generated");
+      expect(crouchRow?.provenance.sourcePath).toBe(`assets/source/imagegen/fighters/${fighter.id}/crouch.png`);
+      expect(crouchRow?.provenance.runtimePath).toBeNull();
+      expect(crouchRow?.provenance.license.kind).toBe("owned-generated");
+      expect(crouchRow?.provenance.approvalNotes).toContain("Generated source crouch row candidate");
+      expect(crouchRow?.provenance.approvalNotes).toContain("upright two-legged");
+      expect(crouchRow?.provenance.approvalNotes).toContain("transparent alpha");
+      expect(existsSync(join(process.cwd(), crouchRow?.provenance.sourcePath ?? ""))).toBe(true);
     }
   });
 

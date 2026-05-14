@@ -150,6 +150,11 @@ const walkBackRowRuntimePaths: Readonly<Record<MeowtalFighterId, string>> = {
   "ginger-tabby-cat": "/assets/generated/fighters/ginger-tabby-cat/walk-back.png",
 };
 
+const crouchRowSourcePaths: Readonly<Record<MeowtalFighterId, string>> = {
+  "gray-rabbit": "assets/source/imagegen/fighters/gray-rabbit/crouch.png",
+  "ginger-tabby-cat": "assets/source/imagegen/fighters/ginger-tabby-cat/crouch.png",
+};
+
 const idleRowQaNotes: Readonly<Record<MeowtalFighterId, string>> = {
   "gray-rabbit":
     "Approved runtime idle row. Visual QA: eight separated upright two-legged gray rabbit idle frames, no visible text/watermark/frame numbers, same stance and proportions as the canonical sheet, chroma-key removed to transparent alpha, normalized to 2048x256 RGBA, and approved for runtime publication by T027.",
@@ -169,6 +174,13 @@ const walkBackRowQaNotes: Readonly<Record<MeowtalFighterId, string>> = {
     "Approved runtime walk-back row. Visual QA: eight separated upright two-legged gray rabbit guarded backward-footwork frames, no visible text/watermark/frame numbers, same stance and proportions as approved idle/walk-forward, chroma-key removed to transparent alpha, normalized to 2048x256 RGBA, and approved for runtime publication by T035.",
   "ginger-tabby-cat":
     "Approved runtime walk-back row. Visual QA: eight separated upright two-legged ginger tabby guarded backward-footwork frames, no visible text/watermark/frame numbers, same stance and proportions as approved idle/walk-forward, chroma-key removed to transparent alpha, normalized to 2048x256 RGBA, and approved for runtime publication by T035.",
+};
+
+const crouchRowQaNotes: Readonly<Record<MeowtalFighterId, string>> = {
+  "gray-rabbit":
+    "Generated source crouch row candidate. Visual self-check: four separated upright two-legged gray rabbit crouch/guard frames, no visible text/watermark/frame numbers, same stance and proportions as approved idle/walk-forward/walk-back, chroma-key removed to transparent alpha, normalized to a 1024x256 RGBA QA candidate, and pending T039 visual QA before runtime publication.",
+  "ginger-tabby-cat":
+    "Generated source crouch row candidate. Visual self-check: four separated upright two-legged ginger tabby crouch/guard frames, no visible text/watermark/frame numbers, same stance and proportions as approved idle/walk-forward/walk-back, chroma-key removed to transparent alpha, normalized to a 1024x256 RGBA QA candidate, and pending T039 visual QA before runtime publication.",
 };
 
 const animationFrameCounts: Readonly<Record<FighterAnimationId, number>> = {
@@ -327,12 +339,19 @@ export function validateMeowtalProductionManifest(
         if (!row.provenance.runtimePath?.includes("/assets/generated/fighters/")) {
           errors.push(`${row.provenance.assetId}: approved walk-back row requires a generated runtime path`);
         }
+      } else if (row.animationId === "crouch") {
+        if (row.provenance.status !== "generated") {
+          errors.push(`${row.provenance.assetId}: crouch row should remain generated until T039 visual QA`);
+        }
+        if (row.provenance.runtimePath !== null) {
+          errors.push(`${row.provenance.assetId}: generated crouch row must not have a runtime path before QA`);
+        }
       } else {
         if (row.provenance.status !== "blocked") {
-          errors.push(`${row.provenance.assetId}: non-idle animation rows must remain blocked`);
+          errors.push(`${row.provenance.assetId}: remaining animation rows must remain blocked`);
         }
-        if (!row.provenance.blocker?.includes("walk-back row QA")) {
-          errors.push(`${row.provenance.assetId}: remaining row blocker must reference walk-back row QA`);
+        if (!row.provenance.blocker?.includes("crouch row QA")) {
+          errors.push(`${row.provenance.assetId}: remaining row blocker must reference crouch row QA`);
         }
       }
     }
@@ -380,7 +399,9 @@ function makeFighters(): readonly MeowtalFighterAssetPlan[] {
               ? approvedWalkForwardRowProvenance(fighterId, details)
               : animationId === "walk-back"
                 ? approvedWalkBackRowProvenance(fighterId, details)
-                : blockedAnimationRowProvenance(fighterId, animationId, details),
+                : animationId === "crouch"
+                  ? generatedCrouchRowProvenance(fighterId, details)
+                  : blockedAnimationRowProvenance(fighterId, animationId, details),
       })),
     };
   });
@@ -396,8 +417,41 @@ function blockedAnimationRowProvenance(
     promptSlug: `${fighterId}-${animationId}-animation-row`,
     prompt: animationRowPrompt(details.displayName, animationId),
     status: "blocked",
-    blocker: "Wait for walk-back row QA and a separate scoped generation task before generating this remaining animation row.",
+    blocker: "Wait for crouch row QA and a separate scoped generation task before generating this remaining animation row.",
   });
+}
+
+function generatedCrouchRowProvenance(
+  fighterId: MeowtalFighterId,
+  details: (typeof fighterDetails)[MeowtalFighterId],
+): AssetProvenance {
+  return {
+    ...imageProvenance({
+      assetId: `${fighterId}:crouch`,
+      promptSlug: `${fighterId}-crouch-animation-row`,
+      prompt: animationRowPrompt(details.displayName, "crouch"),
+      status: "generated",
+      blocker: "",
+    }),
+    sourcePath: crouchRowSourcePaths[fighterId],
+    runtimePath: null,
+    license: {
+      kind: "owned-generated",
+      summary:
+        "Generated with Codex built-in imagegen for this project; retained as a non-runtime crouch row candidate pending T039 visual QA.",
+      sourceUrl: null,
+      attribution: null,
+      checkedOn: generatedOn,
+    },
+    createdOrDownloadedOn: generatedOn,
+    transforms: [
+      "Copied selected built-in imagegen output into the repo source asset tree.",
+      "Removed generated chroma-key background to transparent alpha with the imagegen remove_chroma_key helper.",
+      "Normalized to a 4-frame 1024x256 QA candidate under output/imagegen for visual review only.",
+    ],
+    approvalNotes: crouchRowQaNotes[fighterId],
+    blocker: null,
+  };
 }
 
 function approvedWalkBackRowProvenance(

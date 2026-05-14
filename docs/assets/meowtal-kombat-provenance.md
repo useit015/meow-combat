@@ -7,7 +7,7 @@ This file is the production provenance ledger for Meowtal Kombat assets. T020 cr
 - Do not commit API keys or provider secrets.
 - Do not use untracked external images, audio, fonts, logos, or copied fighting-game branding.
 - Every runtime asset needs an asset id, source or provider, prompt or source URL, license or terms summary, creation or download date, transform notes, approval notes, and runtime path.
-- Character animation rows stay blocked until both canonical character sheets are generated, reviewed, and approved; non-idle rows require a separate scoped generation task after idle runtime approval.
+- Character animation rows stay blocked until both canonical character sheets are generated, reviewed, and approved; each new animation row batch requires a separate scoped generation task, visual QA, and runtime-promotion task before runtime use.
 - The arena must be built as layered parallax art, not a single flat backdrop.
 - External library assets such as Pixabay require source URL, license review, attribution where required, and download date before approval.
 
@@ -57,7 +57,7 @@ These are approved before animation rows as style locks only. Required sheet str
 
 ### Character Animation Rows
 
-Status: idle, walk-forward, and walk-back rows approved for runtime publication; all other non-idle rows remain blocked pending separate scoped generation.
+Status: idle, walk-forward, and walk-back rows approved for runtime publication; crouch source rows are generated candidates pending visual QA; all other rows remain blocked pending separate scoped generation.
 
 - `gray-rabbit:idle`
   - Source path: `assets/source/imagegen/fighters/gray-rabbit/idle.png`
@@ -107,6 +107,22 @@ Status: idle, walk-forward, and walk-back rows approved for runtime publication;
   - License status: owned generated source asset
   - Runtime status: approved by T035 visual QA and promoted by T036
   - QA notes: eight separated upright two-legged ginger tabby guarded backward-footwork frames, no visible text/watermark/frame numbers, chroma-key removed to transparent alpha, normalized to 2048x256 RGBA.
+- `gray-rabbit:crouch`
+  - Source path: `assets/source/imagegen/fighters/gray-rabbit/crouch.png`
+  - Runtime path: none
+  - Provider: Codex built-in imagegen
+  - Generated on: 2026-05-14
+  - License status: owned generated source asset
+  - Runtime status: not approved for runtime use; pending T039 visual QA
+  - QA notes: four separated upright two-legged gray rabbit crouch/guard frames, no visible text/watermark/frame numbers, chroma-key removed to transparent alpha, normalized to 1024x256 RGBA QA candidate.
+- `ginger-tabby-cat:crouch`
+  - Source path: `assets/source/imagegen/fighters/ginger-tabby-cat/crouch.png`
+  - Runtime path: none
+  - Provider: Codex built-in imagegen
+  - Generated on: 2026-05-14
+  - License status: owned generated source asset
+  - Runtime status: not approved for runtime use; pending T039 visual QA
+  - QA notes: four separated upright two-legged ginger tabby crouch/guard frames, no visible text/watermark/frame numbers, chroma-key removed to transparent alpha, normalized to 1024x256 RGBA QA candidate.
 
 Each fighter needs rows for idle, walk-forward, walk-back, crouch, jump, light-punch, heavy-punch, light-kick, special, hitstun, blockstun, knockdown, win, and lose. Rows must preserve the shared upright two-legged rig, species identity, markings, proportions, lighting, camera angle, scale, outline/detail level, and rendering style.
 
