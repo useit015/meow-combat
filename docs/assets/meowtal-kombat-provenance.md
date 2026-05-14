@@ -36,22 +36,24 @@ The current art-direction references are aspirational only and are not runtime a
 
 ### Canonical Character Sheets
 
-Status: generated source candidates, not approved for runtime.
+Status: approved animation style-lock references, not runtime sprites.
 
 - `gray-rabbit:canonical-character-sheet`
   - Source path: `assets/source/imagegen/fighters/gray-rabbit/canonical-character-sheet.png`
   - Provider: Codex built-in imagegen
   - Generated on: 2026-05-14
-  - License status: owned generated candidate, pending explicit approval before runtime use
+  - License status: owned generated source asset
+  - Usage approval: animation style-lock reference only; not approved as a runtime sprite
   - QA notes: rabbit-only upright two-legged sheet, no visible text/watermark, includes front/side/back/three-quarter pose, action pose, idle pose, head close-up, expressions, detail callouts, size reference, color swatches, green tornado language, and consistent gray rabbit proportions.
 - `ginger-tabby-cat:canonical-character-sheet`
   - Source path: `assets/source/imagegen/fighters/ginger-tabby-cat/canonical-character-sheet.png`
   - Provider: Codex built-in imagegen
   - Generated on: 2026-05-14
-  - License status: owned generated candidate, pending explicit approval before runtime use
+  - License status: owned generated source asset
+  - Usage approval: animation style-lock reference only; not approved as a runtime sprite
   - QA notes: cat-only upright two-legged sheet, no visible text/watermark, includes front/side/back views, upright combat poses, upright idle, head close-up, expressions, detail callouts, size reference, color swatches, yellow-green energy language, and consistent orange tabby markings.
 
-These must be approved before animation rows. Required sheet structure includes front, side, back, 3/4 heroic pose, action pose, relaxed idle, head close-up, expression sheet, detail callouts, size reference, and color swatches. Both fighters use an upright two-legged fighting-game rig for animation consistency.
+These are approved before animation rows as style locks only. Required sheet structure includes front, side, back, 3/4 heroic pose, action pose, relaxed idle, head close-up, expression sheet, detail callouts, size reference, and color swatches. Both fighters use an upright two-legged fighting-game rig for animation consistency.
 
 ### Character Animation Rows
 

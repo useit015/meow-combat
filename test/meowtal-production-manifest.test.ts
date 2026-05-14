@@ -33,29 +33,32 @@ describe("Meowtal production manifest", () => {
     const entries = collectMeowtalProvenanceEntries();
     expect(entries).toHaveLength(2 + 2 * REQUIRED_FIGHTER_ANIMATIONS.length + 6 + 15 + 11);
     expect(entries.every((entry) => entry.runtimePath === null)).toBe(true);
-    expect(entries.every((entry) => entry.status !== "approved")).toBe(true);
   });
 
   it("keeps animation rows blocked until canonical character sheets are approved", () => {
-    expect(canonicalSheetsApproved()).toBe(false);
+    expect(canonicalSheetsApproved()).toBe(true);
 
     const blockedRows = blockedAnimationRowsUntilCanonicalApproved();
-    expect(blockedRows).toHaveLength(2 * REQUIRED_FIGHTER_ANIMATIONS.length);
+    expect(blockedRows).toHaveLength(0);
+    const animationRows = meowtalProductionManifest.fighters.flatMap((fighter) => fighter.animationRows);
+    expect(animationRows).toHaveLength(2 * REQUIRED_FIGHTER_ANIMATIONS.length);
+    expect(animationRows.every((row) => row.provenance.status === "blocked")).toBe(true);
     expect(blockedRows.every((row) => row.provenance.status === "blocked")).toBe(true);
     expect(blockedRows.every((row) => row.provenance.blocker?.includes("canonical character sheet"))).toBe(true);
   });
 
-  it("tracks generated canonical sheet source files without approving them for runtime", () => {
+  it("tracks approved style-lock canonical sheet source files without approving runtime use", () => {
     for (const fighter of meowtalProductionManifest.fighters) {
       const provenance = fighter.canonicalSheet.provenance;
 
+      expect(fighter.canonicalSheet.styleLockApproved).toBe(true);
       expect(provenance.status).toBe("generated");
       expect(provenance.sourceKind).toBe("codex-imagegen");
       expect(provenance.sourcePath).toBe(`assets/source/imagegen/fighters/${fighter.id}/canonical-character-sheet.png`);
       expect(provenance.runtimePath).toBeNull();
       expect(provenance.license.kind).toBe("owned-generated");
       expect(provenance.createdOrDownloadedOn).toBe("2026-05-14");
-      expect(provenance.approvalNotes).toContain("Generated canonical sheet candidate");
+      expect(provenance.approvalNotes).toContain("Approved as animation style-lock reference only");
       expect(provenance.approvalNotes).toContain("upright two-legged");
       expect(existsSync(join(process.cwd(), provenance.sourcePath ?? ""))).toBe(true);
     }

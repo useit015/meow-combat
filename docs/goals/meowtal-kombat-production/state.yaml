@@ -83,7 +83,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T024
+active_task: T025
 
 tasks:
   - id: T000
@@ -660,7 +660,7 @@ tasks:
   - id: T024
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: low
     objective: "Mark both canonical sheets approved as animation style-lock references only. Update provenance/manifest notes and tests so canonicalSheetsApproved() becomes true while all animation rows remain blocked. Do not generate animation rows or expose runtime sprites."
     allowed_files:
@@ -678,6 +678,49 @@ tasks:
       - "Provenance semantics become ambiguous between approved style-lock reference and approved runtime asset."
       - "Tests require broad unrelated rewrites."
       - "Need files outside allowed_files."
+    receipt:
+      result: done
+      summary: "Marked both canonical sheets approved as animation style-lock references only through the Meowtal manifest, without changing shared provenance types or making them runtime sprites. canonicalSheetsApproved() is now true while every animation row remains blocked and non-runtime."
+      changed_files:
+        - "src/assets/meowtalProductionManifest.ts"
+        - "docs/assets/meowtal-kombat-provenance.md"
+        - "test/meowtal-production-manifest.test.ts"
+      commands:
+        - cmd: "npm test -- --run test/meowtal-production-manifest.test.ts"
+          status: pass
+        - cmd: "npm run build"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+      notes:
+        - "No binary assets, animation rows, runtime sprites, stage/UI/audio assets, or runtime content switches were added in T024."
+        - "Full verify passed with 21 test files and 101 tests."
+  - id: T025
+    type: judge
+    assignee: Judge
+    status: active
+    reasoning_hint: high
+    objective: "Scope the first small animation-row generation batch now that canonical sheets are approved as style-lock references. Choose the smallest reviewable row set, allowed files, verification, and visual consistency gates."
+    inputs:
+      - "T023 canonical sheet approval"
+      - "T024 style-lock provenance approval"
+      - "src/assets/meowtalProductionManifest.ts"
+      - "assets/source/imagegen/fighters/gray-rabbit/canonical-character-sheet.png"
+      - "assets/source/imagegen/fighters/ginger-tabby-cat/canonical-character-sheet.png"
+      - "Owner stance requirement: both fighters use upright two-legged rig"
+    constraints:
+      - "Do not implement in the Judge task."
+      - "Keep the first animation batch small and reviewable."
+      - "Do not approve generated rows for runtime until visual QA passes."
+      - "Do not switch runtime content to Meowtal in this decision."
+      - "Do not generate stage, UI, HUD, audio, or broad asset-pack files."
+    expected_output:
+      - "Decision and rationale"
+      - "Exact next Worker objective"
+      - "allowed_files"
+      - "verify commands"
+      - "stop_if conditions"
+      - "visual QA expectations"
     receipt: null
   - id: T005
     type: worker
@@ -829,10 +872,8 @@ checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T022
+    task: T024
     commands:
-      - cmd: "npm run typecheck"
-        status: pass
       - cmd: "npm test -- --run test/meowtal-production-manifest.test.ts"
         status: pass
       - cmd: "npm run build"

@@ -1,6 +1,5 @@
 import { REQUIRED_FIGHTER_ANIMATIONS, type FighterAnimationId } from "./types";
 import {
-  approvedAssetIds,
   plannedLicense,
   validateProvenanceEntries,
   type AssetProvenance,
@@ -49,6 +48,7 @@ export type MeowtalAudioCueId =
 export interface MeowtalCanonicalSheetPlan {
   fighterId: MeowtalFighterId;
   requiredBeforeAnimationRows: true;
+  styleLockApproved: boolean;
   provenance: AssetProvenance;
 }
 
@@ -116,9 +116,9 @@ const canonicalSheetSourcePaths: Readonly<Record<MeowtalFighterId, string>> = {
 
 const canonicalSheetQaNotes: Readonly<Record<MeowtalFighterId, string>> = {
   "gray-rabbit":
-    "Generated canonical sheet candidate. Visual QA: rabbit-only upright two-legged sheet, no visible text/watermark, includes front/side/back/three-quarter pose, action pose, idle pose, head close-up, expressions, detail callouts, size reference, color swatches, green tornado language, and consistent gray rabbit proportions.",
+    "Approved as animation style-lock reference only. Visual QA: rabbit-only upright two-legged sheet, no visible text/watermark, includes front/side/back/three-quarter pose, action pose, idle pose, head close-up, expressions, detail callouts, size reference, color swatches, green tornado language, and consistent gray rabbit proportions.",
   "ginger-tabby-cat":
-    "Generated canonical sheet candidate. Visual QA: cat-only upright two-legged sheet, no visible text/watermark, includes front/side/back views, upright combat poses, upright idle, head close-up, expressions, detail callouts, size reference, color swatches, yellow-green energy language, and consistent orange tabby markings.",
+    "Approved as animation style-lock reference only. Visual QA: cat-only upright two-legged sheet, no visible text/watermark, includes front/side/back views, upright combat poses, upright idle, head close-up, expressions, detail callouts, size reference, color swatches, yellow-green energy language, and consistent orange tabby markings.",
 };
 
 const animationFrameCounts: Readonly<Record<FighterAnimationId, number>> = {
@@ -269,8 +269,7 @@ export function validateMeowtalProductionManifest(
 }
 
 export function canonicalSheetsApproved(manifest: MeowtalProductionManifest = meowtalProductionManifest): boolean {
-  const approved = new Set(approvedAssetIds(collectMeowtalProvenanceEntries(manifest)));
-  return manifest.fighters.every((fighter) => approved.has(fighter.canonicalSheet.provenance.assetId));
+  return manifest.fighters.every((fighter) => fighter.canonicalSheet.styleLockApproved);
 }
 
 export function blockedAnimationRowsUntilCanonicalApproved(
@@ -293,6 +292,7 @@ function makeFighters(): readonly MeowtalFighterAssetPlan[] {
       canonicalSheet: {
         fighterId,
         requiredBeforeAnimationRows: true,
+        styleLockApproved: true,
         provenance: generatedCanonicalSheetProvenance(fighterId),
       },
       animationRows: REQUIRED_FIGHTER_ANIMATIONS.map((animationId) => ({
@@ -330,7 +330,8 @@ function generatedCanonicalSheetProvenance(fighterId: MeowtalFighterId): AssetPr
     runtimePath: null,
     license: {
       kind: "owned-generated",
-      summary: "Generated with Codex built-in imagegen for this project; pending explicit approval before runtime use.",
+      summary:
+        "Generated with Codex built-in imagegen for this project; approved as animation style-lock reference only, not as a runtime sprite.",
       sourceUrl: null,
       attribution: null,
       checkedOn: generatedOn,
