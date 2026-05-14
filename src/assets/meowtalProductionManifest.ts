@@ -130,11 +130,23 @@ const idleRowRuntimePaths: Readonly<Record<MeowtalFighterId, string>> = {
   "ginger-tabby-cat": "/assets/generated/fighters/ginger-tabby-cat/idle.png",
 };
 
+const walkForwardRowSourcePaths: Readonly<Record<MeowtalFighterId, string>> = {
+  "gray-rabbit": "assets/source/imagegen/fighters/gray-rabbit/walk-forward.png",
+  "ginger-tabby-cat": "assets/source/imagegen/fighters/ginger-tabby-cat/walk-forward.png",
+};
+
 const idleRowQaNotes: Readonly<Record<MeowtalFighterId, string>> = {
   "gray-rabbit":
     "Approved runtime idle row. Visual QA: eight separated upright two-legged gray rabbit idle frames, no visible text/watermark/frame numbers, same stance and proportions as the canonical sheet, chroma-key removed to transparent alpha, normalized to 2048x256 RGBA, and approved for runtime publication by T027.",
   "ginger-tabby-cat":
     "Approved runtime idle row. Visual QA: eight separated upright two-legged ginger tabby idle frames, no visible text/watermark/frame numbers, same stance and proportions as the canonical sheet, chroma-key removed to transparent alpha, normalized to 2048x256 RGBA, and approved for runtime publication by T027.",
+};
+
+const walkForwardRowQaNotes: Readonly<Record<MeowtalFighterId, string>> = {
+  "gray-rabbit":
+    "Generated source walk-forward row candidate. Visual QA: eight separated upright two-legged gray rabbit guarded walk frames, no visible text/watermark/frame numbers, same stance and proportions as approved idle, chroma-key removed to transparent alpha, pending normalized-row review before runtime approval.",
+  "ginger-tabby-cat":
+    "Generated source walk-forward row candidate. Visual QA: eight separated upright two-legged ginger tabby guarded walk frames, no visible text/watermark/frame numbers, same stance and proportions as approved idle, chroma-key removed to transparent alpha, pending normalized-row review before runtime approval.",
 };
 
 const animationFrameCounts: Readonly<Record<FighterAnimationId, number>> = {
@@ -279,12 +291,19 @@ export function validateMeowtalProductionManifest(
         if (!row.provenance.runtimePath?.includes("/assets/generated/fighters/")) {
           errors.push(`${row.provenance.assetId}: approved idle row requires a generated runtime path`);
         }
+      } else if (row.animationId === "walk-forward") {
+        if (row.provenance.status !== "generated") {
+          errors.push(`${row.provenance.assetId}: walk-forward row should be generated but not runtime-approved after T030`);
+        }
+        if (row.provenance.runtimePath) {
+          errors.push(`${row.provenance.assetId}: generated walk-forward row is not runtime-approved yet`);
+        }
       } else {
         if (row.provenance.status !== "blocked") {
           errors.push(`${row.provenance.assetId}: non-idle animation rows must remain blocked`);
         }
-        if (!row.provenance.blocker?.includes("separate scoped generation task")) {
-          errors.push(`${row.provenance.assetId}: non-idle row blocker must reference a separate scoped generation task`);
+        if (!row.provenance.blocker?.includes("walk-forward row QA")) {
+          errors.push(`${row.provenance.assetId}: remaining row blocker must reference walk-forward row QA`);
         }
       }
     }
@@ -328,6 +347,8 @@ function makeFighters(): readonly MeowtalFighterAssetPlan[] {
         provenance:
           animationId === "idle"
             ? approvedIdleRowProvenance(fighterId, details)
+            : animationId === "walk-forward"
+              ? generatedWalkForwardRowProvenance(fighterId, details)
             : blockedAnimationRowProvenance(fighterId, animationId, details),
       })),
     };
@@ -344,8 +365,41 @@ function blockedAnimationRowProvenance(
     promptSlug: `${fighterId}-${animationId}-animation-row`,
     prompt: animationRowPrompt(details.displayName, animationId),
     status: "blocked",
-    blocker: "Idle row QA/runtime approval is complete; wait for a separate scoped generation task before generating this non-idle animation row.",
+    blocker: "Wait for walk-forward row QA and a separate scoped generation task before generating this remaining animation row.",
   });
+}
+
+function generatedWalkForwardRowProvenance(
+  fighterId: MeowtalFighterId,
+  details: (typeof fighterDetails)[MeowtalFighterId],
+): AssetProvenance {
+  return {
+    ...imageProvenance({
+      assetId: `${fighterId}:walk-forward`,
+      promptSlug: `${fighterId}-walk-forward-animation-row`,
+      prompt: animationRowPrompt(details.displayName, "walk-forward"),
+      status: "generated",
+      blocker: "",
+    }),
+    sourcePath: walkForwardRowSourcePaths[fighterId],
+    runtimePath: null,
+    license: {
+      kind: "owned-generated",
+      summary:
+        "Generated with Codex built-in imagegen for this project; source row only, pending walk-forward visual QA before runtime use.",
+      sourceUrl: null,
+      attribution: null,
+      checkedOn: generatedOn,
+    },
+    createdOrDownloadedOn: generatedOn,
+    transforms: [
+      "Copied selected built-in imagegen output into the repo source asset tree.",
+      "Removed generated chroma-key background to transparent alpha with the imagegen remove_chroma_key helper.",
+      "Normalized QA candidate generated under output/imagegen; not copied to public runtime assets.",
+    ],
+    approvalNotes: walkForwardRowQaNotes[fighterId],
+    blocker: null,
+  };
 }
 
 function approvedIdleRowProvenance(

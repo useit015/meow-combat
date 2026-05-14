@@ -83,7 +83,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T030
+active_task: T031
 
 tasks:
   - id: T000
@@ -953,7 +953,7 @@ tasks:
   - id: T030
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: low
     objective: "Generate or integrate exactly two Meowtal source animation rows: gray-rabbit:walk-forward and ginger-tabby-cat:walk-forward. Use the approved canonical sheets and approved idle rows as style-lock inputs. Normalize both rows to 8-frame 2048x256 candidates, update provenance/manifest/tests/docs so only these two walk-forward rows are generated-but-unapproved with runtimePath: null, and keep all other non-idle rows blocked."
     allowed_files:
@@ -987,11 +987,48 @@ tasks:
       - "Walk motion shows clear frame separation, stable scale, consistent head/camera height, grounded feet/paws, and readable forward travel poses."
       - "Both rows match approved idle rows in lighting, camera angle, outline thickness, detail level, transparency treatment, and cell scale."
       - "No text, watermark, logo, frame numbers, background art, hit sparks, dust, projectiles, or other detached effects."
-    receipt: null
+    receipt:
+      result: done
+      summary: "Generated and integrated exactly two Meowtal walk-forward source rows for the gray rabbit and ginger/orange tabby cat. Both rows preserve the approved upright two-legged rig, were chroma-key cleaned to transparent-alpha RGBA source PNGs, normalize to 8-frame 2048x256 candidates, remain non-runtime with runtimePath null, and keep all other remaining non-idle rows blocked pending walk-forward QA and separate scoped generation."
+      changed_files:
+        - "assets/source/imagegen/fighters/gray-rabbit/walk-forward.png"
+        - "assets/source/imagegen/fighters/ginger-tabby-cat/walk-forward.png"
+        - "src/assets/meowtalProductionManifest.ts"
+        - "docs/assets/meowtal-kombat-provenance.md"
+        - "test/meowtal-production-manifest.test.ts"
+        - "test/asset-qa.test.ts"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+      evidence:
+        - "assets/source/imagegen/fighters/gray-rabbit/walk-forward.png"
+        - "assets/source/imagegen/fighters/ginger-tabby-cat/walk-forward.png"
+        - "output/imagegen/gray-rabbit-walk-forward-normalized.png"
+        - "output/imagegen/ginger-tabby-cat-walk-forward-normalized.png"
+      checksums:
+        gray_rabbit_walk_forward_source_sha256: "9f775d7bee5b969476627bea6c3278fc2ebe0e8f26b7c202d1c9eb2077d26a87"
+        ginger_tabby_cat_walk_forward_source_sha256: "b7d8abfdc2457b431b307c0aa40a6935a408bf59d7f5c8e70bfb648c7ed46873"
+        gray_rabbit_walk_forward_normalized_sha256: "101351dcd65771ecc5b6c45e2d6bb921d97e2eabcc3e03fa9f1c236be22c8d16"
+        ginger_tabby_cat_walk_forward_normalized_sha256: "fce97ab864ec63c71ca9d851378ecabd86e578ccb2b8aaf8963ab3a9bd4f79ca"
+      commands:
+        - cmd: "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-readiness.test.ts"
+          status: pass
+        - cmd: "node scripts/normalize-fighter-rows.mjs --animation walk-forward --fighters gray-rabbit,ginger-tabby-cat"
+          status: pass
+        - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha output/imagegen/gray-rabbit-walk-forward-normalized.png output/imagegen/ginger-tabby-cat-walk-forward-normalized.png"
+          status: pass
+        - cmd: "npm run imagegen:qa"
+          status: pass
+        - cmd: "npm test -- --run test/asset-qa.test.ts"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+      notes:
+        - "sips reported pixelWidth 2048, pixelHeight 256, hasAlpha yes for both normalized walk-forward candidates."
+        - "Full verify passed with 21 test files and 103 tests."
+        - "No public/runtime walk-forward assets, runtime selection, gameplay config, stage, UI, HUD, logo, particles, audio, or broad asset-pack files were added."
   - id: T031
     type: judge
     assignee: Judge
-    status: queued
+    status: active
     reasoning_hint: high
     objective: "Visual QA the generated gray-rabbit:walk-forward and ginger-tabby-cat:walk-forward rows and decide whether they can be approved for runtime integration or need regeneration."
     inputs:
@@ -1165,15 +1202,17 @@ checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T028
+    task: T030
     commands:
-      - cmd: "node scripts/normalize-fighter-rows.mjs --animation idle --fighters gray-rabbit,ginger-tabby-cat"
+      - cmd: "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-readiness.test.ts"
         status: pass
-      - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha public/assets/generated/fighters/gray-rabbit/idle.png public/assets/generated/fighters/ginger-tabby-cat/idle.png"
+      - cmd: "node scripts/normalize-fighter-rows.mjs --animation walk-forward --fighters gray-rabbit,ginger-tabby-cat"
         status: pass
-      - cmd: "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-qa.test.ts"
+      - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha output/imagegen/gray-rabbit-walk-forward-normalized.png output/imagegen/ginger-tabby-cat-walk-forward-normalized.png"
         status: pass
-      - cmd: "npm run typecheck"
+      - cmd: "npm run imagegen:qa"
+        status: pass
+      - cmd: "npm test -- --run test/asset-qa.test.ts"
         status: pass
       - cmd: "npm run verify"
         status: pass
