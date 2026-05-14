@@ -279,7 +279,8 @@ describe("Meowtal production manifest", () => {
       expect(lightKickRow?.provenance.license.kind).toBe("owned-generated");
       expect(lightKickRow?.provenance.approvalNotes).toContain("Generated source light-kick row candidate");
       expect(lightKickRow?.provenance.approvalNotes).toContain("upright two-legged");
-      expect(lightKickRow?.provenance.approvalNotes).toContain("deterministic transparent source construction");
+      expect(lightKickRow?.provenance.approvalNotes).toContain("imagegen light-kick reference row");
+      expect(lightKickRow?.provenance.approvalNotes).toContain("chroma-key removed to transparent alpha");
       expect(existsSync(join(process.cwd(), lightKickRow?.provenance.sourcePath ?? ""))).toBe(true);
     }
   });

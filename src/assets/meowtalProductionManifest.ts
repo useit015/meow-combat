@@ -280,9 +280,9 @@ const heavyPunchRowQaNotes: Readonly<Record<MeowtalFighterId, string>> = {
 
 const lightKickRowQaNotes: Readonly<Record<MeowtalFighterId, string>> = {
   "gray-rabbit":
-    "Generated source light-kick row candidate, regenerated after T071 visual QA. Visual self-check: eight separated upright two-legged gray rabbit low snap-kick frames with crouch-load, planted support, clearer front-foot extension, recoil, and guard recovery; no visible text/watermark/frame numbers, same stance convention and proportions as approved runtime rows through heavy-punch, deterministic transparent source construction from approved rows, normalized to a 2048x256 RGBA QA candidate, and pending follow-up visual QA before runtime publication.",
+    "Generated source light-kick row candidate from an imagegen light-kick reference row after T073 visual QA. Visual self-check: eight separated upright two-legged gray rabbit low snap-kick frames with crouch-load, planted support, organic hip/knee front-foot extension, recoil, and guard recovery; no visible text/watermark/frame numbers, same stance convention and proportions as approved runtime rows through heavy-punch, chroma-key removed to transparent alpha, normalized to a 2048x256 RGBA QA candidate, and pending follow-up visual QA before runtime publication.",
   "ginger-tabby-cat":
-    "Generated source light-kick row candidate, regenerated after T071 visual QA. Visual self-check: eight separated upright two-legged ginger tabby low snap-kick frames with crouch-load, planted support, clearer front-foot extension, recoil, and guard recovery; no visible text/watermark/frame numbers, same stance convention and proportions as approved runtime rows through heavy-punch, deterministic transparent source construction from approved rows, normalized to a 2048x256 RGBA QA candidate, and pending follow-up visual QA before runtime publication.",
+    "Generated source light-kick row candidate from an imagegen light-kick reference row after T073 visual QA. Visual self-check: eight separated upright two-legged ginger tabby low snap-kick frames with crouch-load, planted support, organic hip/knee front-foot extension, recoil, and guard recovery; no visible text/watermark/frame numbers, same stance convention and proportions as approved runtime rows through heavy-punch, chroma-key removed to transparent alpha, normalized to a 2048x256 RGBA QA candidate, and pending follow-up visual QA before runtime publication.",
 };
 
 const animationFrameCounts: Readonly<Record<FighterAnimationId, number>> = {
@@ -595,15 +595,15 @@ function generatedLightKickRowProvenance(
     license: {
       kind: "owned-generated",
       summary:
-        "Generated with Codex built-in imagegen style-lock assets and deterministic transparent row construction for this project; retained as a non-runtime light-kick row candidate pending follow-up visual QA.",
+        "Generated with Codex built-in imagegen as a chroma-keyed light-kick reference row for this project; retained as a non-runtime light-kick row candidate pending follow-up visual QA.",
       sourceUrl: null,
       attribution: null,
       checkedOn: generatedOn,
     },
     createdOrDownloadedOn: generatedOn,
     transforms: [
-      "Regenerated a clean transparent 8-frame source row from approved idle, crouch, and heavy-punch runtime style-lock components after T071 rejected the first light-kick candidates as too crouch-like.",
-      "Added crouch-load, planted support, clearer front-foot extension, recoil, and guard recovery to create a source-only light-kick candidate.",
+      "Generated a chroma-keyed imagegen light-kick reference row after T073 rejected deterministic composited candidates as tube-like.",
+      "Removed the green chroma-key background with soft matte and despill to produce a transparent source row.",
       "Normalized to an 8-frame 2048x256 QA candidate under output/imagegen for visual review only.",
     ],
     approvalNotes: lightKickRowQaNotes[fighterId],
