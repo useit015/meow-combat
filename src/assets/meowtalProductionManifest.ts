@@ -180,6 +180,66 @@ const stageLayerQaNotes: Readonly<Record<MeowtalStageLayerId, string>> = {
     "Approved runtime parallax layer: edge props, leaves, petals, and dust puffs for foreground parallax, no fighters, HUD, text, logos, watermarks, or brand marks. Approved for runtime promotion by T093.",
 };
 
+const generatedUiSurfaceSourcePaths: Readonly<Partial<Record<MeowtalVisualSurfaceId, string>>> = {
+  "logo-title-mark": "assets/source/imagegen/ui/meowtal/logo-title-mark.png",
+  "hud-frame": "assets/source/imagegen/ui/meowtal/hud-frame.png",
+  "health-bar-rabbit": "assets/source/imagegen/ui/meowtal/health-bar-rabbit.png",
+  "health-bar-cat": "assets/source/imagegen/ui/meowtal/health-bar-cat.png",
+  "timer-frame": "assets/source/imagegen/ui/meowtal/timer-frame.png",
+  "fight-ko-victory-overlays": "assets/source/imagegen/ui/meowtal/fight-ko-victory-overlays.png",
+};
+
+const generatedUiSurfaceOutputCandidatePaths: Readonly<Partial<Record<MeowtalVisualSurfaceId, string>>> = {
+  "logo-title-mark": "output/imagegen/meowtal-ui-logo-title-mark.png",
+  "hud-frame": "output/imagegen/meowtal-ui-hud-frame.png",
+  "health-bar-rabbit": "output/imagegen/meowtal-ui-health-bar-rabbit.png",
+  "health-bar-cat": "output/imagegen/meowtal-ui-health-bar-cat.png",
+  "timer-frame": "output/imagegen/meowtal-ui-timer-frame.png",
+  "fight-ko-victory-overlays": "output/imagegen/meowtal-ui-fight-ko-victory-overlays.png",
+};
+
+const generatedUiSurfaceQaNotes: Readonly<Partial<Record<MeowtalVisualSurfaceId, string>>> = {
+  "logo-title-mark":
+    "Generated source-only UI candidate: readable original MEOWTAL KOMBAT title mark with rabbit-ear and cat-tail motifs, transparent alpha, no copied branding, watermark, or brand marks. Pending visual QA and runtime promotion.",
+  "hud-frame":
+    "Generated source-only UI candidate: top HUD frame with left/right health housings and center timer medallion, transparent alpha, no text, portraits, copied branding, watermark, or brand marks. Pending visual QA and runtime promotion.",
+  "health-bar-rabbit":
+    "Generated source-only UI candidate: red rabbit-side health bar treatment with transparent alpha, no text, portraits, copied branding, watermark, or brand marks. Pending visual QA and runtime promotion.",
+  "health-bar-cat":
+    "Generated source-only UI candidate: blue cat-side health bar treatment with transparent alpha, no text, portraits, copied branding, watermark, or brand marks. Pending visual QA and runtime promotion.",
+  "timer-frame":
+    "Generated source-only UI candidate: circular center timer frame with transparent alpha, no numbers, copied branding, watermark, or brand marks. Pending visual QA and runtime promotion.",
+  "fight-ko-victory-overlays":
+    "Generated source-only UI candidate: FIGHT, K.O., Rabbit Wins, and Tabby Wins overlay sheet with crisp local lettering, transparent alpha, no copied branding, watermark, or brand marks. Pending visual QA and runtime promotion.",
+};
+
+const generatedUiSurfaceTransformNotes: Readonly<Partial<Record<MeowtalVisualSurfaceId, readonly string[]>>> = {
+  "logo-title-mark": [
+    "Generated a blank title-mark plate with Codex built-in imagegen on magenta chroma-key background.",
+    "Removed chroma-key background to alpha, resized to 1024x576, and added crisp local title lettering for readability.",
+  ],
+  "hud-frame": [
+    "Generated with Codex built-in imagegen on magenta chroma-key background.",
+    "Removed chroma-key background to alpha and resized to 1024x576 as a source-only UI candidate.",
+  ],
+  "health-bar-rabbit": [
+    "Generated with Codex built-in imagegen on magenta chroma-key background.",
+    "Removed chroma-key background to alpha and resized to 1024x576 as a source-only UI candidate.",
+  ],
+  "health-bar-cat": [
+    "Generated with Codex built-in imagegen on magenta chroma-key background.",
+    "Removed chroma-key background to alpha and resized to 1024x576 as a source-only UI candidate.",
+  ],
+  "timer-frame": [
+    "Generated with Codex built-in imagegen on magenta chroma-key background.",
+    "Removed chroma-key background to alpha and resized to 1024x576 as a source-only UI candidate.",
+  ],
+  "fight-ko-victory-overlays": [
+    "Generated blank overlay panels with Codex built-in imagegen on magenta chroma-key background.",
+    "Removed chroma-key background to alpha, resized to 1024x576, and added crisp local FIGHT/K.O./victory lettering for readability.",
+  ],
+};
+
 const canonicalSheetSourcePaths: Readonly<Record<MeowtalFighterId, string>> = {
   "gray-rabbit": "assets/source/imagegen/fighters/gray-rabbit/canonical-character-sheet.png",
   "ginger-tabby-cat": "assets/source/imagegen/fighters/ginger-tabby-cat/canonical-character-sheet.png",
@@ -567,6 +627,23 @@ export function validateMeowtalProductionManifest(
     }
     if (layer.provenance.runtimePath !== stageLayerRuntimePaths[layer.id]) {
       errors.push(`${layer.provenance.assetId}: courtyard layer requires the promoted runtime path.`);
+    }
+  }
+
+  for (const surface of manifest.visualSurfaces) {
+    const generatedSourcePath = generatedUiSurfaceSourcePaths[surface.id];
+    if (generatedSourcePath) {
+      if (surface.provenance.status !== "generated") {
+        errors.push(`${surface.provenance.assetId}: UI surface should be generated source-only after T094.`);
+      }
+      if (surface.provenance.sourcePath !== generatedSourcePath) {
+        errors.push(`${surface.provenance.assetId}: UI surface requires the scoped generated source path.`);
+      }
+      if (surface.provenance.runtimePath !== null) {
+        errors.push(`${surface.provenance.assetId}: UI source candidate must not have runtimePath before promotion.`);
+      }
+    } else if (surface.provenance.status !== "planned") {
+      errors.push(`${surface.provenance.assetId}: out-of-scope UI surface should remain planned.`);
     }
   }
 
@@ -1297,6 +1374,15 @@ function ownedGeneratedImageLicense(summary: string): AssetLicense {
 }
 
 function visualSurface(id: MeowtalVisualSurfaceId, role: string): MeowtalVisualSurfacePlan {
+  const generatedSourcePath = generatedUiSurfaceSourcePaths[id];
+  if (generatedSourcePath) {
+    return {
+      id,
+      role,
+      provenance: generatedUiSurfaceProvenance(id, role, generatedSourcePath),
+    };
+  }
+
   return {
     id,
     role,
@@ -1306,6 +1392,31 @@ function visualSurface(id: MeowtalVisualSurfaceId, role: string): MeowtalVisualS
       prompt: `Create the ${id} visual surface for Meowtal Kombat. ${role} Keep it original, readable, arcade-polished, and free of copied fighting-game branding.`,
       blocker: binaryBlocker,
     }),
+  };
+}
+
+function generatedUiSurfaceProvenance(
+  id: MeowtalVisualSurfaceId,
+  role: string,
+  sourcePath: string,
+): AssetProvenance {
+  return {
+    ...imageProvenance({
+      assetId: `ui:${id}`,
+      promptSlug: `meowtal-ui-${id}`,
+      prompt: `Create the ${id} visual surface for Meowtal Kombat. ${role} Keep it original, readable, arcade-polished, source-only, and free of copied fighting-game branding, watermarks, or real brand marks.`,
+      status: "generated",
+      blocker: "",
+    }),
+    sourcePath,
+    runtimePath: null,
+    license: ownedGeneratedImageLicense(
+      "Generated with Codex built-in imagegen for this project; source-only UI candidate pending visual QA and runtime promotion.",
+    ),
+    createdOrDownloadedOn: generatedOn,
+    transforms: generatedUiSurfaceTransformNotes[id] ?? [],
+    approvalNotes: `${generatedUiSurfaceQaNotes[id]} QA candidate: ${generatedUiSurfaceOutputCandidatePaths[id]}.`,
+    blocker: null,
   };
 }
 

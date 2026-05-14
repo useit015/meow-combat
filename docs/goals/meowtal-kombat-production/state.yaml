@@ -85,7 +85,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T094
+active_task: T095
 
 tasks:
   - id: T000
@@ -4766,7 +4766,7 @@ tasks:
   - id: T094
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: low
     objective: "Generate and normalize source-only candidates for the first Meowtal HUD/logo/UI surface batch only: logo-title-mark, hud-frame, health-bar-rabbit, health-bar-cat, timer-frame, and fight-ko-victory-overlays. Keep them non-runtime pending visual QA; do not touch fighter routing, stage routing, combat/gameplay, audio, particles, or runtime UI rendering."
     inputs:
@@ -4796,6 +4796,63 @@ tasks:
       - "HUD/source surfaces cannot be clearly marked as source-only generated candidates with runtimePath null."
       - "The batch cannot stay limited to the six named UI surfaces."
       - "Verification fails twice for the same root cause."
+    receipt:
+      completed_at: "2026-05-14"
+      result: done
+      summary: "Generated and normalized exactly the six scoped source-only Meowtal HUD/logo/UI candidates: logo-title-mark, hud-frame, health-bar-rabbit, health-bar-cat, timer-frame, and fight-ko-victory-overlays. All six are 1024x576 RGBA source candidates with transparent alpha, tracked as generated owned assets with runtimePath null, and no runtime UI rendering, fighter assets, stage routing, gameplay/combat, audio, or particles were changed."
+      changed_files:
+        - "assets/source/imagegen/ui/meowtal/logo-title-mark.png"
+        - "assets/source/imagegen/ui/meowtal/hud-frame.png"
+        - "assets/source/imagegen/ui/meowtal/health-bar-rabbit.png"
+        - "assets/source/imagegen/ui/meowtal/health-bar-cat.png"
+        - "assets/source/imagegen/ui/meowtal/timer-frame.png"
+        - "assets/source/imagegen/ui/meowtal/fight-ko-victory-overlays.png"
+        - "src/assets/meowtalProductionManifest.ts"
+        - "docs/assets/meowtal-kombat-provenance.md"
+        - "test/meowtal-production-manifest.test.ts"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+      evidence:
+        - "sips -g pixelWidth -g pixelHeight -g hasAlpha assets/source/imagegen/ui/meowtal/*.png output/imagegen/meowtal-ui-*.png passed: all six source files and six output QA candidates are 1024x576 with alpha."
+        - "npm run typecheck passed."
+        - "npm test -- --run test/meowtal-production-manifest.test.ts passed: 1 file, 21 tests."
+        - "npm run verify passed: 21 files, 117 tests, production build completed."
+        - "Manual visual review confirmed readable MEOWTAL KOMBAT, FIGHT!, K.O., RABBIT WINS, and TABBY WINS text and transparent-friendly HUD/frame/bar/timer surfaces."
+        - "Judge audit returned approved_complete for T094."
+      commands:
+        - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha assets/source/imagegen/ui/meowtal/*.png output/imagegen/meowtal-ui-*.png"
+          status: pass
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm test -- --run test/meowtal-production-manifest.test.ts"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+      notes:
+        - "Logo and announcement overlay candidates use imagegen-generated blank art plates plus local text normalization for crisp, readable lettering."
+        - "HUD frame, health bars, and timer frame remain source-only candidates pending a separate visual-QA gate and later runtime promotion."
+  - id: T095
+    type: judge
+    assignee: Judge
+    status: active
+    reasoning_hint: high
+    objective: "Perform strict visual QA on the six T094 source-only Meowtal HUD/logo/UI candidates and decide whether they are approved for a later narrow runtime-promotion task or require touch-up/regeneration. Do not modify assets or promote runtime UI."
+    inputs:
+      - "T094 source-only UI generation receipt"
+      - "assets/source/imagegen/ui/meowtal/logo-title-mark.png"
+      - "assets/source/imagegen/ui/meowtal/hud-frame.png"
+      - "assets/source/imagegen/ui/meowtal/health-bar-rabbit.png"
+      - "assets/source/imagegen/ui/meowtal/health-bar-cat.png"
+      - "assets/source/imagegen/ui/meowtal/timer-frame.png"
+      - "assets/source/imagegen/ui/meowtal/fight-ko-victory-overlays.png"
+    allowed_files:
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+    verify:
+      - "Visual inspection of the six UI source candidates on transparent/checker background."
+      - "Confirm manifest/provenance source-only status remains generated with runtimePath null."
+    stop_if:
+      - "Any source image contains copied Mortal Kombat branding, real brand marks, watermarks, extra characters, baked fighter sprites, illegible text, or unusable alpha/key artifacts."
+      - "Any UI candidate is not production-promotable after one narrow touch-up/regeneration pass."
+      - "The next step would require runtime UI rendering, gameplay/combat, audio, fighter, or stage changes before QA decision."
     receipt: null
   - id: T005
     type: worker

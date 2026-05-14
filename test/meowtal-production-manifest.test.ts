@@ -91,6 +91,39 @@ describe("Meowtal production manifest", () => {
     }
   });
 
+  it("tracks generated source-only HUD and logo candidates without approving runtime use", () => {
+    const generatedSurfaceIds = [
+      "logo-title-mark",
+      "hud-frame",
+      "health-bar-rabbit",
+      "health-bar-cat",
+      "timer-frame",
+      "fight-ko-victory-overlays",
+    ] as const;
+
+    for (const surfaceId of generatedSurfaceIds) {
+      const surface = meowtalProductionManifest.visualSurfaces.find((candidate) => candidate.id === surfaceId);
+      const provenance = surface?.provenance;
+
+      expect(provenance?.status).toBe("generated");
+      expect(provenance?.sourceKind).toBe("codex-imagegen");
+      expect(provenance?.sourcePath).toBe(`assets/source/imagegen/ui/meowtal/${surfaceId}.png`);
+      expect(provenance?.runtimePath).toBeNull();
+      expect(provenance?.license.kind).toBe("owned-generated");
+      expect(provenance?.createdOrDownloadedOn).toBe("2026-05-14");
+      expect(provenance?.approvalNotes).toContain("Generated source-only UI candidate");
+      expect(provenance?.approvalNotes).toContain(`output/imagegen/meowtal-ui-${surfaceId}.png`);
+      expect(provenance?.approvalNotes).toContain("Pending visual QA and runtime promotion");
+      expect(provenance?.blocker).toBeNull();
+      expect(existsSync(join(process.cwd(), provenance?.sourcePath ?? ""))).toBe(true);
+    }
+
+    const outOfScopeSurfaces = meowtalProductionManifest.visualSurfaces.filter(
+      (surface) => !generatedSurfaceIds.includes(surface.id as (typeof generatedSurfaceIds)[number]),
+    );
+    expect(outOfScopeSurfaces.every((surface) => surface.provenance.status === "planned")).toBe(true);
+  });
+
   it("tracks approved knockdown rows and remaining blocked rows", () => {
     expect(canonicalSheetsApproved()).toBe(true);
 
