@@ -69,7 +69,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T003
+active_task: T004
 
 tasks:
   - id: T000
@@ -207,7 +207,7 @@ tasks:
   - id: T003
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: medium
     objective: "Sanitize special/action frame playback, reduce fight-overlay occlusion, and add fighter grounding shadows/separation so combat screenshots look cleaner and more cohesive without regenerating assets."
     allowed_files:
@@ -224,11 +224,45 @@ tasks:
       - "The selected fix would only improve metadata/checklists, not visible quality."
       - "The change worsens character consistency, stance convention, readability, responsiveness, or production build health."
       - "Verification fails twice for the same reason."
-    receipt: null
+    receipt:
+      result: done
+      summary: "Implemented the first focused quality slice. Special animation playback now skips the known-bad/occluding contact frames, the opening FIGHT overlay is smaller and exits faster, demo action captures no longer show the FIGHT overlay, fighters get runtime grounding shadows on the stage, and overlapping special-hit damage numbers are staggered for readability."
+      changed_files:
+        - "src/game/MeowtalArenaScene.ts"
+        - "src/game/spriteFrame.ts"
+        - "test/sprite-frame.test.ts"
+      commands:
+        - cmd: "npm test -- --run test/sprite-frame.test.ts"
+          status: pass
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm run build"
+          status: pass
+        - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/meowtal-quality-slice-t003"
+          status: pass
+        - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules node --input-type=module <inline cat-special capture>"
+          status: pass
+      evidence:
+        - "output/web-game/meowtal-quality-slice-t003/desktop-keyboard-fight.png"
+        - "output/web-game/meowtal-quality-slice-t003/landscape-fight.png"
+        - "output/web-game/meowtal-quality-slice-t003/landscape-hold-special.png"
+        - "output/web-game/meowtal-quality-slice-t003/portrait-hold-special.png"
+        - "output/web-game/meowtal-quality-slice-t003/desktop-cat-special.png"
+        - "output/web-game/meowtal-quality-slice-t003/report.json"
+      quality_delta:
+        - "Cat special capture uses ginger-tabby-cat:special but no longer shows the upside-down or duplicated stacked cat frames."
+        - "Rabbit special capture keeps the rabbit readable instead of swallowing the body in the tornado column."
+        - "Desktop and landscape fight captures show grounding shadows under sprites, improving floor contact against the bright courtyard."
+        - "Smoke telemetry reports no runtime UI fallback, no missing stage/fighter assets, no console/page errors, and upright-two-legged normal stance for both fighters."
+      remaining_risks:
+        - "Portrait composition still wastes a large amount of vertical space."
+        - "HUD/title surfaces still feel cramped and generated/collaged."
+        - "Stage/HUD contrast and touch-control integration still need a stricter visual pass before full completion."
+      next_task: T004
   - id: T004
     type: judge
     assignee: Judge
-    status: queued
+    status: active
     reasoning_hint: high
     objective: "Audit the first rebuild slice with before/after captures and decide whether to continue, revise, or activate the next highest-impact slice."
     inputs:
@@ -328,6 +362,14 @@ tasks:
 checks:
   dirty_fingerprint: unknown
   last_verification:
-    result: unknown
-    task: null
-    commands: []
+    result: pass
+    task: T003
+    commands:
+      - cmd: "npm test -- --run test/sprite-frame.test.ts"
+        status: pass
+      - cmd: "npm run typecheck"
+        status: pass
+      - cmd: "npm run build"
+        status: pass
+      - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/meowtal-quality-slice-t003"
+        status: pass

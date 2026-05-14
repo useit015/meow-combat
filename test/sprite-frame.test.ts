@@ -18,6 +18,23 @@ describe("runtime sprite frame selection", () => {
     expect(selectSpritePose("heavy-punch", 15, 8).offsetX).toBeGreaterThan(0);
   });
 
+  it("keeps special attacks on the quality-safe contact frames", () => {
+    const selectedFrames = Array.from({ length: 48 }, (_, frame) => selectSpriteFrame("special", frame, 10));
+
+    expect(selectedFrames.slice(0, 42)).not.toContain(2);
+    expect(selectedFrames.slice(0, 42)).not.toContain(3);
+    expect(selectedFrames.slice(0, 42)).not.toContain(4);
+    expect(selectedFrames.slice(0, 42)).not.toContain(5);
+    expect(selectedFrames.slice(0, 42)).not.toContain(7);
+    expect([
+      selectSpriteFrame("special", 0, 10),
+      selectSpriteFrame("special", 12, 10),
+      selectSpriteFrame("special", 18, 10),
+      selectSpriteFrame("special", 30, 10),
+      selectSpriteFrame("special", 90, 10),
+    ]).toEqual([0, 1, 6, 8, 9]);
+  });
+
   it("animates presentation rows intentionally instead of modulo-wrapping recoveries", () => {
     expect(selectSpriteFrame("win", 0, 8)).toBe(1);
     expect(selectSpriteFrame("win", 56, 8)).toBe(5);

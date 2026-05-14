@@ -180,9 +180,9 @@ const RUNTIME_UI_IMAGE_SPECS = [
     assetId: "fight-ko-victory-overlays",
     crop: { x: 30, y: 17, width: 477, height: 271 },
     x: 512,
-    y: 236,
-    width: 520,
-    height: 296,
+    y: 184,
+    width: 430,
+    height: 244,
     depth: 96,
   },
   {
@@ -747,6 +747,10 @@ export class MeowtalArenaScene extends Phaser.Scene {
       if (!runtimeUiReady) {
         drawHud(g, this.snapshot, this.matchSet);
       }
+      drawFighterGroundingShadows(g, this.snapshot, {
+        p1: this.visualSeparationOffset("p1"),
+        p2: this.visualSeparationOffset("p2"),
+      });
       const p1SpriteRendered = this.renderFighterSprite("p1", this.runtimeAssetFor("p1"));
       const p2SpriteRendered = this.renderFighterSprite("p2", this.runtimeAssetFor("p2"));
       if (!p1SpriteRendered) {
@@ -966,7 +970,12 @@ export class MeowtalArenaScene extends Phaser.Scene {
   }
 
   private runtimeOverlaySlot(): RuntimeUiImageSlot | null {
-    if (this.shell.phase === "fighting" && this.snapshot.status === "fighting" && this.snapshot.frame < 72) {
+    if (
+      this.shell.phase === "fighting" &&
+      this.snapshot.status === "fighting" &&
+      this.snapshot.frame < 42 &&
+      !this.demoMode
+    ) {
       return "fight-overlay";
     }
 
@@ -1083,6 +1092,7 @@ export class MeowtalArenaScene extends Phaser.Scene {
       const progress = Phaser.Math.Clamp(number.age / number.duration, 0, 1);
       const rise = number.age * 1.32;
       const pop = 1 + Math.max(0, 1 - progress * 2.4) * 0.22;
+      const stackOffset = Math.min(index, 3) * 18;
       text
         .setText(`-${number.value}`)
         .setStyle({
@@ -1093,7 +1103,7 @@ export class MeowtalArenaScene extends Phaser.Scene {
           stroke: style.stroke,
           strokeThickness: 5,
         })
-        .setPosition(number.x + number.driftX * number.age, number.y - rise)
+        .setPosition(number.x + number.driftX * number.age, number.y - rise - stackOffset)
         .setAlpha(Math.max(0, 1 - progress))
         .setScale(style.scale * pop)
         .setVisible(true);
@@ -2145,6 +2155,31 @@ function drawVsMedallion(g: Phaser.GameObjects.Graphics, x: number, y: number): 
 
 function keyDown(key?: Phaser.Input.Keyboard.Key): boolean {
   return Boolean(key?.isDown);
+}
+
+function drawFighterGroundingShadows(
+  g: Phaser.GameObjects.Graphics,
+  snapshot: MatchSnapshot,
+  visualOffsets: Record<"p1" | "p2", number>,
+): void {
+  drawFighterGroundingShadow(g, snapshot.p1, visualOffsets.p1);
+  drawFighterGroundingShadow(g, snapshot.p2, visualOffsets.p2);
+}
+
+function drawFighterGroundingShadow(
+  g: Phaser.GameObjects.Graphics,
+  fighter: MatchSnapshot["p1"],
+  visualOffsetX: number,
+): void {
+  const airborne = !fighter.grounded || fighter.state === "jump" || fighter.state === "hop";
+  const downed = fighter.state === "knockdown";
+  const width = downed ? 128 : airborne ? 68 : 92;
+  const height = downed ? 20 : airborne ? 10 : 16;
+  const alpha = downed ? 0.32 : airborne ? 0.14 : 0.28;
+  const y = fighter.y + (downed ? 5 : 4);
+
+  g.fillStyle(0x071312, alpha).fillEllipse(fighter.x + visualOffsetX, y, width, height);
+  g.fillStyle(0xf8f5e9, alpha * 0.16).fillEllipse(fighter.x + visualOffsetX, y - 1, width * 0.58, height * 0.45);
 }
 
 function drawActionEffects(

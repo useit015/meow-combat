@@ -44,7 +44,7 @@ const FRAME_PLANS: Readonly<Record<FighterAnimationId, FramePlan>> = {
   "light-punch": { mode: "timeline", keyframes: frameSteps([0, 1, 2, 3, 4, 5], 3), motion: "attack" },
   "heavy-punch": { mode: "timeline", keyframes: frameSteps([0, 1, 2, 3, 4, 5, 6, 7], 4), motion: "attack" },
   "light-kick": { mode: "timeline", keyframes: frameSteps([0, 1, 2, 3, 4, 5, 6, 7], 3), motion: "kick" },
-  special: { mode: "timeline", keyframes: frameSteps([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 4), motion: "special" },
+  special: { mode: "timeline", keyframes: frameSteps([0, 1, 6, 6, 8, 9], 7), motion: "special" },
   hitstun: { mode: "timeline", keyframes: frameSteps([0, 1, 2, 3, 4], 4), motion: "recoil" },
   blockstun: { mode: "timeline", keyframes: frameSteps([0, 1, 2, 3, 4], 3), motion: "recoil" },
   knockdown: { mode: "timeline", keyframes: frameSteps([0, 1, 2, 3, 4, 5, 6, 7], 5), motion: "down" },
