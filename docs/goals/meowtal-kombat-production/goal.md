@@ -48,6 +48,19 @@ Discover the existing app shape, architecture, assets, rendering stack, and veri
 - Production readiness requires a local production build or production preview, stable frame pacing for the implemented effects, graceful loading/fallback behavior, and readable controls on supported viewports.
 - Commit work in small, coherent batches throughout implementation; do not save all production-game work for one large final commit.
 - Character animation assets must look consistent across each fighter's move set. Reject completion if animation frames vary noticeably in species identity, costume/markings, body proportions, lighting, camera angle, scale, outline/detail level, or rendering style.
+- Use Tough Love Arena (`https://toughlovearena.com/`) as a quality benchmark for smooth web fighting-game feel, responsive controls, readable combat, polished presentation, fast restart/rematch flow, and overall beauty. This is a feel benchmark only: do not copy its characters, art, UI, code, brand, or exact mechanics.
+
+## Gameplay Feel Benchmark
+
+Tough Love Arena is a web-based indie fighting game and should be treated as a reference bar for how smooth and good a browser fighting game can feel. Meowtal Kombat should aim for that level of responsiveness, visual clarity, juicy impact feedback, readable UI, input comfort, round flow, and overall polish while remaining its own original animal-combat game.
+
+Benchmark checks to carry into implementation and audit:
+
+- Controls respond immediately and predictably, with no mushy input feel.
+- Movement, attacks, hitstop, knockback, blockstun, recovery, and restart/rematch flow feel intentional rather than accidental.
+- Visual effects are beautiful but never hide the fighters, hitboxes, HUD, or current state.
+- The game feels complete and fun in-browser, not like a decorative animation test.
+- Any networking/rollback inspiration from Tough Love Arena is non-blocking unless a later Judge task explicitly scopes multiplayer; the current required target is a polished production-ready scoped game.
 
 ## Visual References
 

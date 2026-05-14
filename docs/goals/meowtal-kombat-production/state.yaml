@@ -41,6 +41,7 @@ goal:
       - "Current asset quality concern: different animation frames for the same character sometimes look visually inconsistent; production work must normalize or regenerate animations so each fighter has consistent identity, proportions, lighting, scale, camera angle, and rendering style across all moves."
       - "Use repo-local visual references as aspirational art direction: docs/visual-reference/meowtal-kombat/vision-01.png through vision-04.png."
       - "Use canonical original-character sheet prompts before animation generation. Character sheets must include front/side/back/3-4 pose, action pose, relaxed idle, head close-up, expression sheet, detail callouts, size reference, and color swatches for each fighter."
+      - "Use Tough Love Arena (https://toughlovearena.com/) as a feel and polish benchmark for smooth web fighting-game responsiveness, readable combat, beautiful presentation, input comfort, and round/rematch flow. Do not copy its characters, art, UI, code, brand, or exact mechanics."
 
 rules:
   pm_owns_state: true
@@ -63,6 +64,7 @@ rules:
   complete_visual_asset_pack_required: true
   parallax_arena_required: true
   canonical_character_sheets_required_before_animation_generation: true
+  tough_love_arena_feel_benchmark_required: true
 
 agents:
   scout: installed
@@ -246,6 +248,30 @@ tasks:
         - "docs/visual-reference/meowtal-kombat/vision-04.png"
         - "docs/goals/meowtal-kombat-production/goal.md"
         - "docs/goals/meowtal-kombat-production/state.yaml"
+  - id: T018
+    type: pm
+    assignee: PM
+    status: done
+    reasoning_hint: medium
+    objective: "Record Tough Love Arena as a gameplay-feel and polish benchmark."
+    inputs:
+      - "User reference: https://toughlovearena.com/"
+      - "User note: likes how smooth and beautiful it is, controls, and overall feel."
+    constraints:
+      - "Use Tough Love Arena as a benchmark only."
+      - "Do not copy its characters, art, UI, code, brand, or exact mechanics."
+      - "Do not expand scope to multiplayer or rollback unless a later Judge task explicitly selects that work."
+    expected_output:
+      - "Feel benchmark recorded"
+      - "Implementation and audit gates strengthened"
+    receipt:
+      result: done
+      summary: "Recorded Tough Love Arena as the quality bar for smooth browser fighting-game responsiveness, input comfort, readable combat, beautiful presentation, juicy impact feedback, and fast round/rematch flow, while preserving Meowtal Kombat as an original game."
+      evidence:
+        - "https://toughlovearena.com/"
+      changed_files:
+        - "docs/goals/meowtal-kombat-production/goal.md"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
   - id: T001
     type: scout
     assignee: Scout
@@ -269,6 +295,7 @@ tasks:
       - "Missing production asset inventory for logo/title, parallax arena layers, HUD, menus, overlays, controls, particles, loading/fallback, and capture/promo surfaces"
       - "Current same-character animation consistency issues with concrete asset/file evidence"
       - "How current assets compare to docs/visual-reference/meowtal-kombat/ vision references"
+      - "Current gameplay feel, input, round flow, and readability gaps relative to the Tough Love Arena benchmark"
       - "Verification commands and dev server command"
       - "Production build/preview command if available"
       - "Risks, blockers, and safe first implementation slices"
@@ -310,6 +337,7 @@ tasks:
       - "Do not implement."
       - "Avoid choosing a flashy visual slice that leaves the game unplayable."
       - "Avoid an architecture-only slice that cannot be demonstrated."
+      - "Prioritize slices that move the game toward Tough Love Arena-level responsiveness, clarity, and feel."
       - "Do not accept PoC/demo-level completion criteria."
       - "Do not reduce scope without creating a blocker or PM escalation that explains the tradeoff."
       - "Prefer small reviewable Worker tasks with clear verification."
@@ -355,13 +383,14 @@ tasks:
     assignee: Worker
     status: queued
     reasoning_hint: low
-    objective: "Implement responsive fighting mechanics: movement, jump, dash, block, hitboxes, combos, specials, knockback, bounce, K.O., and victory states."
+    objective: "Implement responsive fighting mechanics with Tough Love Arena-level feel as the benchmark: movement, jump, dash, block, hitboxes, combos, specials, hitstop, knockback, bounce, K.O., and victory states."
     allowed_files: []
     verify: []
     stop_if:
       - "Need files outside allowed_files."
       - "Combat mechanics conflict with existing architecture."
       - "Controls or hit detection cannot be verified locally."
+      - "The game feels mushy, unreadable, or unresponsive after implementation."
       - "Verification fails twice for the same reason."
     receipt: null
   - id: T007
@@ -434,6 +463,7 @@ tasks:
     constraints:
       - "Do not implement."
       - "Reject if the result is only visually flashy but not fun or responsive."
+      - "Reject if controls, movement, hit feedback, round flow, or readability fall clearly short of the Tough Love Arena feel benchmark."
       - "Reject if architecture is too brittle for the implemented scope."
       - "Reject if the full arcade package scope lacks obvious user-facing flow."
       - "Reject if the result still feels like a prototype, mockup, or tech demo."
@@ -464,6 +494,7 @@ tasks:
       - "Do not implement."
       - "Reject completion if required Worker work is still queued or active."
       - "Reject completion if capture evidence does not show title/character flow, combat, specials, HUD, pause/options, restart/rematch, K.O./victory, audio/effects, and responsive layout evidence."
+      - "Reject completion if the final browser game does not feel smooth, responsive, readable, and satisfying compared with the Tough Love Arena benchmark."
       - "Reject completion if the game cannot be run locally by the user."
       - "Reject completion if the result is an unfinished PoC, visual-only demo, or dev-only build."
       - "Reject completion if production build/preview, asset/license manifest, or run instructions are missing."
