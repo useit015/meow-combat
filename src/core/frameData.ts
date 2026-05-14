@@ -93,3 +93,65 @@ export const SAHARA_VIPER: FighterDefinition = {
   walkSpeed: 4.35,
   hurtbox: { x: -22, y: -112, width: 44, height: 112 },
 };
+
+export const GRAY_RABBIT: FighterDefinition = {
+  ...ATLAS_LION,
+  id: "gray-rabbit",
+  displayName: "Gray Rabbit",
+  walkSpeed: 4.45,
+  jumpVelocity: -15.25,
+  hurtbox: { x: -21, y: -114, width: 42, height: 114 },
+  moves: {
+    ...ATLAS_LION.moves,
+    lightKick: {
+      ...ATLAS_LION.moves.lightKick,
+      damage: 62,
+      pushback: 14,
+      hitVolumes: [{ frameStart: 6, frameEnd: 11, rect: { x: 20, y: -70, width: 58, height: 26 } }],
+    },
+    heavy: {
+      ...ATLAS_LION.moves.heavy,
+      damage: 88,
+      pushback: 20,
+      hitVolumes: [{ frameStart: 10, frameEnd: 16, rect: { x: 24, y: -100, width: 60, height: 30 } }],
+    },
+    special: {
+      ...ATLAS_LION.moves.special,
+      damage: 118,
+      pushback: 34,
+      hitVolumes: [{ frameStart: 12, frameEnd: 24, rect: { x: 28, y: -104, width: 84, height: 48 } }],
+    },
+  },
+};
+
+export const GINGER_TABBY_CAT: FighterDefinition = {
+  ...ATLAS_LION,
+  id: "ginger-tabby-cat",
+  displayName: "Ginger Tabby Cat",
+  walkSpeed: 4.65,
+  jumpVelocity: -14.6,
+  hurtbox: { x: -23, y: -112, width: 46, height: 112 },
+  moves: {
+    ...ATLAS_LION.moves,
+    light: {
+      ...ATLAS_LION.moves.light,
+      duration: 17,
+      damage: 42,
+      meterGainOnUse: 17,
+      hitVolumes: [{ frameStart: 4, frameEnd: 8, rect: { x: 18, y: -92, width: 46, height: 22 } }],
+    },
+    heavy: {
+      ...ATLAS_LION.moves.heavy,
+      damage: 94,
+      pushback: 16,
+      hitVolumes: [{ frameStart: 9, frameEnd: 15, rect: { x: 20, y: -108, width: 64, height: 30 } }],
+    },
+    special: {
+      ...ATLAS_LION.moves.special,
+      damage: 126,
+      hitstun: 32,
+      pushback: 26,
+      hitVolumes: [{ frameStart: 13, frameEnd: 22, rect: { x: 24, y: -112, width: 92, height: 40 } }],
+    },
+  },
+};

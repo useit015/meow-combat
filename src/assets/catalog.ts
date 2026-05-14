@@ -10,6 +10,7 @@ const sharedAnimationConstraints = [
   "Transparent background preferred; otherwise clean flat chroma-key background.",
   "No logos, trademarks, text, watermarks, visible grids, frame numbers, detached dust, or speed lines.",
   "Preserve fighter identity, proportions, palette, face, outfit, and readable silhouette across every frame.",
+  "Keep normal gameplay rows upright and two-legged; grounded or prone poses are only for hit reactions and K.O. end states.",
 ] as const;
 
 const animationBriefs = [
@@ -21,7 +22,7 @@ const animationBriefs = [
   ["light-punch", 6, "Fast jab with clear startup, active extension, and recovery frames."],
   ["heavy-punch", 8, "Heavier committed punch with stronger shoulder rotation and recovery."],
   ["light-kick", 8, "Quick low-to-mid kick with balanced stance and clean contact pose."],
-  ["special", 10, "Signature Moroccan-themed special strike pose without detached magical effects."],
+  ["special", 10, "Signature character special strike pose without detached magical effects."],
   ["hitstun", 5, "Readable recoil poses from being hit, no loose impact symbols."],
   ["blockstun", 5, "Guard impact recoil with arms raised, no detached sparks or text."],
   ["knockdown", 8, "Fall and grounded recovery poses kept inside frame bounds."],
@@ -62,11 +63,45 @@ const approvedAnimationRows: Record<string, Partial<Record<FighterAnimationSpec[
     win: "/assets/generated/fighters/sahara-viper/win.png",
     lose: "/assets/generated/fighters/sahara-viper/lose.png",
   },
+  "gray-rabbit": {
+    idle: "/assets/generated/fighters/gray-rabbit/idle.png",
+    "walk-forward": "/assets/generated/fighters/gray-rabbit/walk-forward.png",
+    "walk-back": "/assets/generated/fighters/gray-rabbit/walk-back.png",
+    crouch: "/assets/generated/fighters/gray-rabbit/crouch.png",
+    jump: "/assets/generated/fighters/gray-rabbit/jump.png",
+    "light-punch": "/assets/generated/fighters/gray-rabbit/light-punch.png",
+    "light-kick": "/assets/generated/fighters/gray-rabbit/light-kick.png",
+    "heavy-punch": "/assets/generated/fighters/gray-rabbit/heavy-punch.png",
+    special: "/assets/generated/fighters/gray-rabbit/special.png",
+    hitstun: "/assets/generated/fighters/gray-rabbit/hitstun.png",
+    blockstun: "/assets/generated/fighters/gray-rabbit/blockstun.png",
+    knockdown: "/assets/generated/fighters/gray-rabbit/knockdown.png",
+    win: "/assets/generated/fighters/gray-rabbit/win.png",
+    lose: "/assets/generated/fighters/gray-rabbit/lose.png",
+  },
+  "ginger-tabby-cat": {
+    idle: "/assets/generated/fighters/ginger-tabby-cat/idle.png",
+    "walk-forward": "/assets/generated/fighters/ginger-tabby-cat/walk-forward.png",
+    "walk-back": "/assets/generated/fighters/ginger-tabby-cat/walk-back.png",
+    crouch: "/assets/generated/fighters/ginger-tabby-cat/crouch.png",
+    jump: "/assets/generated/fighters/ginger-tabby-cat/jump.png",
+    "light-punch": "/assets/generated/fighters/ginger-tabby-cat/light-punch.png",
+    "light-kick": "/assets/generated/fighters/ginger-tabby-cat/light-kick.png",
+    "heavy-punch": "/assets/generated/fighters/ginger-tabby-cat/heavy-punch.png",
+    special: "/assets/generated/fighters/ginger-tabby-cat/special.png",
+    hitstun: "/assets/generated/fighters/ginger-tabby-cat/hitstun.png",
+    blockstun: "/assets/generated/fighters/ginger-tabby-cat/blockstun.png",
+    knockdown: "/assets/generated/fighters/ginger-tabby-cat/knockdown.png",
+    win: "/assets/generated/fighters/ginger-tabby-cat/win.png",
+    lose: "/assets/generated/fighters/ginger-tabby-cat/lose.png",
+  },
 };
 
 const generatedAnimationRows: Record<string, Partial<Record<FighterAnimationSpec["id"], string>>> = {
   "atlas-lion": {},
   "sahara-viper": {},
+  "gray-rabbit": {},
+  "ginger-tabby-cat": {},
 };
 
 export const fighterAssetManifests: readonly FighterAssetManifest[] = [
@@ -107,6 +142,47 @@ export const fighterAssetManifests: readonly FighterAssetManifest[] = [
       "assets/source/imagegen/fighters/sahara-viper/canonical-reference.png",
     ),
     animations: animationSpecsFor("sahara-viper"),
+  },
+];
+
+export const meowtalFighterAssetManifests: readonly FighterAssetManifest[] = [
+  {
+    id: "gray-rabbit",
+    displayName: "Gray Rabbit",
+    engineCharacterId: "gray-rabbit",
+    archetype: "upright hopping kickboxer with rapid spin pressure",
+    moroccanDesignNotes: [
+      "Meowtal production fighter: fluffy gray rabbit, expressive ears, clean upright two-legged martial stance.",
+      "Normal gameplay animation must not swap into four-legged locomotion; only knockdown and lose may go grounded.",
+      "Readable pale-gray silhouette, energetic green special trails, and consistent scale against the ginger tabby.",
+    ],
+    asymmetryNotes: [
+      "Ear tilt, cheek fur, and small wraps may be side-specific; do not mirror rows until reviewed.",
+    ],
+    canonicalReference: generatedSource(
+      "gray-rabbit-canonical-character-sheet",
+      "assets/source/imagegen/fighters/gray-rabbit/canonical-character-sheet.png",
+    ),
+    animations: animationSpecsFor("gray-rabbit"),
+  },
+  {
+    id: "ginger-tabby-cat",
+    displayName: "Ginger Tabby Cat",
+    engineCharacterId: "ginger-tabby-cat",
+    archetype: "upright acrobatic claw-and-tail striker",
+    moroccanDesignNotes: [
+      "Meowtal production fighter: fluffy orange tabby cat with clear stripes, bright face, and upright two-legged guard.",
+      "Normal gameplay animation must not swap into four-legged locomotion; loaf-like personality should read as an upright idle attitude, not a crawl.",
+      "Warm orange silhouette, green-yellow special energy, and consistent proportions across all moves.",
+    ],
+    asymmetryNotes: [
+      "Stripe pattern, tail curve, and cheek markings may be side-specific; do not mirror rows until reviewed.",
+    ],
+    canonicalReference: generatedSource(
+      "ginger-tabby-cat-canonical-character-sheet",
+      "assets/source/imagegen/fighters/ginger-tabby-cat/canonical-character-sheet.png",
+    ),
+    animations: animationSpecsFor("ginger-tabby-cat"),
   },
 ];
 

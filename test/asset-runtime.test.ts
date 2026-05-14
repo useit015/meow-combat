@@ -1,165 +1,116 @@
 import { describe, expect, it } from "vitest";
 import {
-  fighterAssetManifests,
+  meowtalFighterAssetManifests,
   renderAssetForAnimationId,
   renderAssetForState,
   resolveFighterRuntimeAsset,
   resolveManifestRuntimeAsset,
   runtimeAssetKey,
+  type FighterAssetManifest,
 } from "../src/assets";
 
-describe("asset runtime resolver", () => {
-  it("promotes approved manifest rows to runtime sprites", () => {
-    const idleAsset = renderAssetForState(fighterAssetManifests[0], "idle");
-    const walkAsset = renderAssetForState(fighterAssetManifests[0], "walkForward");
-    const walkBackAsset = renderAssetForState(fighterAssetManifests[0], "walkBack");
-    const crouchAsset = renderAssetForState(fighterAssetManifests[0], "crouch");
-    const jumpAsset = renderAssetForState(fighterAssetManifests[0], "jump");
-    const lightAsset = renderAssetForState(fighterAssetManifests[0], "lightAttack");
-    const lightKickAsset = renderAssetForState(fighterAssetManifests[0], "lightKick");
-    const heavyAsset = renderAssetForState(fighterAssetManifests[0], "heavyAttack");
-    const specialAsset = renderAssetForState(fighterAssetManifests[0], "specialAttack");
-    const hitstunAsset = renderAssetForState(fighterAssetManifests[0], "hitstun");
-    const blockstunAsset = renderAssetForState(fighterAssetManifests[0], "blockstun");
-    const knockdownAsset = renderAssetForState(fighterAssetManifests[0], "knockdown");
+const rabbitManifest = manifestById("gray-rabbit");
+const catManifest = manifestById("ginger-tabby-cat");
 
-    expect(resolveFighterRuntimeAsset(idleAsset)).toEqual({
-      kind: "sprite",
-      assetKey: "atlas-lion:idle",
-      fighterId: "atlas-lion",
-      animationId: "idle",
-      path: "/assets/generated/fighters/atlas-lion/idle.png",
-      frameCount: 8,
-      frameWidth: 256,
-      frameHeight: 256,
-    });
-    expect(resolveFighterRuntimeAsset(walkAsset)).toEqual({
-      kind: "sprite",
-      assetKey: "atlas-lion:walk-forward",
-      fighterId: "atlas-lion",
-      animationId: "walk-forward",
-      path: "/assets/generated/fighters/atlas-lion/walk-forward.png",
-      frameCount: 8,
-      frameWidth: 256,
-      frameHeight: 256,
-    });
-    expect(resolveFighterRuntimeAsset(walkBackAsset)).toEqual({
-      kind: "sprite",
-      assetKey: "atlas-lion:walk-back",
-      fighterId: "atlas-lion",
-      animationId: "walk-back",
-      path: "/assets/generated/fighters/atlas-lion/walk-back.png",
-      frameCount: 8,
-      frameWidth: 256,
-      frameHeight: 256,
-    });
-    expect(resolveFighterRuntimeAsset(crouchAsset)).toEqual({
-      kind: "sprite",
-      assetKey: "atlas-lion:crouch",
-      fighterId: "atlas-lion",
-      animationId: "crouch",
-      path: "/assets/generated/fighters/atlas-lion/crouch.png",
-      frameCount: 4,
-      frameWidth: 256,
-      frameHeight: 256,
-    });
-    expect(resolveFighterRuntimeAsset(jumpAsset)).toEqual({
-      kind: "sprite",
-      assetKey: "atlas-lion:jump",
-      fighterId: "atlas-lion",
-      animationId: "jump",
-      path: "/assets/generated/fighters/atlas-lion/jump.png",
-      frameCount: 6,
-      frameWidth: 256,
-      frameHeight: 256,
-    });
-    expect(resolveFighterRuntimeAsset(lightAsset)).toEqual({
-      kind: "sprite",
-      assetKey: "atlas-lion:light-punch",
-      fighterId: "atlas-lion",
-      animationId: "light-punch",
-      path: "/assets/generated/fighters/atlas-lion/light-punch.png",
-      frameCount: 6,
-      frameWidth: 256,
-      frameHeight: 256,
-    });
-    expect(resolveFighterRuntimeAsset(lightKickAsset)).toEqual({
-      kind: "sprite",
-      assetKey: "atlas-lion:light-kick",
-      fighterId: "atlas-lion",
-      animationId: "light-kick",
-      path: "/assets/generated/fighters/atlas-lion/light-kick.png",
-      frameCount: 8,
-      frameWidth: 256,
-      frameHeight: 256,
-    });
-    expect(resolveFighterRuntimeAsset(heavyAsset)).toEqual({
-      kind: "sprite",
-      assetKey: "atlas-lion:heavy-punch",
-      fighterId: "atlas-lion",
-      animationId: "heavy-punch",
-      path: "/assets/generated/fighters/atlas-lion/heavy-punch.png",
-      frameCount: 8,
-      frameWidth: 256,
-      frameHeight: 256,
-    });
-    expect(resolveFighterRuntimeAsset(specialAsset)).toEqual({
-      kind: "sprite",
-      assetKey: "atlas-lion:special",
-      fighterId: "atlas-lion",
-      animationId: "special",
-      path: "/assets/generated/fighters/atlas-lion/special.png",
-      frameCount: 10,
-      frameWidth: 256,
-      frameHeight: 256,
-    });
-    expect(resolveFighterRuntimeAsset(hitstunAsset)).toEqual({
-      kind: "sprite",
-      assetKey: "atlas-lion:hitstun",
-      fighterId: "atlas-lion",
-      animationId: "hitstun",
-      path: "/assets/generated/fighters/atlas-lion/hitstun.png",
-      frameCount: 5,
-      frameWidth: 256,
-      frameHeight: 256,
-    });
-    expect(resolveFighterRuntimeAsset(blockstunAsset)).toEqual({
-      kind: "sprite",
-      assetKey: "atlas-lion:blockstun",
-      fighterId: "atlas-lion",
-      animationId: "blockstun",
-      path: "/assets/generated/fighters/atlas-lion/blockstun.png",
-      frameCount: 5,
-      frameWidth: 256,
-      frameHeight: 256,
-    });
-    expect(resolveFighterRuntimeAsset(knockdownAsset)).toEqual({
-      kind: "sprite",
-      assetKey: "atlas-lion:knockdown",
-      fighterId: "atlas-lion",
-      animationId: "knockdown",
-      path: "/assets/generated/fighters/atlas-lion/knockdown.png",
-      frameCount: 8,
-      frameWidth: 256,
-      frameHeight: 256,
-    });
+function manifestById(id: string): FighterAssetManifest {
+  const manifest = meowtalFighterAssetManifests.find((candidate) => candidate.id === id);
+  if (!manifest) {
+    throw new Error(`Missing test manifest for ${id}`);
+  }
+  return manifest;
+}
+
+describe("asset runtime resolver", () => {
+  it("promotes approved Meowtal manifest rows to runtime sprites", () => {
+    const expectations = [
+      { state: "idle", animationId: "idle", path: "/assets/generated/fighters/gray-rabbit/idle.png", frameCount: 8 },
+      {
+        state: "walkForward",
+        animationId: "walk-forward",
+        path: "/assets/generated/fighters/gray-rabbit/walk-forward.png",
+        frameCount: 8,
+      },
+      {
+        state: "walkBack",
+        animationId: "walk-back",
+        path: "/assets/generated/fighters/gray-rabbit/walk-back.png",
+        frameCount: 8,
+      },
+      { state: "crouch", animationId: "crouch", path: "/assets/generated/fighters/gray-rabbit/crouch.png", frameCount: 4 },
+      { state: "jump", animationId: "jump", path: "/assets/generated/fighters/gray-rabbit/jump.png", frameCount: 6 },
+      {
+        state: "lightAttack",
+        animationId: "light-punch",
+        path: "/assets/generated/fighters/gray-rabbit/light-punch.png",
+        frameCount: 6,
+      },
+      {
+        state: "lightKick",
+        animationId: "light-kick",
+        path: "/assets/generated/fighters/gray-rabbit/light-kick.png",
+        frameCount: 8,
+      },
+      {
+        state: "heavyAttack",
+        animationId: "heavy-punch",
+        path: "/assets/generated/fighters/gray-rabbit/heavy-punch.png",
+        frameCount: 8,
+      },
+      {
+        state: "specialAttack",
+        animationId: "special",
+        path: "/assets/generated/fighters/gray-rabbit/special.png",
+        frameCount: 10,
+      },
+      {
+        state: "hitstun",
+        animationId: "hitstun",
+        path: "/assets/generated/fighters/gray-rabbit/hitstun.png",
+        frameCount: 5,
+      },
+      {
+        state: "blockstun",
+        animationId: "blockstun",
+        path: "/assets/generated/fighters/gray-rabbit/blockstun.png",
+        frameCount: 5,
+      },
+      {
+        state: "knockdown",
+        animationId: "knockdown",
+        path: "/assets/generated/fighters/gray-rabbit/knockdown.png",
+        frameCount: 8,
+      },
+    ] as const;
+
+    for (const expected of expectations) {
+      expect(resolveFighterRuntimeAsset(renderAssetForState(rabbitManifest, expected.state))).toEqual({
+        kind: "sprite",
+        assetKey: `gray-rabbit:${expected.animationId}`,
+        fighterId: "gray-rabbit",
+        animationId: expected.animationId,
+        path: expected.path,
+        frameCount: expected.frameCount,
+        frameWidth: 256,
+        frameHeight: 256,
+      });
+    }
   });
 
   it("promotes only approved rows with output paths to sprites", () => {
-    const renderAsset = renderAssetForState(fighterAssetManifests[0], "heavyAttack");
+    const renderAsset = renderAssetForState(rabbitManifest, "heavyAttack");
     const runtimeAsset = resolveFighterRuntimeAsset({
       ...renderAsset,
       sourceStatus: "approved",
-      outputPath: "assets/source/imagegen/fighters/atlas-lion/heavy-punch.png",
+      outputPath: "assets/source/imagegen/fighters/gray-rabbit/heavy-punch.png",
       usesProceduralFallback: false,
     });
 
     expect(runtimeAsset).toEqual({
       kind: "sprite",
-      assetKey: "atlas-lion:heavy-punch",
-      fighterId: "atlas-lion",
+      assetKey: "gray-rabbit:heavy-punch",
+      fighterId: "gray-rabbit",
       animationId: "heavy-punch",
-      path: "assets/source/imagegen/fighters/atlas-lion/heavy-punch.png",
+      path: "assets/source/imagegen/fighters/gray-rabbit/heavy-punch.png",
       frameCount: 8,
       frameWidth: 256,
       frameHeight: 256,
@@ -167,54 +118,54 @@ describe("asset runtime resolver", () => {
   });
 
   it("does not treat generated-but-unapproved rows as runtime sprites", () => {
-    const renderAsset = renderAssetForState(fighterAssetManifests[1], "lightAttack");
+    const renderAsset = renderAssetForState(catManifest, "lightAttack");
 
     expect(
       resolveFighterRuntimeAsset({
         ...renderAsset,
         sourceStatus: "generated",
-        outputPath: "assets/source/imagegen/fighters/sahara-viper/light-punch.png",
+        outputPath: "assets/source/imagegen/fighters/ginger-tabby-cat/light-punch.png",
       }),
     ).toMatchObject({
       kind: "procedural-fallback",
       sourceStatus: "generated",
-      outputPath: "assets/source/imagegen/fighters/sahara-viper/light-punch.png",
+      outputPath: "assets/source/imagegen/fighters/ginger-tabby-cat/light-punch.png",
       reason: "source-not-approved",
     });
   });
 
-  it("resolves playable light-kick to approved runtime sprites after art approval", () => {
-    expect(resolveManifestRuntimeAsset(fighterAssetManifests[0], "lightKick")).toMatchObject({
+  it("resolves playable light-kick to approved Meowtal runtime sprites", () => {
+    expect(resolveManifestRuntimeAsset(rabbitManifest, "lightKick")).toMatchObject({
       kind: "sprite",
-      assetKey: "atlas-lion:light-kick",
-      path: "/assets/generated/fighters/atlas-lion/light-kick.png",
+      assetKey: "gray-rabbit:light-kick",
+      path: "/assets/generated/fighters/gray-rabbit/light-kick.png",
     });
   });
 
   it("resolves approved win rows for match-presentation sprites", () => {
-    const renderAsset = renderAssetForAnimationId(fighterAssetManifests[0], "win");
+    const renderAsset = renderAssetForAnimationId(rabbitManifest, "win");
 
     expect(resolveFighterRuntimeAsset(renderAsset)).toMatchObject({
       kind: "sprite",
-      assetKey: "atlas-lion:win",
-      path: "/assets/generated/fighters/atlas-lion/win.png",
+      assetKey: "gray-rabbit:win",
+      path: "/assets/generated/fighters/gray-rabbit/win.png",
       frameCount: 8,
     });
   });
 
   it("resolves approved lose rows for match-presentation sprites", () => {
-    const renderAsset = renderAssetForAnimationId(fighterAssetManifests[1], "lose");
+    const renderAsset = renderAssetForAnimationId(catManifest, "lose");
 
     expect(resolveFighterRuntimeAsset(renderAsset)).toMatchObject({
       kind: "sprite",
-      assetKey: "sahara-viper:lose",
-      path: "/assets/generated/fighters/sahara-viper/lose.png",
+      assetKey: "ginger-tabby-cat:lose",
+      path: "/assets/generated/fighters/ginger-tabby-cat/lose.png",
       frameCount: 6,
     });
   });
 
   it("fails closed when an approved row is missing an output path", () => {
-    const renderAsset = renderAssetForState(fighterAssetManifests[0], "idle");
+    const renderAsset = renderAssetForState(rabbitManifest, "idle");
 
     expect(
       resolveFighterRuntimeAsset({
@@ -230,13 +181,13 @@ describe("asset runtime resolver", () => {
   });
 
   it("resolves directly from a manifest and combat state", () => {
-    expect(resolveManifestRuntimeAsset(fighterAssetManifests[0], "blockstun")).toMatchObject({
+    expect(resolveManifestRuntimeAsset(catManifest, "blockstun")).toMatchObject({
       kind: "sprite",
-      assetKey: "atlas-lion:blockstun",
+      assetKey: "ginger-tabby-cat:blockstun",
     });
   });
 
   it("uses stable runtime asset keys", () => {
-    expect(runtimeAssetKey("atlas-lion", "knockdown")).toBe("atlas-lion:knockdown");
+    expect(runtimeAssetKey("gray-rabbit", "knockdown")).toBe("gray-rabbit:knockdown");
   });
 });

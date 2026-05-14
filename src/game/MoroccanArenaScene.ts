@@ -1,6 +1,5 @@
 import Phaser from "phaser";
 import {
-  fighterAssetManifests,
   buildAssetReadinessSummary,
   renderAssetForAnimationId,
   renderAssetForState,
@@ -27,7 +26,7 @@ import {
 import { ArenaAudio, audioCueForCombatEvents, audioCueForMatchTransition } from "./audio";
 import { effectsFromSnapshot, tickCombatEffects, type CombatEffect } from "./effects";
 import {
-  atlasArenaConfig,
+  meowtalKombatConfig,
   nextCpuDifficultyFromConfig,
   selectedFighterFromConfig,
   versionedAssetFromConfig,
@@ -38,13 +37,12 @@ import { selectSpritePose } from "./spriteFrame";
 
 type KeyMap = Record<string, Phaser.Input.Keyboard.Key>;
 type ImpactFlash = { color: number; alpha: number; remainingFrames: number; totalFrames: number };
-const GAME_CONFIG = atlasArenaConfig;
+const GAME_CONFIG = meowtalKombatConfig;
 const GAME_TITLE = GAME_CONFIG.title;
 const GAME_SUBTITLE = GAME_CONFIG.subtitle;
 const FIGHTER_ROSTER = GAME_CONFIG.roster;
-const CONCEPT_SHEET_KEY = GAME_CONFIG.conceptSheet.key;
-const CONCEPT_SHEET_PATH = GAME_CONFIG.conceptSheet.path;
-const CONCEPT_PREVIEW_CROPS = GAME_CONFIG.conceptSheet.previewCrops;
+const FIGHTER_ASSET_MANIFESTS = GAME_CONFIG.fighterAssetManifests;
+const CONCEPT_SHEET = GAME_CONFIG.conceptSheet;
 const RUNTIME_SPRITESHEETS = GAME_CONFIG.runtimeSpritesheets;
 const RUNTIME_SPRITE_CELL_SIZE = GAME_CONFIG.runtimeSpriteCellSize;
 
@@ -57,7 +55,7 @@ export class MoroccanArenaScene extends Phaser.Scene {
   private shell: ShellState = initialShellState;
   private p2CpuEnabled = true;
   private cpuDifficulty: CpuDifficulty = "normal";
-  private readonly assetReadiness = buildAssetReadinessSummary();
+  private readonly assetReadiness = buildAssetReadinessSummary(FIGHTER_ASSET_MANIFESTS, [GAME_CONFIG.stage]);
   private readonly audio = new ArenaAudio();
   private readonly demoMode = new URLSearchParams(window.location.search).get("demo");
   private readonly freezeDemoFrame =
@@ -87,7 +85,7 @@ export class MoroccanArenaScene extends Phaser.Scene {
   private titleText!: Phaser.GameObjects.Text;
   private helpText!: Phaser.GameObjects.Text;
   private versusText!: Phaser.GameObjects.Text;
-  private conceptPreviews!: Record<"p1" | "p2", Phaser.GameObjects.Image>;
+  private conceptPreviews!: Record<"p1" | "p2", Phaser.GameObjects.Image | null>;
   private selectSprites!: Record<"p1" | "p2", Phaser.GameObjects.Sprite>;
   private fighterSprites!: Record<"p1" | "p2", Phaser.GameObjects.Sprite>;
   private stageLayerImages: Phaser.GameObjects.Image[] = [];
@@ -100,7 +98,9 @@ export class MoroccanArenaScene extends Phaser.Scene {
   }
 
   preload(): void {
-    this.load.image(CONCEPT_SHEET_KEY, CONCEPT_SHEET_PATH);
+    if (CONCEPT_SHEET) {
+      this.load.image(CONCEPT_SHEET.key, CONCEPT_SHEET.path);
+    }
     for (const layer of this.stageRuntimeLayers) {
       if (layer.kind === "image-layer" && layer.outputPath) {
         this.load.image(layer.assetKey, layer.outputPath);
@@ -250,36 +250,16 @@ export class MoroccanArenaScene extends Phaser.Scene {
       .setDepth(101)
       .setVisible(false);
     this.conceptPreviews = {
-      p1: this.add
-        .image(360, 354, CONCEPT_SHEET_KEY)
-        .setCrop(
-          CONCEPT_PREVIEW_CROPS.p1.x,
-          CONCEPT_PREVIEW_CROPS.p1.y,
-          CONCEPT_PREVIEW_CROPS.p1.width,
-          CONCEPT_PREVIEW_CROPS.p1.height,
-        )
-        .setDisplaySize(170, 230)
-        .setDepth(99)
-        .setVisible(false),
-      p2: this.add
-        .image(664, 354, CONCEPT_SHEET_KEY)
-        .setCrop(
-          CONCEPT_PREVIEW_CROPS.p2.x,
-          CONCEPT_PREVIEW_CROPS.p2.y,
-          CONCEPT_PREVIEW_CROPS.p2.width,
-          CONCEPT_PREVIEW_CROPS.p2.height,
-        )
-        .setDisplaySize(170, 230)
-        .setDepth(99)
-        .setVisible(false),
+      p1: this.createConceptPreview("p1"),
+      p2: this.createConceptPreview("p2"),
     };
     this.fighterSprites = {
-      p1: this.add.sprite(0, 0, RUNTIME_SPRITESHEETS[0].key, 0).setOrigin(0.5, 1).setDepth(55).setVisible(false),
-      p2: this.add.sprite(0, 0, RUNTIME_SPRITESHEETS[1].key, 0).setOrigin(0.5, 1).setDepth(55).setVisible(false),
+      p1: this.add.sprite(0, 0, this.initialSpriteKey("p1"), 0).setOrigin(0.5, 1).setDepth(55).setVisible(false),
+      p2: this.add.sprite(0, 0, this.initialSpriteKey("p2"), 0).setOrigin(0.5, 1).setDepth(55).setVisible(false),
     };
     this.selectSprites = {
-      p1: this.add.sprite(318, 470, "atlas-lion:idle", 0).setOrigin(0.5, 1).setDepth(100).setVisible(false),
-      p2: this.add.sprite(706, 470, "sahara-viper:idle", 0).setOrigin(0.5, 1).setDepth(100).setVisible(false),
+      p1: this.add.sprite(318, 470, this.initialSpriteKey("p1"), 0).setOrigin(0.5, 1).setDepth(100).setVisible(false),
+      p2: this.add.sprite(706, 470, this.initialSpriteKey("p2"), 0).setOrigin(0.5, 1).setDepth(100).setVisible(false),
     };
     this.stageLayerImages = this.stageRuntimeLayers
       .filter((layer) => layer.kind === "image-layer" && this.textures.exists(layer.assetKey))
@@ -348,11 +328,11 @@ export class MoroccanArenaScene extends Phaser.Scene {
       stageRuntime: this.stageRuntimeLayers,
       assetReadiness: this.assetReadiness,
       conceptArt: {
-        key: CONCEPT_SHEET_KEY,
-        path: CONCEPT_SHEET_PATH,
-        loaded: this.textures.exists(CONCEPT_SHEET_KEY),
+        key: CONCEPT_SHEET?.key ?? null,
+        path: CONCEPT_SHEET?.path ?? null,
+        loaded: CONCEPT_SHEET ? this.textures.exists(CONCEPT_SHEET.key) : false,
         visible: this.canRenderConceptArt(),
-        canonicalReferences: fighterAssetManifests.map((manifest) => ({
+        canonicalReferences: FIGHTER_ASSET_MANIFESTS.map((manifest) => ({
           fighterId: manifest.id,
           status: manifest.canonicalReference.status,
           outputPath: manifest.canonicalReference.outputPath,
@@ -549,6 +529,30 @@ export class MoroccanArenaScene extends Phaser.Scene {
     }
 
     return canRenderImages;
+  }
+
+  private createConceptPreview(player: "p1" | "p2"): Phaser.GameObjects.Image | null {
+    if (!CONCEPT_SHEET) return null;
+
+    const crop = CONCEPT_SHEET.previewCrops[player];
+    const placement = player === "p1" ? { x: 360, y: 354 } : { x: 664, y: 354 };
+    return this.add
+      .image(placement.x, placement.y, CONCEPT_SHEET.key)
+      .setCrop(crop.x, crop.y, crop.width, crop.height)
+      .setDisplaySize(170, 230)
+      .setDepth(99)
+      .setVisible(false);
+  }
+
+  private initialSpriteKey(player: "p1" | "p2"): string {
+    const assetKey = this.selectIdleAssetKey(player);
+    if (assetKey) return assetKey;
+
+    const fallback = RUNTIME_SPRITESHEETS[0]?.key;
+    if (!fallback) {
+      throw new Error("Game config requires at least one runtime spritesheet.");
+    }
+    return fallback;
   }
 
   private canRenderStageArt(): boolean {
@@ -1139,8 +1143,11 @@ export class MoroccanArenaScene extends Phaser.Scene {
   private renderConceptArt(): void {
     const shouldShow = this.canRenderConceptArt();
     for (const player of ["p1", "p2"] as const) {
+      const preview = this.conceptPreviews[player];
+      if (!preview) continue;
+
       const placement = conceptArtPlacement(this.shell, player);
-      this.conceptPreviews[player]
+      preview
         .setPosition(placement.x, placement.y)
         .setDisplaySize(placement.width, placement.height)
         .setDepth(100)
@@ -1181,7 +1188,9 @@ export class MoroccanArenaScene extends Phaser.Scene {
   }
 
   private canRenderConceptArt(): boolean {
-    return this.shell.phase === "ready" && !this.canRenderSelectSprites() && this.textures.exists(CONCEPT_SHEET_KEY);
+    return Boolean(
+      CONCEPT_SHEET && this.shell.phase === "ready" && !this.canRenderSelectSprites() && this.textures.exists(CONCEPT_SHEET.key),
+    );
   }
 
   private selectIdleAssetKey(player: "p1" | "p2"): string | null {
@@ -1348,7 +1357,7 @@ function powerStockLabel(meter: number): string {
 }
 
 function manifestForCharacter(characterId: string) {
-  const manifest = fighterAssetManifests.find(
+  const manifest = FIGHTER_ASSET_MANIFESTS.find(
     (candidate) => candidate.engineCharacterId === characterId || candidate.displayName === characterId,
   );
   if (!manifest) {

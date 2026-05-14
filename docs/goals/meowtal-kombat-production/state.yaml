@@ -85,7 +85,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T090
+active_task: T091
 
 tasks:
   - id: T000
@@ -4469,7 +4469,7 @@ tasks:
   - id: T090
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: low
     objective: "Route the playable runtime to the approved Meowtal rabbit/cat fighter set only. Add/use gray-rabbit and ginger-tabby-cat fighter definitions and runtime asset manifests, switch active game config title/roster/default selections/runtime spritesheets to Meowtal, and remove hardcoded Atlas/Viper select sprite keys. Keep the existing stage/HUD shell for now; do not claim parallax/UI/audio completion."
     inputs:
@@ -4499,6 +4499,87 @@ tasks:
       - "Hardcoded Atlas/Viper assumptions cannot be removed within the allowed files."
       - "Tests require broad rewrites outside the focused config/runtime routing surface."
       - "Browser smoke shows missing textures, incorrect fighter IDs, or Atlas/Viper playable content still active."
+    receipt:
+      result: done
+      summary: "Routed the playable runtime to the approved Meowtal fighter set. Added Gray Rabbit and Ginger Tabby Cat fighter definitions, added config-scoped Meowtal runtime manifests backed by the approved generated sprite rows, switched the active game config to MEOWTAL KOMBAT, and removed hardcoded Atlas/Viper select sprite keys. The scene now derives readiness, select sprites, runtime visuals, and canonical reference debug output from the active Meowtal config while leaving the existing stage/HUD shell explicitly unchanged."
+      changed_files:
+        - "src/core/frameData.ts"
+        - "src/assets/catalog.ts"
+        - "src/game/gameConfig.ts"
+        - "src/game/MoroccanArenaScene.ts"
+        - "test/game-config.test.ts"
+        - "test/asset-runtime.test.ts"
+        - "test/character-select.test.ts"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+      evidence:
+        - "output/web-game/meowtal-routing-ready/shot-0.png"
+        - "output/web-game/meowtal-routing-ready/state-0.json"
+        - "output/web-game/meowtal-routing-select-2/shot-0.png"
+        - "output/web-game/meowtal-routing-select-2/state-0.json"
+        - "output/web-game/meowtal-routing-smoke/shot-0.png"
+        - "output/web-game/meowtal-routing-smoke/state-0.json"
+      checksums:
+        frame_data_sha256: "f436ef88089ba062666bb558ad19a8414e63b6c86a06a607383327dd253a0202"
+        catalog_sha256: "27afaeef4ca61f70649128386ad7af1818deb5ab1f8789e61fdbff101af5145f"
+        game_config_sha256: "79b49eb99b28c3adcd3290459009db08e984fff44f1ee101a9df1c5765e33e8d"
+        arena_scene_sha256: "395e2c44ffca491a1993b0d5e75c93200080026ced628d39521b158c6fad3bd4"
+        game_config_test_sha256: "bca02d1663e0b3f28e413e0cc70732b7b75d4f3e0b4444b6371f44870745868e"
+        asset_runtime_test_sha256: "37763eb884ec2cb92d4d983463bde35026338853601b7df092103b0d43062cbf"
+        character_select_test_sha256: "cb0208ce5b6314ac9fd39d52be5c2086a9ce2f555d21a6d701fa307cfeddc4a0"
+        ready_screenshot_sha256: "44b99bf32fe6ee2159d7c293bd983b0afce522fda48a9ec295a4d1356ac58ed9"
+        select_screenshot_sha256: "9bd51a61e707e209c62cbe04a91b851e768fbbc101c9478d3a5a9b27a49a3bce"
+        fight_screenshot_sha256: "df385b214c74a1bb983e80fee0b22f5260667f4d3d80fa01272807bf17624005"
+      commands:
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm test -- --run test/game-config.test.ts test/asset-runtime.test.ts test/character-select.test.ts test/presentation.test.ts"
+          status: pass
+        - cmd: "npm run build"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "node /Users/oussmustaine/.codex/skills/develop-web-game/scripts/web_game_playwright_client.js --url http://127.0.0.1:4173/ --actions-json '{\"steps\":[{\"buttons\":[],\"frames\":8}]}' --iterations 1 --pause-ms 200 --screenshot-dir output/web-game/meowtal-routing-ready"
+          status: pass
+        - cmd: "node /Users/oussmustaine/.codex/skills/develop-web-game/scripts/web_game_playwright_client.js --url http://127.0.0.1:4173/ --actions-json '{\"steps\":[{\"buttons\":[\"enter\"],\"frames\":3},{\"buttons\":[],\"frames\":30}]}' --iterations 1 --pause-ms 1000 --screenshot-dir output/web-game/meowtal-routing-select-2"
+          status: pass
+        - cmd: "node /Users/oussmustaine/.codex/skills/develop-web-game/scripts/web_game_playwright_client.js --url http://127.0.0.1:4173/ --actions-json '{\"steps\":[{\"buttons\":[],\"frames\":4},{\"buttons\":[\"enter\"],\"frames\":2},{\"buttons\":[],\"frames\":4},{\"buttons\":[\"enter\"],\"frames\":2},{\"buttons\":[],\"frames\":10}]}' --iterations 1 --pause-ms 250 --screenshot-dir output/web-game/meowtal-routing-smoke"
+          status: pass
+      browser_smoke:
+        ready: "State and screenshot show title MEOWTAL KOMBAT, Gray Rabbit and Ginger Tabby Cat selected, idle runtime sprite keys gray-rabbit:idle and ginger-tabby-cat:idle, and zero runtime fallbacks."
+        select: "State and screenshot show SELECT YOUR FIGHTERS with Gray Rabbit and Ginger Tabby Cat runtime idle sprites, ARCADE BUILD READY, and no old Atlas/Sahara/Viper strings."
+        fighting: "State and screenshot show active fight with Gray Rabbit and Ginger Tabby Cat sprites, runtime keys gray-rabbit:special and ginger-tabby-cat:walk-forward, zero runtime fallbacks, and no console error files."
+      judge_audit:
+        result: "approved_complete"
+        summary: "Judge found no T090 blocker, scope violation, or missing proof. Legacy Atlas/Viper exports/manifests remain only for compatibility/older tests and are not the active playable route."
+      notes:
+        - "Normal gameplay stance direction is upright/two-legged for both rabbit and cat; grounded/prone frames remain limited to hit reactions and K.O./defeat presentation."
+        - "The existing Marrakesh stage/HUD shell remains temporary and unchanged in this slice."
+        - "Parallax arena, HUD/logo/UI, audio/effects, and Tough Love Arena-level feel polish remain future production work."
+  - id: T091
+    type: judge
+    assignee: Judge
+    status: active
+    reasoning_hint: high
+    objective: "Scope the next smallest safe production slice after Meowtal runtime routing. Decide whether to generate/integrate parallax courtyard arena layers, HUD/logo/UI assets, audio/effects, gameplay-feel controls, or another narrow blocker. Do not edit files."
+    inputs:
+      - "T090 runtime routing receipt"
+      - "Active playable route now shows Gray Rabbit and Ginger Tabby Cat with approved runtime sprites."
+      - "Original owner requirements: bright outdoor stone-paved parallax courtyard, HUD/logo/UI assets, particles/effects, audio/music, smooth controls, combos/specials, and Tough Love Arena feel benchmark."
+      - "Current stage/HUD shell is still legacy Moroccan/Marrakesh and explicitly not complete."
+      - "Owner stance clarification: normal fighter stance convention must remain shared; current direction is upright two-legged."
+    constraints:
+      - "Do not implement or edit files."
+      - "Pick the smallest slice that most improves production readiness now that Meowtal fighters are playable."
+      - "Avoid broad all-assets or all-gameplay tasks; keep allowed_files tight enough for one small coherent commit."
+      - "Do not claim final production readiness until parallax arena, HUD/logo/UI, audio/effects, gameplay feel, and final audit evidence are complete."
+      - "Preserve the active Meowtal runtime route and do not reintroduce Atlas/Viper playable content."
+    expected_output:
+      - "decision"
+      - "next_allowed_task"
+      - "allowed_files"
+      - "verification commands"
+      - "stop conditions"
+      - "why this advances production readiness"
     receipt: null
   - id: T005
     type: worker
@@ -4650,15 +4731,15 @@ checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T070
+    task: T090
     commands:
-      - cmd: "node scripts/normalize-fighter-rows.mjs --animation light-kick --fighters gray-rabbit,ginger-tabby-cat"
-        status: pass
-      - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha output/imagegen/gray-rabbit-light-kick-normalized.png output/imagegen/ginger-tabby-cat-light-kick-normalized.png"
-        status: pass
       - cmd: "npm run typecheck"
         status: pass
-      - cmd: "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-qa.test.ts"
+      - cmd: "npm test -- --run test/game-config.test.ts test/asset-runtime.test.ts test/character-select.test.ts test/presentation.test.ts"
+        status: pass
+      - cmd: "npm run build"
         status: pass
       - cmd: "npm run verify"
+        status: pass
+      - cmd: "Browser smoke at http://127.0.0.1:4173/ for ready, select, and fight routes"
         status: pass
