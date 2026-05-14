@@ -85,7 +85,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T089
+active_task: T090
 
 tasks:
   - id: T000
@@ -4435,7 +4435,7 @@ tasks:
   - id: T089
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Scope the next smallest safe production slice after all Meowtal fighter animation rows are approved. Decide whether to switch runtime character routing to the Meowtal rabbit/cat assets, generate parallax arena layers, generate HUD/logo/UI assets, or choose another narrow production blocker. Do not edit files."
     inputs:
@@ -4457,6 +4457,48 @@ tasks:
       - "verification commands"
       - "stop conditions"
       - "why this advances production readiness"
+    receipt:
+      result: done
+      decision: "Switch runtime character routing to Meowtal now."
+      next_allowed_task: T090
+      summary: "Judge selected a narrow runtime fighter routing slice before parallax/HUD/audio work. All required Meowtal fighter rows are approved runtime assets, so switching the playable route unlocks real in-browser Meowtal validation while keeping the existing stage/HUD shell honest and temporary."
+      notes:
+        - "Do not generate or edit image/audio assets in T090."
+        - "Do not claim parallax arena, HUD/logo/UI, audio, effects, or gameplay feel completion in T090."
+        - "Browser smoke must show Meowtal rabbit/cat names and sprites with no missing textures or Atlas/Viper labels in the playable route."
+  - id: T090
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: low
+    objective: "Route the playable runtime to the approved Meowtal rabbit/cat fighter set only. Add/use gray-rabbit and ginger-tabby-cat fighter definitions and runtime asset manifests, switch active game config title/roster/default selections/runtime spritesheets to Meowtal, and remove hardcoded Atlas/Viper select sprite keys. Keep the existing stage/HUD shell for now; do not claim parallax/UI/audio completion."
+    inputs:
+      - "T089 scoping receipt"
+      - "All required Meowtal fighter animation rows are approved runtime assets."
+      - "Existing game config/runtime asset catalog."
+    allowed_files:
+      - "src/core/frameData.ts"
+      - "src/assets/catalog.ts"
+      - "src/game/gameConfig.ts"
+      - "src/game/MoroccanArenaScene.ts"
+      - "test/game-config.test.ts"
+      - "test/asset-runtime.test.ts"
+      - "test/character-select.test.ts"
+      - "test/presentation.test.ts"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+    verify:
+      - "npm run typecheck"
+      - "npm test -- --run test/game-config.test.ts test/asset-runtime.test.ts test/character-select.test.ts test/presentation.test.ts"
+      - "npm run build"
+      - "npm run verify"
+      - "Browser smoke after build/preview: title/select/fight must show Meowtal rabbit/cat names and sprites with no missing textures or Atlas/Viper labels in the playable route."
+    stop_if:
+      - "Any Meowtal runtime fighter row is missing or fails manifest/runtime resolution."
+      - "Routing requires generating or editing image/audio assets."
+      - "Arena, HUD/logo/UI, audio, effects, gameplay feel, or parallax work becomes necessary."
+      - "Hardcoded Atlas/Viper assumptions cannot be removed within the allowed files."
+      - "Tests require broad rewrites outside the focused config/runtime routing surface."
+      - "Browser smoke shows missing textures, incorrect fighter IDs, or Atlas/Viper playable content still active."
     receipt: null
   - id: T005
     type: worker
