@@ -83,7 +83,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T021
+active_task: T022
 
 tasks:
   - id: T000
@@ -525,7 +525,7 @@ tasks:
   - id: T021
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Scope the canonical character sheet generation slice for the gray rabbit and ginger/orange tabby cat. Select the exact Worker task, allowed files, verification, and stop conditions needed to generate or integrate canonical sheets with provenance before any animation rows."
     inputs:
@@ -547,6 +547,48 @@ tasks:
       - "verify commands"
       - "stop_if conditions"
       - "visual QA expectations"
+    receipt:
+      result: done
+      decision: "Authorize one narrow Worker slice to generate and integrate only the two canonical character sheet candidates. Do not approve them for runtime or unblock animation rows in this task."
+      next_allowed_task: T022
+      summary: "Approved T022 as the canonical-sheet Worker: generate or integrate exactly two source PNGs for gray-rabbit:canonical-character-sheet and ginger-tabby-cat:canonical-character-sheet, update provenance to generated, add QA notes/tests, and keep all animation rows blocked."
+      visual_qa_expectations:
+        - "Each sheet must include front, side, back, 3/4 heroic pose, action-ready pose, relaxed idle, head close-up, expression set, detail callouts, size reference, and color swatches."
+        - "Gray rabbit must preserve long ears, compact athletic body, strong hind legs, soft gray fur, lighter belly, dark ear tips, white paws, and green tornado energy language."
+        - "Ginger tabby must preserve orange tabby stripes, lighter muzzle/chest, fluffy striped tail, agile body, playful confident expression, and yellow-green aura/projectile language."
+        - "Both sheets must share the same clean 2D arcade fighting-game concept style, camera language, cel shading, outline/detail level, and animation-friendly silhouettes."
+      blocked_tasks:
+        - "No animation rows, parallax arena, portraits/HUD/UI, audio, gameplay integration, runtime asset approval, public runtime copies, balance/feel work, or Meowtal runtime switch in T022."
+  - id: T022
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: low
+    objective: "Generate or integrate exactly two production canonical sheet PNGs for gray-rabbit:canonical-character-sheet and ginger-tabby-cat:canonical-character-sheet. Use the existing manifest prompts and visual references. Save selected final outputs as source assets, update provenance to generated, record license/provider/date/source path/QA notes, and add tests proving canonical sheets exist while every animation row remains blocked."
+    allowed_files:
+      - "src/assets/meowtalProductionManifest.ts"
+      - "test/meowtal-production-manifest.test.ts"
+      - "docs/assets/meowtal-kombat-provenance.md"
+      - "assets/source/imagegen/fighters/gray-rabbit/canonical-character-sheet.png"
+      - "assets/source/imagegen/fighters/ginger-tabby-cat/canonical-character-sheet.png"
+    verify:
+      - "npm run typecheck"
+      - "npm test -- --run test/meowtal-production-manifest.test.ts"
+      - "npm run build"
+      - "npm run verify"
+    stop_if:
+      - "More than the two canonical sheet PNGs would be added."
+      - "Any animation row, spritesheet, stage layer, UI asset, audio asset, or runtime public asset is created or edited."
+      - "Any runtime content is switched from Atlas Arena to Meowtal Kombat."
+      - "canonicalSheetsApproved() would become true."
+      - "Any animation row provenance status changes away from blocked."
+      - "The generated sheet has watermark/text artifacts, copied branding, unreadable anatomy, mismatched species traits, or inconsistent proportions across views."
+      - "Imagegen output cannot satisfy both character sheets in one coherent style; stop and report candidates/issues instead of widening scope."
+    visual_qa_expectations:
+      - "Each sheet includes front, side, back, 3/4 heroic pose, action-ready pose, relaxed idle, head close-up, expression set, detail callouts, size reference, and color swatches."
+      - "Rabbit sheet preserves long ears, compact athletic body, strong hind legs, soft gray fur, lighter belly, dark ear tips, white paws, and green tornado energy language."
+      - "Cat sheet preserves orange tabby stripes, lighter muzzle/chest, fluffy striped tail, agile body, playful confident expression, and yellow-green aura/projectile language."
+      - "Both sheets share clean 2D arcade fighting-game concept style, camera language, cel shading, outline/detail level, and animation-friendly silhouettes."
     receipt: null
   - id: T005
     type: worker
