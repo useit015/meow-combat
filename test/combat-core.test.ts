@@ -1,0 +1,217 @@
+import { describe, expect, it } from "vitest";
+import { ATLAS_LION, FightingSimulation, InputBuffer, POWER_METER_STOCK, createInput } from "../src/core";
+
+describe("InputBuffer", () => {
+  it("recognizes a quarter-circle-forward special command", () => {
+    const buffer = new InputBuffer();
+    buffer.push(createInput(1, { vertical: 1 }));
+    buffer.push(createInput(2, { horizontal: 1, vertical: 1 }));
+    buffer.push(createInput(3, { horizontal: 1 }));
+    buffer.push(createInput(4, { horizontal: 1, buttons: { special: true } }));
+
+    expect(buffer.consumeCommand(1)).toBe("special");
+  });
+
+  it("recognizes a meter-backed quarter-circle-forward super command", () => {
+    const buffer = new InputBuffer();
+    buffer.push(createInput(1, { vertical: 1 }));
+    buffer.push(createInput(2, { horizontal: 1, vertical: 1 }));
+    buffer.push(createInput(3, { horizontal: 1 }));
+    buffer.push(createInput(4, { horizontal: 1, buttons: { special: true } }));
+
+    expect(buffer.consumeCommand(1, { canSuper: true })).toBe("super");
+  });
+
+  it("recognizes the special button without requiring a motion", () => {
+    const buffer = new InputBuffer();
+    buffer.push(createInput(1));
+    buffer.push(createInput(2, { buttons: { special: true } }));
+
+    expect(buffer.consumeCommand(1)).toBe("special");
+  });
+
+  it("recognizes basic attack button presses", () => {
+    const buffer = new InputBuffer();
+    buffer.push(createInput(1));
+    buffer.push(createInput(2, { buttons: { heavy: true } }));
+
+    expect(buffer.consumeCommand(1)).toBe("heavy");
+  });
+
+  it("recognizes light-kick button presses", () => {
+    const buffer = new InputBuffer();
+    buffer.push(createInput(1));
+    buffer.push(createInput(2, { buttons: { kick: true } }));
+
+    expect(buffer.consumeCommand(1)).toBe("lightKick");
+  });
+
+  it("recognizes double-tap movement commands", () => {
+    const buffer = new InputBuffer();
+    buffer.push(createInput(1, { horizontal: 1 }));
+    buffer.push(createInput(2));
+    buffer.push(createInput(3, { horizontal: 1 }));
+
+    expect(buffer.consumeMobilityCommand(1)).toBe("runForward");
+  });
+});
+
+describe("FightingSimulation", () => {
+  it("advances deterministically from the same input sequence", () => {
+    const first = runScriptedExchange();
+    const second = runScriptedExchange();
+
+    expect(second).toEqual(first);
+  });
+
+  it("applies damage when an active hitbox overlaps a hurtbox", () => {
+    const simulation = new FightingSimulation();
+
+    let sawHit = false;
+    for (let frame = 1; frame <= 150; frame += 1) {
+      const snapshot = simulation.step({
+        p1: createInput(frame, {
+          horizontal: frame < 108 ? 1 : 0,
+          buttons: { light: frame === 114 },
+        }),
+      });
+      sawHit ||= snapshot.events.some((event) => event.type === "hit");
+    }
+
+    const snapshot = simulation.snapshot();
+    expect(snapshot.p2.health).toBeLessThan(1000);
+    expect(sawHit).toBe(true);
+  });
+
+  it("applies light-kick as a distinct playable attack state", () => {
+    const simulation = new FightingSimulation();
+
+    let sawKickHit = false;
+    for (let frame = 1; frame <= 150; frame += 1) {
+      const snapshot = simulation.step({
+        p1: createInput(frame, {
+          horizontal: frame < 108 ? 1 : 0,
+          buttons: { kick: frame === 114 },
+        }),
+      });
+      sawKickHit ||= snapshot.events.some((event) => event.type === "hit" && event.move === "lightKick");
+    }
+
+    const snapshot = simulation.snapshot();
+    expect(snapshot.p2.health).toBeLessThan(1000);
+    expect(sawKickHit).toBe(true);
+  });
+
+  it("enters special attack from the special button alone", () => {
+    const simulation = new FightingSimulation();
+
+    const snapshot = simulation.step({
+      p1: createInput(1, { buttons: { special: true } }),
+    });
+
+    expect(snapshot.p1.state).toBe("specialAttack");
+  });
+
+  it("supports KOF-style run, backdash, and forward hop states", () => {
+    const runSimulation = new FightingSimulation();
+    runSimulation.step({ p1: createInput(1, { horizontal: 1 }) });
+    runSimulation.step({ p1: createInput(2) });
+    const run = runSimulation.step({ p1: createInput(3, { horizontal: 1 }) });
+
+    const backdashSimulation = new FightingSimulation();
+    backdashSimulation.step({ p1: createInput(1, { horizontal: -1 }) });
+    backdashSimulation.step({ p1: createInput(2) });
+    const backdash = backdashSimulation.step({ p1: createInput(3, { horizontal: -1 }) });
+
+    const hop = new FightingSimulation().step({
+      p1: createInput(1, { horizontal: 1, vertical: -1, buttons: { jump: true } }),
+    });
+
+    expect(run.p1.state).toBe("runForward");
+    expect(backdash.p1.state).toBe("backdash");
+    expect(hop.p1.state).toBe("hop");
+    expect(hop.p1.grounded).toBe(false);
+  });
+
+  it("builds power meter when attacks connect", () => {
+    const simulation = new FightingSimulation();
+
+    for (let frame = 1; frame <= 150; frame += 1) {
+      simulation.step({
+        p1: createInput(frame, {
+          horizontal: frame < 108 ? 1 : 0,
+          buttons: { light: frame === 114 },
+        }),
+      });
+    }
+
+    const snapshot = simulation.snapshot();
+    expect(snapshot.p1.meter).toBeGreaterThan(0);
+    expect(snapshot.p2.meter).toBeGreaterThan(0);
+  });
+
+  it("spends one power stock on a quarter-circle-forward super", () => {
+    const poweredAtlas = {
+      ...ATLAS_LION,
+      moves: {
+        ...ATLAS_LION.moves,
+        light: {
+          ...ATLAS_LION.moves.light,
+          meterGainOnUse: POWER_METER_STOCK,
+        },
+      },
+    };
+    const simulation = new FightingSimulation({ p1Definition: poweredAtlas });
+    simulation.step({ p1: createInput(1, { buttons: { light: true } }) });
+    for (let frame = 2; frame <= 30; frame += 1) {
+      simulation.step({ p1: createInput(frame) });
+    }
+
+    simulation.step({ p1: createInput(31, { vertical: 1 }) });
+    simulation.step({ p1: createInput(32, { horizontal: 1, vertical: 1 }) });
+    simulation.step({ p1: createInput(33, { horizontal: 1 }) });
+    const superStart = simulation.step({
+      p1: createInput(34, { horizontal: 1, buttons: { special: true } }),
+    });
+
+    expect(superStart.p1.state).toBe("superAttack");
+    expect(superStart.p1.meter).toBe(0);
+  });
+
+  it("can cancel a normal into a special inside the active window", () => {
+    const simulation = new FightingSimulation();
+    simulation.step({ p1: createInput(1, { buttons: { light: true } }) });
+    for (let frame = 2; frame <= 5; frame += 1) {
+      simulation.step({ p1: createInput(frame) });
+    }
+
+    const snapshot = simulation.step({ p1: createInput(6, { buttons: { special: true } }) });
+
+    expect(snapshot.p1.state).toBe("specialAttack");
+  });
+
+  it("keeps state snapshots serializable for future rollback/replay work", () => {
+    const simulation = new FightingSimulation();
+    simulation.step({ p1: createInput(1, { buttons: { heavy: true } }) });
+
+    expect(() => JSON.stringify(simulation.snapshot())).not.toThrow();
+  });
+});
+
+function runScriptedExchange() {
+  const simulation = new FightingSimulation();
+  for (let frame = 1; frame <= 120; frame += 1) {
+    simulation.step({
+      p1: createInput(frame, {
+        horizontal: frame < 44 ? 1 : 0,
+        buttons: {
+          light: frame === 50,
+        },
+      }),
+      p2: createInput(frame, {
+        horizontal: frame < 20 ? -1 : 0,
+      }),
+    });
+  }
+  return simulation.snapshot();
+}

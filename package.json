@@ -1,0 +1,26 @@
+{
+  "name": "moroccan-kof-engine",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Production-oriented TypeScript web fighting-game foundation with a deterministic combat core and Phaser shell.",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "tsc -p tsconfig.json && vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "verify": "npm run typecheck && npm test && npm run build",
+    "imagegen:preflight": "node scripts/imagegen-preflight.mjs",
+    "imagegen:qa": "node scripts/asset-qa.mjs"
+  },
+  "dependencies": {
+    "phaser": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.12",
+    "vitest": "^4.1.6"
+  }
+}

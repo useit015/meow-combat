@@ -1,0 +1,401 @@
+# GoalBuddy v2 state.yaml
+# Board truth lives here. goal.md is the editable charter; notes/ holds long receipts only.
+
+version: 2
+
+goal:
+  title: "Meowtal Kombat Production Game"
+  slug: "meowtal-kombat-production"
+  kind: specific
+  tranche: "Continuous execution: complete successive safe verified slices until the full original outcome is complete."
+  status: active
+  intake:
+    original_request: "Make the Meowtal Kombat concept into a real production-ready and smooth game with proper assets, architecture, effects, and gameplay."
+    interpreted_outcome: "A polished, production-ready scoped fighting game where a gray rabbit and ginger/orange tabby cat fight through a complete arcade flow with smooth controls, animations, effects, audio, HUD, and verified game feel."
+    input_shape: specific
+    audience: "players of the finished scoped game and future maintainers"
+    authority: requested
+    proof_type: artifact
+    completion_proof: "The game runs as a polished production build or production-preview build, passes relevant build/test/lint/smoke/browser checks, and has evidence showing the full scoped game loop: title/start flow, character presentation, fight start, movement, blocking/dashing, combos, specials, super/special meters, HUD/timer/health, pause/options, restart/rematch, K.O./victory, audio, effects, responsive desktop/mobile layout, and no obvious console/runtime/layout/performance failures."
+    likely_misfire: "Shipping a flashy proof of concept, asset showcase, or good-enough demo instead of a complete production-ready scoped game with verified combat feel, arcade flow, assets, audio, performance, maintainable architecture, and production build readiness."
+    blind_spots_considered:
+      - "Visual board selected: local live board in Codex."
+      - "Improvement target selected: all of gameplay feel, visual spectacle/assets, and maintainable game architecture."
+      - "Success proof selected: polished production-ready scoped game plus production build/preview verification, browser verification, and capture artifact."
+      - "Scope selected: full arcade package, not only a single-arena demo."
+      - "Use the fresh local GoalBuddy board created for this goal."
+      - "Plan challenged on user request: final target is a full polished production-ready scoped game, not an unfinished PoC or demo."
+    existing_plan_facts:
+      - "Title: Meowtal Kombat."
+      - "Original concept says short polished fighting game demo, but owner clarified that the final product must be a full polished production-ready game for the defined scope, not an unfinished PoC."
+      - "Arena: bright outdoor stone-paved courtyard with low walls, pillars, trees/bushes, distant cityscape or hills, vibrant lighting, lens flares, particles."
+      - "Characters: gray rabbit with hopping, spinning, kicking; ginger/orange tabby cat with pouncing, tail attacks, loaf idle, acrobatic flips."
+      - "Need idle, walk, jump, attack, special, hit, knockout, and victory animations."
+      - "Effects: hit sparks, energy auras, dust clouds, screen shake, bright particles, damage numbers."
+      - "HUD: red rabbit health, blue cat health, portraits, 99 timer, bottom special meters, FIGHT announcement, K.O. finish."
+      - "Controls: movement, jump, light/heavy/special attacks, block, dash, optional gamepad."
+      - "Combat: simple 2-3 hit combos, 4-5 unique attacks per character, rabbit tornado special, cat flip kick plus green/yellow projectile or aura blast."
+      - "Physics: jumping, knockback, ground bouncing, simple ragdoll-like heavy-hit reactions."
+      - "Audio provider readiness checked: Pixabay API key works for official image/video API; ElevenLabs key can generate sound effects via /v1/sound-generation, but read/model endpoints are permission-limited. Do not store secret values in repo."
+
+rules:
+  pm_owns_state: true
+  one_active_task: true
+  max_write_workers: 1
+  no_implementation_without_worker_or_pm_task: true
+  no_completion_without_judge_or_pm_audit: true
+  planning_is_not_completion: true
+  queued_required_worker_blocks_completion: true
+  continuous_until_full_outcome: true
+  missing_input_or_credentials_do_not_stop_goal: true
+  preserve_and_validate_existing_plan: true
+  intake_misfire_must_be_audited: true
+  no_placeholder_or_unlicensed_assets_at_completion: true
+  production_build_required_for_completion: true
+  capture_artifact_required_for_completion: true
+  console_runtime_layout_performance_failures_block_completion: true
+  commit_in_small_batches: true
+
+agents:
+  scout: installed
+  worker: installed
+  judge: installed
+
+visual_board:
+  selected: local
+  local:
+    status: live
+    url: "http://127.0.0.1:41737/"
+    command: "npx goalbuddy board /Users/oussmustaine/Documents/New\\ project/docs/goals/meowtal-kombat-production"
+  github_projects:
+    status: not_requested
+    url: null
+    command: "npx goalbuddy extend github-projects"
+    missing: []
+
+active_task: T001
+
+tasks:
+  - id: T000
+    type: pm
+    assignee: PM
+    status: done
+    reasoning_hint: high
+    objective: "Complete diagnostic intake and finalize the execution board for the Meowtal Kombat production game."
+    inputs:
+      - "User concept and requirements"
+      - "Visual board choice: local live board"
+    constraints:
+      - "Only edit GoalBuddy control files during $goal-prep."
+      - "Do not inspect implementation files, generate assets, or run product-specific checks until /goal starts."
+    expected_output:
+      - "Completed intake assumptions and answers"
+      - "Final role-tagged task board"
+      - "Starter /goal command"
+    receipt:
+      result: done
+      summary: "Diagnostic intake completed and later challenged: local live board selected; gameplay feel, visual spectacle/assets, and architecture are all required; completion proof requires a polished production-ready scoped arcade game, browser verification, production build/preview evidence, and capture artifact; scope includes full arcade package."
+      evidence:
+        - "docs/goals/meowtal-kombat-production/goal.md"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+  - id: T012
+    type: pm
+    assignee: PM
+    status: done
+    reasoning_hint: high
+    objective: "Review and harden the board so it cannot complete as an unfinished proof of concept or mere demo."
+    inputs:
+      - "User clarification: create a full polished production-ready game, not an unfinished PoC or demo."
+      - "Existing goal.md and state.yaml"
+    constraints:
+      - "Only edit GoalBuddy control files."
+      - "Do not inspect or modify product implementation files."
+    expected_output:
+      - "Stronger completion proof"
+      - "Production readiness gates"
+      - "Rejected proof-of-concept or demo-level escape hatches"
+    receipt:
+      result: done
+      summary: "Changed authoritative wording to Production Game, clarified demo wording as compact scope only, required production build/preview evidence, capture artifact, asset/license manifest, complete arcade flow, audio, responsive controls, no placeholders, no console/runtime/layout/performance failures, and final audit rejection of PoC/demo-level completion."
+      evidence:
+        - "docs/goals/meowtal-kombat-production/goal.md"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+  - id: T013
+    type: pm
+    assignee: PM
+    status: done
+    reasoning_hint: medium
+    objective: "Check whether the goal is ready for implementation and record non-secret readiness facts."
+    inputs:
+      - "GoalBuddy state checker"
+      - "GoalBuddy update checker"
+      - "git status"
+      - "Audio provider test results"
+    constraints:
+      - "Do not store API key values."
+      - "Do not edit product implementation files."
+    expected_output:
+      - "Implementation readiness verdict"
+      - "Preflight recommendations"
+      - "Non-secret provider status"
+    receipt:
+      result: done
+      summary: "Board is valid and ready to start with active Scout task T001. GoalBuddy update is available. Git worktree appears fully untracked, so a baseline commit or accepted noisy diff is recommended before major implementation. Audio readiness: ElevenLabs sound-generation works; Pixabay public API works for official image/video endpoints; keep keys in local env and rotate exposed keys."
+      commands:
+        - cmd: "node /Users/oussmustaine/.codex/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+          status: pass
+        - cmd: "node /Users/oussmustaine/.codex/skills/goalbuddy/scripts/check-update.mjs --json"
+          status: pass
+        - cmd: "git status --short"
+          status: pass
+  - id: T014
+    type: pm
+    assignee: PM
+    status: done
+    reasoning_hint: low
+    objective: "Record the owner's permanent preference to commit implementation work in small batches."
+    inputs:
+      - "User instruction: commit in small batches and make this a permanent rule."
+    constraints:
+      - "Do not stage unrelated app files."
+      - "Do not include secrets or temporary audio test files."
+    expected_output:
+      - "Project instruction recorded"
+      - "Goal rule recorded"
+      - "Small commit prepared"
+    receipt:
+      result: done
+      summary: "Recorded small-batch commits as a project-level instruction and a GoalBuddy rule. Future implementation should commit coherent reviewable slices instead of one large final commit."
+      changed_files:
+        - "AGENTS.md"
+        - "docs/goals/meowtal-kombat-production/goal.md"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+  - id: T001
+    type: scout
+    assignee: Scout
+    status: active
+    reasoning_hint: medium
+    objective: "Map the existing app structure, rendering/game stack, asset locations, verification commands, production-build path, and safest implementation path for a complete Meowtal Kombat scoped game."
+    inputs:
+      - "Workspace root"
+      - "package/config files if present"
+      - "Existing source, public assets, tests, and docs"
+      - "User-provided Meowtal Kombat concept preserved in goal intake"
+    constraints:
+      - "Read-only."
+      - "Do not edit implementation files."
+      - "Prefer concrete file-path evidence over generic advice."
+      - "Identify whether web-game, frontend-app-builder, imagegen, Browser, Playwright, audio, asset, and deployment skills are relevant for later tasks, but do not perform implementation."
+    expected_output:
+      - "Repo/app map with key files and ownership boundaries"
+      - "Existing game architecture and rendering loop assessment"
+      - "Asset pipeline and current asset inventory"
+      - "Verification commands and dev server command"
+      - "Production build/preview command if available"
+      - "Risks, blockers, and safe first implementation slices"
+      - "Candidate allowed_files for the first Worker task"
+    receipt: null
+  - id: T002
+    type: scout
+    assignee: Scout
+    status: queued
+    reasoning_hint: medium
+    objective: "Research and design the production asset, audio, licensing, and effects plan using available local skills and resources without modifying product files."
+    inputs:
+      - "T001 findings"
+      - "Goal intake existing_plan_facts"
+      - "Available skills and dependencies"
+    constraints:
+      - "Read-only with respect to product files."
+      - "Do not generate final assets unless promoted to a Worker task."
+      - "Keep recommendations compatible with the existing project stack discovered in T001."
+    expected_output:
+      - "Recommended asset approach for rabbit, cat, arena, HUD portraits, particles, audio, and capture artifacts"
+      - "Candidate generation/editing steps and tools"
+      - "Risks around performance, copyright, file sizes, visual consistency, and license manifest requirements"
+      - "Worker-ready asset slice proposals with suggested allowed_files"
+    receipt: null
+  - id: T003
+    type: judge
+    assignee: Judge
+    status: queued
+    reasoning_hint: high
+    objective: "Choose the implementation sequence that balances gameplay feel, visual spectacle/assets, maintainable architecture, and production-game completeness."
+    inputs:
+      - "T001 receipt"
+      - "T002 receipt if completed"
+      - "Goal intake and completion proof"
+    constraints:
+      - "Do not implement."
+      - "Avoid choosing a flashy visual slice that leaves the game unplayable."
+      - "Avoid an architecture-only slice that cannot be demonstrated."
+      - "Do not accept PoC/demo-level completion criteria."
+      - "Do not reduce scope without creating a blocker or PM escalation that explains the tradeoff."
+      - "Prefer small reviewable Worker tasks with clear verification."
+    expected_output:
+      - "Decision and rationale"
+      - "Exact first Worker objective"
+      - "allowed_files"
+      - "verify commands"
+      - "stop_if conditions"
+      - "Queued/deferred follow-up Worker tasks"
+    receipt: null
+  - id: T004
+    type: worker
+    assignee: Worker
+    status: queued
+    reasoning_hint: low
+    objective: "Execute the first architecture/gameplay foundation slice selected by Judge, with the end state compatible with a full production-ready scoped game."
+    allowed_files: []
+    verify: []
+    stop_if:
+      - "Need files outside allowed_files."
+      - "Existing stack or app entrypoint differs from Judge assumptions."
+      - "Behavior is ambiguous enough to require PM/Judge clarification."
+      - "Verification fails twice for the same reason."
+    receipt: null
+  - id: T005
+    type: worker
+    assignee: Worker
+    status: queued
+    reasoning_hint: low
+    objective: "Implement or integrate production-quality character, arena, portrait, UI, audio, and effects assets for the selected project stack, with source/prompt/license tracking."
+    allowed_files: []
+    verify: []
+    stop_if:
+      - "Need files outside allowed_files."
+      - "Asset generation, source, attribution, or licensing approach is unclear."
+      - "Generated assets do not fit the visual style after one retry."
+      - "Verification fails twice for the same reason."
+    receipt: null
+  - id: T006
+    type: worker
+    assignee: Worker
+    status: queued
+    reasoning_hint: low
+    objective: "Implement responsive fighting mechanics: movement, jump, dash, block, hitboxes, combos, specials, knockback, bounce, K.O., and victory states."
+    allowed_files: []
+    verify: []
+    stop_if:
+      - "Need files outside allowed_files."
+      - "Combat mechanics conflict with existing architecture."
+      - "Controls or hit detection cannot be verified locally."
+      - "Verification fails twice for the same reason."
+    receipt: null
+  - id: T007
+    type: worker
+    assignee: Worker
+    status: queued
+    reasoning_hint: low
+    objective: "Implement arcade presentation: Mortal Kombat-style HUD, health/timer/super meters, FIGHT/K.O. screens, damage numbers, particles, screen shake, impact flashes, audio cues, and camera feel."
+    allowed_files: []
+    verify: []
+    stop_if:
+      - "Need files outside allowed_files."
+      - "Effects harm performance or readability."
+      - "Audio dependencies or browser restrictions need PM/Judge decision."
+      - "Verification fails twice for the same reason."
+    receipt: null
+  - id: T008
+    type: worker
+    assignee: Worker
+    status: queued
+    reasoning_hint: low
+    objective: "Build the full arcade shell: title/start flow, character presentation, pause/options, restart/rematch flow, responsive layout, keyboard controls, mobile-friendly controls, and gamepad support or an explicit in-game fallback."
+    allowed_files: []
+    verify: []
+    stop_if:
+      - "Need files outside allowed_files."
+      - "Any proposed scope reduction needs PM/Judge escalation before completion."
+      - "Gamepad support is unsupported by the chosen stack and an explicit in-game keyboard/touch fallback is required."
+      - "Verification fails twice for the same reason."
+    receipt: null
+  - id: T009
+    type: worker
+    assignee: Worker
+    status: queued
+    reasoning_hint: low
+    objective: "Add or update production verification, smoke checks, browser checks, performance/readability checks, and create the production capture artifact."
+    allowed_files: []
+    verify: []
+    stop_if:
+      - "Need files outside allowed_files."
+      - "A browser/dev-server target is unavailable."
+      - "Capture tooling cannot record the required evidence after one alternate approach."
+      - "Verification fails twice for the same reason."
+    receipt: null
+  - id: T011
+    type: worker
+    assignee: Worker
+    status: queued
+    reasoning_hint: low
+    objective: "Production hardening pass: build/preview readiness, asset preload/compression, loading/fallback states, error-free console, run instructions, asset/license manifest, and final cleanup."
+    allowed_files: []
+    verify: []
+    stop_if:
+      - "Need files outside allowed_files."
+      - "A production build or preview command cannot be established."
+      - "External asset/license provenance is incomplete."
+      - "Verification fails twice for the same reason."
+    receipt: null
+  - id: T010
+    type: judge
+    assignee: Judge
+    status: queued
+    reasoning_hint: high
+    objective: "Audit production readiness before final completion: gameplay feel, assets, audio, architecture, performance, responsiveness, accessibility/readability, production build readiness, and full scoped-game completeness."
+    inputs:
+      - "Done Worker receipts"
+      - "Latest verification results"
+      - "Browser screenshots/capture evidence"
+      - "Current dirty diff"
+    constraints:
+      - "Do not implement."
+      - "Reject if the result is only visually flashy but not fun or responsive."
+      - "Reject if architecture is too brittle for the implemented scope."
+      - "Reject if the full arcade package scope lacks obvious user-facing flow."
+      - "Reject if the result still feels like a prototype, mockup, or tech demo."
+      - "Reject if there are placeholder/unlicensed assets, missing run instructions, production build failures, console errors, or obvious layout/performance defects."
+    expected_output:
+      - "production_ready | not_ready"
+      - "missing evidence or fixes"
+      - "next Worker task if not ready"
+      - "scope reductions only if necessary"
+    receipt: null
+  - id: T999
+    type: judge
+    assignee: Judge
+    status: queued
+    reasoning_hint: high
+    objective: "Final audit: prove whether the full original Meowtal Kombat production-game outcome is complete."
+    inputs:
+      - "All done task receipts"
+      - "T010 readiness audit"
+      - "Last verification"
+      - "Production capture artifact"
+      - "Production build/preview evidence"
+      - "Current dirty diff"
+    constraints:
+      - "Do not implement."
+      - "Reject completion if required Worker work is still queued or active."
+      - "Reject completion if capture evidence does not show title/character flow, combat, specials, HUD, pause/options, restart/rematch, K.O./victory, audio/effects, and responsive layout evidence."
+      - "Reject completion if the game cannot be run locally by the user."
+      - "Reject completion if the result is an unfinished PoC, visual-only demo, or dev-only build."
+      - "Reject completion if production build/preview, asset/license manifest, or run instructions are missing."
+    expected_output:
+      - "complete | not_complete"
+      - "full_outcome_complete: true | false"
+      - "mapping from original request to receipts and verification"
+      - "production readiness verdict"
+      - "missing evidence"
+      - "next task if not complete"
+    receipt: null
+
+checks:
+  dirty_fingerprint: unknown
+  last_verification:
+    result: pass
+    task: T012
+    commands:
+      - cmd: "node /Users/oussmustaine/.codex/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+        status: pass

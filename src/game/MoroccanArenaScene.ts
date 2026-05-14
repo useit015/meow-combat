@@ -1,0 +1,1651 @@
+import Phaser from "phaser";
+import {
+  fighterAssetManifests,
+  buildAssetReadinessSummary,
+  renderAssetForAnimationId,
+  renderAssetForState,
+  resolveFighterRuntimeAsset,
+  type FighterAnimationId,
+  type FighterRuntimeAsset,
+  resolveManifestRuntimeAsset,
+  resolveStageRuntimeLayers,
+  stageAssetManifests,
+} from "../assets";
+import {
+  FightingSimulation,
+  ATLAS_LION,
+  SAHARA_VIPER,
+  buttonsFromKeys,
+  createCpuInput,
+  createInput,
+  createMatchSet,
+  recordRoundOutcome,
+  POWER_METER_MAX,
+  POWER_METER_STOCK,
+  TICK_MS,
+  type CpuDifficulty,
+  type FighterDefinition,
+  type MatchSetState,
+  type MatchSnapshot,
+} from "../core";
+import { ArenaAudio, audioCueForCombatEvents, audioCueForMatchTransition } from "./audio";
+import { effectsFromSnapshot, tickCombatEffects, type CombatEffect } from "./effects";
+import { impactFeedbackCue } from "./presentation";
+import { initialShellState, reduceShellState, type ShellState } from "./shellFlow";
+import { selectSpritePose } from "./spriteFrame";
+
+type KeyMap = Record<string, Phaser.Input.Keyboard.Key>;
+type ImpactFlash = { color: number; alpha: number; remainingFrames: number; totalFrames: number };
+const GAME_TITLE = "ATLAS ARENA";
+const GAME_SUBTITLE = "MARRAKESH ROOFTOP DUEL";
+const CPU_DIFFICULTIES: readonly CpuDifficulty[] = ["easy", "normal", "hard"];
+const FIGHTER_ROSTER: readonly FighterDefinition[] = [ATLAS_LION, SAHARA_VIPER];
+const CONCEPT_SHEET_KEY = "moroccan-fighters-concept-sheet";
+const CONCEPT_SHEET_PATH = "/assets/generated/moroccan-fighters-concept-sheet.png";
+const CONCEPT_PREVIEW_CROPS = {
+  p1: { x: 245, y: 20, width: 550, height: 900 },
+  p2: { x: 760, y: 20, width: 580, height: 900 },
+} as const;
+const RUNTIME_SPRITESHEETS = [
+  { key: "atlas-lion:idle", path: "/assets/generated/fighters/atlas-lion/idle.png" },
+  { key: "atlas-lion:walk-forward", path: "/assets/generated/fighters/atlas-lion/walk-forward.png" },
+  { key: "atlas-lion:walk-back", path: "/assets/generated/fighters/atlas-lion/walk-back.png" },
+  { key: "atlas-lion:crouch", path: "/assets/generated/fighters/atlas-lion/crouch.png" },
+  { key: "atlas-lion:jump", path: "/assets/generated/fighters/atlas-lion/jump.png" },
+  { key: "atlas-lion:light-punch", path: "/assets/generated/fighters/atlas-lion/light-punch.png" },
+  { key: "atlas-lion:light-kick", path: "/assets/generated/fighters/atlas-lion/light-kick.png" },
+  { key: "atlas-lion:heavy-punch", path: "/assets/generated/fighters/atlas-lion/heavy-punch.png" },
+  { key: "atlas-lion:special", path: "/assets/generated/fighters/atlas-lion/special.png" },
+  { key: "atlas-lion:hitstun", path: "/assets/generated/fighters/atlas-lion/hitstun.png" },
+  { key: "atlas-lion:blockstun", path: "/assets/generated/fighters/atlas-lion/blockstun.png" },
+  { key: "atlas-lion:knockdown", path: "/assets/generated/fighters/atlas-lion/knockdown.png" },
+  { key: "atlas-lion:win", path: "/assets/generated/fighters/atlas-lion/win.png" },
+  { key: "atlas-lion:lose", path: "/assets/generated/fighters/atlas-lion/lose.png" },
+  { key: "sahara-viper:idle", path: "/assets/generated/fighters/sahara-viper/idle.png" },
+  { key: "sahara-viper:walk-forward", path: "/assets/generated/fighters/sahara-viper/walk-forward.png" },
+  { key: "sahara-viper:walk-back", path: "/assets/generated/fighters/sahara-viper/walk-back.png" },
+  { key: "sahara-viper:crouch", path: "/assets/generated/fighters/sahara-viper/crouch.png" },
+  { key: "sahara-viper:jump", path: "/assets/generated/fighters/sahara-viper/jump.png" },
+  { key: "sahara-viper:light-punch", path: "/assets/generated/fighters/sahara-viper/light-punch.png" },
+  { key: "sahara-viper:light-kick", path: "/assets/generated/fighters/sahara-viper/light-kick.png" },
+  { key: "sahara-viper:heavy-punch", path: "/assets/generated/fighters/sahara-viper/heavy-punch.png" },
+  { key: "sahara-viper:special", path: "/assets/generated/fighters/sahara-viper/special.png" },
+  { key: "sahara-viper:hitstun", path: "/assets/generated/fighters/sahara-viper/hitstun.png" },
+  { key: "sahara-viper:blockstun", path: "/assets/generated/fighters/sahara-viper/blockstun.png" },
+  { key: "sahara-viper:knockdown", path: "/assets/generated/fighters/sahara-viper/knockdown.png" },
+  { key: "sahara-viper:win", path: "/assets/generated/fighters/sahara-viper/win.png" },
+  { key: "sahara-viper:lose", path: "/assets/generated/fighters/sahara-viper/lose.png" },
+] as const;
+const RUNTIME_SPRITE_CELL_SIZE = 256;
+const ASSET_VERSION = "timeline-polish-1";
+
+export class MoroccanArenaScene extends Phaser.Scene {
+  private selectedFighterIndex: Record<"p1" | "p2", number> = { p1: 0, p2: 1 };
+  private simulation = this.createSimulation();
+  private accumulator = 0;
+  private snapshot: MatchSnapshot = this.simulation.snapshot();
+  private matchSet: MatchSetState = createMatchSet();
+  private shell: ShellState = initialShellState;
+  private p2CpuEnabled = true;
+  private cpuDifficulty: CpuDifficulty = "normal";
+  private readonly assetReadiness = buildAssetReadinessSummary();
+  private readonly audio = new ArenaAudio();
+  private readonly demoMode = new URLSearchParams(window.location.search).get("demo");
+  private readonly freezeDemoFrame =
+    this.demoMode === "jump" ||
+    this.demoMode === "light-kick" ||
+    this.demoMode === "hitstun" ||
+    this.demoMode === "blockstun" ||
+    this.demoMode === "heavy-punch" ||
+    this.demoMode === "special" ||
+    this.demoMode === "super" ||
+    this.demoMode === "hop" ||
+    this.demoMode === "run-forward" ||
+    this.demoMode === "backdash" ||
+    this.demoMode === "knockdown" ||
+    this.demoMode === "win";
+  private effects: readonly CombatEffect[] = [];
+  private impactFlash: ImpactFlash | null = null;
+  private shellFrame = 0;
+  private keys!: KeyMap;
+  private statusText!: Phaser.GameObjects.Text;
+  private roundText!: Phaser.GameObjects.Text;
+  private modeText!: Phaser.GameObjects.Text;
+  private p1NameText!: Phaser.GameObjects.Text;
+  private p2NameText!: Phaser.GameObjects.Text;
+  private comboText!: Phaser.GameObjects.Text;
+  private readinessText!: Phaser.GameObjects.Text;
+  private titleText!: Phaser.GameObjects.Text;
+  private helpText!: Phaser.GameObjects.Text;
+  private versusText!: Phaser.GameObjects.Text;
+  private conceptPreviews!: Record<"p1" | "p2", Phaser.GameObjects.Image>;
+  private selectSprites!: Record<"p1" | "p2", Phaser.GameObjects.Sprite>;
+  private fighterSprites!: Record<"p1" | "p2", Phaser.GameObjects.Sprite>;
+  private stageLayerImages: Phaser.GameObjects.Image[] = [];
+  private readonly graphicsKey = "arena-debug";
+  private readonly effectsGraphicsKey = "arena-effects";
+  private readonly stageRuntimeLayers = resolveStageRuntimeLayers(stageAssetManifests[0]);
+
+  constructor() {
+    super("MoroccanArenaScene");
+  }
+
+  preload(): void {
+    this.load.image(CONCEPT_SHEET_KEY, CONCEPT_SHEET_PATH);
+    for (const layer of this.stageRuntimeLayers) {
+      if (layer.kind === "image-layer" && layer.outputPath) {
+        this.load.image(layer.assetKey, layer.outputPath);
+      }
+    }
+    for (const spritesheet of RUNTIME_SPRITESHEETS) {
+      this.load.spritesheet(spritesheet.key, versionedAsset(spritesheet.path), {
+        frameWidth: RUNTIME_SPRITE_CELL_SIZE,
+        frameHeight: RUNTIME_SPRITE_CELL_SIZE,
+      });
+    }
+  }
+
+  create(): void {
+    this.input.keyboard?.removeAllKeys();
+    this.keys = this.input.keyboard?.addKeys({
+      p1Left: "A",
+      p1Right: "D",
+      p1RightAlt: "B",
+      p1Down: "S",
+      p1Jump: "W",
+      p1Light: "J",
+      p1LightAlt: "SPACE",
+      p1Kick: "I",
+      p1Heavy: "K",
+      p1Special: "L",
+      p1SpecialAlt: "ENTER",
+      start: "ENTER",
+      startAlt: "SPACE",
+      p2Left: "LEFT",
+      p2Right: "RIGHT",
+      p2Down: "DOWN",
+      p2Jump: "UP",
+      p2Light: "NUMPAD_ONE",
+      p2Kick: "NUMPAD_FOUR",
+      p2Heavy: "NUMPAD_TWO",
+      p2Special: "NUMPAD_THREE",
+      cpuToggle: "C",
+      cpuDifficulty: "V",
+      pause: "P",
+      pauseAlt: "ESC",
+      reset: "R",
+      fullscreen: "F",
+    }) as KeyMap;
+
+    this.cameras.main.setBackgroundColor("#163936");
+    this.statusText = this.add
+      .text(512, 30, "", {
+        color: "#0b1817",
+        fontFamily: "Inter, Arial, sans-serif",
+        fontSize: "18px",
+        fontStyle: "700",
+      })
+      .setOrigin(0.5, 0);
+    this.statusText.setDepth(100);
+    this.roundText = this.add
+      .text(512, 78, "", {
+        color: "#f8f5e9",
+        fontFamily: "Inter, Arial, sans-serif",
+        fontSize: "12px",
+        fontStyle: "700",
+      })
+      .setOrigin(0.5, 0)
+      .setDepth(100);
+    this.modeText = this.add
+      .text(882, 82, "", {
+        color: "#f8f5e9",
+        fontFamily: "Inter, Arial, sans-serif",
+        fontSize: "12px",
+        fontStyle: "700",
+      })
+      .setOrigin(0.5, 0)
+      .setDepth(100);
+    this.p1NameText = this.add
+      .text(104, 24, "", {
+        color: "#f8f5e9",
+        fontFamily: "Inter, Arial, sans-serif",
+        fontSize: "13px",
+        fontStyle: "800",
+      })
+      .setOrigin(0, 0)
+      .setDepth(100);
+    this.p2NameText = this.add
+      .text(920, 24, "", {
+        color: "#f8f5e9",
+        fontFamily: "Inter, Arial, sans-serif",
+        fontSize: "13px",
+        fontStyle: "800",
+      })
+      .setOrigin(1, 0)
+      .setDepth(100);
+    this.comboText = this.add
+      .text(176, 132, "", {
+        backgroundColor: "#0b1817",
+        color: "#fff1a8",
+        fontFamily: "Inter, Arial, sans-serif",
+        fontSize: "18px",
+        fontStyle: "800",
+      })
+      .setOrigin(0, 0)
+      .setPadding(8, 4, 8, 4)
+      .setShadow(0, 2, "#000000", 4, true, true)
+      .setDepth(100)
+      .setVisible(false);
+    this.readinessText = this.add
+      .text(512, 342, "", {
+        align: "center",
+        color: "#f8f5e9",
+        fontFamily: "Inter, Arial, sans-serif",
+        fontSize: "12px",
+        lineSpacing: 4,
+        wordWrap: { width: 720 },
+      })
+      .setOrigin(0.5, 0.5)
+      .setDepth(101)
+      .setVisible(false);
+    this.titleText = this.add
+      .text(512, 182, "", {
+        align: "center",
+        color: "#f8f5e9",
+        fontFamily: "Inter, Arial, sans-serif",
+        fontSize: "34px",
+        fontStyle: "800",
+      })
+      .setOrigin(0.5, 0.5)
+      .setDepth(101);
+    this.helpText = this.add
+      .text(512, 258, "", {
+        align: "center",
+        color: "#f8f5e9",
+        fontFamily: "Inter, Arial, sans-serif",
+        fontSize: "18px",
+        lineSpacing: 10,
+      })
+      .setOrigin(0.5, 0.5)
+      .setDepth(101);
+    this.versusText = this.add
+      .text(512, 360, "VS", {
+        align: "center",
+        color: "#fff1a8",
+        fontFamily: "Inter, Arial, sans-serif",
+        fontSize: "26px",
+        fontStyle: "900",
+      })
+      .setOrigin(0.5, 0.5)
+      .setShadow(0, 2, "#000000", 5, true, true)
+      .setDepth(101)
+      .setVisible(false);
+    this.conceptPreviews = {
+      p1: this.add
+        .image(360, 354, CONCEPT_SHEET_KEY)
+        .setCrop(
+          CONCEPT_PREVIEW_CROPS.p1.x,
+          CONCEPT_PREVIEW_CROPS.p1.y,
+          CONCEPT_PREVIEW_CROPS.p1.width,
+          CONCEPT_PREVIEW_CROPS.p1.height,
+        )
+        .setDisplaySize(170, 230)
+        .setDepth(99)
+        .setVisible(false),
+      p2: this.add
+        .image(664, 354, CONCEPT_SHEET_KEY)
+        .setCrop(
+          CONCEPT_PREVIEW_CROPS.p2.x,
+          CONCEPT_PREVIEW_CROPS.p2.y,
+          CONCEPT_PREVIEW_CROPS.p2.width,
+          CONCEPT_PREVIEW_CROPS.p2.height,
+        )
+        .setDisplaySize(170, 230)
+        .setDepth(99)
+        .setVisible(false),
+    };
+    this.fighterSprites = {
+      p1: this.add.sprite(0, 0, RUNTIME_SPRITESHEETS[0].key, 0).setOrigin(0.5, 1).setDepth(55).setVisible(false),
+      p2: this.add.sprite(0, 0, RUNTIME_SPRITESHEETS[1].key, 0).setOrigin(0.5, 1).setDepth(55).setVisible(false),
+    };
+    this.selectSprites = {
+      p1: this.add.sprite(318, 470, "atlas-lion:idle", 0).setOrigin(0.5, 1).setDepth(100).setVisible(false),
+      p2: this.add.sprite(706, 470, "sahara-viper:idle", 0).setOrigin(0.5, 1).setDepth(100).setVisible(false),
+    };
+    this.stageLayerImages = this.stageRuntimeLayers
+      .filter((layer) => layer.kind === "image-layer" && this.textures.exists(layer.assetKey))
+      .map((layer, index) =>
+        this.add
+          .image(512, 288, layer.assetKey)
+          .setDisplaySize(1024, 576)
+          .setDepth(1 + index)
+          .setVisible(false),
+      );
+    this.installDebugHooks();
+    this.applyDemoMode();
+  }
+
+  update(_time: number, delta: number): void {
+    if (this.freezeDemoFrame) {
+      this.render();
+      return;
+    }
+
+    this.accumulator += delta;
+    while (this.accumulator >= TICK_MS) {
+      this.stepOnce();
+      this.accumulator -= TICK_MS;
+    }
+    this.render();
+  }
+
+  advanceDebug(ms: number): MatchSnapshot {
+    if (this.freezeDemoFrame) {
+      this.render();
+      return this.snapshot;
+    }
+
+    const steps = Math.max(1, Math.round(ms / TICK_MS));
+    for (let index = 0; index < steps; index += 1) {
+      this.stepOnce();
+    }
+    this.render();
+    return this.snapshot;
+  }
+
+  renderTextState(): string {
+    return JSON.stringify({
+      coordinateSystem: "origin top-left, x right, y down",
+      frame: this.snapshot.frame,
+      timer: this.snapshot.roundTimer,
+      shellPhase: this.shell.phase,
+      status: this.snapshot.status,
+      winner: this.snapshot.winner,
+      combo: this.snapshot.combo,
+      p2Mode: this.p2CpuEnabled ? "cpu" : "manual",
+      cpuDifficulty: this.cpuDifficulty,
+      selectedFighters: {
+        p1: selectedFighter(this.selectedFighterIndex.p1).displayName,
+        p2: selectedFighter(this.selectedFighterIndex.p2).displayName,
+      },
+      visuals: {
+        p1: renderAssetForState(manifestForCharacter(this.snapshot.p1.character), this.snapshot.p1.state),
+        p2: renderAssetForState(manifestForCharacter(this.snapshot.p2.character), this.snapshot.p2.state),
+      },
+      runtimeVisuals: {
+        p1: this.runtimeAssetFor("p1"),
+        p2: this.runtimeAssetFor("p2"),
+      },
+      stageRuntime: this.stageRuntimeLayers,
+      assetReadiness: this.assetReadiness,
+      conceptArt: {
+        key: CONCEPT_SHEET_KEY,
+        path: CONCEPT_SHEET_PATH,
+        loaded: this.textures.exists(CONCEPT_SHEET_KEY),
+        visible: this.canRenderConceptArt(),
+        canonicalReferences: fighterAssetManifests.map((manifest) => ({
+          fighterId: manifest.id,
+          status: manifest.canonicalReference.status,
+          outputPath: manifest.canonicalReference.outputPath,
+        })),
+      },
+      selectRuntimeSprites: {
+        visible: (this.shell.phase === "ready" || this.shell.phase === "select") && !this.canRenderConceptArt(),
+        p1AssetKey: this.selectIdleAssetKey("p1"),
+        p2AssetKey: this.selectIdleAssetKey("p2"),
+      },
+      effects: {
+        count: this.effects.length,
+        kinds: this.effects.map((effect) => effect.kind),
+      },
+      presentation: {
+        title: GAME_TITLE,
+        subtitle: GAME_SUBTITLE,
+        stageArtVisible: this.canRenderStageArt(),
+        fullscreen: this.scale.isFullscreen,
+      },
+      audio: {
+        status: this.audio.status(),
+        musicActive: this.audio.musicActive(),
+      },
+      matchSet: {
+        round: this.matchSet.round,
+        targetWins: this.matchSet.targetWins,
+        wins: this.matchSet.wins,
+        status: this.matchSet.status,
+        lastRoundWinner: this.matchSet.lastRoundWinner,
+        matchWinner: this.matchSet.matchWinner,
+      },
+      fighters: {
+        p1: this.snapshot.p1,
+        p2: this.snapshot.p2,
+      },
+      recentEvents: this.snapshot.events,
+    });
+  }
+
+  private stepOnce(): void {
+    const resetPressed = Phaser.Input.Keyboard.JustDown(this.keys.reset);
+    const startPressed =
+      Phaser.Input.Keyboard.JustDown(this.keys.start) || Phaser.Input.Keyboard.JustDown(this.keys.startAlt);
+    const pausePressed =
+      Phaser.Input.Keyboard.JustDown(this.keys.pause) || Phaser.Input.Keyboard.JustDown(this.keys.pauseAlt);
+    const fullscreenPressed = Phaser.Input.Keyboard.JustDown(this.keys.fullscreen);
+    if (Phaser.Input.Keyboard.JustDown(this.keys.cpuToggle)) {
+      this.p2CpuEnabled = !this.p2CpuEnabled;
+    }
+    if (Phaser.Input.Keyboard.JustDown(this.keys.cpuDifficulty)) {
+      this.cpuDifficulty = nextCpuDifficulty(this.cpuDifficulty);
+    }
+    if (fullscreenPressed) {
+      this.toggleFullscreen();
+    }
+    if (startPressed || resetPressed || pausePressed || fullscreenPressed) {
+      this.audio.play("ui-confirm");
+    }
+    const previousPhase = this.shell.phase;
+    if (previousPhase === "select") {
+      this.handleCharacterSelectInput();
+    }
+    if (previousPhase !== "paused") {
+      this.shellFrame += 1;
+      this.effects = tickCombatEffects(this.effects);
+      this.impactFlash = tickImpactFlash(this.impactFlash);
+    }
+
+    const nextShell = reduceShellState(this.shell, {
+      resetPressed,
+      startPressed,
+      pausePressed,
+      matchStatus: this.snapshot.status,
+      matchSetStatus: this.matchSet.status,
+    });
+
+    if (resetPressed || (this.shell.phase === "match-over" && nextShell.phase === "fighting")) {
+      this.matchSet = createMatchSet();
+    }
+
+    if (
+      resetPressed ||
+      ((this.shell.phase === "round-over" || this.shell.phase === "match-over") && nextShell.phase === "fighting")
+    ) {
+      this.simulation.reset();
+      this.snapshot = this.simulation.snapshot();
+      this.effects = [];
+      this.impactFlash = null;
+    }
+
+    this.shell = nextShell;
+
+    if (previousPhase === "select" && this.shell.phase === "fighting") {
+      this.startSelectedMatch();
+      return;
+    }
+
+    if (
+      resetPressed ||
+      (previousPhase === "ready" && this.shell.phase === "fighting") ||
+      (previousPhase === "ready" && this.shell.phase === "select") ||
+      (previousPhase === "round-over" && this.shell.phase === "fighting") ||
+      (previousPhase === "match-over" && this.shell.phase === "fighting") ||
+      (previousPhase === "fighting" && this.shell.phase === "paused") ||
+      (previousPhase === "paused" && this.shell.phase === "fighting")
+    ) {
+      return;
+    }
+
+    if (this.shell.phase !== "fighting") {
+      return;
+    }
+
+    const frame = this.snapshot.frame + 1;
+    const wasFighting = this.snapshot.status === "fighting";
+    this.snapshot = this.simulation.step({
+      p1: this.playerOneInput(frame),
+      p2: this.playerTwoInput(frame),
+    });
+
+    if (wasFighting && this.snapshot.status === "round-over") {
+      this.matchSet = recordRoundOutcome(this.matchSet, this.snapshot.winner);
+    }
+    this.audio.play(audioCueForMatchTransition(wasFighting ? "fighting" : this.snapshot.status, this.snapshot.status, this.matchSet));
+    this.audio.play(audioCueForCombatEvents(this.snapshot.events));
+    this.effects = [...this.effects, ...effectsFromSnapshot(this.snapshot)];
+    this.triggerImpactFeedback();
+
+    this.shell = reduceShellState(this.shell, {
+      matchStatus: this.snapshot.status,
+      matchSetStatus: this.matchSet.status,
+    });
+  }
+
+  private render(): void {
+    const graphics = this.children.getByName(this.graphicsKey) as Phaser.GameObjects.Graphics | null;
+    const g = graphics ?? this.add.graphics();
+    if (!graphics) {
+      g.setName(this.graphicsKey);
+      g.setDepth(50);
+    }
+    g.clear();
+    const showFightLayer = this.shell.phase !== "ready" && this.shell.phase !== "select";
+    const stageImagesRendered = this.renderStageLayers(this.canRenderStageArt());
+    if (!stageImagesRendered) {
+      drawStage(g);
+    }
+    if (showFightLayer) {
+      drawHud(g, this.snapshot, this.matchSet);
+      const p1SpriteRendered = this.renderFighterSprite("p1", this.runtimeAssetFor("p1"));
+      const p2SpriteRendered = this.renderFighterSprite("p2", this.runtimeAssetFor("p2"));
+      if (!p1SpriteRendered) {
+        drawFighter(g, this.snapshot.p1, 0x2ec4b6, this.simulation.hurtbox("p1"), this.simulation.activeHitboxes("p1"));
+      }
+      if (!p2SpriteRendered) {
+        drawFighter(g, this.snapshot.p2, 0xff9f1c, this.simulation.hurtbox("p2"), this.simulation.activeHitboxes("p2"));
+      }
+    } else {
+      this.fighterSprites.p1.setVisible(false);
+      this.fighterSprites.p2.setVisible(false);
+    }
+    this.renderEffectOverlay(showFightLayer);
+    drawShellBackdrop(g, this.shell, stageImagesRendered);
+    this.statusText.setText(hudCenterLabel(this.snapshot, this.matchSet));
+    this.roundText.setText(roundLabel(this.matchSet));
+    this.modeText.setText(this.p2CpuEnabled ? `P2 CPU ${this.cpuDifficulty.toUpperCase()}` : "P2 MANUAL");
+    this.statusText.setVisible(showFightLayer);
+    this.roundText.setVisible(showFightLayer);
+    this.modeText.setVisible(showFightLayer);
+    this.p1NameText
+      .setText(`${selectedFighter(this.selectedFighterIndex.p1).displayName.toUpperCase()}  POW ${powerStockLabel(this.snapshot.p1.meter)}`)
+      .setVisible(showFightLayer);
+    this.p2NameText
+      .setText(`POW ${powerStockLabel(this.snapshot.p2.meter)}  ${selectedFighter(this.selectedFighterIndex.p2).displayName.toUpperCase()}`)
+      .setVisible(showFightLayer);
+    this.renderComboText(this.snapshot);
+    this.renderShellText();
+    this.renderReadinessText();
+    this.renderConceptArt();
+    this.renderSelectSprites();
+  }
+
+  private renderStageLayers(showFightLayer: boolean): boolean {
+    const imageLayerCount = this.stageRuntimeLayers.filter((layer) => layer.kind === "image-layer").length;
+    const canRenderImages =
+      showFightLayer &&
+      imageLayerCount > 0 &&
+      this.stageLayerImages.length === imageLayerCount &&
+      this.stageLayerImages.every((image) => this.textures.exists(image.texture.key));
+
+    for (const image of this.stageLayerImages) {
+      image.setVisible(canRenderImages);
+    }
+
+    return canRenderImages;
+  }
+
+  private canRenderStageArt(): boolean {
+    return this.stageRuntimeLayers.some((layer) => layer.kind === "image-layer");
+  }
+
+  private renderEffectOverlay(showFightLayer: boolean): void {
+    const graphics = this.children.getByName(this.effectsGraphicsKey) as Phaser.GameObjects.Graphics | null;
+    const g = graphics ?? this.add.graphics();
+    if (!graphics) {
+      g.setName(this.effectsGraphicsKey);
+      g.setDepth(70);
+    }
+
+    g.clear();
+    if (!showFightLayer) return;
+
+    drawActionEffects(g, this.snapshot, {
+      p1: this.visualSeparationOffset("p1"),
+      p2: this.visualSeparationOffset("p2"),
+    });
+    drawEffects(g, this.effects);
+    drawImpactFlash(g, this.impactFlash);
+  }
+
+  private createSimulation(): FightingSimulation {
+    return new FightingSimulation({
+      p1Definition: selectedFighter(this.selectedFighterIndex.p1),
+      p2Definition: selectedFighter(this.selectedFighterIndex.p2),
+    });
+  }
+
+  private startSelectedMatch(): void {
+    this.simulation = this.createSimulation();
+    this.snapshot = this.simulation.snapshot();
+    this.matchSet = createMatchSet();
+    this.effects = [];
+    this.impactFlash = null;
+  }
+
+  private runtimeAssetFor(player: "p1" | "p2"): FighterRuntimeAsset {
+    const fighter = this.snapshot[player];
+    const manifest = manifestForCharacter(fighter.character);
+    const presentationAnimation = this.presentationAnimationFor(player);
+    if (presentationAnimation) {
+      return resolveFighterRuntimeAsset(renderAssetForAnimationId(manifest, presentationAnimation));
+    }
+
+    return resolveManifestRuntimeAsset(manifest, fighter.state);
+  }
+
+  private presentationAnimationFor(player: "p1" | "p2"): FighterAnimationId | null {
+    if (
+      (this.shell.phase === "round-over" || this.shell.phase === "match-over") &&
+      this.snapshot.winner === player
+    ) {
+      return "win";
+    }
+    if (
+      (this.shell.phase === "round-over" || this.shell.phase === "match-over") &&
+      this.snapshot.winner &&
+      this.snapshot.winner !== "draw"
+    ) {
+      return "lose";
+    }
+    if (this.demoMode === "win" && player === "p1") {
+      return "win";
+    }
+    return null;
+  }
+
+  private renderFighterSprite(player: "p1" | "p2", runtimeAsset: FighterRuntimeAsset): boolean {
+    const sprite = this.fighterSprites[player];
+    if (runtimeAsset.kind !== "sprite" || !this.textures.exists(runtimeAsset.assetKey)) {
+      sprite.setVisible(false);
+      return false;
+    }
+
+    const fighter = this.snapshot[player];
+    const pose = selectSpritePose(runtimeAsset.animationId, fighter.stateFrame, runtimeAsset.frameCount);
+    const visualOffsetX = this.visualSeparationOffset(player);
+    sprite
+      .setTexture(runtimeAsset.assetKey)
+      .setFrame(pose.frame)
+      .setPosition(fighter.x + visualOffsetX + pose.offsetX * fighter.facing, fighter.y + 6 + pose.offsetY)
+      .setFlipX(fighter.facing < 0)
+      .setScale(1.15 * pose.scaleX, 1.15 * pose.scaleY)
+      .setRotation(Phaser.Math.DegToRad(pose.rotation * fighter.facing))
+      .setVisible(true);
+    return true;
+  }
+
+  private visualSeparationOffset(player: "p1" | "p2"): number {
+    const fighter = this.snapshot[player];
+    const opponent = this.snapshot[player === "p1" ? "p2" : "p1"];
+    const distance = Math.abs(opponent.x - fighter.x);
+    const closeOverlap = Math.max(0, 152 - distance);
+    return -fighter.facing * Math.min(34, closeOverlap * 0.48);
+  }
+
+  private handleCharacterSelectInput(): void {
+    if (Phaser.Input.Keyboard.JustDown(this.keys.p1Left)) {
+      this.cycleSelectedFighter("p1", -1);
+    }
+    if (Phaser.Input.Keyboard.JustDown(this.keys.p1Right) || Phaser.Input.Keyboard.JustDown(this.keys.p1RightAlt)) {
+      this.cycleSelectedFighter("p1", 1);
+    }
+    if (Phaser.Input.Keyboard.JustDown(this.keys.p2Left)) {
+      this.cycleSelectedFighter("p2", -1);
+    }
+    if (Phaser.Input.Keyboard.JustDown(this.keys.p2Right)) {
+      this.cycleSelectedFighter("p2", 1);
+    }
+  }
+
+  private cycleSelectedFighter(player: "p1" | "p2", direction: -1 | 1): void {
+    const next = this.selectedFighterIndex[player] + direction;
+    this.selectedFighterIndex[player] = (next + FIGHTER_ROSTER.length) % FIGHTER_ROSTER.length;
+    this.simulation = this.createSimulation();
+    this.snapshot = this.simulation.snapshot();
+  }
+
+  private playerTwoInput(frame: number) {
+    if (this.p2CpuEnabled) {
+      return createCpuInput(this.snapshot, "p2", frame, { difficulty: this.cpuDifficulty });
+    }
+
+    return createInput(frame, {
+      horizontal: keyDown(this.keys.p2Left) ? -1 : keyDown(this.keys.p2Right) ? 1 : 0,
+      vertical: keyDown(this.keys.p2Down) ? 1 : keyDown(this.keys.p2Jump) ? -1 : 0,
+      buttons: buttonsFromKeys({
+        jump: keyDown(this.keys.p2Jump),
+        crouch: keyDown(this.keys.p2Down),
+        light: keyDown(this.keys.p2Light),
+        kick: keyDown(this.keys.p2Kick),
+        heavy: keyDown(this.keys.p2Heavy),
+        special: keyDown(this.keys.p2Special),
+        guard: keyDown(this.keys.p2Right),
+      }),
+    });
+  }
+
+  private playerOneInput(frame: number) {
+    if (this.demoMode === "walk-forward") {
+      return createInput(frame, {
+        horizontal: 1,
+        vertical: 0,
+        buttons: buttonsFromKeys({}),
+      });
+    }
+    if (this.demoMode === "walk-back") {
+      return createInput(frame, {
+        horizontal: -1,
+        vertical: 0,
+        buttons: buttonsFromKeys({ guard: true }),
+      });
+    }
+    if (this.demoMode === "crouch") {
+      return createInput(frame, {
+        horizontal: 0,
+        vertical: 1,
+        buttons: buttonsFromKeys({ crouch: true }),
+      });
+    }
+    if (this.demoMode === "light-punch") {
+      return createInput(frame, {
+        horizontal: 0,
+        vertical: 0,
+        buttons: buttonsFromKeys({ light: true }),
+      });
+    }
+    if (this.demoMode === "light-kick") {
+      return createInput(frame, {
+        horizontal: 0,
+        vertical: 0,
+        buttons: buttonsFromKeys({ kick: true }),
+      });
+    }
+
+    return createInput(frame, {
+      horizontal: keyDown(this.keys.p1Left) ? -1 : keyDown(this.keys.p1Right) || keyDown(this.keys.p1RightAlt) ? 1 : 0,
+      vertical: keyDown(this.keys.p1Down) ? 1 : keyDown(this.keys.p1Jump) ? -1 : 0,
+      buttons: buttonsFromKeys({
+        jump: keyDown(this.keys.p1Jump),
+        crouch: keyDown(this.keys.p1Down),
+        light: keyDown(this.keys.p1Light) || keyDown(this.keys.p1LightAlt),
+        kick: keyDown(this.keys.p1Kick),
+        heavy: keyDown(this.keys.p1Heavy),
+        special: keyDown(this.keys.p1Special) || keyDown(this.keys.p1SpecialAlt),
+        guard: keyDown(this.keys.p1Left),
+      }),
+    });
+  }
+
+  private applyDemoMode(): void {
+    if (
+      this.demoMode !== "walk-forward" &&
+      this.demoMode !== "walk-back" &&
+      this.demoMode !== "crouch" &&
+      this.demoMode !== "jump" &&
+      this.demoMode !== "light-punch" &&
+      this.demoMode !== "light-kick" &&
+      this.demoMode !== "heavy-punch" &&
+      this.demoMode !== "special" &&
+      this.demoMode !== "super" &&
+      this.demoMode !== "hop" &&
+      this.demoMode !== "run-forward" &&
+      this.demoMode !== "backdash" &&
+      this.demoMode !== "hitstun" &&
+      this.demoMode !== "blockstun" &&
+      this.demoMode !== "knockdown" &&
+      this.demoMode !== "win"
+    ) {
+      return;
+    }
+
+    this.p2CpuEnabled = false;
+    this.shell = { phase: "fighting" };
+    this.startSelectedMatch();
+    if (this.demoMode === "hitstun") {
+      this.primeHitstunDemo();
+    } else if (this.demoMode === "blockstun") {
+      this.primeBlockstunDemo();
+    } else if (this.demoMode === "jump") {
+      this.primeJumpDemo();
+    } else if (this.demoMode === "light-kick") {
+      this.primeLightKickDemo();
+    } else if (this.demoMode === "heavy-punch") {
+      this.primeHeavyPunchDemo();
+    } else if (this.demoMode === "special") {
+      this.primeSpecialDemo();
+    } else if (this.demoMode === "super") {
+      this.primeSuperDemo();
+    } else if (this.demoMode === "hop") {
+      this.primeHopDemo();
+    } else if (this.demoMode === "run-forward") {
+      this.primeRunForwardDemo();
+    } else if (this.demoMode === "backdash") {
+      this.primeBackdashDemo();
+    } else if (this.demoMode === "knockdown") {
+      this.primeKnockdownDemo();
+    } else if (this.demoMode === "win") {
+      this.primeWinDemo();
+    }
+  }
+
+  private primeHeavyPunchDemo(): void {
+    this.snapshot = {
+      ...this.snapshot,
+      p1: {
+        ...this.snapshot.p1,
+        x: 560,
+        state: "heavyAttack",
+        stateFrame: 14,
+        hitstop: 0,
+      },
+      p2: {
+        ...this.snapshot.p2,
+        x: 722,
+        state: "idle",
+        stateFrame: 0,
+        health: 1000,
+      },
+    };
+  }
+
+  private primeLightKickDemo(): void {
+    this.snapshot = {
+      ...this.snapshot,
+      p1: {
+        ...this.snapshot.p1,
+        x: 560,
+        state: "lightKick",
+        stateFrame: 10,
+        hitstop: 0,
+      },
+      p2: {
+        ...this.snapshot.p2,
+        x: 716,
+        state: "idle",
+        stateFrame: 0,
+        health: 1000,
+      },
+    };
+  }
+
+  private primeJumpDemo(): void {
+    this.snapshot = {
+      ...this.snapshot,
+      p1: {
+        ...this.snapshot.p1,
+        x: 430,
+        y: 344,
+        state: "jump",
+        stateFrame: 18,
+        grounded: false,
+        hitstop: 0,
+      },
+      p2: {
+        ...this.snapshot.p2,
+        x: 690,
+        state: "idle",
+        stateFrame: 0,
+        health: 1000,
+      },
+    };
+  }
+
+  private primeSpecialDemo(): void {
+    this.snapshot = {
+      ...this.snapshot,
+      p1: {
+        ...this.snapshot.p1,
+        x: 560,
+        state: "specialAttack",
+        stateFrame: 18,
+        hitstop: 0,
+      },
+      p2: {
+        ...this.snapshot.p2,
+        x: 722,
+        state: "idle",
+        stateFrame: 0,
+        health: 1000,
+      },
+    };
+  }
+
+  private primeSuperDemo(): void {
+    this.snapshot = {
+      ...this.snapshot,
+      p1: {
+        ...this.snapshot.p1,
+        x: 540,
+        meter: POWER_METER_STOCK,
+        state: "superAttack",
+        stateFrame: 24,
+        hitstop: 0,
+      },
+      p2: {
+        ...this.snapshot.p2,
+        x: 722,
+        state: "idle",
+        stateFrame: 0,
+        health: 1000,
+      },
+    };
+  }
+
+  private primeHopDemo(): void {
+    this.snapshot = {
+      ...this.snapshot,
+      p1: {
+        ...this.snapshot.p1,
+        x: 444,
+        y: 388,
+        state: "hop",
+        stateFrame: 11,
+        grounded: false,
+        hitstop: 0,
+      },
+      p2: {
+        ...this.snapshot.p2,
+        x: 690,
+        state: "idle",
+        stateFrame: 0,
+        health: 1000,
+      },
+    };
+  }
+
+  private primeRunForwardDemo(): void {
+    this.snapshot = {
+      ...this.snapshot,
+      p1: {
+        ...this.snapshot.p1,
+        x: 488,
+        state: "runForward",
+        stateFrame: 12,
+        hitstop: 0,
+      },
+      p2: {
+        ...this.snapshot.p2,
+        x: 724,
+        state: "idle",
+        stateFrame: 0,
+      },
+    };
+  }
+
+  private primeBackdashDemo(): void {
+    this.snapshot = {
+      ...this.snapshot,
+      p1: {
+        ...this.snapshot.p1,
+        x: 520,
+        state: "backdash",
+        stateFrame: 8,
+        hitstop: 0,
+      },
+      p2: {
+        ...this.snapshot.p2,
+        x: 724,
+        state: "idle",
+        stateFrame: 0,
+      },
+    };
+  }
+
+  private primeKnockdownDemo(): void {
+    this.snapshot = {
+      ...this.snapshot,
+      p1: {
+        ...this.snapshot.p1,
+        x: 520,
+        state: "idle",
+        stateFrame: 0,
+        hitstop: 0,
+      },
+      p2: {
+        ...this.snapshot.p2,
+        x: 690,
+        state: "knockdown",
+        stateFrame: 36,
+        hitstop: 0,
+        health: 0,
+      },
+    };
+  }
+
+  private primeWinDemo(): void {
+    this.shell = { phase: "match-over" };
+    this.matchSet = {
+      ...this.matchSet,
+      wins: { p1: this.matchSet.targetWins, p2: 0 },
+      lastRoundWinner: "p1",
+      matchWinner: "p1",
+      status: "complete",
+    };
+    this.snapshot = {
+      ...this.snapshot,
+      status: "round-over",
+      winner: "p1",
+      p1: {
+        ...this.snapshot.p1,
+        x: 500,
+        state: "idle",
+        stateFrame: 40,
+        hitstop: 0,
+        health: 740,
+      },
+      p2: {
+        ...this.snapshot.p2,
+        x: 710,
+        state: "knockdown",
+        stateFrame: 36,
+        hitstop: 0,
+        health: 0,
+      },
+    };
+  }
+
+  private primeHitstunDemo(): void {
+    let next = this.snapshot;
+    for (let index = 0; index < 90; index += 1) {
+      const frame = next.frame + 1;
+      next = this.simulation.step({
+        p1: createInput(frame, {
+          horizontal: 1,
+          vertical: 0,
+          buttons: buttonsFromKeys({}),
+        }),
+        p2: createInput(frame),
+      });
+    }
+    for (let index = 0; index < 8; index += 1) {
+      const frame = next.frame + 1;
+      next = this.simulation.step({
+        p1: createInput(frame, {
+          horizontal: 0,
+          vertical: 0,
+          buttons: buttonsFromKeys({ light: true }),
+        }),
+        p2: createInput(frame),
+      });
+    }
+    for (let index = 0; index < 16; index += 1) {
+      const frame = next.frame + 1;
+      next = this.simulation.step({
+        p1: createInput(frame),
+        p2: createInput(frame),
+      });
+    }
+    this.snapshot = next;
+  }
+
+  private primeBlockstunDemo(): void {
+    let next = this.snapshot;
+    for (let index = 0; index < 115; index += 1) {
+      const frame = next.frame + 1;
+      next = this.simulation.step({
+        p1: createInput(frame, {
+          horizontal: 1,
+          vertical: 0,
+          buttons: buttonsFromKeys({}),
+        }),
+        p2: createInput(frame),
+      });
+    }
+    for (let index = 0; index < 8; index += 1) {
+      const frame = next.frame + 1;
+      const blockingActiveFrames = index >= 4 && index <= 6;
+      next = this.simulation.step({
+        p1: createInput(frame, {
+          horizontal: 0,
+          vertical: 0,
+          buttons: buttonsFromKeys({ light: true }),
+        }),
+        p2: blockingActiveFrames
+          ? createInput(frame, {
+              horizontal: 1,
+              vertical: 0,
+              buttons: buttonsFromKeys({ guard: true }),
+            })
+          : createInput(frame),
+      });
+    }
+    for (let index = 0; index < 8; index += 1) {
+      const frame = next.frame + 1;
+      next = this.simulation.step({
+        p1: createInput(frame),
+        p2: createInput(frame),
+      });
+    }
+    this.snapshot = {
+      ...next,
+      combo: { attacker: null, defender: null, count: 0, damage: 0, lastHitFrame: null },
+      p2: {
+        ...next.p2,
+        health: 1000,
+        state: "blockstun",
+        stateFrame: 16,
+        hitstop: 0,
+      },
+    };
+  }
+
+  private renderShellText(): void {
+    this.titleText.setText(shellTitle(this.shell, this.snapshot, this.matchSet));
+    this.helpText.setText(shellHelp(this.shell, this.selectionLabel()));
+    this.versusText.setVisible(this.shell.phase === "select");
+    if (this.shell.phase === "fighting") {
+      this.titleText.setPosition(512, 182);
+      this.titleText.setFontSize(34);
+      this.helpText.setPosition(512, 532);
+      this.helpText.setFontSize(13);
+      this.helpText.setAlpha(0.78);
+    } else if (this.shell.phase === "select") {
+      this.titleText.setPosition(512, 132);
+      this.titleText.setFontSize(30);
+      this.helpText.setPosition(512, 194);
+      this.helpText.setFontSize(15);
+      this.helpText.setAlpha(1);
+    } else if (this.shell.phase === "ready") {
+      this.titleText.setPosition(512, 148);
+      this.titleText.setFontSize(48);
+      this.helpText.setPosition(512, 264);
+      this.helpText.setFontSize(16);
+      this.helpText.setAlpha(1);
+    } else {
+      this.titleText.setPosition(512, 182);
+      this.titleText.setFontSize(34);
+      this.helpText.setPosition(512, 258);
+      this.helpText.setFontSize(18);
+      this.helpText.setAlpha(1);
+    }
+  }
+
+  private renderReadinessText(): void {
+    if (this.shell.phase !== "select") {
+      this.readinessText.setVisible(false);
+      return;
+    }
+
+    this.readinessText.setText(selectFooterLine(this.assetReadiness)).setPosition(512, 506).setVisible(true);
+  }
+
+  private renderConceptArt(): void {
+    const shouldShow = this.canRenderConceptArt();
+    for (const player of ["p1", "p2"] as const) {
+      const placement = conceptArtPlacement(this.shell, player);
+      this.conceptPreviews[player]
+        .setPosition(placement.x, placement.y)
+        .setDisplaySize(placement.width, placement.height)
+        .setDepth(100)
+        .setVisible(shouldShow);
+    }
+  }
+
+  private renderSelectSprites(): void {
+    const shouldShow =
+      (this.shell.phase === "ready" || this.shell.phase === "select") &&
+      !this.canRenderConceptArt() &&
+      this.canRenderSelectSprites();
+    for (const player of ["p1", "p2"] as const) {
+      const sprite = this.selectSprites[player];
+      const assetKey = this.selectIdleAssetKey(player);
+      if (!shouldShow || !assetKey) {
+        sprite.setVisible(false);
+        continue;
+      }
+
+      const pose = selectSpritePose("idle", this.shellFrame, 8);
+      const placement = selectSpritePlacement(this.shell, player);
+      sprite
+        .setTexture(assetKey)
+        .setFrame(pose.frame)
+        .setPosition(placement.x, placement.y + pose.offsetY)
+        .setScale(placement.scale * pose.scaleX, placement.scale * pose.scaleY)
+        .setFlipX(player === "p2")
+        .setVisible(true);
+    }
+  }
+
+  private canRenderSelectSprites(): boolean {
+    return (["p1", "p2"] as const).every((player) => {
+      const assetKey = this.selectIdleAssetKey(player);
+      return assetKey ? this.textures.exists(assetKey) : false;
+    });
+  }
+
+  private canRenderConceptArt(): boolean {
+    return this.shell.phase === "ready" && !this.canRenderSelectSprites() && this.textures.exists(CONCEPT_SHEET_KEY);
+  }
+
+  private selectIdleAssetKey(player: "p1" | "p2"): string | null {
+    const fighter = selectedFighter(this.selectedFighterIndex[player]);
+    const runtimeAsset = resolveFighterRuntimeAsset(renderAssetForAnimationId(manifestForCharacter(fighter.id), "idle"));
+    return runtimeAsset.kind === "sprite" ? runtimeAsset.assetKey : null;
+  }
+
+  private selectionLabel(): string {
+    return `P1 ${selectedFighter(this.selectedFighterIndex.p1).displayName}  |  P2 ${
+      selectedFighter(this.selectedFighterIndex.p2).displayName
+    }`;
+  }
+
+  private renderComboText(snapshot: MatchSnapshot): void {
+    if (snapshot.combo.count < 2 || !snapshot.combo.attacker) {
+      this.comboText.setVisible(false);
+      return;
+    }
+
+    const isP1Combo = snapshot.combo.attacker === "p1";
+    this.comboText
+      .setText(`${snapshot.combo.count} HIT / ${snapshot.combo.damage}`)
+      .setPosition(isP1Combo ? 132 : 892, 124)
+      .setOrigin(isP1Combo ? 0 : 1, 0)
+      .setVisible(true);
+  }
+
+  private installDebugHooks(): void {
+    window.render_game_to_text = () => this.renderTextState();
+    window.advanceTime = (ms: number) => this.advanceDebug(ms);
+    this.input.keyboard?.on("keydown", () => this.audio.unlock());
+  }
+
+  private toggleFullscreen(): void {
+    if (this.scale.isFullscreen) {
+      this.scale.stopFullscreen();
+      return;
+    }
+    this.scale.startFullscreen();
+  }
+
+  private triggerImpactFeedback(): void {
+    const cue = impactFeedbackCue(this.snapshot.events);
+    if (!cue) return;
+
+    this.cameras.main.shake(cue.duration, cue.intensity);
+    this.impactFlash = {
+      color: rgbToNumber(cue.flash.red, cue.flash.green, cue.flash.blue),
+      alpha: cue.flash.alpha,
+      remainingFrames: Math.max(1, Math.ceil(cue.duration / TICK_MS)),
+      totalFrames: Math.max(1, Math.ceil(cue.duration / TICK_MS)),
+    };
+  }
+}
+
+function tickImpactFlash(flash: ImpactFlash | null): ImpactFlash | null {
+  if (!flash) return null;
+  if (flash.remainingFrames <= 1) return null;
+  return { ...flash, remainingFrames: flash.remainingFrames - 1 };
+}
+
+function drawImpactFlash(g: Phaser.GameObjects.Graphics, flash: ImpactFlash | null): void {
+  if (!flash) return;
+  const progress = flash.remainingFrames / flash.totalFrames;
+  g.fillStyle(flash.color, flash.alpha * progress).fillRect(0, 0, 1024, 576);
+}
+
+function rgbToNumber(red: number, green: number, blue: number): number {
+  return ((red & 255) << 16) | ((green & 255) << 8) | (blue & 255);
+}
+
+function drawEffects(g: Phaser.GameObjects.Graphics, effects: readonly CombatEffect[]): void {
+  for (const effect of effects) {
+    const alpha = Math.max(0, 1 - effect.age / effect.duration);
+    if (effect.kind === "hit") {
+      g.fillStyle(0xfff1a8, alpha).fillCircle(effect.x, effect.y, 10 + effect.age * 0.4);
+      g.lineStyle(3, 0xff3366, alpha);
+      g.lineBetween(effect.x - 18, effect.y, effect.x + 18, effect.y);
+      g.lineBetween(effect.x, effect.y - 18, effect.x, effect.y + 18);
+      g.lineBetween(effect.x - 12, effect.y - 12, effect.x + 12, effect.y + 12);
+      g.lineBetween(effect.x - 12, effect.y + 12, effect.x + 12, effect.y - 12);
+      continue;
+    }
+
+    g.lineStyle(4, 0x9bdff2, alpha);
+    g.strokeCircle(effect.x, effect.y, 16 + effect.age * 0.35);
+    g.lineBetween(effect.x - 12, effect.y - 12, effect.x + 12, effect.y + 12);
+    g.lineBetween(effect.x - 12, effect.y + 12, effect.x + 12, effect.y - 12);
+  }
+}
+
+function shellTitle(shell: ShellState, snapshot: MatchSnapshot, matchSet: MatchSetState): string {
+  if (shell.phase === "ready") return GAME_TITLE;
+  if (shell.phase === "select") return "SELECT YOUR FIGHTERS";
+  if (shell.phase === "paused") return "PAUSED";
+  if (shell.phase === "round-over") return roundResultLabel(snapshot);
+  if (shell.phase === "match-over") return matchResultLabel(matchSet);
+  return "";
+}
+
+function shellHelp(shell: ShellState, selectionLabel: string): string {
+  if (shell.phase === "ready") {
+    return `${GAME_SUBTITLE}\nPRESS ENTER\nDouble-tap D/B run  |  W+dir hop  |  Space/J light\nI kick  |  K heavy  |  L special  |  S,D,L super`;
+  }
+  if (shell.phase === "select") {
+    return `${selectionLabel}\nA/D or B: P1 fighter  |  Arrow keys: P2 fighter\nEnter: fight  |  R: reset`;
+  }
+  if (shell.phase === "round-over") {
+    return "Enter: next round\nR: reset to ready";
+  }
+  if (shell.phase === "match-over") {
+    return "Enter: new match\nR: reset to ready";
+  }
+  if (shell.phase === "paused") {
+    return "P/Esc: resume\nR: reset to ready";
+  }
+  return "Double-tap D/B run  |  W+dir hop  |  Space/J light  |  I kick  |  K heavy  |  L special  |  S,D,L super  |  C CPU  |  V level  |  P pause  |  F full";
+}
+
+function nextCpuDifficulty(current: CpuDifficulty): CpuDifficulty {
+  const index = CPU_DIFFICULTIES.indexOf(current);
+  return CPU_DIFFICULTIES[(index + 1) % CPU_DIFFICULTIES.length];
+}
+
+function selectedFighter(index: number): FighterDefinition {
+  return FIGHTER_ROSTER[index % FIGHTER_ROSTER.length];
+}
+
+function selectSpritePlacement(shell: ShellState, player: "p1" | "p2"): { x: number; y: number; scale: number } {
+  if (shell.phase === "ready") {
+    return player === "p1"
+      ? { x: 188, y: 512, scale: 1.36 }
+      : { x: 836, y: 512, scale: 1.36 };
+  }
+
+  return player === "p1"
+    ? { x: 318, y: 470, scale: 1.06 }
+    : { x: 706, y: 470, scale: 1.06 };
+}
+
+function conceptArtPlacement(
+  shell: ShellState,
+  player: "p1" | "p2",
+): { x: number; y: number; width: number; height: number } {
+  if (shell.phase === "ready") {
+    return player === "p1"
+      ? { x: 164, y: 330, width: 246, height: 404 }
+      : { x: 860, y: 330, width: 246, height: 404 };
+  }
+
+  return player === "p1"
+    ? { x: 318, y: 366, width: 178, height: 292 }
+    : { x: 706, y: 366, width: 178, height: 292 };
+}
+
+function selectFooterLine(summary: ReturnType<typeof buildAssetReadinessSummary>): string {
+  const fallbackCount = summary.runtimeFallbacks.fighterAnimations + summary.runtimeFallbacks.stageLayers;
+  if (fallbackCount > 0) return "PROTOTYPE ASSETS ACTIVE";
+  return "ARCADE BUILD READY";
+}
+
+function powerStockLabel(meter: number): string {
+  return String(Math.floor(meter / POWER_METER_STOCK));
+}
+
+function manifestForCharacter(characterId: string) {
+  const manifest = fighterAssetManifests.find(
+    (candidate) => candidate.engineCharacterId === characterId || candidate.displayName === characterId,
+  );
+  if (!manifest) {
+    throw new Error(`Missing fighter asset manifest for ${characterId}`);
+  }
+  return manifest;
+}
+
+function versionedAsset(path: string): string {
+  return `${path}?v=${ASSET_VERSION}`;
+}
+
+function drawShellBackdrop(g: Phaser.GameObjects.Graphics, shell: ShellState, stageArtVisible: boolean): void {
+  if (shell.phase === "fighting") {
+    g.fillStyle(0x0b1817, 0.52).fillRoundedRect(158, 512, 708, 36, 6);
+    return;
+  }
+  if (stageArtVisible) {
+    g.fillStyle(0x071312, shell.phase === "select" ? 0.48 : 0.34).fillRect(0, 0, 1024, 576);
+    drawZelligeRail(g, 0, shell.phase === "select" ? 0.84 : 0.72);
+  }
+  if (shell.phase === "select") {
+    g.fillStyle(0x071312, 0.72).fillRoundedRect(70, 74, 884, 468, 6);
+    g.lineStyle(2, 0xf2cf7d, 0.9).strokeRoundedRect(70, 74, 884, 468, 6);
+    drawSelectionCard(g, 166, 228, 298, 264, 0x2ec4b6, "left");
+    drawSelectionCard(g, 560, 228, 298, 264, 0xff9f1c, "right");
+    drawVsMedallion(g, 512, 360);
+    return;
+  }
+  drawTitlePortraitFrame(g, 42, 120, 244, 410, 0x2ec4b6);
+  drawTitlePortraitFrame(g, 738, 120, 244, 410, 0xff9f1c);
+  g.fillStyle(0x071312, 0.68).fillRoundedRect(262, 92, 500, 242, 8);
+  g.lineStyle(2, 0xf2cf7d, 0.9).strokeRoundedRect(262, 92, 500, 242, 8);
+  g.fillStyle(0x2ec4b6, 0.86).fillRect(282, 106, 156, 4);
+  g.fillStyle(0xff9f1c, 0.86).fillRect(586, 106, 156, 4);
+  g.lineStyle(1, 0xf8f5e9, 0.2);
+  g.lineBetween(304, 316, 720, 316);
+}
+
+function drawZelligeRail(g: Phaser.GameObjects.Graphics, y: number, alpha: number): void {
+  g.fillStyle(0x071312, alpha).fillRect(0, y, 1024, 24);
+  g.fillStyle(0xf2cf7d, 0.92);
+  for (let x = -16; x < 1040; x += 40) {
+    g.fillTriangle(x, y + 24, x + 20, y + 6, x + 40, y + 24);
+  }
+  g.fillStyle(0x2ec4b6, 0.78).fillRect(0, y + 22, 1024, 2);
+}
+
+function drawTitlePortraitFrame(
+  g: Phaser.GameObjects.Graphics,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  accent: number,
+): void {
+  g.fillStyle(0x071312, 0.5).fillRoundedRect(x, y, width, height, 5);
+  g.lineStyle(3, accent, 0.92).strokeRoundedRect(x, y, width, height, 5);
+  g.lineStyle(1, 0xf2cf7d, 0.68).strokeRoundedRect(x + 8, y + 8, width - 16, height - 16, 3);
+}
+
+function drawSelectionCard(
+  g: Phaser.GameObjects.Graphics,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  accent: number,
+  side: "left" | "right",
+): void {
+  g.fillStyle(0x0b1817, 0.62).fillRoundedRect(x, y, width, height, 6);
+  g.fillStyle(0xf8f5e9, 0.06).fillRoundedRect(x + 10, y + 10, width - 20, height - 20, 4);
+  g.fillStyle(accent, 0.95).fillRect(side === "left" ? x : x + width - 7, y, 7, height);
+  g.lineStyle(1, 0xf2cf7d, 0.42).strokeRoundedRect(x, y, width, height, 6);
+}
+
+function drawVsMedallion(g: Phaser.GameObjects.Graphics, x: number, y: number): void {
+  g.fillStyle(0x0b1817, 0.9).fillCircle(x, y, 42);
+  g.lineStyle(3, 0xf2cf7d, 0.92).strokeCircle(x, y, 42);
+  g.lineStyle(1, 0xf8f5e9, 0.28).strokeCircle(x, y, 30);
+}
+
+function keyDown(key?: Phaser.Input.Keyboard.Key): boolean {
+  return Boolean(key?.isDown);
+}
+
+function drawActionEffects(
+  g: Phaser.GameObjects.Graphics,
+  snapshot: MatchSnapshot,
+  visualOffsets: Record<"p1" | "p2", number>,
+): void {
+  drawFighterActionEffect(g, snapshot.p1, 0x2ec4b6, visualOffsets.p1);
+  drawFighterActionEffect(g, snapshot.p2, 0xff9f1c, visualOffsets.p2);
+}
+
+function drawFighterActionEffect(
+  g: Phaser.GameObjects.Graphics,
+  fighter: MatchSnapshot["p1"],
+  color: number,
+  visualOffsetX: number,
+): void {
+  const plan = actionEffectPlan(fighter.state);
+  if (!plan) return;
+
+  const progress = Math.min(1, fighter.stateFrame / plan.duration);
+  const strike = Math.sin(progress * Math.PI);
+  const alpha = Math.max(0, 0.72 - Math.abs(progress - 0.52) * 0.9);
+  if (alpha <= 0.02) return;
+
+  const facing = fighter.facing;
+  const visualX = fighter.x + visualOffsetX;
+  const startX = visualX + facing * plan.startX;
+  const endX = visualX + facing * (plan.endX + strike * plan.extraReach);
+  const y = fighter.y + plan.y;
+  const highlight = plan.kind === "special" || plan.kind === "super" ? 0xfff1a8 : 0xf8f5e9;
+
+  if (plan.kind === "kick") {
+    g.fillStyle(highlight, alpha * 0.16).fillTriangle(startX, y - 12, endX, y + 2, endX - facing * 24, y + 24);
+    g.lineStyle(7, highlight, alpha * 0.76).lineBetween(startX, y, endX, y + 4);
+    g.lineStyle(3, color, alpha).lineBetween(startX - facing * 8, y + 10, endX - facing * 18, y + 18);
+    return;
+  }
+
+  if (plan.kind === "special" || plan.kind === "super") {
+    const superScale = plan.kind === "super" ? 1.55 : 1;
+    g.fillStyle(0xfff1a8, alpha * (plan.kind === "super" ? 0.34 : 0.26)).fillCircle(endX, y, (18 + strike * 10) * superScale);
+    g.lineStyle(plan.kind === "super" ? 8 : 5, color, alpha).strokeCircle(endX, y, (22 + strike * 14) * superScale);
+    g.lineStyle(5, highlight, alpha * 0.78).lineBetween(startX, y + 8, endX, y - 4);
+    g.lineStyle(3, 0xff9f1c, alpha).lineBetween(startX - facing * 10, y + 20, endX - facing * 30, y + 26);
+    return;
+  }
+
+  g.fillStyle(highlight, alpha * 0.14).fillTriangle(startX, y - 18, endX, y - 2, endX - facing * 28, y + 18);
+  g.lineStyle(plan.kind === "heavy" ? 7 : 5, highlight, alpha * 0.76).lineBetween(startX, y, endX, y - 4);
+  g.lineStyle(3, color, alpha).lineBetween(startX - facing * 6, y + 10, endX - facing * 18, y + 14);
+}
+
+function actionEffectPlan(
+  state: MatchSnapshot["p1"]["state"],
+):
+  | { kind: "light" | "heavy" | "kick" | "special" | "super"; duration: number; startX: number; endX: number; extraReach: number; y: number }
+  | null {
+  if (state === "lightAttack") {
+    return { kind: "light", duration: 18, startX: 26, endX: 82, extraReach: 8, y: -176 };
+  }
+  if (state === "heavyAttack") {
+    return { kind: "heavy", duration: 30, startX: 30, endX: 102, extraReach: 14, y: -178 };
+  }
+  if (state === "lightKick") {
+    return { kind: "kick", duration: 22, startX: 18, endX: 100, extraReach: 12, y: -118 };
+  }
+  if (state === "specialAttack") {
+    return { kind: "special", duration: 42, startX: 30, endX: 116, extraReach: 18, y: -174 };
+  }
+  if (state === "superAttack") {
+    return { kind: "super", duration: 62, startX: 24, endX: 146, extraReach: 30, y: -174 };
+  }
+  return null;
+}
+
+function drawStage(g: Phaser.GameObjects.Graphics): void {
+  g.fillStyle(0x163936, 1).fillRect(0, 0, 1024, 576);
+  g.fillStyle(0x275a4f, 1).fillRect(0, 376, 1024, 200);
+  g.fillStyle(0xd6b56d, 1).fillRect(0, 456, 1024, 120);
+  g.fillStyle(0x2f6f63, 1).fillRect(64, 108, 896, 22);
+  g.fillStyle(0xf2cf7d, 1);
+  for (let x = 88; x < 936; x += 56) {
+    g.fillTriangle(x, 108, x + 28, 72, x + 56, 108);
+  }
+  g.lineStyle(2, 0x102523, 0.75);
+  for (let x = 0; x <= 1024; x += 48) {
+    g.lineBetween(x, 456, x + 32, 576);
+  }
+  g.lineStyle(4, 0x513b24, 1).strokeRect(64, 84, 896, 392);
+}
+
+function drawHud(g: Phaser.GameObjects.Graphics, snapshot: MatchSnapshot, matchSet: MatchSetState): void {
+  const p1Ratio = snapshot.p1.health / 1000;
+  const p2Ratio = snapshot.p2.health / 1000;
+  const p1PowerRatio = snapshot.p1.meter / POWER_METER_MAX;
+  const p2PowerRatio = snapshot.p2.meter / POWER_METER_MAX;
+  g.fillStyle(0x071312, 0.86).fillRoundedRect(56, 18, 912, 76, 6);
+  g.lineStyle(1, 0xf2cf7d, 0.48).strokeRoundedRect(56, 18, 912, 76, 6);
+  g.fillStyle(0x142522, 1).fillRoundedRect(100, 44, 338, 18, 2);
+  g.fillStyle(0x142522, 1).fillRoundedRect(586, 44, 338, 18, 2);
+  g.fillStyle(0x2ec4b6, 1).fillRoundedRect(100, 44, 338 * p1Ratio, 18, 2);
+  g.fillStyle(0xff9f1c, 1).fillRoundedRect(924 - 338 * p2Ratio, 44, 338 * p2Ratio, 18, 2);
+  g.fillStyle(0x0b1817, 1).fillRoundedRect(100, 64, 338, 7, 1);
+  g.fillStyle(0x0b1817, 1).fillRoundedRect(586, 64, 338, 7, 1);
+  g.fillStyle(0xfff1a8, 1).fillRoundedRect(100, 64, 338 * p1PowerRatio, 7, 1);
+  g.fillStyle(0xfff1a8, 1).fillRoundedRect(924 - 338 * p2PowerRatio, 64, 338 * p2PowerRatio, 7, 1);
+  drawPowerStocks(g, 444, 67, snapshot.p1.meter, 1);
+  drawPowerStocks(g, 580, 67, snapshot.p2.meter, -1);
+  g.fillStyle(0xf2cf7d, 1).fillCircle(512, 54, 28);
+  g.fillStyle(0x0b1817, 1).fillCircle(512, 54, 22);
+  drawScorePips(g, 104, 74, matchSet.wins.p1, matchSet.targetWins, 0x2ec4b6);
+  drawScorePips(g, 902, 74, matchSet.wins.p2, matchSet.targetWins, 0xff9f1c, -1);
+}
+
+function drawPowerStocks(g: Phaser.GameObjects.Graphics, x: number, y: number, meter: number, direction: 1 | -1): void {
+  const fullStocks = Math.floor(meter / POWER_METER_STOCK);
+  for (let index = 0; index < POWER_METER_MAX / POWER_METER_STOCK; index += 1) {
+    const left = x + index * 13 * direction;
+    g.lineStyle(1, 0xfff1a8, 0.7).strokeRect(direction === 1 ? left : left - 8, y, 8, 4);
+    if (index < fullStocks) {
+      g.fillStyle(0xfff1a8, 0.96).fillRect(direction === 1 ? left + 1 : left - 7, y + 1, 6, 2);
+    }
+  }
+}
+
+function drawScorePips(
+  g: Phaser.GameObjects.Graphics,
+  x: number,
+  y: number,
+  wins: number,
+  targetWins: number,
+  color: number,
+  direction = 1,
+): void {
+  for (let index = 0; index < targetWins; index += 1) {
+    const centerX = x + index * 18 * direction;
+    g.lineStyle(1, 0xf8f5e9, 0.7).strokeCircle(centerX, y, 5);
+    if (index < wins) {
+      g.fillStyle(color, 1).fillCircle(centerX, y, 4);
+    }
+  }
+}
+
+function hudCenterLabel(snapshot: MatchSnapshot, matchSet: MatchSetState): string {
+  if (matchSet.status === "complete") return "FT";
+  if (snapshot.status === "round-over") return "KO";
+  return String(snapshot.roundTimer).padStart(2, "0");
+}
+
+function roundLabel(matchSet: MatchSetState): string {
+  return matchSet.status === "complete" ? "MATCH" : `ROUND ${matchSet.round}`;
+}
+
+function roundResultLabel(snapshot: MatchSnapshot): string {
+  if (snapshot.status === "round-over") {
+    if (snapshot.winner === "draw") return "DRAW";
+    return `${snapshot.winner?.toUpperCase()} WINS ROUND`;
+  }
+  return String(snapshot.roundTimer).padStart(2, "0");
+}
+
+function matchResultLabel(matchSet: MatchSetState): string {
+  if (matchSet.matchWinner === "draw" || !matchSet.matchWinner) return "MATCH DRAW";
+  return `${matchSet.matchWinner.toUpperCase()} WINS MATCH`;
+}
+
+function drawFighter(
+  g: Phaser.GameObjects.Graphics,
+  fighter: MatchSnapshot["p1"],
+  color: number,
+  hurtbox: { x: number; y: number; width: number; height: number },
+  hitboxes: readonly { x: number; y: number; width: number; height: number }[],
+): void {
+  g.fillStyle(color, 1).fillRoundedRect(fighter.x - 22, fighter.y - 112, 44, 112, 10);
+  g.fillStyle(0xf8f5e9, 1).fillCircle(fighter.x + 8 * fighter.facing, fighter.y - 126, 18);
+  g.fillStyle(0x111918, 1).fillCircle(fighter.x + 14 * fighter.facing, fighter.y - 130, 3);
+  g.lineStyle(2, 0xf8f5e9, 1).lineBetween(fighter.x, fighter.y - 72, fighter.x + 42 * fighter.facing, fighter.y - 84);
+  g.lineStyle(1, 0x2f80ed, 0.7).strokeRect(hurtbox.x, hurtbox.y, hurtbox.width, hurtbox.height);
+  g.lineStyle(2, 0xff3366, 0.9);
+  for (const hitbox of hitboxes) {
+    g.strokeRect(hitbox.x, hitbox.y, hitbox.width, hitbox.height);
+  }
+}
