@@ -220,6 +220,11 @@ const blockstunRowRuntimePaths: Readonly<Record<MeowtalFighterId, string>> = {
   "ginger-tabby-cat": "/assets/generated/fighters/ginger-tabby-cat/blockstun.png",
 };
 
+const knockdownRowSourcePaths: Readonly<Record<MeowtalFighterId, string>> = {
+  "gray-rabbit": "assets/source/imagegen/fighters/gray-rabbit/knockdown.png",
+  "ginger-tabby-cat": "assets/source/imagegen/fighters/ginger-tabby-cat/knockdown.png",
+};
+
 const heavyPunchRowSourcePaths: Readonly<Record<MeowtalFighterId, string>> = {
   "gray-rabbit": "assets/source/imagegen/fighters/gray-rabbit/heavy-punch.png",
   "ginger-tabby-cat": "assets/source/imagegen/fighters/ginger-tabby-cat/heavy-punch.png",
@@ -305,6 +310,13 @@ const specialRowQaNotes: Readonly<Record<MeowtalFighterId, string>> = {
     "Approved runtime special row. Visual QA: ten separated upright two-legged gray rabbit rapid spinning tornado frames with crouch-load, readable spin build-up, character-attached green energy ribbons, deceleration, recovery, and guard settle; no visible text/watermark/frame numbers, magenta chroma-key removed to transparent alpha, normalized to 2560x256 RGBA, and approved for runtime publication by T079.",
   "ginger-tabby-cat":
     "Approved runtime special row. Visual QA: ten separated upright two-legged ginger tabby acrobatic flip-kick frames with planted chamber, readable mid-flip, green/yellow foot-attached aura crescents, controlled landing, recovery, and guard settle; no visible text/watermark/frame numbers, magenta chroma-key removed to transparent alpha, normalized to 2560x256 RGBA, and approved for runtime publication by T079.",
+};
+
+const knockdownRowQaNotes: Readonly<Record<MeowtalFighterId, string>> = {
+  "gray-rabbit":
+    "Generated source-only knockdown row candidate. QA notes: eight separated gray rabbit fighting-game knockdown frames with upright two-legged hurt/fall anticipation, loss of balance, ground impact, and dazed grounded hit-reaction hold; no crawl/rest/sleeping or stance-convention reset, no visible text/watermark/frame numbers, green chroma-key removed to transparent alpha, normalized QA candidate is 2048x256 RGBA, pending Judge visual QA before runtime publication.",
+  "ginger-tabby-cat":
+    "Generated source-only knockdown row candidate. QA notes: eight separated ginger tabby fighting-game knockdown frames with upright two-legged hurt/fall anticipation, loss of balance, ground impact, and dazed grounded hit-reaction hold; no crawl/rest/sleeping or stance-convention reset, no visible text/watermark/frame numbers, green chroma-key removed to transparent alpha, normalized QA candidate is 2048x256 RGBA, pending Judge visual QA before runtime publication.",
 };
 
 const animationFrameCounts: Readonly<Record<FighterAnimationId, number>> = {
@@ -519,12 +531,22 @@ export function validateMeowtalProductionManifest(
         if (!row.provenance.runtimePath?.includes("/assets/generated/fighters/")) {
           errors.push(`${row.provenance.assetId}: approved special row requires a generated runtime path`);
         }
+      } else if (row.animationId === "knockdown") {
+        if (row.provenance.status !== "generated") {
+          errors.push(`${row.provenance.assetId}: knockdown row should be source-generated after T082`);
+        }
+        if (row.provenance.runtimePath !== null) {
+          errors.push(`${row.provenance.assetId}: source-only knockdown row must not have a runtime path before QA`);
+        }
+        if (row.provenance.sourcePath !== knockdownRowSourcePaths[fighter.id]) {
+          errors.push(`${row.provenance.assetId}: knockdown row requires the scoped generated source path`);
+        }
       } else {
         if (row.provenance.status !== "blocked") {
           errors.push(`${row.provenance.assetId}: remaining animation rows must remain blocked`);
         }
-        if (!row.provenance.blocker?.includes("knockdown row scope")) {
-          errors.push(`${row.provenance.assetId}: remaining row blocker must reference knockdown row scope`);
+        if (!row.provenance.blocker?.includes("win/lose row scope")) {
+          errors.push(`${row.provenance.assetId}: remaining row blocker must reference win/lose row scope`);
         }
       }
     }
@@ -588,7 +610,9 @@ function makeFighters(): readonly MeowtalFighterAssetPlan[] {
                               ? approvedLightKickRowProvenance(fighterId, details)
                               : animationId === "special"
                                 ? approvedSpecialRowProvenance(fighterId, details)
-                      : blockedAnimationRowProvenance(fighterId, animationId, details),
+                                : animationId === "knockdown"
+                                  ? generatedKnockdownRowProvenance(fighterId, details)
+                                  : blockedAnimationRowProvenance(fighterId, animationId, details),
       })),
     };
   });
@@ -605,8 +629,42 @@ function blockedAnimationRowProvenance(
     prompt: animationRowPrompt(details.displayName, animationId),
     status: "blocked",
     blocker:
-      "Wait for knockdown row scope and a separate generation task before generating this remaining animation row.",
+      "Wait for win/lose row scope and a separate generation task before generating this remaining animation row.",
   });
+}
+
+function generatedKnockdownRowProvenance(
+  fighterId: MeowtalFighterId,
+  details: (typeof fighterDetails)[MeowtalFighterId],
+): AssetProvenance {
+  return {
+    ...imageProvenance({
+      assetId: `${fighterId}:knockdown`,
+      promptSlug: `${fighterId}-knockdown-animation-row`,
+      prompt: animationRowPrompt(details.displayName, "knockdown"),
+      status: "generated",
+      blocker: "",
+    }),
+    sourcePath: knockdownRowSourcePaths[fighterId],
+    runtimePath: null,
+    license: {
+      kind: "owned-generated",
+      summary:
+        "Generated with Codex built-in imagegen as a chroma-keyed knockdown reference row for this project; source-only candidate pending visual QA.",
+      sourceUrl: null,
+      attribution: null,
+      checkedOn: generatedOn,
+    },
+    createdOrDownloadedOn: generatedOn,
+    transforms: [
+      "Generated green chroma-keyed imagegen knockdown reference rows after T081 scoped paired source-only knockdown candidates.",
+      "Removed the green chroma-key background with soft matte and despill to produce transparent frame sources.",
+      "Composed an eight-frame transparent source row from the best fall/impact frames while dropping sleepy or crawl-like end poses.",
+      "Normalized to an 8-frame 2048x256 QA candidate under output/imagegen; runtime publication remains blocked pending Judge visual QA.",
+    ],
+    approvalNotes: knockdownRowQaNotes[fighterId],
+    blocker: null,
+  };
 }
 
 function approvedSpecialRowProvenance(
@@ -976,6 +1034,8 @@ function animationRowPrompt(displayName: string, animationId: FighterAnimationId
   return [
     `Using the approved canonical character sheet for ${displayName}, create the ${animationId} animation row.`,
     "Use the same upright two-legged fighting-game rig as the canonical sheet.",
+    "Do not switch between two-legged and four-legged normal stance conventions; ordinary stance and movement stay upright two-legged for both fighters.",
+    "For knockdown only, prone or grounded poses are acceptable when they clearly read as hit reactions, not crawl, rest, sleeping, or a new normal stance.",
     "Keep the fighter identity, species, markings, proportions, camera angle, lighting, scale, and render style consistent.",
     "Do not include detached hit sparks, dust, text, logos, watermarks, frame numbers, or background art in the row.",
   ].join("\n");
@@ -1013,6 +1073,7 @@ function canonicalSheetPrompt(fighterId: MeowtalFighterId): string {
     `Create a complete polished character design sheet for ${details.displayName}, an original Meowtal Kombat fighter, on a clean light background.`,
     `Show a faithful consistent depiction with ${details.silhouette}, ${details.personality} expression, ${details.body}, ${details.markings}, ${details.signatureTraits}, and ${details.specialEnergy}.`,
     "All full-body views and combat poses must use one consistent upright two-legged fighting-game rig.",
+    "Do not mix two-legged and four-legged normal stance conventions; the production rig uses upright two-legged fighting stances for both fighters.",
     "Present the sheet as professional production concept art with full-body front view, side view, back view, 3/4 heroic pose, action-ready fighting pose, relaxed idle pose, large head close-up, and expression sheet.",
     "Include calm idle, excited grin, battle focus, shocked comedic expression, hit reaction, and powering-up intensity.",
     "Include detail callouts for silhouette, ears/tail/paws, fur markings, attack limbs, special-effect aura shape, readable gameplay pose shapes, size reference, and color swatches.",

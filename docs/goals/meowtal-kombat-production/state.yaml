@@ -42,6 +42,7 @@ goal:
       - "Use repo-local visual references as aspirational art direction: docs/visual-reference/meowtal-kombat/vision-01.png through vision-04.png."
       - "Use canonical original-character sheet prompts before animation generation. Character sheets must include front/side/back/3-4 pose, action pose, relaxed idle, head close-up, expression sheet, detail callouts, size reference, and color swatches for each fighter."
       - "Use Tough Love Arena (https://toughlovearena.com/) as a feel and polish benchmark for smooth web fighting-game responsiveness, readable combat, beautiful presentation, input comfort, and round/rematch flow. Do not copy its characters, art, UI, code, brand, or exact mechanics."
+      - "Owner clarified stance consistency: rabbit and cat must not mix two-legged and four-legged normal stance conventions. Current production direction chooses upright two-legged for ordinary stance/movement/attacks; prone or grounded frames are only allowed as clear hit reactions such as knockdown."
 
 rules:
   pm_owns_state: true
@@ -65,6 +66,7 @@ rules:
   parallax_arena_required: true
   canonical_character_sheets_required_before_animation_generation: true
   tough_love_arena_feel_benchmark_required: true
+  shared_fighter_stance_convention_required: true
 
 agents:
   scout: installed
@@ -83,7 +85,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T082
+active_task: T083
 
 tasks:
   - id: T000
@@ -4030,13 +4032,14 @@ tasks:
   - id: T082
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: low
     objective: "Generate and normalize source-only Meowtal knockdown candidates for exactly gray-rabbit:knockdown and ginger-tabby-cat:knockdown. Create production-usable source rows and normalized 8-frame 2048x256 QA candidates only. Update manifest/provenance/tests/docs so these two knockdown rows become generated-but-unapproved with runtimePath null, and keep win/lose blocked. Do not promote runtime assets, switch runtime routing, or create other rows."
     inputs:
       - "T081 scoping receipt"
       - "Approved runtime rows through special"
       - "Knockdown row concept: upright hurt/fall anticipation, loss of balance, ground impact, grounded end pose"
+      - "Owner stance clarification: both fighters must share one normal stance convention; current Meowtal production rig uses upright two-legged ordinary stance/movement, with prone/grounded poses allowed only as hit reactions."
     allowed_files:
       - "assets/source/imagegen/fighters/gray-rabbit/knockdown.png"
       - "assets/source/imagegen/fighters/ginger-tabby-cat/knockdown.png"
@@ -4060,6 +4063,67 @@ tasks:
       - "Normalized candidates cannot be exactly 2048x256 RGBA with eight separated 256x256 frames."
       - "Provenance cannot clearly mark these as generated source-only, non-runtime candidates pending Judge visual QA."
       - "Fixing verification requires gameplay, routing, stage, HUD, logo, audio, or broad asset-pipeline changes."
+    receipt:
+      result: done
+      summary: "Generated exactly the two scoped Meowtal knockdown source rows, gray-rabbit:knockdown and ginger-tabby-cat:knockdown, as source-only transparent PNGs. The selected candidates preserve the shared upright two-legged rig for anticipation/fall, use grounded/prone poses only as hit reactions, drop sleepy/crawl-like end cells, normalize to 2048x256 RGBA QA candidates, and keep runtime knockdown assets uncreated/unapproved. Manifest, provenance, and tests now mark knockdown as generated with runtimePath null while win/lose remain blocked."
+      changed_files:
+        - "assets/source/imagegen/fighters/gray-rabbit/knockdown.png"
+        - "assets/source/imagegen/fighters/ginger-tabby-cat/knockdown.png"
+        - "src/assets/meowtalProductionManifest.ts"
+        - "docs/assets/meowtal-kombat-provenance.md"
+        - "test/meowtal-production-manifest.test.ts"
+        - "test/asset-qa.test.ts"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+      evidence:
+        - "output/imagegen/gray-rabbit-knockdown-normalized.png"
+        - "output/imagegen/ginger-tabby-cat-knockdown-normalized.png"
+      checksums:
+        gray_rabbit_source_sha256: "9be41cc864f9b3278c23428a41c694cccb31af9903e3df40f43467dfd5de392c"
+        ginger_tabby_source_sha256: "50fe7b09bfe05ba0260fb231a4d933dbe2379d3ce8447274f07caa829b80126d"
+        gray_rabbit_normalized_sha256: "fa281858409d578af11b98d7b7579eac8befeb76409d13c2511862a9586e428f"
+        ginger_tabby_normalized_sha256: "eb51a3d63cdaaa18950aaa320335b2c8812062cec6756db88104436a9fe03c0d"
+      commands:
+        - cmd: "node scripts/normalize-fighter-rows.mjs --animation knockdown --fighters gray-rabbit,ginger-tabby-cat"
+          status: pass
+        - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha output/imagegen/gray-rabbit-knockdown-normalized.png output/imagegen/ginger-tabby-cat-knockdown-normalized.png"
+          status: pass
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-qa.test.ts"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+      notes:
+        - "Focused tests passed with 2 files and 19 tests."
+        - "Full verify passed with 21 test files and 113 tests plus a production Vite build."
+        - "No runtime file under public/assets/generated/fighters/**/knockdown.png was created."
+  - id: T083
+    type: judge
+    assignee: Judge
+    status: active
+    reasoning_hint: high
+    objective: "Visually QA exactly the two source-only Meowtal knockdown candidates, gray-rabbit:knockdown and ginger-tabby-cat:knockdown. Decide whether they are acceptable for a later runtime-promotion task or must be regenerated. Do not edit files."
+    inputs:
+      - "T082 receipt"
+      - "assets/source/imagegen/fighters/gray-rabbit/knockdown.png"
+      - "assets/source/imagegen/fighters/ginger-tabby-cat/knockdown.png"
+      - "output/imagegen/gray-rabbit-knockdown-normalized.png"
+      - "output/imagegen/ginger-tabby-cat-knockdown-normalized.png"
+      - "Owner stance clarification: both fighters must share one normal stance convention; current Meowtal production rig uses upright two-legged ordinary stance/movement, with prone/grounded poses allowed only as hit reactions."
+    constraints:
+      - "Do not implement or edit files."
+      - "Inspect source and normalized candidates, but judge the normalized 2048x256 QA candidates as the runtime-shape evidence."
+      - "Require exactly 8 separated 256x256 frames per normalized row with transparent alpha."
+      - "Rows must read as fighting-game knockdown: upright hurt/fall anticipation, loss of balance, ground impact, and dazed grounded hit-reaction hold."
+      - "Reject if either row reads as crawl/rest behavior, sleeping, unrelated four-legged animal motion, or a stance-convention reset."
+      - "Reject if either fighter loses species identity, markings, approved scale/camera, lighting, outline/detail level, or rendering style."
+      - "Reject if there is visible chroma-key fringe, background fill, text, watermark, frame numbers, detached non-row UI, or unreadable posing."
+      - "Do not approve or promote runtime assets in this Judge task."
+    expected_output:
+      - "approval decision"
+      - "specific visual rationale"
+      - "approved_assets if accepted, otherwise rejected_assets with concrete regeneration guidance"
+      - "next_allowed_task with allowed_files, verify commands, and stop_if conditions"
     receipt: null
   - id: T005
     type: worker

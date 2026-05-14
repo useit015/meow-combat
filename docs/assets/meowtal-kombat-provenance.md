@@ -57,7 +57,7 @@ These are approved before animation rows as style locks only. Required sheet str
 
 ### Character Animation Rows
 
-Status: idle, walk-forward, walk-back, crouch, jump, light-punch, heavy-punch, light-kick, special, hitstun, and blockstun rows approved for runtime publication; knockdown, win, and lose remain blocked pending separate scoped generation.
+Status: idle, walk-forward, walk-back, crouch, jump, light-punch, heavy-punch, light-kick, special, hitstun, and blockstun rows approved for runtime publication; knockdown rows are generated source-only candidates pending separate visual QA; win and lose remain blocked pending separate scoped generation.
 
 - `gray-rabbit:idle`
   - Source path: `assets/source/imagegen/fighters/gray-rabbit/idle.png`
@@ -235,8 +235,24 @@ Status: idle, walk-forward, walk-back, crouch, jump, light-punch, heavy-punch, l
   - License status: owned generated source asset
   - Runtime status: approved by T079 visual QA and promoted by T080
   - QA notes: ten separated upright two-legged ginger tabby acrobatic flip-kick frames with planted chamber, readable mid-flip, green/yellow foot-attached aura crescents, controlled landing, recovery, and guard settle; no visible text/watermark/frame numbers, magenta chroma-key removed to transparent alpha, normalized to 2560x256 RGBA.
+- `gray-rabbit:knockdown`
+  - Source path: `assets/source/imagegen/fighters/gray-rabbit/knockdown.png`
+  - Runtime path: none; source-only candidate
+  - Provider: Codex built-in imagegen green chroma-key reference row plus local chroma removal and selected-frame source composition
+  - Generated on: 2026-05-14
+  - License status: owned generated source asset
+  - Runtime status: pending separate visual QA and promotion task
+  - QA notes: eight separated gray rabbit fighting-game knockdown frames with upright two-legged hurt/fall anticipation, loss of balance, ground impact, and dazed grounded hit-reaction hold; no crawl/rest/sleeping or stance-convention reset, no visible text/watermark/frame numbers, chroma-key removed to transparent alpha, normalized QA candidate is 2048x256 RGBA.
+- `ginger-tabby-cat:knockdown`
+  - Source path: `assets/source/imagegen/fighters/ginger-tabby-cat/knockdown.png`
+  - Runtime path: none; source-only candidate
+  - Provider: Codex built-in imagegen green chroma-key reference row plus local chroma removal and selected-frame source composition
+  - Generated on: 2026-05-14
+  - License status: owned generated source asset
+  - Runtime status: pending separate visual QA and promotion task
+  - QA notes: eight separated ginger tabby fighting-game knockdown frames with upright two-legged hurt/fall anticipation, loss of balance, ground impact, and dazed grounded hit-reaction hold; no crawl/rest/sleeping or stance-convention reset, no visible text/watermark/frame numbers, chroma-key removed to transparent alpha, normalized QA candidate is 2048x256 RGBA.
 
-Each fighter needs rows for idle, walk-forward, walk-back, crouch, jump, light-punch, heavy-punch, light-kick, special, hitstun, blockstun, knockdown, win, and lose. Rows must preserve the shared upright two-legged rig, species identity, markings, proportions, lighting, camera angle, scale, outline/detail level, and rendering style.
+Each fighter needs rows for idle, walk-forward, walk-back, crouch, jump, light-punch, heavy-punch, light-kick, special, hitstun, blockstun, knockdown, win, and lose. Rows must preserve the shared upright two-legged rig, species identity, markings, proportions, lighting, camera angle, scale, outline/detail level, and rendering style. Do not mix two-legged and four-legged normal stance conventions; ordinary stance and movement stay upright two-legged for both fighters, and grounded/prone poses are allowed only when they clearly read as hit reactions.
 
 ### Parallax Courtyard
 
