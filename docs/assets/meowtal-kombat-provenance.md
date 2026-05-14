@@ -57,7 +57,7 @@ These are approved before animation rows as style locks only. Required sheet str
 
 ### Character Animation Rows
 
-Status: idle, walk-forward, walk-back, crouch, jump, and light-punch rows approved for runtime publication; all other rows remain blocked pending separate scoped generation.
+Status: idle, walk-forward, walk-back, crouch, jump, and light-punch rows approved for runtime publication; hitstun source rows are generated candidates pending visual QA; all other rows remain blocked pending separate scoped generation.
 
 - `gray-rabbit:idle`
   - Source path: `assets/source/imagegen/fighters/gray-rabbit/idle.png`
@@ -155,6 +155,22 @@ Status: idle, walk-forward, walk-back, crouch, jump, and light-punch rows approv
   - License status: owned generated source asset
   - Runtime status: approved by T047 visual QA and promoted by T048
   - QA notes: six separated upright two-legged ginger tabby quick paw-jab frames, no visible text/watermark/frame numbers, chroma-key removed to transparent alpha, normalized to 1536x256 RGBA.
+- `gray-rabbit:hitstun`
+  - Source path: `assets/source/imagegen/fighters/gray-rabbit/hitstun.png`
+  - Runtime path: none
+  - Provider: Codex built-in imagegen
+  - Generated on: 2026-05-14
+  - License status: owned generated source asset
+  - Runtime status: not approved for runtime use; pending follow-up visual QA
+  - QA notes: five separated upright two-legged gray rabbit hurt/recoil frames, no visible text/watermark/frame numbers, chroma-key removed to transparent alpha, normalized to 1280x256 RGBA QA candidate.
+- `ginger-tabby-cat:hitstun`
+  - Source path: `assets/source/imagegen/fighters/ginger-tabby-cat/hitstun.png`
+  - Runtime path: none
+  - Provider: Codex built-in imagegen
+  - Generated on: 2026-05-14
+  - License status: owned generated source asset
+  - Runtime status: not approved for runtime use; pending follow-up visual QA
+  - QA notes: five separated upright two-legged ginger tabby hurt/recoil frames, no visible text/watermark/frame numbers, chroma-key removed to transparent alpha, normalized to 1280x256 RGBA QA candidate.
 
 Each fighter needs rows for idle, walk-forward, walk-back, crouch, jump, light-punch, heavy-punch, light-kick, special, hitstun, blockstun, knockdown, win, and lose. Rows must preserve the shared upright two-legged rig, species identity, markings, proportions, lighting, camera angle, scale, outline/detail level, and rendering style.
 

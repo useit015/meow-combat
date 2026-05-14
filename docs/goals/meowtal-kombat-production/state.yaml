@@ -83,7 +83,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T050
+active_task: T051
 
 tasks:
   - id: T000
@@ -2159,7 +2159,7 @@ tasks:
   - id: T050
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: low
     objective: "Generate or integrate exactly two Meowtal source animation rows: gray-rabbit:hitstun and ginger-tabby-cat:hitstun. Use approved canonical sheets plus approved idle, walk-forward, walk-back, crouch, jump, and light-punch runtime rows as style locks. Normalize both rows to 5-frame 1280x256 QA candidates, update provenance/manifest/tests/docs so only these two hitstun rows are generated-but-unapproved with runtimePath: null, and keep all other remaining rows blocked. Do not approve runtime use."
     allowed_files:
@@ -2192,6 +2192,82 @@ tasks:
       - "Rabbit keeps long ears, gray fur, lighter belly, white paws, compact athletic hind-leg silhouette, and readable hurt/recoil shapes."
       - "Cat keeps orange tabby stripes, light muzzle/chest, visible striped tail, upright biped body, and readable hurt/recoil shapes."
       - "Motion has clear frame separation, stable scale, consistent head/camera height, and consistency with approved idle/walk-forward/walk-back/crouch/jump/light-punch rows."
+    receipt:
+      result: done
+      summary: "Generated and integrated exactly the two scoped Meowtal hitstun source rows as generated, non-runtime candidates. Both fighters stay upright two-legged, both rows normalize to 5-frame 1280x256 RGBA QA candidates, and no public/runtime hitstun assets or unrelated rows were created or approved."
+      changed_files:
+        - "assets/source/imagegen/fighters/gray-rabbit/hitstun.png"
+        - "assets/source/imagegen/fighters/ginger-tabby-cat/hitstun.png"
+        - "src/assets/meowtalProductionManifest.ts"
+        - "docs/assets/meowtal-kombat-provenance.md"
+        - "test/meowtal-production-manifest.test.ts"
+        - "test/asset-qa.test.ts"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+      evidence:
+        - "assets/source/imagegen/fighters/gray-rabbit/hitstun.png"
+        - "assets/source/imagegen/fighters/ginger-tabby-cat/hitstun.png"
+        - "output/imagegen/gray-rabbit-hitstun-normalized.png"
+        - "output/imagegen/ginger-tabby-cat-hitstun-normalized.png"
+        - "src/assets/meowtalProductionManifest.ts"
+      checksums:
+        gray_rabbit_hitstun_source_sha256: "6ef666f6c28bd36f41b1c6f4c20d0c6ded8710d7de49f56faab5b24714ab7ad5"
+        ginger_tabby_cat_hitstun_source_sha256: "88ad3675801931dc903163c34842a2d0de0c5313dd1e7c4e5afcedba23134c29"
+        gray_rabbit_hitstun_normalized_sha256: "8962027f1ed0732f36deae1d0831bb034a881e93f7333744252d35ebab4e5d3b"
+        ginger_tabby_cat_hitstun_normalized_sha256: "299454db88f32e99d43a36fae2afa86dc003ddcf41058336359f0eb2db81c7b7"
+      commands:
+        - cmd: "node scripts/normalize-fighter-rows.mjs --animation hitstun --fighters gray-rabbit,ginger-tabby-cat"
+          status: pass
+        - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha output/imagegen/gray-rabbit-hitstun-normalized.png output/imagegen/ginger-tabby-cat-hitstun-normalized.png"
+          status: pass
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-qa.test.ts"
+          status: pass
+        - cmd: "npm run imagegen:qa"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+      notes:
+        - "sips reported pixelWidth 1280, pixelHeight 256, hasAlpha yes for both normalized hitstun QA candidates."
+        - "Full verify passed with 21 test files, 108 tests, and a successful Vite production build."
+        - "No public/assets/generated Meowtal hitstun files, runtime paths, runtime roster/game config, stage, UI/HUD/logo, particles, audio, or other animation rows were touched."
+  - id: T051
+    type: judge
+    assignee: Judge
+    status: active
+    reasoning_hint: high
+    objective: "Visual QA only the two generated Meowtal hitstun candidates, gray-rabbit:hitstun and ginger-tabby-cat:hitstun, against the approved two-legged style-lock rows. Decide whether they are approved for later runtime promotion or must be regenerated. Do not edit files."
+    inputs:
+      - "assets/source/imagegen/fighters/gray-rabbit/hitstun.png"
+      - "assets/source/imagegen/fighters/ginger-tabby-cat/hitstun.png"
+      - "output/imagegen/gray-rabbit-hitstun-normalized.png"
+      - "output/imagegen/ginger-tabby-cat-hitstun-normalized.png"
+      - "public/assets/generated/fighters/gray-rabbit/idle.png"
+      - "public/assets/generated/fighters/ginger-tabby-cat/idle.png"
+      - "public/assets/generated/fighters/gray-rabbit/walk-forward.png"
+      - "public/assets/generated/fighters/ginger-tabby-cat/walk-forward.png"
+      - "public/assets/generated/fighters/gray-rabbit/walk-back.png"
+      - "public/assets/generated/fighters/ginger-tabby-cat/walk-back.png"
+      - "public/assets/generated/fighters/gray-rabbit/crouch.png"
+      - "public/assets/generated/fighters/ginger-tabby-cat/crouch.png"
+      - "public/assets/generated/fighters/gray-rabbit/jump.png"
+      - "public/assets/generated/fighters/ginger-tabby-cat/jump.png"
+      - "public/assets/generated/fighters/gray-rabbit/light-punch.png"
+      - "public/assets/generated/fighters/ginger-tabby-cat/light-punch.png"
+      - "src/assets/meowtalProductionManifest.ts"
+    constraints:
+      - "Do not implement or edit files."
+      - "Reject if either fighter shifts into four-legged animal motion or if rabbit and cat stance conventions differ; both must stay upright two-legged."
+      - "Reject if hitstun reads as idle reuse, attack reuse, knockdown, collapse, rest, or unreadable posing."
+      - "Reject visible text, logos, watermarks, frame numbers, detached effects, background/arena art, extra characters, or non-transparent runtime-blocking artifacts."
+      - "Reject inconsistent species identity, markings, proportions, lighting, camera angle, scale, outline/detail level, or rendering style versus approved idle/walk/crouch/jump/light-punch rows."
+      - "Require normalized QA candidates to be exactly 1280x256 RGBA with five separated 256x256 frames."
+      - "Do not approve runtime promotion for any row other than gray-rabbit:hitstun and ginger-tabby-cat:hitstun."
+    expected_output:
+      - "approved | regenerate"
+      - "Per-fighter visual QA notes"
+      - "Runtime promotion constraints if approved"
+      - "Regeneration notes if rejected"
     receipt: null
   - id: T005
     type: worker
@@ -2343,11 +2419,11 @@ checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T048
+    task: T050
     commands:
-      - cmd: "node scripts/normalize-fighter-rows.mjs --animation light-punch --fighters gray-rabbit,ginger-tabby-cat"
+      - cmd: "node scripts/normalize-fighter-rows.mjs --animation hitstun --fighters gray-rabbit,ginger-tabby-cat"
         status: pass
-      - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha public/assets/generated/fighters/gray-rabbit/light-punch.png public/assets/generated/fighters/ginger-tabby-cat/light-punch.png"
+      - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha output/imagegen/gray-rabbit-hitstun-normalized.png output/imagegen/ginger-tabby-cat-hitstun-normalized.png"
         status: pass
       - cmd: "npm run typecheck"
         status: pass
