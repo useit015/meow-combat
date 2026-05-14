@@ -85,7 +85,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T085
+active_task: T086
 
 tasks:
   - id: T000
@@ -4196,7 +4196,7 @@ tasks:
   - id: T085
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Scope the next smallest safe production slice after knockdown runtime promotion. Decide whether to proceed with paired source-only win/lose rows, runtime routing, or a different narrow production blocker, and provide allowed_files, verify commands, and stop_if conditions. Do not edit files."
     inputs:
@@ -4219,6 +4219,60 @@ tasks:
       - "verification commands"
       - "stop conditions"
       - "why this advances production readiness without becoming broad asset-pack work"
+    receipt:
+      result: done
+      decision: "Proceed with paired source-only win and lose rows for both fighters."
+      next_allowed_task: T086
+      summary: "Judge selected the last missing fighter animation coverage as the next smallest production slice: generate source-only candidates for gray-rabbit:win, ginger-tabby-cat:win, gray-rabbit:lose, and ginger-tabby-cat:lose. Runtime routing, gameplay, arena, HUD/logo, audio, effects, and runtime promotion remain out of scope."
+      scoped_assets:
+        - "gray-rabbit:win"
+        - "ginger-tabby-cat:win"
+        - "gray-rabbit:lose"
+        - "ginger-tabby-cat:lose"
+      notes:
+        - "Win and lose are required for credible KO/victory flow."
+        - "Keep the four end-state rows source-only until separate visual QA."
+        - "Do not create or change public runtime win/lose files in the generation task."
+  - id: T086
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: low
+    objective: "Generate and normalize source-only Meowtal end-state animation candidates for exactly gray-rabbit:win, ginger-tabby-cat:win, gray-rabbit:lose, and ginger-tabby-cat:lose. Create production-usable source rows and normalized QA candidates only. Update manifest/provenance/tests/docs so these four rows become generated-but-unapproved with runtimePath null. Do not promote runtime assets, switch runtime routing, or create other rows."
+    inputs:
+      - "T085 scoping receipt"
+      - "Approved runtime rows through knockdown"
+      - "Win row concept: upright two-legged victory pose/celebration consistent with each fighter."
+      - "Lose row concept: defeated arcade pose after KO, not crawl/rest/sleeping or an ordinary animal pose."
+      - "Owner stance clarification: both fighters share the upright two-legged normal stance convention."
+    allowed_files:
+      - "assets/source/imagegen/fighters/gray-rabbit/win.png"
+      - "assets/source/imagegen/fighters/ginger-tabby-cat/win.png"
+      - "assets/source/imagegen/fighters/gray-rabbit/lose.png"
+      - "assets/source/imagegen/fighters/ginger-tabby-cat/lose.png"
+      - "output/imagegen/gray-rabbit-win-normalized.png"
+      - "output/imagegen/ginger-tabby-cat-win-normalized.png"
+      - "output/imagegen/gray-rabbit-lose-normalized.png"
+      - "output/imagegen/ginger-tabby-cat-lose-normalized.png"
+      - "src/assets/meowtalProductionManifest.ts"
+      - "docs/assets/meowtal-kombat-provenance.md"
+      - "test/meowtal-production-manifest.test.ts"
+      - "test/asset-qa.test.ts"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+    verify:
+      - "node scripts/normalize-fighter-rows.mjs --animation win --fighters gray-rabbit,ginger-tabby-cat"
+      - "node scripts/normalize-fighter-rows.mjs --animation lose --fighters gray-rabbit,ginger-tabby-cat"
+      - "sips -g pixelWidth -g pixelHeight -g hasAlpha output/imagegen/gray-rabbit-win-normalized.png output/imagegen/ginger-tabby-cat-win-normalized.png output/imagegen/gray-rabbit-lose-normalized.png output/imagegen/ginger-tabby-cat-lose-normalized.png"
+      - "npm run typecheck"
+      - "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-qa.test.ts"
+      - "npm run verify"
+    stop_if:
+      - "Any runtime file under public/assets/generated/fighters/**/{win,lose}.png is created or changed."
+      - "Any row besides win and lose is generated, normalized, promoted, or approved."
+      - "Either fighter loses the shared upright two-legged convention for win/ordinary victory pose, or lose reads as unrelated animal rest/crawl/sleeping rather than defeated arcade pose."
+      - "Normalized candidates cannot meet the manifest frame contract with transparent alpha and separated 256x256 frames."
+      - "Provenance cannot clearly mark all four rows as source-only candidates pending Judge QA."
+      - "Fixing verification requires arena, HUD/logo, audio, gameplay feel, runtime routing, or broad asset-pipeline changes."
     receipt: null
   - id: T005
     type: worker
