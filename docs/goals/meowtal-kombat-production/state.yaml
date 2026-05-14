@@ -83,7 +83,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T069
+active_task: T070
 
 tasks:
   - id: T000
@@ -3269,7 +3269,7 @@ tasks:
   - id: T069
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Scope the next small Meowtal production slice after idle, walk-forward, walk-back, crouch, jump, light-punch, heavy-punch, hitstun, and blockstun runtime rows are approved. Decide whether to continue fighter animation coverage, begin parallax arena asset generation, begin logo/HUD/UI surface generation, or prepare runtime routing."
     inputs:
@@ -3292,6 +3292,55 @@ tasks:
       - "verify commands"
       - "stop_if conditions"
       - "visual QA or runtime verification expectations"
+    receipt:
+      result: done
+      decision: "Continue fighter animation coverage with exactly two paired light-kick source rows: gray-rabbit:light-kick and ginger-tabby-cat:light-kick. Runtime approval is deferred to a later Judge task."
+      next_allowed_task: T070
+      summary: "Runtime routing is still premature because kick, special, knockdown, win, and lose coverage are missing. Parallax, UI/HUD/logo, and audio remain valid future phases, but light-kick is the smallest production-relevant continuation of the fighter set because it completes the basic punch/kick attack vocabulary while keeping scope bounded to two source rows, provenance/tests, and non-runtime QA candidates."
+      fighter_animation_pairs:
+        - "gray-rabbit:light-kick"
+        - "ginger-tabby-cat:light-kick"
+      visual_qa_expectations:
+        - "Both rows remain the same upright two-legged characters from approved runtime rows through heavy-punch."
+        - "Light-kick reads as a quick kick, not punch reuse, walk reuse, crouch reuse, collapse, rest, detached limb effect, four-legged motion, or unreadable posing."
+        - "Rabbit keeps long ears, gray fur, lighter belly, white paws, compact athletic hind-leg silhouette, and readable quick kicking shapes."
+        - "Cat keeps orange tabby stripes, light muzzle/chest, visible striped tail, upright biped body, and readable quick kicking shapes."
+        - "Motion has clear frame separation, stable scale/head height, and consistency with approved runtime rows."
+        - "No text, watermark, logo, frame numbers, background art, chroma residue, clipped/detached feet, extra characters, or detached hit sparks/effects."
+      blocked_tasks:
+        - "Do not approve light-kick for runtime in T070."
+        - "Do not copy light-kick rows into public/assets/generated."
+        - "Do not switch runtime character selection."
+        - "Do not generate special, knockdown, win, or lose rows in this batch."
+        - "Do not generate stage, UI, HUD, logo, particles, audio, or broad asset-pack files."
+  - id: T070
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: low
+    objective: "Generate or integrate exactly two Meowtal source animation rows: gray-rabbit:light-kick and ginger-tabby-cat:light-kick. Use approved runtime rows through heavy-punch as style locks, preserve the shared upright two-legged stance, normalize both rows to 6-frame 1536x256 QA candidates, update provenance/manifest/tests/docs so only these two light-kick rows become generated-but-unapproved with runtimePath null, and keep all other remaining rows blocked. Do not approve runtime use."
+    allowed_files:
+      - "assets/source/imagegen/fighters/gray-rabbit/light-kick.png"
+      - "assets/source/imagegen/fighters/ginger-tabby-cat/light-kick.png"
+      - "src/assets/meowtalProductionManifest.ts"
+      - "docs/assets/meowtal-kombat-provenance.md"
+      - "test/meowtal-production-manifest.test.ts"
+      - "test/asset-qa.test.ts"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+    verify:
+      - "node scripts/normalize-fighter-rows.mjs --animation light-kick --fighters gray-rabbit,ginger-tabby-cat"
+      - "sips -g pixelWidth -g pixelHeight -g hasAlpha output/imagegen/gray-rabbit-light-kick-normalized.png output/imagegen/ginger-tabby-cat-light-kick-normalized.png"
+      - "npm run typecheck"
+      - "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-qa.test.ts"
+      - "npm run verify"
+    stop_if:
+      - "Any file outside allowed_files is needed, except ignored output/imagegen/*-light-kick-normalized.png verification candidates."
+      - "Any runtime asset under public/assets/generated/**/light-kick.png is created or changed."
+      - "Any animation besides light-kick is generated, normalized, promoted, or approved."
+      - "Either fighter drifts into four-legged motion, mixed stance conventions, sitting/rest poses, or unreadable kicking."
+      - "Normalized candidates cannot be exactly 1536x256 RGBA with six separated 256x256 frames."
+      - "Provenance cannot clearly distinguish source generation, normalization, and non-runtime candidate status."
+      - "Fixing verification would require touching scripts, gameplay, routing, UI, arena, audio, or unrelated files."
     receipt: null
   - id: T005
     type: worker
