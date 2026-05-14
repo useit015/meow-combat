@@ -83,7 +83,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T059
+active_task: T060
 
 tasks:
   - id: T000
@@ -2719,7 +2719,7 @@ tasks:
   - id: T059
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Visual QA only the two generated Meowtal heavy-punch candidates, gray-rabbit:heavy-punch and ginger-tabby-cat:heavy-punch, against the approved two-legged style-lock rows. Decide whether they are approved for later runtime promotion or must be regenerated. Do not edit files."
     inputs:
@@ -2757,6 +2757,51 @@ tasks:
       - "Per-fighter visual QA notes"
       - "Runtime promotion constraints if approved"
       - "Regeneration notes if rejected"
+    receipt:
+      result: done
+      decision: regenerate
+      summary: "Judge rejected both heavy-punch candidates. Metadata passed at 2048x256 RGBA with eight frames, but rabbit has visible green/chroma edge artifacts plus severe dark/corrupted style drift in later active frames, and cat has visible green/chroma edge artifacts around silhouette/head/ears/back/active strike frames. Runtime promotion remains blocked."
+      evidence:
+        - "assets/source/imagegen/fighters/gray-rabbit/heavy-punch.png"
+        - "assets/source/imagegen/fighters/ginger-tabby-cat/heavy-punch.png"
+        - "output/imagegen/gray-rabbit-heavy-punch-normalized.png"
+        - "output/imagegen/ginger-tabby-cat-heavy-punch-normalized.png"
+      regeneration_notes:
+        - "Regenerate or clean up exactly gray-rabbit:heavy-punch and ginger-tabby-cat:heavy-punch."
+        - "Preserve shared upright two-legged stance, approved proportions/style, and committed heavy-strike motion."
+        - "Remove all green/chroma edge residue and any corrupted dark silhouette artifacts."
+        - "Do not approve runtime use and do not touch any other rows."
+  - id: T060
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: low
+    objective: "Regenerate or clean up exactly the two Meowtal heavy-punch source animation rows, gray-rabbit:heavy-punch and ginger-tabby-cat:heavy-punch, after T059 rejection. Normalize both rows to 8-frame 2048x256 QA candidates, keep provenance/manifest/tests/docs as generated-but-unapproved with runtimePath: null, and keep all other remaining rows blocked. Do not approve runtime use."
+    allowed_files:
+      - "assets/source/imagegen/fighters/gray-rabbit/heavy-punch.png"
+      - "assets/source/imagegen/fighters/ginger-tabby-cat/heavy-punch.png"
+      - "src/assets/meowtalProductionManifest.ts"
+      - "docs/assets/meowtal-kombat-provenance.md"
+      - "test/meowtal-production-manifest.test.ts"
+      - "test/asset-qa.test.ts"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+    verify:
+      - "node scripts/normalize-fighter-rows.mjs --animation heavy-punch --fighters gray-rabbit,ginger-tabby-cat"
+      - "sips -g pixelWidth -g pixelHeight -g hasAlpha output/imagegen/gray-rabbit-heavy-punch-normalized.png output/imagegen/ginger-tabby-cat-heavy-punch-normalized.png"
+      - "npm run typecheck"
+      - "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-qa.test.ts"
+      - "npm run imagegen:qa"
+      - "npm run verify"
+    stop_if:
+      - "Any file outside allowed_files is needed, except ignored output/imagegen/*-heavy-punch-normalized.png verification candidates."
+      - "Any public/assets/generated Meowtal heavy-punch runtime asset is created."
+      - "Any heavy-punch row is marked approved or given a runtimePath."
+      - "Any row other than gray-rabbit:heavy-punch or ginger-tabby-cat:heavy-punch is generated, edited, approved, or given a runtime/public path."
+      - "Runtime roster/game config, scene behavior, gameplay, stage, UI/HUD/logo, particles, or audio need changes."
+      - "Either row cannot normalize to 2048x256 with eight separated 256x256 RGBA frames."
+      - "Either fighter drifts from upright two-legged stance, species identity, markings, proportions, camera angle, lighting, scale, outline/detail level, or render style after one retry."
+      - "Heavy-punch reads as idle reuse, light-punch duplicate, walk reuse, collapse, four-legged animal motion, or unreadable posing."
+      - "Rows contain text, logos, watermarks, frame numbers, detached hit sparks/effects, background/arena art, extra characters, visible chroma edge residue, or corrupted dark silhouette artifacts."
     receipt: null
   - id: T005
     type: worker
