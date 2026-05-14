@@ -221,7 +221,10 @@ export class MoroccanArenaScene extends Phaser.Scene {
     this.demoMode === "run-forward" ||
     this.demoMode === "backdash" ||
     this.demoMode === "knockdown" ||
-    this.demoMode === "win";
+    this.demoMode === "ko" ||
+    this.demoMode === "win" ||
+    this.demoMode === "cat-win" ||
+    this.demoMode === "hud-low";
   private effects: readonly CombatEffect[] = [];
   private impactFlash: ImpactFlash | null = null;
   private shellFrame = 0;
@@ -1039,7 +1042,10 @@ export class MoroccanArenaScene extends Phaser.Scene {
       this.demoMode !== "hitstun" &&
       this.demoMode !== "blockstun" &&
       this.demoMode !== "knockdown" &&
-      this.demoMode !== "win"
+      this.demoMode !== "ko" &&
+      this.demoMode !== "win" &&
+      this.demoMode !== "cat-win" &&
+      this.demoMode !== "hud-low"
     ) {
       return;
     }
@@ -1069,8 +1075,14 @@ export class MoroccanArenaScene extends Phaser.Scene {
       this.primeBackdashDemo();
     } else if (this.demoMode === "knockdown") {
       this.primeKnockdownDemo();
+    } else if (this.demoMode === "ko") {
+      this.primeKoDemo();
     } else if (this.demoMode === "win") {
-      this.primeWinDemo();
+      this.primeWinDemo("p1");
+    } else if (this.demoMode === "cat-win") {
+      this.primeWinDemo("p2");
+    } else if (this.demoMode === "hud-low") {
+      this.primeHudLowDemo();
     }
   }
 
@@ -1258,35 +1270,104 @@ export class MoroccanArenaScene extends Phaser.Scene {
     };
   }
 
-  private primeWinDemo(): void {
-    this.shell = { phase: "match-over" };
-    this.shellPhaseFrame = 72;
+  private primeKoDemo(): void {
+    this.shell = { phase: "round-over" };
+    this.shellPhaseFrame = 24;
     this.matchSet = {
       ...this.matchSet,
-      wins: { p1: this.matchSet.targetWins, p2: 0 },
+      wins: { p1: 1, p2: 0 },
       lastRoundWinner: "p1",
-      matchWinner: "p1",
-      status: "complete",
+      matchWinner: null,
+      status: "in-progress",
     };
     this.snapshot = {
       ...this.snapshot,
+      frame: 720,
+      roundTimer: 0,
       status: "round-over",
       winner: "p1",
       p1: {
         ...this.snapshot.p1,
-        x: 500,
+        x: 430,
+        meter: POWER_METER_STOCK,
         state: "idle",
-        stateFrame: 40,
+        stateFrame: 24,
         hitstop: 0,
-        health: 740,
+        health: 420,
       },
       p2: {
         ...this.snapshot.p2,
-        x: 710,
+        x: 650,
+        meter: POWER_METER_STOCK / 2,
         state: "knockdown",
         stateFrame: 36,
         hitstop: 0,
         health: 0,
+      },
+    };
+  }
+
+  private primeWinDemo(winner: "p1" | "p2"): void {
+    const p1Won = winner === "p1";
+    this.shell = { phase: "match-over" };
+    this.shellPhaseFrame = 72;
+    this.matchSet = {
+      ...this.matchSet,
+      wins: p1Won ? { p1: this.matchSet.targetWins, p2: 0 } : { p1: 0, p2: this.matchSet.targetWins },
+      lastRoundWinner: winner,
+      matchWinner: winner,
+      status: "complete",
+    };
+    this.snapshot = {
+      ...this.snapshot,
+      frame: 900,
+      status: "round-over",
+      winner,
+      p1: {
+        ...this.snapshot.p1,
+        x: p1Won ? 500 : 360,
+        meter: p1Won ? POWER_METER_STOCK : Math.floor(POWER_METER_STOCK / 3),
+        state: p1Won ? "idle" : "knockdown",
+        stateFrame: p1Won ? 40 : 36,
+        hitstop: 0,
+        health: p1Won ? 740 : 0,
+      },
+      p2: {
+        ...this.snapshot.p2,
+        x: p1Won ? 710 : 560,
+        meter: p1Won ? Math.floor(POWER_METER_STOCK / 3) : POWER_METER_STOCK,
+        state: p1Won ? "knockdown" : "idle",
+        stateFrame: p1Won ? 36 : 40,
+        hitstop: 0,
+        health: p1Won ? 0 : 760,
+      },
+    };
+  }
+
+  private primeHudLowDemo(): void {
+    this.snapshot = {
+      ...this.snapshot,
+      frame: 960,
+      roundTimer: 42,
+      status: "fighting",
+      winner: null,
+      p1: {
+        ...this.snapshot.p1,
+        x: 390,
+        meter: POWER_METER_STOCK + POWER_METER_STOCK / 2,
+        state: "idle",
+        stateFrame: 24,
+        hitstop: 0,
+        health: 280,
+      },
+      p2: {
+        ...this.snapshot.p2,
+        x: 650,
+        meter: POWER_METER_STOCK / 2,
+        state: "idle",
+        stateFrame: 24,
+        hitstop: 0,
+        health: 120,
       },
     };
   }

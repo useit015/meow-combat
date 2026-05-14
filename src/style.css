@@ -18,6 +18,12 @@ body,
   margin: 0;
 }
 
+#app {
+  overflow: hidden;
+  position: relative;
+  touch-action: none;
+}
+
 body {
   overflow: hidden;
   background:
