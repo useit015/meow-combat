@@ -83,7 +83,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T019
+active_task: T020
 
 tasks:
   - id: T000
@@ -444,7 +444,7 @@ tasks:
   - id: T019
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Scope the next small production slice after the config extraction. Choose a bounded Worker task that moves toward Meowtal content/assets without starting a giant asset dump, and provide allowed_files, verify commands, and stop_if conditions."
     inputs:
@@ -465,6 +465,42 @@ tasks:
       - "allowed_files"
       - "verify commands"
       - "stop_if conditions"
+    receipt:
+      result: done
+      decision: "Do not activate the giant T005 asset-pack task next. Add a small source-level Meowtal asset/provenance scaffold first so future rabbit/cat/courtyard/UI/audio work has typed routing, provenance, and approval gates before binary asset generation."
+      next_allowed_task: T020
+      summary: "Approved T020 as the next Worker: create a typed Meowtal production manifest and provenance scaffold for gray rabbit, ginger tabby, bright courtyard stage, UI/HUD/logo surfaces, and audio cue inventory. Keep runtime Atlas content unchanged and prove animation rows remain unavailable until canonical sheets are approved."
+      blocked_tasks:
+        - "Do not generate rabbit/cat animation rows in T020."
+        - "Do not generate parallax courtyard images, logo/HUD/menu/audio, or other binary assets in T020."
+        - "Do not switch runtime from Atlas Arena to Meowtal Kombat in T020."
+        - "Do not start Tough Love Arena gameplay-feel implementation in T020."
+        - "Do not activate broad T005 until T020 lands and a canonical-sheet generation slice is separately scoped."
+  - id: T020
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: low
+    objective: "Add a typed Meowtal production asset/provenance scaffold for the gray rabbit, ginger tabby, bright courtyard stage, UI/HUD/logo surfaces, and audio cue inventory. Include canonical character-sheet entries for both fighters, provenance/license fields, and tests proving that animation rows remain unavailable until canonical sheets are approved. Do not switch runtime content yet and do not generate binary assets."
+    allowed_files:
+      - "src/assets/meowtalProductionManifest.ts"
+      - "src/assets/provenance.ts"
+      - "src/assets/index.ts"
+      - "test/meowtal-production-manifest.test.ts"
+      - "docs/assets/meowtal-kombat-provenance.md"
+    verify:
+      - "npm run typecheck"
+      - "npm test -- --run test/meowtal-production-manifest.test.ts test/imagegen-jobs.test.ts test/asset-readiness.test.ts"
+      - "npm run build"
+      - "npm run verify"
+    stop_if:
+      - "Any binary image/audio asset generation is needed."
+      - "Runtime roster, title, scene behavior, gameplay, or public generated assets need changes."
+      - "Animation row jobs/assets would be generated, approved, or exposed before rabbit/cat canonical sheets and provenance entries exist."
+      - "External source/license/provider details are unclear."
+      - "Files outside allowed_files are required."
+      - "Existing Atlas runtime tests must be weakened to pass."
+      - "Verification fails twice for the same underlying reason."
     receipt: null
   - id: T005
     type: worker
