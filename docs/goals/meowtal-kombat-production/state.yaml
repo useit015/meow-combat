@@ -85,7 +85,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T010
+active_task: T999
 
 tasks:
   - id: T000
@@ -6476,7 +6476,7 @@ tasks:
   - id: T010
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Audit production readiness before final completion: gameplay feel, assets, audio, architecture, performance, responsiveness, accessibility/readability, production build readiness, and full scoped-game completeness."
     inputs:
@@ -6500,11 +6500,44 @@ tasks:
       - "missing evidence or fixes"
       - "next Worker task if not ready"
       - "scope reductions only if necessary"
-    receipt: null
+    receipt:
+      result: done
+      verdict: production_ready
+      decision: "Approve Meowtal Kombat as production-ready for the scoped goal and advance to T999 final completion audit."
+      summary: "Judge approved production readiness for the scoped Meowtal Kombat game. No T010 blockers were found: gameplay/shell flow, generated/procedural assets, audio/effects, parallax arena, shared upright two-legged normal stance, responsive layout, run instructions, provenance, current verify, and browser smoke evidence are ready for final completion audit. The Judge noted that T999 should use an explicit production preview server for final smoke rather than relying on the existing 127.0.0.1:4173 process."
+      changed_files:
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+      commands:
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/meowtal-final-readiness-t010"
+          status: pass
+        - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules node --input-type=module <inline final-flow capture>"
+          status: pass
+        - cmd: "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-update.mjs --json"
+          status: pass
+        - cmd: "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+          status: pass
+      evidence:
+        - "output/web-game/meowtal-final-readiness-t010/report.json"
+        - "output/web-game/meowtal-final-readiness-t010/desktop-keyboard-fight.png"
+        - "output/web-game/meowtal-final-readiness-t010/portrait-pause.png"
+        - "output/web-game/meowtal-final-readiness-t010/landscape-fight.png"
+        - "output/web-game/meowtal-final-flow-t010/report.json"
+        - "output/web-game/meowtal-final-flow-t010/ready.png"
+        - "output/web-game/meowtal-final-flow-t010/special.png"
+        - "output/web-game/meowtal-final-flow-t010/ko.png"
+        - "output/web-game/meowtal-final-flow-t010/cat-win.png"
+      findings:
+        - "Fresh smoke reported failures: [] and no console/page errors."
+        - "Runtime telemetry reported six approved parallax stage layers, all runtime UI loaded, zero fighter/stage runtime fallbacks, nextRequiredAssets empty, and no credential blockers."
+        - "Normal gameplay stance telemetry reported upright-two-legged for both fighters; K.O./defeat telemetry limited grounded-prone-reaction to knocked-down losers."
+        - "Portrait layout remains letterboxed but readable and touch-tested, so it is not a production-readiness blocker for this scoped fighting game."
+      next_task: T999
   - id: T999
     type: judge
     assignee: Judge
-    status: queued
+    status: active
     reasoning_hint: high
     objective: "Final audit: prove whether the full original Meowtal Kombat production-game outcome is complete."
     inputs:
