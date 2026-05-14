@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { MoroccanArenaScene } from "./game/MoroccanArenaScene";
+import { MeowtalArenaScene } from "./game/MeowtalArenaScene";
 import "./style.css";
 
 const config: Phaser.Types.Core.GameConfig = {
@@ -12,7 +12,7 @@ const config: Phaser.Types.Core.GameConfig = {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
-  scene: [MoroccanArenaScene],
+  scene: [MeowtalArenaScene],
 };
 
 new Phaser.Game(config);

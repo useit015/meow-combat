@@ -209,7 +209,7 @@ const RUNTIME_UI_IMAGE_SPECS = [
   },
 ] as const satisfies readonly RuntimeUiImageSpec[];
 
-export class MoroccanArenaScene extends Phaser.Scene {
+export class MeowtalArenaScene extends Phaser.Scene {
   private selectedFighterIndex: Record<"p1" | "p2", number> = { ...GAME_CONFIG.defaultSelections };
   private simulation = this.createSimulation();
   private accumulator = 0;
@@ -265,7 +265,7 @@ export class MoroccanArenaScene extends Phaser.Scene {
   private touchControlLabels!: Record<TouchControlId, Phaser.GameObjects.Text>;
 
   constructor() {
-    super("MoroccanArenaScene");
+    super("MeowtalArenaScene");
   }
 
   preload(): void {

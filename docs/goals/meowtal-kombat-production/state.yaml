@@ -85,7 +85,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T115
+active_task: T116
 
 tasks:
   - id: T000
@@ -5984,7 +5984,7 @@ tasks:
   - id: T115
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: low
     objective: "Rename the Phaser scene class/file from MoroccanArenaScene to MeowtalArenaScene so runtime source naming matches the current product identity, without changing scene behavior, rendering, assets, combat, controls, or public routes."
     inputs:
@@ -6012,6 +6012,69 @@ tasks:
     stop_if:
       - "Requires gameplay/rendering/control/combat changes, route changes, dependency changes, generated asset changes, or files outside allowed_files."
       - "Tests reveal external scene-key coupling that needs a compatibility decision before renaming."
+    receipt:
+      result: done
+      summary: "Renamed the Phaser scene class/file from MoroccanArenaScene to MeowtalArenaScene and updated the main entrypoint to register the renamed scene. The change was identity-only: no gameplay, rendering, assets, combat, controls, dependencies, package scripts, or public URLs changed."
+      changed_files:
+        - "src/game/MoroccanArenaScene.ts"
+        - "src/game/MeowtalArenaScene.ts"
+        - "src/main.ts"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+      commands:
+        - cmd: "rg -n \"MoroccanArenaScene\" src test || true"
+          status: pass
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/meowtal-scene-rename-t115"
+          status: pass
+        - cmd: "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+          status: pass
+        - cmd: "git diff --check"
+          status: pass
+      evidence:
+        - "output/web-game/meowtal-scene-rename-t115/report.json"
+        - "output/web-game/meowtal-scene-rename-t115/desktop-keyboard-fight.png"
+      judge:
+        agent: "019e2890-ece7-7973-817a-bbd7dc32fc15"
+        result: approve
+        summary: "Judge approved T115: pure scene rename within allowed scope, no stale source/test references, verify and smoke passed. Stage the new file and old deletion together so Git records the rename coherently."
+      notes:
+        - "Residual risk: external tooling outside src/test that hardcoded the old Phaser scene key was not exhaustively searched, but production smoke covered the shipped app path."
+  - id: T116
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: low
+    objective: "Rename the generic asset manifest field moroccanDesignNotes to designNotes so Meowtal production tooling no longer carries stale project-specific terminology, while preserving legacy manifest content and runtime behavior."
+    inputs:
+      - "src/assets/types.ts still exposes moroccanDesignNotes on generic fighter/stage manifests."
+      - "Meowtal manifests use that field for current product design notes."
+      - "T114 already changed imagegen prompt labels to generic Design notes."
+    constraints:
+      - "Rename the field mechanically and update direct references/tests."
+      - "Do not remove legacy Atlas/Marrakesh manifests, change asset data, generated assets, scene behavior, package metadata, dependencies, or gameplay."
+      - "Keep one small coherent commit."
+    expected_output:
+      - "Generic asset manifest type uses designNotes."
+      - "Catalog manifests and imagegen/validation/tests use designNotes."
+      - "Legacy Atlas/Marrakesh content remains available explicitly."
+    allowed_files:
+      - "src/assets/types.ts"
+      - "src/assets/catalog.ts"
+      - "src/assets/imagegenJobs.ts"
+      - "test/asset-pipeline.test.ts"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+    verify:
+      - "rg -n \"moroccanDesignNotes\" src test || true"
+      - "npm run typecheck"
+      - "npm test -- --run test/asset-pipeline.test.ts test/imagegen-jobs.test.ts"
+      - "npm run verify"
+      - "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+    stop_if:
+      - "Requires changing asset data semantics, generated files, scene/gameplay behavior, package metadata, dependencies, or files outside allowed_files."
+      - "Rename cascades into broader architecture beyond direct manifest field consumers."
     receipt: null
   - id: T005
     type: worker
