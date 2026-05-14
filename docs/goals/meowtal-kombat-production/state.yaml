@@ -83,7 +83,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T001
+active_task: T004
 
 tasks:
   - id: T000
@@ -275,7 +275,7 @@ tasks:
   - id: T001
     type: scout
     assignee: Scout
-    status: active
+    status: done
     reasoning_hint: medium
     objective: "Map the existing app structure, rendering/game stack, asset locations, verification commands, production-build path, and safest implementation path for a complete Meowtal Kombat scoped game."
     inputs:
@@ -300,11 +300,32 @@ tasks:
       - "Production build/preview command if available"
       - "Risks, blockers, and safe first implementation slices"
       - "Candidate allowed_files for the first Worker task"
-    receipt: null
+    receipt:
+      result: done
+      note: "notes/T001-repo-map.md"
+      summary: "Mapped a healthy Vite/TypeScript/Phaser fighting-game foundation currently branded as Atlas Arena, with deterministic combat core, runtime sprites, stage layers, audio, shell flow, tests, build, and browser debug hooks already working. Main gap: all content/assets/presentation still target Atlas Lion/Sahara Viper/Marrakesh, not Meowtal Kombat; first safe slice should extract hard-coded content into config before replacing fighters/assets."
+      evidence:
+        - "package.json"
+        - "src/main.ts"
+        - "src/core/simulation.ts"
+        - "src/core/input.ts"
+        - "src/core/frameData.ts"
+        - "src/game/MoroccanArenaScene.ts"
+        - "src/assets/catalog.ts"
+        - "docs/visual-reference/meowtal-kombat/vision-01.png"
+        - "output/meowtal-scout/shot-0.png"
+        - "output/meowtal-scout/state-0.json"
+      commands:
+        - cmd: "npm run imagegen:qa"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "node $CODEX_HOME/skills/develop-web-game/scripts/web_game_playwright_client.js --url 'http://127.0.0.1:5173/?demo=super' --actions-json '{...}' --iterations 1 --pause-ms 250 --screenshot-dir output/meowtal-scout"
+          status: pass
   - id: T002
     type: scout
     assignee: Scout
-    status: queued
+    status: done
     reasoning_hint: medium
     objective: "Research and design the production asset, audio, licensing, and effects plan using available local skills and resources without modifying product files."
     inputs:
@@ -322,11 +343,27 @@ tasks:
       - "Risks around performance, copyright, file sizes, visual consistency, and license manifest requirements"
       - "Animation consistency audit criteria and candidate normalization/regeneration strategy"
       - "Worker-ready asset slice proposals with suggested allowed_files"
-    receipt: null
+    receipt:
+      result: done
+      note: "notes/T002-asset-audio-effects-plan.md"
+      summary: "Planned the Meowtal production asset/audio/effects pipeline: adapt the existing manifest/normalization model, add provenance/license tracking, create canonical gray rabbit and ginger tabby character sheets before animation rows, then generate/integrate parallax courtyard, complete logo/HUD/menu/overlay/control/particle pack, rabbit/cat animation rows, and audio cues in small verified slices."
+      evidence:
+        - "docs/imagegen-runbook.md"
+        - "assets/source/imagegen/fighters/README.md"
+        - "src/assets/catalog.ts"
+        - "src/assets/imagegenJobs.ts"
+        - "src/assets/readiness.ts"
+        - "scripts/asset-qa.mjs"
+        - "docs/visual-reference/meowtal-kombat/README.md"
+      commands:
+        - cmd: "npm run imagegen:preflight"
+          status: pass
+        - cmd: "npm run imagegen:qa"
+          status: pass
   - id: T003
     type: judge
     assignee: Judge
-    status: queued
+    status: done
     reasoning_hint: high
     objective: "Choose the implementation sequence that balances gameplay feel, visual spectacle/assets, maintainable architecture, and production-game completeness."
     inputs:
@@ -348,19 +385,39 @@ tasks:
       - "verify commands"
       - "stop_if conditions"
       - "Queued/deferred follow-up Worker tasks"
-    receipt: null
+    receipt:
+      result: done
+      decision: "Start with config/content extraction before replacing fighters or generating assets. Direct Meowtal asset replacement would deepen the current hard-coded Atlas/Moroccan coupling."
+      next_allowed_task: T004
+      summary: "Approved T004 as the first Worker: extract game-facing content configuration from MoroccanArenaScene into a small typed config module while preserving current Atlas runtime behavior exactly."
+      evidence:
+        - "notes/T001-repo-map.md"
+        - "notes/T002-asset-audio-effects-plan.md"
+        - "src/game/MoroccanArenaScene.ts"
+      blocked_tasks:
+        - "Do not start fighter/asset replacement, Meowtal branding, or animation generation before T004 lands."
+        - "Do not generate animation rows before canonical rabbit/cat character sheets and provenance scaffolding exist."
   - id: T004
     type: worker
     assignee: Worker
-    status: queued
+    status: active
     reasoning_hint: low
-    objective: "Execute the first architecture/gameplay foundation slice selected by Judge, with the end state compatible with a full production-ready scoped game."
-    allowed_files: []
-    verify: []
+    objective: "Extract game-facing content configuration from MoroccanArenaScene into a small typed config module while preserving current Atlas runtime behavior exactly. Include title/subtitle, CPU difficulties, roster/default selections, concept sheet metadata, runtime spritesheet metadata, stage manifest selection, asset version, and sprite cell size. Do not rename to Meowtal or replace assets yet."
+    allowed_files:
+      - "src/game/MoroccanArenaScene.ts"
+      - "src/game/gameConfig.ts"
+      - "test/game-config.test.ts"
+      - "test/character-select.test.ts"
+    verify:
+      - "npm run typecheck"
+      - "npm test -- --run test/game-config.test.ts test/character-select.test.ts"
+      - "npm run build"
     stop_if:
-      - "Need files outside allowed_files."
-      - "Existing stack or app entrypoint differs from Judge assumptions."
-      - "Behavior is ambiguous enough to require PM/Judge clarification."
+      - "Needs asset generation or new binary/generated assets."
+      - "Needs files outside allowed_files."
+      - "Runtime behavior changes from current Atlas baseline."
+      - "render_game_to_text() loses existing presentation, selected fighter, concept art, runtime visual, stage, audio, or match-set fields."
+      - "Config extraction requires broad Phaser scene rewrite."
       - "Verification fails twice for the same reason."
     receipt: null
   - id: T005
