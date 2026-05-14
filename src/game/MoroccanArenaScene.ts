@@ -37,6 +37,15 @@ import {
 import { impactFeedbackCue } from "./presentation";
 import { initialShellState, reduceShellState, type ShellState } from "./shellFlow";
 import { selectSpritePose, spriteStanceConventionForAnimation } from "./spriteFrame";
+import {
+  TOUCH_CONTROL_IDS,
+  touchControlAtPoint,
+  touchControlJustPressed,
+  touchControlZonesForPhase,
+  touchControlsVisibleForViewport,
+  touchInputFromControls,
+  type TouchControlId,
+} from "./touchControls";
 
 type KeyMap = Record<string, Phaser.Input.Keyboard.Key>;
 type ImpactFlash = { color: number; alpha: number; remainingFrames: number; totalFrames: number };
@@ -245,7 +254,12 @@ export class MoroccanArenaScene extends Phaser.Scene {
   private readonly effectsGraphicsKey = "arena-effects";
   private readonly runtimeUiMeterGraphicsKey = "arena-runtime-ui-meters";
   private readonly shellOverlayGraphicsKey = "arena-shell-overlay";
+  private readonly touchControlsGraphicsKey = "arena-touch-controls";
   private readonly stageRuntimeLayers = resolveStageRuntimeLayers(GAME_CONFIG.stage);
+  private readonly pointerTouchControls = new Map<number, TouchControlId>();
+  private activeTouchControls = new Set<TouchControlId>();
+  private previousTouchControls = new Set<TouchControlId>();
+  private touchControlLabels!: Record<TouchControlId, Phaser.GameObjects.Text>;
 
   constructor() {
     super("MoroccanArenaScene");
@@ -426,6 +440,8 @@ export class MoroccanArenaScene extends Phaser.Scene {
         layer,
         image: this.add.image(512, 288, layer.assetKey).setDisplaySize(1104, 621).setDepth(1 + index).setVisible(false),
       }));
+    this.touchControlLabels = this.createTouchControlLabels();
+    this.installTouchInput();
     this.installDebugHooks();
     this.applyDemoMode();
   }
@@ -492,6 +508,19 @@ export class MoroccanArenaScene extends Phaser.Scene {
         p1: spriteStanceConventionForAnimation(runtimeVisuals.p1.animationId),
         p2: spriteStanceConventionForAnimation(runtimeVisuals.p2.animationId),
       },
+      touchControls: {
+        visible: this.shouldShowTouchControls(),
+        activeIds: [...this.activeTouchControls].sort(),
+        zones: touchControlZonesForPhase(this.shell.phase).map((zone) => ({
+          id: zone.id,
+          label: zone.label,
+          group: zone.group,
+          x: zone.x,
+          y: zone.y,
+          width: zone.width,
+          height: zone.height,
+        })),
+      },
       stageRuntime: this.stageRuntimeLayers,
       runtimeUi: {
         allLoaded: this.canRenderRuntimeUi(),
@@ -554,99 +583,113 @@ export class MoroccanArenaScene extends Phaser.Scene {
   }
 
   private stepOnce(): void {
-    const resetPressed = Phaser.Input.Keyboard.JustDown(this.keys.reset);
-    const startPressed =
-      Phaser.Input.Keyboard.JustDown(this.keys.start) || Phaser.Input.Keyboard.JustDown(this.keys.startAlt);
-    const pausePressed =
-      Phaser.Input.Keyboard.JustDown(this.keys.pause) || Phaser.Input.Keyboard.JustDown(this.keys.pauseAlt);
-    const fullscreenPressed = Phaser.Input.Keyboard.JustDown(this.keys.fullscreen);
-    if (Phaser.Input.Keyboard.JustDown(this.keys.cpuToggle)) {
-      this.p2CpuEnabled = !this.p2CpuEnabled;
-    }
-    if (Phaser.Input.Keyboard.JustDown(this.keys.cpuDifficulty)) {
-      this.cpuDifficulty = nextCpuDifficulty(this.cpuDifficulty);
-    }
-    if (fullscreenPressed) {
-      this.toggleFullscreen();
-    }
-    if (startPressed || resetPressed || pausePressed || fullscreenPressed) {
-      this.audio.play("ui-confirm");
-    }
-    const previousPhase = this.shell.phase;
-    if (previousPhase === "select") {
-      this.handleCharacterSelectInput();
-    }
-    if (previousPhase !== "paused") {
-      this.shellFrame += 1;
-      this.effects = tickCombatEffects(this.effects);
-      this.impactFlash = tickImpactFlash(this.impactFlash);
-    }
+    const touchControlsThisFrame = new Set(this.activeTouchControls);
+    const touchPressed = (id: TouchControlId) =>
+      touchControlJustPressed(touchControlsThisFrame, this.previousTouchControls, id);
 
-    const nextShell = reduceShellState(this.shell, {
-      resetPressed,
-      startPressed,
-      pausePressed,
-      matchStatus: this.snapshot.status,
-      matchSetStatus: this.matchSet.status,
-    });
+    try {
+      const resetPressed = Phaser.Input.Keyboard.JustDown(this.keys.reset) || touchPressed("reset");
+      const startPressed =
+        Phaser.Input.Keyboard.JustDown(this.keys.start) ||
+        Phaser.Input.Keyboard.JustDown(this.keys.startAlt) ||
+        touchPressed("start");
+      const pausePressed =
+        Phaser.Input.Keyboard.JustDown(this.keys.pause) ||
+        Phaser.Input.Keyboard.JustDown(this.keys.pauseAlt) ||
+        touchPressed("pause");
+      const fullscreenPressed = Phaser.Input.Keyboard.JustDown(this.keys.fullscreen);
+      if (Phaser.Input.Keyboard.JustDown(this.keys.cpuToggle)) {
+        this.p2CpuEnabled = !this.p2CpuEnabled;
+      }
+      if (Phaser.Input.Keyboard.JustDown(this.keys.cpuDifficulty)) {
+        this.cpuDifficulty = nextCpuDifficulty(this.cpuDifficulty);
+      }
+      if (fullscreenPressed) {
+        this.toggleFullscreen();
+      }
+      if (startPressed || resetPressed || pausePressed || fullscreenPressed) {
+        this.audio.play("ui-confirm");
+      }
+      const previousPhase = this.shell.phase;
+      if (previousPhase === "select") {
+        this.handleCharacterSelectInput();
+      }
+      if (previousPhase !== "paused") {
+        this.shellFrame += 1;
+        this.effects = tickCombatEffects(this.effects);
+        this.impactFlash = tickImpactFlash(this.impactFlash);
+      }
 
-    if (resetPressed || (this.shell.phase === "match-over" && nextShell.phase === "fighting")) {
-      this.matchSet = createMatchSet();
+      const nextShell = reduceShellState(this.shell, {
+        resetPressed,
+        startPressed,
+        pausePressed,
+        matchStatus: this.snapshot.status,
+        matchSetStatus: this.matchSet.status,
+      });
+
+      if (resetPressed || (this.shell.phase === "match-over" && nextShell.phase === "fighting")) {
+        this.matchSet = createMatchSet();
+      }
+
+      if (
+        resetPressed ||
+        ((this.shell.phase === "round-over" || this.shell.phase === "match-over") && nextShell.phase === "fighting")
+      ) {
+        this.simulation.reset();
+        this.snapshot = this.simulation.snapshot();
+        this.effects = [];
+        this.impactFlash = null;
+      }
+
+      this.shell = nextShell;
+      this.shellPhaseFrame = previousPhase === this.shell.phase ? this.shellPhaseFrame + 1 : 0;
+
+      if (previousPhase === "select" && this.shell.phase === "fighting") {
+        this.startSelectedMatch();
+        return;
+      }
+
+      if (
+        resetPressed ||
+        (previousPhase === "ready" && this.shell.phase === "fighting") ||
+        (previousPhase === "ready" && this.shell.phase === "select") ||
+        (previousPhase === "round-over" && this.shell.phase === "fighting") ||
+        (previousPhase === "match-over" && this.shell.phase === "fighting") ||
+        (previousPhase === "fighting" && this.shell.phase === "paused") ||
+        (previousPhase === "paused" && this.shell.phase === "fighting")
+      ) {
+        return;
+      }
+
+      if (this.shell.phase !== "fighting") {
+        return;
+      }
+
+      const frame = this.snapshot.frame + 1;
+      const wasFighting = this.snapshot.status === "fighting";
+      this.snapshot = this.simulation.step({
+        p1: this.playerOneInput(frame),
+        p2: this.playerTwoInput(frame),
+      });
+
+      if (wasFighting && this.snapshot.status === "round-over") {
+        this.matchSet = recordRoundOutcome(this.matchSet, this.snapshot.winner);
+      }
+      this.audio.play(
+        audioCueForMatchTransition(wasFighting ? "fighting" : this.snapshot.status, this.snapshot.status, this.matchSet),
+      );
+      this.audio.play(audioCueForCombatEvents(this.snapshot.events));
+      this.effects = [...this.effects, ...effectsFromSnapshot(this.snapshot)];
+      this.triggerImpactFeedback();
+
+      this.shell = reduceShellState(this.shell, {
+        matchStatus: this.snapshot.status,
+        matchSetStatus: this.matchSet.status,
+      });
+    } finally {
+      this.previousTouchControls = touchControlsThisFrame;
     }
-
-    if (
-      resetPressed ||
-      ((this.shell.phase === "round-over" || this.shell.phase === "match-over") && nextShell.phase === "fighting")
-    ) {
-      this.simulation.reset();
-      this.snapshot = this.simulation.snapshot();
-      this.effects = [];
-      this.impactFlash = null;
-    }
-
-    this.shell = nextShell;
-    this.shellPhaseFrame = previousPhase === this.shell.phase ? this.shellPhaseFrame + 1 : 0;
-
-    if (previousPhase === "select" && this.shell.phase === "fighting") {
-      this.startSelectedMatch();
-      return;
-    }
-
-    if (
-      resetPressed ||
-      (previousPhase === "ready" && this.shell.phase === "fighting") ||
-      (previousPhase === "ready" && this.shell.phase === "select") ||
-      (previousPhase === "round-over" && this.shell.phase === "fighting") ||
-      (previousPhase === "match-over" && this.shell.phase === "fighting") ||
-      (previousPhase === "fighting" && this.shell.phase === "paused") ||
-      (previousPhase === "paused" && this.shell.phase === "fighting")
-    ) {
-      return;
-    }
-
-    if (this.shell.phase !== "fighting") {
-      return;
-    }
-
-    const frame = this.snapshot.frame + 1;
-    const wasFighting = this.snapshot.status === "fighting";
-    this.snapshot = this.simulation.step({
-      p1: this.playerOneInput(frame),
-      p2: this.playerTwoInput(frame),
-    });
-
-    if (wasFighting && this.snapshot.status === "round-over") {
-      this.matchSet = recordRoundOutcome(this.matchSet, this.snapshot.winner);
-    }
-    this.audio.play(audioCueForMatchTransition(wasFighting ? "fighting" : this.snapshot.status, this.snapshot.status, this.matchSet));
-    this.audio.play(audioCueForCombatEvents(this.snapshot.events));
-    this.effects = [...this.effects, ...effectsFromSnapshot(this.snapshot)];
-    this.triggerImpactFeedback();
-
-    this.shell = reduceShellState(this.shell, {
-      matchStatus: this.snapshot.status,
-      matchSetStatus: this.matchSet.status,
-    });
   }
 
   private render(): void {
@@ -684,6 +727,7 @@ export class MoroccanArenaScene extends Phaser.Scene {
     this.renderEffectOverlay(showFightLayer);
     drawShellBackdrop(g, this.shell, stageImagesRendered, runtimeUiReady);
     this.renderShellOverlay();
+    this.renderTouchControls();
     this.statusText.setText(hudCenterLabel(this.snapshot, this.matchSet));
     this.roundText.setText(roundLabel(this.matchSet));
     this.modeText.setText(this.p2CpuEnabled ? `P2 CPU ${this.cpuDifficulty.toUpperCase()}` : "P2 MANUAL");
@@ -716,6 +760,33 @@ export class MoroccanArenaScene extends Phaser.Scene {
         return [spec.slot, image] as const;
       }),
     ) as Record<RuntimeUiImageSlot, Phaser.GameObjects.Image>;
+  }
+
+  private createTouchControlLabels(): Record<TouchControlId, Phaser.GameObjects.Text> {
+    return Object.fromEntries(
+      TOUCH_CONTROL_IDS.map((id) => [
+        id,
+        this.add
+          .text(0, 0, "", {
+            align: "center",
+            color: "#fff7df",
+            fontFamily: "Inter, Arial, sans-serif",
+            fontSize: id === "start" ? "19px" : "13px",
+            fontStyle: "900",
+          })
+          .setOrigin(0.5, 0.5)
+          .setDepth(121)
+          .setVisible(false),
+      ]),
+    ) as Record<TouchControlId, Phaser.GameObjects.Text>;
+  }
+
+  private installTouchInput(): void {
+    this.input.addPointer(5);
+    this.input.on("pointerdown", this.handleTouchPointer, this);
+    this.input.on("pointermove", this.handleTouchPointer, this);
+    this.input.on("pointerup", this.releaseTouchPointer, this);
+    this.input.on("pointerupoutside", this.releaseTouchPointer, this);
   }
 
   private renderRuntimeUi(showFightLayer: boolean, runtimeUiReady: boolean): void {
@@ -777,6 +848,68 @@ export class MoroccanArenaScene extends Phaser.Scene {
     if (this.shell.phase === "paused") {
       drawPauseOptionsPanel(g);
     }
+  }
+
+  private renderTouchControls(): void {
+    const graphics = this.children.getByName(this.touchControlsGraphicsKey) as Phaser.GameObjects.Graphics | null;
+    const g = graphics ?? this.add.graphics();
+    if (!graphics) {
+      g.setName(this.touchControlsGraphicsKey);
+      g.setDepth(120);
+    }
+
+    g.clear();
+    for (const label of Object.values(this.touchControlLabels)) {
+      label.setVisible(false);
+    }
+
+    if (!this.shouldShowTouchControls()) {
+      this.pointerTouchControls.clear();
+      this.syncActiveTouchControls();
+      return;
+    }
+
+    for (const zone of touchControlZonesForPhase(this.shell.phase)) {
+      const active = this.activeTouchControls.has(zone.id);
+      const fill = zone.group === "movement" ? 0x164943 : zone.group === "action" ? 0x1d2f3f : 0x3a2b12;
+      const stroke = active ? 0xfff1a8 : zone.group === "action" ? 0x5fc9ff : 0xf2cf7d;
+      const alpha = active ? 0.74 : 0.44;
+
+      g.fillStyle(fill, alpha).fillRoundedRect(zone.x, zone.y, zone.width, zone.height, 14);
+      g.lineStyle(active ? 3 : 2, stroke, active ? 0.95 : 0.58).strokeRoundedRect(zone.x, zone.y, zone.width, zone.height, 14);
+
+      this.touchControlLabels[zone.id]
+        .setText(zone.label)
+        .setPosition(zone.x + zone.width / 2, zone.y + zone.height / 2)
+        .setAlpha(active ? 1 : 0.78)
+        .setVisible(true);
+    }
+  }
+
+  private handleTouchPointer(pointer: Phaser.Input.Pointer): void {
+    if (!this.shouldShowTouchControls() || !pointer.isDown) return;
+
+    const control = touchControlAtPoint(touchControlZonesForPhase(this.shell.phase), { x: pointer.x, y: pointer.y });
+    if (control) {
+      this.pointerTouchControls.set(pointer.id, control);
+    } else {
+      this.pointerTouchControls.delete(pointer.id);
+    }
+    this.syncActiveTouchControls();
+  }
+
+  private releaseTouchPointer(pointer: Phaser.Input.Pointer): void {
+    this.pointerTouchControls.delete(pointer.id);
+    this.syncActiveTouchControls();
+  }
+
+  private syncActiveTouchControls(): void {
+    this.activeTouchControls = new Set(this.pointerTouchControls.values());
+  }
+
+  private shouldShowTouchControls(): boolean {
+    const coarsePointer = window.matchMedia?.("(pointer: coarse)")?.matches ?? false;
+    return touchControlsVisibleForViewport({ width: window.innerWidth, height: window.innerHeight }, coarsePointer);
   }
 
   private runtimeOverlaySlot(): RuntimeUiImageSlot | null {
@@ -1032,17 +1165,21 @@ export class MoroccanArenaScene extends Phaser.Scene {
       });
     }
 
+    const touchInput = touchInputFromControls(this.activeTouchControls);
+    const keyboardHorizontal = keyDown(this.keys.p1Left) ? -1 : keyDown(this.keys.p1Right) || keyDown(this.keys.p1RightAlt) ? 1 : 0;
+    const keyboardVertical = keyDown(this.keys.p1Down) ? 1 : keyDown(this.keys.p1Jump) ? -1 : 0;
+
     return createInput(frame, {
-      horizontal: keyDown(this.keys.p1Left) ? -1 : keyDown(this.keys.p1Right) || keyDown(this.keys.p1RightAlt) ? 1 : 0,
-      vertical: keyDown(this.keys.p1Down) ? 1 : keyDown(this.keys.p1Jump) ? -1 : 0,
+      horizontal: touchInput.horizontal !== 0 ? touchInput.horizontal : keyboardHorizontal,
+      vertical: touchInput.vertical !== 0 ? touchInput.vertical : keyboardVertical,
       buttons: buttonsFromKeys({
-        jump: keyDown(this.keys.p1Jump),
-        crouch: keyDown(this.keys.p1Down),
-        light: keyDown(this.keys.p1Light) || keyDown(this.keys.p1LightAlt),
-        kick: keyDown(this.keys.p1Kick),
-        heavy: keyDown(this.keys.p1Heavy),
-        special: keyDown(this.keys.p1Special) || keyDown(this.keys.p1SpecialAlt),
-        guard: keyDown(this.keys.p1Left),
+        jump: keyDown(this.keys.p1Jump) || touchInput.buttons.jump,
+        crouch: keyDown(this.keys.p1Down) || touchInput.buttons.crouch,
+        light: keyDown(this.keys.p1Light) || keyDown(this.keys.p1LightAlt) || touchInput.buttons.light,
+        kick: keyDown(this.keys.p1Kick) || touchInput.buttons.kick,
+        heavy: keyDown(this.keys.p1Heavy) || touchInput.buttons.heavy,
+        special: keyDown(this.keys.p1Special) || keyDown(this.keys.p1SpecialAlt) || touchInput.buttons.special,
+        guard: keyDown(this.keys.p1Left) || touchInput.buttons.guard,
       }),
     });
   }

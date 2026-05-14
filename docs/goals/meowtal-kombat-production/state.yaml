@@ -85,7 +85,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T106
+active_task: T107
 
 tasks:
   - id: T000
@@ -5454,7 +5454,7 @@ tasks:
   - id: T106
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: low
     objective: "Add mobile-friendly procedural touch controls for the playable P1 flow using existing canvas/UI only. Touch input should support start/confirm, movement, jump/crouch, light/kick/heavy/special, guard/back, pause, and reset where appropriate, while preserving keyboard controls and not changing combat rules or generating assets."
     inputs:
@@ -5478,6 +5478,68 @@ tasks:
       - "Requires changes to combat simulation rules, frame data timings, damage, physics, stage, fighter assets, audio, particles, or animation rows."
       - "Requires full responsive UI rearchitecture beyond procedural touch overlay/input bridging."
       - "Gamepad support becomes necessary for this slice instead of a later optional fallback."
+      - "Files outside allowed_files are needed."
+      - "Browser smoke shows broken keyboard controls, unusable touch controls, hidden/clipped fighters, missing assets, or console/page errors after one scoped fix attempt."
+    receipt:
+      result: done
+      summary: "Added procedural mobile touch controls for the P1 flow without generated assets, combat-rule changes, or keyboard regressions. Touch controls now expose start/confirm, pause, reset, movement, jump/crouch, light/kick/heavy/special, and guard through the existing input semantics, with runtime text telemetry for verification."
+      changed_files:
+        - "src/game/MoroccanArenaScene.ts"
+        - "src/game/touchControls.ts"
+        - "test/touch-controls.test.ts"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+      commands:
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm test -- --run test/touch-controls.test.ts test/presentation.test.ts"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "Browser/Playwright smoke: output/web-game/meowtal-touch-t106/report.json"
+          status: pass
+      evidence:
+        - "output/web-game/meowtal-touch-t106/report.json"
+        - "output/web-game/meowtal-touch-t106/mobile-touch-flow-390x844/ready-page.png"
+        - "output/web-game/meowtal-touch-t106/mobile-touch-flow-390x844/fight-page.png"
+        - "output/web-game/meowtal-touch-t106/mobile-touch-flow-390x844/hold-right-page.png"
+        - "output/web-game/meowtal-touch-t106/mobile-jump-390x844/jump-held-page.png"
+        - "output/web-game/meowtal-touch-t106/mobile-light-390x844/light-held-page.png"
+        - "output/web-game/meowtal-touch-t106/mobile-special-390x844/special-held-page.png"
+      judge:
+        agent: "019e2855-953b-7833-a4ac-b8b19c7c11dc"
+        result: approve
+        summary: "Judge approved T106: scope stayed on procedural mobile controls, touch mapping is isolated, scene integration preserves keyboard controls, focused tests passed, and browser smoke showed desktop controls unchanged plus mobile touch interactions working with no missing UI or console/page errors."
+      notes:
+        - "Residual risk: mobile landscape/coarse-pointer ergonomics and safe-area spacing still need a focused polish pass."
+        - "Residual risk: portrait touch overlay is acceptable but slightly overlaps lower-edge art/meters and should be tuned before final production readiness."
+        - "Gamepad support remains out of scope for this slice."
+  - id: T107
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: low
+    objective: "Polish and verify mobile touch-control ergonomics for phone portrait and landscape layouts, including safe-area spacing, HUD/control readability, and automated smoke evidence, without changing combat rules or adding generated assets."
+    inputs:
+      - "T106 Judge residual risk"
+      - "Existing procedural touch-controls overlay"
+      - "T103 mobile portrait framing evidence"
+      - "Production requirement: responsive desktop/mobile layout and mobile-friendly controls"
+    allowed_files:
+      - "src/game/MoroccanArenaScene.ts"
+      - "src/game/touchControls.ts"
+      - "test/touch-controls.test.ts"
+      - "test/presentation.test.ts"
+      - "scripts/smoke-meowtal-browser.mjs"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+    verify:
+      - "npm run typecheck"
+      - "npm test -- --run test/touch-controls.test.ts test/presentation.test.ts"
+      - "npm run verify"
+      - "Browser/Playwright smoke on desktop keyboard, mobile portrait touch, and mobile landscape touch: controls should remain usable, HUD/fighters readable, active IDs and phase telemetry should match interactions, no missing assets, no console/page errors, and no unreadable control/HUD overlap."
+    stop_if:
+      - "Requires generated/editable touch-control art assets, external libraries, or full responsive UI rearchitecture."
+      - "Requires changes to combat simulation rules, frame data timings, damage, physics, fighter assets, audio, particles, or animation rows."
+      - "Gamepad support becomes necessary instead of a later separate task."
       - "Files outside allowed_files are needed."
       - "Browser smoke shows broken keyboard controls, unusable touch controls, hidden/clipped fighters, missing assets, or console/page errors after one scoped fix attempt."
     receipt: null
@@ -5631,15 +5693,13 @@ checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T090
+    task: T106
     commands:
       - cmd: "npm run typecheck"
         status: pass
-      - cmd: "npm test -- --run test/game-config.test.ts test/asset-runtime.test.ts test/character-select.test.ts test/presentation.test.ts"
-        status: pass
-      - cmd: "npm run build"
+      - cmd: "npm test -- --run test/touch-controls.test.ts test/presentation.test.ts"
         status: pass
       - cmd: "npm run verify"
         status: pass
-      - cmd: "Browser smoke at http://127.0.0.1:4173/ for ready, select, and fight routes"
+      - cmd: "Browser/Playwright smoke at output/web-game/meowtal-touch-t106/report.json"
         status: pass
