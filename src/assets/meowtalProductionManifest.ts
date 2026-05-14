@@ -190,6 +190,11 @@ const hitstunRowRuntimePaths: Readonly<Record<MeowtalFighterId, string>> = {
   "ginger-tabby-cat": "/assets/generated/fighters/ginger-tabby-cat/hitstun.png",
 };
 
+const blockstunRowSourcePaths: Readonly<Record<MeowtalFighterId, string>> = {
+  "gray-rabbit": "assets/source/imagegen/fighters/gray-rabbit/blockstun.png",
+  "ginger-tabby-cat": "assets/source/imagegen/fighters/ginger-tabby-cat/blockstun.png",
+};
+
 const idleRowQaNotes: Readonly<Record<MeowtalFighterId, string>> = {
   "gray-rabbit":
     "Approved runtime idle row. Visual QA: eight separated upright two-legged gray rabbit idle frames, no visible text/watermark/frame numbers, same stance and proportions as the canonical sheet, chroma-key removed to transparent alpha, normalized to 2048x256 RGBA, and approved for runtime publication by T027.",
@@ -237,6 +242,13 @@ const hitstunRowQaNotes: Readonly<Record<MeowtalFighterId, string>> = {
     "Approved runtime hitstun row. Visual QA: five separated upright two-legged gray rabbit hurt/recoil frames, no visible text/watermark/frame numbers, same stance convention and proportions as approved idle/walk-forward/walk-back/crouch/jump/light-punch, chroma-key removed to transparent alpha, normalized to 1280x256 RGBA, and approved for runtime publication by T051.",
   "ginger-tabby-cat":
     "Approved runtime hitstun row. Visual QA: five separated upright two-legged ginger tabby hurt/recoil frames, no visible text/watermark/frame numbers, same stance convention and proportions as approved idle/walk-forward/walk-back/crouch/jump/light-punch, chroma-key removed to transparent alpha, normalized to 1280x256 RGBA, and approved for runtime publication by T051.",
+};
+
+const blockstunRowQaNotes: Readonly<Record<MeowtalFighterId, string>> = {
+  "gray-rabbit":
+    "Generated source blockstun row candidate. Visual self-check: five separated upright two-legged gray rabbit guarded block-recoil frames, no visible text/watermark/frame numbers, same stance convention and proportions as approved idle/walk-forward/walk-back/crouch/jump/light-punch/hitstun, chroma-key removed to transparent alpha, normalized to a 1280x256 RGBA QA candidate, and pending follow-up visual QA before runtime publication.",
+  "ginger-tabby-cat":
+    "Generated source blockstun row candidate. Visual self-check: five separated upright two-legged ginger tabby guarded block-recoil frames, no visible text/watermark/frame numbers, same stance convention and proportions as approved idle/walk-forward/walk-back/crouch/jump/light-punch/hitstun, chroma-key removed to transparent alpha, normalized to a 1280x256 RGBA QA candidate, and pending follow-up visual QA before runtime publication.",
 };
 
 const animationFrameCounts: Readonly<Record<FighterAnimationId, number>> = {
@@ -423,12 +435,19 @@ export function validateMeowtalProductionManifest(
         if (!row.provenance.runtimePath?.includes("/assets/generated/fighters/")) {
           errors.push(`${row.provenance.assetId}: approved hitstun row requires a generated runtime path`);
         }
+      } else if (row.animationId === "blockstun") {
+        if (row.provenance.status !== "generated") {
+          errors.push(`${row.provenance.assetId}: blockstun row should remain generated until follow-up visual QA`);
+        }
+        if (row.provenance.runtimePath !== null) {
+          errors.push(`${row.provenance.assetId}: generated blockstun row must not have a runtime path before QA`);
+        }
       } else {
         if (row.provenance.status !== "blocked") {
           errors.push(`${row.provenance.assetId}: remaining animation rows must remain blocked`);
         }
-        if (!row.provenance.blocker?.includes("hitstun runtime promotion")) {
-          errors.push(`${row.provenance.assetId}: remaining row blocker must reference hitstun runtime promotion`);
+        if (!row.provenance.blocker?.includes("blockstun row QA")) {
+          errors.push(`${row.provenance.assetId}: remaining row blocker must reference blockstun row QA`);
         }
       }
     }
@@ -484,6 +503,8 @@ function makeFighters(): readonly MeowtalFighterAssetPlan[] {
                       ? approvedLightPunchRowProvenance(fighterId, details)
                       : animationId === "hitstun"
                         ? approvedHitstunRowProvenance(fighterId, details)
+                        : animationId === "blockstun"
+                          ? generatedBlockstunRowProvenance(fighterId, details)
                       : blockedAnimationRowProvenance(fighterId, animationId, details),
       })),
     };
@@ -501,8 +522,41 @@ function blockedAnimationRowProvenance(
     prompt: animationRowPrompt(details.displayName, animationId),
     status: "blocked",
     blocker:
-      "Wait for hitstun runtime promotion and a separate scoped generation task before generating this remaining animation row.",
+      "Wait for blockstun row QA and a separate scoped generation task before generating this remaining animation row.",
   });
+}
+
+function generatedBlockstunRowProvenance(
+  fighterId: MeowtalFighterId,
+  details: (typeof fighterDetails)[MeowtalFighterId],
+): AssetProvenance {
+  return {
+    ...imageProvenance({
+      assetId: `${fighterId}:blockstun`,
+      promptSlug: `${fighterId}-blockstun-animation-row`,
+      prompt: animationRowPrompt(details.displayName, "blockstun"),
+      status: "generated",
+      blocker: "",
+    }),
+    sourcePath: blockstunRowSourcePaths[fighterId],
+    runtimePath: null,
+    license: {
+      kind: "owned-generated",
+      summary:
+        "Generated with Codex built-in imagegen for this project; retained as a non-runtime blockstun row candidate pending follow-up visual QA.",
+      sourceUrl: null,
+      attribution: null,
+      checkedOn: generatedOn,
+    },
+    createdOrDownloadedOn: generatedOn,
+    transforms: [
+      "Copied selected built-in imagegen output into the repo source asset tree.",
+      "Removed generated chroma-key background to transparent alpha with the imagegen remove_chroma_key helper.",
+      "Normalized to a 5-frame 1280x256 QA candidate under output/imagegen for visual review only.",
+    ],
+    approvalNotes: blockstunRowQaNotes[fighterId],
+    blocker: null,
+  };
 }
 
 function approvedHitstunRowProvenance(

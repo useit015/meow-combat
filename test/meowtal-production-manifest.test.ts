@@ -52,7 +52,7 @@ describe("Meowtal production manifest", () => {
     expect(runtimeEntries.every((entry) => entry.status === "approved")).toBe(true);
   });
 
-  it("tracks approved rows through hitstun and keeps remaining rows blocked", () => {
+  it("tracks approved rows, generated blockstun candidates, and remaining blocked rows", () => {
     expect(canonicalSheetsApproved()).toBe(true);
 
     const blockedRows = blockedAnimationRowsUntilCanonicalApproved();
@@ -65,6 +65,7 @@ describe("Meowtal production manifest", () => {
     const jumpRows = animationRows.filter((row) => row.animationId === "jump");
     const lightPunchRows = animationRows.filter((row) => row.animationId === "light-punch");
     const hitstunRows = animationRows.filter((row) => row.animationId === "hitstun");
+    const blockstunRows = animationRows.filter((row) => row.animationId === "blockstun");
     const remainingRows = animationRows.filter(
       (row) =>
         row.animationId !== "idle" &&
@@ -73,7 +74,8 @@ describe("Meowtal production manifest", () => {
         row.animationId !== "crouch" &&
         row.animationId !== "jump" &&
         row.animationId !== "light-punch" &&
-        row.animationId !== "hitstun",
+        row.animationId !== "hitstun" &&
+        row.animationId !== "blockstun",
     );
 
     expect(animationRows).toHaveLength(2 * REQUIRED_FIGHTER_ANIMATIONS.length);
@@ -98,8 +100,11 @@ describe("Meowtal production manifest", () => {
     expect(hitstunRows).toHaveLength(2);
     expect(hitstunRows.every((row) => row.provenance.status === "approved")).toBe(true);
     expect(hitstunRows.every((row) => row.provenance.runtimePath?.includes("/assets/generated/fighters/"))).toBe(true);
+    expect(blockstunRows).toHaveLength(2);
+    expect(blockstunRows.every((row) => row.provenance.status === "generated")).toBe(true);
+    expect(blockstunRows.every((row) => row.provenance.runtimePath === null)).toBe(true);
     expect(remainingRows.every((row) => row.provenance.status === "blocked")).toBe(true);
-    expect(remainingRows.every((row) => row.provenance.blocker?.includes("hitstun runtime promotion"))).toBe(true);
+    expect(remainingRows.every((row) => row.provenance.blocker?.includes("blockstun row QA"))).toBe(true);
   });
 
   it("tracks approved idle source and runtime files", () => {
@@ -215,6 +220,21 @@ describe("Meowtal production manifest", () => {
       expect(hitstunRow?.provenance.approvalNotes).toContain("transparent alpha");
       expect(existsSync(join(process.cwd(), hitstunRow?.provenance.sourcePath ?? ""))).toBe(true);
       expect(existsSync(join(process.cwd(), "public", hitstunRow?.provenance.runtimePath ?? ""))).toBe(true);
+    }
+  });
+
+  it("tracks generated blockstun source files without approving runtime use", () => {
+    for (const fighter of meowtalProductionManifest.fighters) {
+      const blockstunRow = fighter.animationRows.find((row) => row.animationId === "blockstun");
+
+      expect(blockstunRow?.provenance.status).toBe("generated");
+      expect(blockstunRow?.provenance.sourcePath).toBe(`assets/source/imagegen/fighters/${fighter.id}/blockstun.png`);
+      expect(blockstunRow?.provenance.runtimePath).toBeNull();
+      expect(blockstunRow?.provenance.license.kind).toBe("owned-generated");
+      expect(blockstunRow?.provenance.approvalNotes).toContain("Generated source blockstun row candidate");
+      expect(blockstunRow?.provenance.approvalNotes).toContain("upright two-legged");
+      expect(blockstunRow?.provenance.approvalNotes).toContain("transparent alpha");
+      expect(existsSync(join(process.cwd(), blockstunRow?.provenance.sourcePath ?? ""))).toBe(true);
     }
   });
 
