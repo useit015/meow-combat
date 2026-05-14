@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { selectSpriteFrame, selectSpritePose } from "../src/game/spriteFrame";
+import { selectSpriteFrame, selectSpritePose, spriteStanceConventionForAnimation } from "../src/game/spriteFrame";
 
 describe("runtime sprite frame selection", () => {
   it("uses slow intentional loops for idle and walk rows", () => {
@@ -22,5 +22,14 @@ describe("runtime sprite frame selection", () => {
     expect(selectSpriteFrame("win", 0, 8)).toBe(1);
     expect(selectSpriteFrame("win", 56, 8)).toBe(5);
     expect(selectSpriteFrame("lose", 999, 6)).toBe(5);
+  });
+
+  it("classifies normal rows as upright and reserves grounded rows for defeat reactions", () => {
+    expect(spriteStanceConventionForAnimation("idle")).toBe("upright-two-legged");
+    expect(spriteStanceConventionForAnimation("light-kick")).toBe("upright-two-legged");
+    expect(spriteStanceConventionForAnimation("special")).toBe("upright-two-legged");
+    expect(spriteStanceConventionForAnimation("win")).toBe("upright-two-legged");
+    expect(spriteStanceConventionForAnimation("knockdown")).toBe("grounded-prone-reaction");
+    expect(spriteStanceConventionForAnimation("lose")).toBe("grounded-prone-reaction");
   });
 });

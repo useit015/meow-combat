@@ -31,6 +31,10 @@ export interface SpritePose {
   rotation: number;
 }
 
+export type SpriteStanceConvention = "upright-two-legged" | "grounded-prone-reaction";
+
+const GROUNDED_OR_PRONE_ANIMATIONS = new Set<FighterAnimationId>(["knockdown", "lose"]);
+
 const FRAME_PLANS: Readonly<Record<FighterAnimationId, FramePlan>> = {
   idle: { mode: "loop", cadence: 12, sequence: [0, 1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2, 1], motion: "breathe" },
   "walk-forward": { mode: "loop", cadence: 5, sequence: [0, 1, 2, 3, 4, 5, 6, 7], motion: "walk" },
@@ -50,6 +54,10 @@ const FRAME_PLANS: Readonly<Record<FighterAnimationId, FramePlan>> = {
 
 export function selectSpriteFrame(animationId: FighterAnimationId, stateFrame: number, frameCount: number): number {
   return selectSpritePose(animationId, stateFrame, frameCount).frame;
+}
+
+export function spriteStanceConventionForAnimation(animationId: FighterAnimationId): SpriteStanceConvention {
+  return GROUNDED_OR_PRONE_ANIMATIONS.has(animationId) ? "grounded-prone-reaction" : "upright-two-legged";
 }
 
 export function selectSpritePose(animationId: FighterAnimationId, stateFrame: number, frameCount: number): SpritePose {

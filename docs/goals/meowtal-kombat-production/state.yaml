@@ -85,7 +85,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T104
+active_task: T105
 
 tasks:
   - id: T000
@@ -5355,7 +5355,7 @@ tasks:
   - id: T104
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: low
     objective: "Audit and enforce the shared fighter stance convention in runtime presentation: the gray rabbit and ginger/orange tabby cat must both use upright two-legged normal stance/movement/attack presentation, while prone or grounded poses are allowed only for knockdown, K.O., lose, or other explicit hit-reaction/defeat states. Do not generate assets or change combat rules."
     inputs:
@@ -5382,6 +5382,67 @@ tasks:
       - "A normal-state asset is visually inconsistent enough that code wiring cannot honestly fix it without regeneration."
       - "Requires broad runtime character-selection rearchitecture or files outside allowed_files."
       - "Browser smoke shows stance mismatch, hidden/clipped fighters, missing assets, or console/page errors after one scoped fix attempt."
+    receipt:
+      result: done
+      summary: "Enforced the shared fighter stance convention in runtime presentation without changing combat rules or assets. Added a central stance classifier for runtime animation IDs, exposed the actual presentation-resolved stance in render_game_to_text, and added tests proving rabbit and cat share upright two-legged normal-state animation routing while grounded/prone presentation is limited to knockdown and lose/defeat rows."
+      changed_files:
+        - "src/game/spriteFrame.ts"
+        - "src/game/MoroccanArenaScene.ts"
+        - "test/asset-runtime.test.ts"
+        - "test/sprite-frame.test.ts"
+      commands:
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm test -- --run test/asset-runtime.test.ts test/sprite-frame.test.ts test/presentation.test.ts"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "Direct Playwright smoke grid for ready/select/fight plus walk, crouch, jump, light/heavy/special/super, hop/run/backdash, hitstun, blockstun, knockdown, K.O., and cat-win presentations"
+          status: pass
+      evidence:
+        - "output/web-game/meowtal-stance-t104/report.json"
+        - "output/web-game/meowtal-stance-t104/light-kick-page.png"
+        - "output/web-game/meowtal-stance-t104/heavy-punch-page.png"
+        - "output/web-game/meowtal-stance-t104/special-page.png"
+        - "output/web-game/meowtal-stance-t104/hitstun-page.png"
+        - "output/web-game/meowtal-stance-t104/blockstun-page.png"
+        - "output/web-game/meowtal-stance-t104/crouch-page.png"
+        - "output/web-game/meowtal-stance-t104/knockdown-page.png"
+        - "output/web-game/meowtal-stance-t104/ko-page.png"
+        - "output/web-game/meowtal-stance-t104/cat-win-page.png"
+      smoke:
+        normal_states: "ready/select/fight/walk-forward/walk-back/crouch/jump/light-punch/light-kick/heavy-punch/special/super/hop/run-forward/backdash/hitstun/blockstun all reported upright-two-legged for both visible fighters."
+        grounded_states: "knockdown reported p2 grounded-prone-reaction; K.O. and cat-win reported only the losing fighter grounded-prone-reaction."
+        errors: "No console/page errors, no stance failures, runtime UI loaded with missingUi [] throughout."
+      judge:
+        decision: approve
+        agent: "019e283a-d215-7201-bc60-dc7004f156b4"
+        summary: "Judge approved T104: stance convention is centralized and narrow, runtime text telemetry uses actual presentation-resolved assets including win/lose overrides, tests cover shared rabbit/cat normal-state stance routing, and smoke evidence shows only knockdown/lose grounded."
+      notes:
+        - "Residual risk: this is semantic runtime enforcement plus targeted screenshot/manual evidence, not pixel-level pose recognition. Future generated/approved sprite rows still need visual QA."
+        - "Do not activate broad queued tasks with empty allowed_files/verify; split them into bounded production slices."
+  - id: T105
+    type: pm
+    assignee: PM
+    status: active
+    reasoning_hint: medium
+    objective: "Decompose the remaining broad queued production-game work after T104 and select the next smallest safe Worker slice with explicit allowed_files, verification, and stop conditions. Do not implement product changes in this task."
+    inputs:
+      - "T104 Judge recommendation"
+      - "Queued broad tasks T005/T006/T007/T008/T009/T011"
+      - "Goal requirement: full polished production-ready scoped game, not a PoC"
+      - "Small-batch commit rule"
+    constraints:
+      - "Do not activate broad queued tasks as written with empty allowed_files or verify."
+      - "Prefer a slice that closes a production-readiness gap while staying small and locally verifiable."
+      - "Do not edit product code, generated assets, audio, or tests in this decomposition task."
+      - "Keep one active task."
+    expected_output:
+      - "Decision and rationale"
+      - "Next Worker objective"
+      - "allowed_files"
+      - "verify commands"
+      - "stop_if conditions"
     receipt: null
   - id: T005
     type: worker

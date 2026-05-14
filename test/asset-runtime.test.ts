@@ -13,10 +13,31 @@ import {
   stageLayerAssetKey,
   type FighterAssetManifest,
 } from "../src/assets";
+import type { FighterState } from "../src/core";
 import { meowtalKombatConfig } from "../src/game/gameConfig";
+import { spriteStanceConventionForAnimation } from "../src/game/spriteFrame";
 
 const rabbitManifest = manifestById("gray-rabbit");
 const catManifest = manifestById("ginger-tabby-cat");
+const uprightRuntimeStates = [
+  "idle",
+  "walkForward",
+  "walkBack",
+  "crouch",
+  "jump",
+  "hop",
+  "runForward",
+  "backdash",
+  "rollForward",
+  "rollBack",
+  "lightAttack",
+  "lightKick",
+  "heavyAttack",
+  "specialAttack",
+  "superAttack",
+  "hitstun",
+  "blockstun",
+] as const satisfies readonly FighterState[];
 
 function manifestById(id: string): FighterAssetManifest {
   const manifest = meowtalFighterAssetManifests.find((candidate) => candidate.id === id);
@@ -191,6 +212,31 @@ describe("asset runtime resolver", () => {
       kind: "sprite",
       assetKey: "ginger-tabby-cat:blockstun",
     });
+  });
+
+  it("keeps rabbit and cat runtime presentation on one upright normal stance convention", () => {
+    for (const state of uprightRuntimeStates) {
+      const rabbitAsset = resolveManifestRuntimeAsset(rabbitManifest, state);
+      const catAsset = resolveManifestRuntimeAsset(catManifest, state);
+
+      expect(catAsset.animationId).toBe(rabbitAsset.animationId);
+      expect(spriteStanceConventionForAnimation(rabbitAsset.animationId)).toBe("upright-two-legged");
+      expect(spriteStanceConventionForAnimation(catAsset.animationId)).toBe("upright-two-legged");
+    }
+  });
+
+  it("reserves grounded or prone sprite rows for knockdown and defeat presentation", () => {
+    for (const manifest of [rabbitManifest, catManifest]) {
+      expect(spriteStanceConventionForAnimation(resolveManifestRuntimeAsset(manifest, "knockdown").animationId)).toBe(
+        "grounded-prone-reaction",
+      );
+      expect(spriteStanceConventionForAnimation(resolveFighterRuntimeAsset(renderAssetForAnimationId(manifest, "lose")).animationId)).toBe(
+        "grounded-prone-reaction",
+      );
+      expect(spriteStanceConventionForAnimation(resolveFighterRuntimeAsset(renderAssetForAnimationId(manifest, "win")).animationId)).toBe(
+        "upright-two-legged",
+      );
+    }
   });
 
   it("uses stable runtime asset keys", () => {

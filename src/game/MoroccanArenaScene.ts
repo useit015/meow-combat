@@ -36,7 +36,7 @@ import {
 } from "./gameConfig";
 import { impactFeedbackCue } from "./presentation";
 import { initialShellState, reduceShellState, type ShellState } from "./shellFlow";
-import { selectSpritePose } from "./spriteFrame";
+import { selectSpritePose, spriteStanceConventionForAnimation } from "./spriteFrame";
 
 type KeyMap = Record<string, Phaser.Input.Keyboard.Key>;
 type ImpactFlash = { color: number; alpha: number; remainingFrames: number; totalFrames: number };
@@ -459,6 +459,11 @@ export class MoroccanArenaScene extends Phaser.Scene {
   }
 
   renderTextState(): string {
+    const runtimeVisuals = {
+      p1: this.runtimeAssetFor("p1"),
+      p2: this.runtimeAssetFor("p2"),
+    };
+
     return JSON.stringify({
       coordinateSystem: "origin top-left, x right, y down",
       frame: this.snapshot.frame,
@@ -479,8 +484,13 @@ export class MoroccanArenaScene extends Phaser.Scene {
         p2: renderAssetForState(manifestForCharacter(this.snapshot.p2.character), this.snapshot.p2.state),
       },
       runtimeVisuals: {
-        p1: this.runtimeAssetFor("p1"),
-        p2: this.runtimeAssetFor("p2"),
+        p1: runtimeVisuals.p1,
+        p2: runtimeVisuals.p2,
+      },
+      runtimeStance: {
+        rule: "normal gameplay is upright-two-legged for both fighters; grounded-prone-reaction is reserved for knockdown/lose presentation",
+        p1: spriteStanceConventionForAnimation(runtimeVisuals.p1.animationId),
+        p2: spriteStanceConventionForAnimation(runtimeVisuals.p2.animationId),
       },
       stageRuntime: this.stageRuntimeLayers,
       runtimeUi: {
