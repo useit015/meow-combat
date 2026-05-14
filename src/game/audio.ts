@@ -1,16 +1,61 @@
-import type { CombatEvent, MatchSetState, MatchSnapshot } from "../core";
+import type { CombatEvent, MatchSetState, MatchSnapshot, PlayerId } from "../core";
 
-export type ArenaAudioCue = "ui-confirm" | "hit" | "block" | "round-over" | "match-over";
+export type ArenaAudioCue =
+  | "ui-confirm"
+  | "fight-announcer"
+  | "hit-light"
+  | "hit-heavy"
+  | "block-impact"
+  | "dash-whoosh"
+  | "rabbit-tornado"
+  | "cat-aura-blast"
+  | "ko-burst"
+  | "victory-sting";
 export type ArenaAudioStatus = "locked" | "ready" | "unavailable";
+
+export type ArenaAudioCharacters = Readonly<Record<PlayerId, string>>;
 
 type AudioGlobal = typeof globalThis & {
   webkitAudioContext?: typeof AudioContext;
 };
 
-export function audioCueForCombatEvents(events: readonly CombatEvent[]): ArenaAudioCue | null {
-  if (events.some((event) => event.type === "hit")) return "hit";
-  if (events.some((event) => event.type === "block")) return "block";
-  return null;
+export function audioCuesForCombatEvents(
+  events: readonly CombatEvent[],
+  characters: ArenaAudioCharacters | null = null,
+): readonly ArenaAudioCue[] {
+  const cues: ArenaAudioCue[] = [];
+
+  for (const event of events) {
+    if (event.type === "hit") {
+      cues.push(audioCueForHit(event, characters));
+      continue;
+    }
+
+    if (event.type === "block") {
+      cues.push("block-impact");
+      continue;
+    }
+
+    if (
+      event.type === "state" &&
+      (event.to === "runForward" ||
+        event.to === "backdash" ||
+        event.to === "rollForward" ||
+        event.to === "rollBack" ||
+        event.to === "hop")
+    ) {
+      cues.push("dash-whoosh");
+    }
+  }
+
+  return [...new Set(cues)];
+}
+
+export function audioCueForCombatEvents(
+  events: readonly CombatEvent[],
+  characters: ArenaAudioCharacters | null = null,
+): ArenaAudioCue | null {
+  return audioCuesForCombatEvents(events, characters)[0] ?? null;
 }
 
 export function audioCueForMatchTransition(
@@ -19,7 +64,18 @@ export function audioCueForMatchTransition(
   matchSet: MatchSetState,
 ): ArenaAudioCue | null {
   if (previousStatus !== "fighting" || nextStatus !== "round-over") return null;
-  return matchSet.status === "complete" ? "match-over" : "round-over";
+  return matchSet.status === "complete" ? "victory-sting" : "ko-burst";
+}
+
+function audioCueForHit(event: Extract<CombatEvent, { type: "hit" }>, characters: ArenaAudioCharacters | null): ArenaAudioCue {
+  if (event.move === "special" || event.move === "super") {
+    const character = characters?.[event.attacker] ?? "";
+    if (character === "gray-rabbit") return "rabbit-tornado";
+    if (character === "ginger-tabby-cat") return "cat-aura-blast";
+    return "hit-heavy";
+  }
+
+  return event.move === "heavy" ? "hit-heavy" : "hit-light";
 }
 
 export class ArenaAudio {
@@ -72,22 +128,59 @@ export class ArenaAudio {
       return;
     }
 
-    if (cue === "hit") {
-      this.noiseBurst(context, now, 0.08, 0.12);
-      this.tone(context, now, 96, 0.08, "sawtooth", 0.055);
-      this.tone(context, now + 0.02, 172, 0.06, "square", 0.035);
+    if (cue === "fight-announcer") {
+      this.tone(context, now, 146, 0.12, "sawtooth", 0.045);
+      this.tone(context, now + 0.08, 392, 0.16, "square", 0.032);
+      this.noiseBurst(context, now + 0.02, 0.05, 0.045);
       return;
     }
 
-    if (cue === "block") {
+    if (cue === "hit-light") {
+      this.noiseBurst(context, now, 0.045, 0.08);
+      this.tone(context, now, 172, 0.055, "square", 0.032);
+      this.tone(context, now + 0.018, 310, 0.045, "triangle", 0.025);
+      return;
+    }
+
+    if (cue === "hit-heavy") {
+      this.noiseBurst(context, now, 0.09, 0.14);
+      this.tone(context, now, 82, 0.11, "sawtooth", 0.06);
+      this.tone(context, now + 0.026, 164, 0.08, "square", 0.042);
+      return;
+    }
+
+    if (cue === "block-impact") {
       this.noiseBurst(context, now, 0.045, 0.055);
       this.tone(context, now, 210, 0.075, "triangle", 0.032);
       return;
     }
 
-    if (cue === "round-over") {
-      this.tone(context, now, 220, 0.12, "triangle", 0.04);
-      this.tone(context, now + 0.11, 330, 0.14, "triangle", 0.04);
+    if (cue === "dash-whoosh") {
+      this.noiseBurst(context, now, 0.07, 0.038);
+      this.tone(context, now, 260, 0.08, "sine", 0.018);
+      this.tone(context, now + 0.045, 430, 0.08, "sine", 0.014);
+      return;
+    }
+
+    if (cue === "rabbit-tornado") {
+      this.noiseBurst(context, now, 0.12, 0.065);
+      this.tone(context, now, 180, 0.16, "sawtooth", 0.042);
+      this.tone(context, now + 0.055, 260, 0.14, "sawtooth", 0.034);
+      this.tone(context, now + 0.11, 340, 0.12, "triangle", 0.026);
+      return;
+    }
+
+    if (cue === "cat-aura-blast") {
+      this.tone(context, now, 420, 0.09, "triangle", 0.032);
+      this.tone(context, now + 0.045, 620, 0.12, "square", 0.032);
+      this.noiseBurst(context, now + 0.075, 0.075, 0.07);
+      return;
+    }
+
+    if (cue === "ko-burst") {
+      this.noiseBurst(context, now, 0.16, 0.16);
+      this.tone(context, now, 104, 0.16, "sawtooth", 0.062);
+      this.tone(context, now + 0.11, 52, 0.22, "sawtooth", 0.05);
       return;
     }
 

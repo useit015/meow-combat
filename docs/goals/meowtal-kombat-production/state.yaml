@@ -85,7 +85,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T119
+active_task: T120
 
 tasks:
   - id: T000
@@ -6199,7 +6199,7 @@ tasks:
   - id: T119
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: low
     objective: "Implement the remaining presentation/audio gap without external assets: add readable floating per-hit damage-number popups and distinct owned procedural audio cues for FIGHT start, light hit, heavy hit, dash/whoosh, rabbit tornado special, cat aura/blast special, and K.O. burst; update manifest/provenance/tests/docs so T005/T007/T011 can be reconciled next."
     inputs:
@@ -6231,6 +6231,59 @@ tasks:
       - "Damage-number popups obscure fighter readability, HUD readability, or mobile/touch controls after one repair attempt."
       - "Browser audio policy prevents cues from being routed through the existing unlock/play model."
       - "Verification fails twice for the same reason."
+    receipt:
+      result: done
+      summary: "Implemented the remaining presentation/audio gap with owned procedural runtime systems only. Added floating per-hit damage-number popups with move-specific styling and render_game_to_text telemetry; expanded audio routing to distinct FIGHT start, light hit, heavy hit, block impact, dash/hop whoosh, rabbit tornado, cat aura/blast, K.O. burst, and victory sting cues; updated asset/audio provenance and tests so all Meowtal visual surfaces and audio cues are approved as generated or procedural assets. No external provider calls, secrets, downloads, binary generated assets, dependencies, package files, core combat rules, frame data, fighter assets, stage assets, or generated UI images changed."
+      changed_files:
+        - "src/game/audio.ts"
+        - "src/game/MeowtalArenaScene.ts"
+        - "src/game/effects.ts"
+        - "src/assets/meowtalProductionManifest.ts"
+        - "test/presentation.test.ts"
+        - "test/combat-effects.test.ts"
+        - "test/meowtal-production-manifest.test.ts"
+        - "docs/assets/meowtal-kombat-provenance.md"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+      commands:
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm test -- --run test/presentation.test.ts test/combat-effects.test.ts test/meowtal-production-manifest.test.ts"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/meowtal-audio-damage-t119"
+          status: pass
+        - cmd: "node --input-type=module <inline Playwright damage-popup capture>"
+          status: pass
+        - cmd: "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+          status: pass
+        - cmd: "git diff --check"
+          status: pass
+      evidence:
+        - "output/web-game/meowtal-audio-damage-t119/report.json"
+        - "output/web-game/meowtal-damage-popup-t119/damage-popup.png"
+        - "output/web-game/meowtal-damage-popup-t119/state.json"
+      notes:
+        - "Custom damage-popup capture observed active damageNumbers count 1, value 45, kind light, and combo damage 45 while screenshot showed floating -45 over the struck cat."
+  - id: T120
+    type: pm
+    assignee: PM
+    status: active
+    reasoning_hint: medium
+    objective: "Reconcile the remaining queued broad placeholders T005/T007/T011 now that T119 closed the manifest/audio/damage gaps, and decide whether to activate final production audit T010. Do not edit product code or claim full completion in this task."
+    inputs:
+      - "T005/T007/T011 remain queued after T117/T118 because asset/audio/effects provenance had real gaps."
+      - "T118 reconciled generated/procedural provenance and identified remaining damage/audio gaps."
+      - "T119 implemented floating damage-number popups, distinct procedural audio cues, and approved all visual/audio surfaces in the manifest/provenance ledger."
+      - "T006/T008/T009 are already done/superseded by concrete receipts."
+    constraints:
+      - "Only edit GoalBuddy state."
+      - "Do not mark the overall goal complete."
+      - "Only mark T005/T007/T011 done if the completed receipts now cover them well enough for T010 to audit."
+      - "If a real gap remains, create one narrow follow-up Worker with explicit allowed_files, verify, and stop_if."
+    expected_output:
+      - "Status decisions for T005/T007/T011"
+      - "Next active task: T010 final production audit if broad placeholders are covered, or one narrow follow-up if a real gap remains"
     receipt: null
   - id: T005
     type: worker

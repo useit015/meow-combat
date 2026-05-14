@@ -339,12 +339,19 @@ const proceduralUiSurfaceDetails: Readonly<
     approvalNotes:
       "Approved procedural runtime surface: hit sparks, block flashes, special/super trails, impact flashes, and shake are implemented as owned code-driven effects. No external particle atlas is required for the current production scope.",
   },
+  "damage-number-style": {
+    sourcePath: "src/game/effects.ts",
+    runtimePath: "src/game/MeowtalArenaScene.ts",
+    transforms: [
+      "Creates per-hit damage popup descriptors from combat hit events.",
+      "Renders floating damage values through owned Phaser Text objects with move-specific color, stroke, pop scale, drift, and fade.",
+    ],
+    approvalNotes:
+      "Approved procedural runtime surface: floating per-hit damage-number popups are implemented as owned code-driven text effects and exposed through render_game_to_text telemetry.",
+  },
 };
 
-const plannedVisualSurfaceBlockers: Readonly<Partial<Record<MeowtalVisualSurfaceId, string>>> = {
-  "damage-number-style":
-    "Floating per-hit damage-number popups are not implemented yet; the current combo damage readout is useful but does not satisfy the planned popping damage-number surface.",
-};
+const plannedVisualSurfaceBlockers: Readonly<Partial<Record<MeowtalVisualSurfaceId, string>>> = {};
 
 const implementedAudioCueDetails: Readonly<
   Partial<
@@ -379,6 +386,36 @@ const implementedAudioCueDetails: Readonly<
     approvalNotes:
       "Approved procedural runtime audio: UI confirm/select feedback is implemented and routed through the Meowtal scene shell.",
   },
+  "fight-announcer": {
+    sourcePath: "src/game/audio.ts",
+    runtimePath: "src/game/MeowtalArenaScene.ts",
+    transforms: [
+      "Routes fight-start transitions through the procedural fight-announcer cue.",
+      "Synthesizes a dramatic two-tone stinger with a short noise accent through WebAudio.",
+    ],
+    approvalNotes:
+      "Approved procedural runtime audio: fight-announcer is routed on fight start/round restart and synthesized without external voice or sample assets.",
+  },
+  "hit-light": {
+    sourcePath: "src/game/audio.ts",
+    runtimePath: "src/game/MeowtalArenaScene.ts",
+    transforms: [
+      "Maps light and light-kick hit events to a distinct lighter procedural hit cue.",
+      "Synthesizes a short noise burst plus high tonal tick through WebAudio.",
+    ],
+    approvalNotes:
+      "Approved procedural runtime audio: light-hit impacts now use a distinct owned WebAudio cue.",
+  },
+  "hit-heavy": {
+    sourcePath: "src/game/audio.ts",
+    runtimePath: "src/game/MeowtalArenaScene.ts",
+    transforms: [
+      "Maps heavy hit events and unknown special/super fallbacks to a distinct heavier procedural hit cue.",
+      "Synthesizes a deeper noise and bass impact through WebAudio.",
+    ],
+    approvalNotes:
+      "Approved procedural runtime audio: heavy-hit impacts now use a distinct owned WebAudio cue.",
+  },
   "block-impact": {
     sourcePath: "src/game/audio.ts",
     runtimePath: "src/game/MeowtalArenaScene.ts",
@@ -387,7 +424,47 @@ const implementedAudioCueDetails: Readonly<
       "Synthesizes a short noise burst plus tonal clack through WebAudio.",
     ],
     approvalNotes:
-      "Approved procedural runtime audio: block-impact is implemented through audioCueForCombatEvents and ArenaAudio.play('block').",
+      "Approved procedural runtime audio: block-impact is implemented through audioCueForCombatEvents and ArenaAudio.play('block-impact').",
+  },
+  "dash-whoosh": {
+    sourcePath: "src/game/audio.ts",
+    runtimePath: "src/game/MeowtalArenaScene.ts",
+    transforms: [
+      "Maps run, backdash, roll, and hop state transitions to a procedural movement whoosh.",
+      "Synthesizes a short noise burst and rising sine motion cue through WebAudio.",
+    ],
+    approvalNotes:
+      "Approved procedural runtime audio: dash/hop whoosh is implemented from mobility state events with no external samples.",
+  },
+  "rabbit-tornado": {
+    sourcePath: "src/game/audio.ts",
+    runtimePath: "src/game/MeowtalArenaScene.ts",
+    transforms: [
+      "Maps gray-rabbit special/super hit events to the rabbit-tornado cue.",
+      "Synthesizes a noisy spinning sweep through WebAudio oscillators.",
+    ],
+    approvalNotes:
+      "Approved procedural runtime audio: Rabbit tornado/special impact now has a distinct owned procedural cue.",
+  },
+  "cat-aura-blast": {
+    sourcePath: "src/game/audio.ts",
+    runtimePath: "src/game/MeowtalArenaScene.ts",
+    transforms: [
+      "Maps ginger-tabby-cat special/super hit events to the cat-aura-blast cue.",
+      "Synthesizes a rising aura tone and short blast noise through WebAudio.",
+    ],
+    approvalNotes:
+      "Approved procedural runtime audio: Cat aura/blast special impact now has a distinct owned procedural cue.",
+  },
+  "ko-burst": {
+    sourcePath: "src/game/audio.ts",
+    runtimePath: "src/game/MeowtalArenaScene.ts",
+    transforms: [
+      "Maps round-over transitions to a procedural K.O. burst cue.",
+      "Synthesizes a larger noise burst plus descending bass impact through WebAudio.",
+    ],
+    approvalNotes:
+      "Approved procedural runtime audio: K.O. burst is implemented for round-over transitions with no external samples.",
   },
   "victory-sting": {
     sourcePath: "src/game/audio.ts",
@@ -401,18 +478,7 @@ const implementedAudioCueDetails: Readonly<
   },
 };
 
-const plannedAudioCueBlockers: Readonly<Partial<Record<MeowtalAudioCueId, string>>> = {
-  "fight-announcer":
-    "No distinct FIGHT announcer/stinger audio is routed yet; the visual FIGHT overlay exists but audio needs a narrow implementation slice.",
-  "hit-light":
-    "The current runtime has one shared hit cue, not a distinct light-hit cue with production approval.",
-  "hit-heavy":
-    "The current runtime has one shared hit cue, not a distinct heavy-hit cue with production approval.",
-  "dash-whoosh": "Dash and hop movement do not yet trigger a distinct procedural whoosh cue.",
-  "rabbit-tornado": "Rabbit tornado special does not yet trigger a distinct procedural special audio cue.",
-  "cat-aura-blast": "Cat special does not yet trigger a distinct procedural aura/blast audio cue.",
-  "ko-burst": "Round-over audio exists, but no over-the-top K.O. burst cue is implemented and approved yet.",
-};
+const plannedAudioCueBlockers: Readonly<Partial<Record<MeowtalAudioCueId, string>>> = {};
 
 const canonicalSheetSourcePaths: Readonly<Record<MeowtalFighterId, string>> = {
   "gray-rabbit": "assets/source/imagegen/fighters/gray-rabbit/canonical-character-sheet.png",

@@ -69,10 +69,18 @@ describe("Meowtal production manifest", () => {
       "meowtal-courtyard:playfield-stone-courtyard",
       "meowtal-courtyard:sky-lighting",
       "audio:block-impact",
+      "audio:cat-aura-blast",
+      "audio:dash-whoosh",
+      "audio:fight-announcer",
+      "audio:hit-heavy",
+      "audio:hit-light",
+      "audio:ko-burst",
       "audio:music-loop",
+      "audio:rabbit-tornado",
       "audio:ui-confirm",
       "audio:victory-sting",
       "ui:cat-portrait",
+      "ui:damage-number-style",
       "ui:loading-fallback",
       "ui:fight-ko-victory-overlays",
       "ui:health-bar-cat",
@@ -147,6 +155,7 @@ describe("Meowtal production manifest", () => {
       "touch-controls",
       "loading-fallback",
       "particle-atlas",
+      "damage-number-style",
     ] as const;
 
     for (const surfaceId of proceduralSurfaceIds) {
@@ -168,13 +177,23 @@ describe("Meowtal production manifest", () => {
         !generatedSurfaceIds.includes(surface.id as (typeof generatedSurfaceIds)[number]) &&
         !proceduralSurfaceIds.includes(surface.id as (typeof proceduralSurfaceIds)[number]),
     );
-    expect(plannedSurfaces.map((surface) => surface.id)).toEqual(["damage-number-style"]);
-    expect(plannedSurfaces.every((surface) => surface.provenance.status === "planned")).toBe(true);
-    expect(plannedSurfaces[0]?.provenance.blocker).toContain("Floating per-hit damage-number popups");
+    expect(plannedSurfaces).toEqual([]);
   });
 
-  it("tracks implemented procedural audio cues and leaves missing production cues planned", () => {
-    const approvedAudioCueIds = ["music-loop", "ui-confirm", "block-impact", "victory-sting"] as const;
+  it("tracks implemented procedural audio cues", () => {
+    const approvedAudioCueIds = [
+      "music-loop",
+      "ui-confirm",
+      "fight-announcer",
+      "hit-light",
+      "hit-heavy",
+      "block-impact",
+      "dash-whoosh",
+      "rabbit-tornado",
+      "cat-aura-blast",
+      "ko-burst",
+      "victory-sting",
+    ] as const;
 
     for (const cueId of approvedAudioCueIds) {
       const cue = meowtalProductionManifest.audioCues.find((candidate) => candidate.id === cueId);
@@ -191,25 +210,11 @@ describe("Meowtal production manifest", () => {
       expect(existsSync(join(process.cwd(), provenance?.runtimePath ?? ""))).toBe(true);
     }
 
-    const plannedAudioCueIds = meowtalProductionManifest.audioCues
-      .filter((cue) => !approvedAudioCueIds.includes(cue.id as (typeof approvedAudioCueIds)[number]))
-      .map((cue) => cue.id);
+    const plannedAudioCueIds = meowtalProductionManifest.audioCues.filter(
+      (cue) => !approvedAudioCueIds.includes(cue.id as (typeof approvedAudioCueIds)[number]),
+    );
 
-    expect(plannedAudioCueIds).toEqual([
-      "fight-announcer",
-      "hit-light",
-      "hit-heavy",
-      "dash-whoosh",
-      "rabbit-tornado",
-      "cat-aura-blast",
-      "ko-burst",
-    ]);
-    for (const cueId of plannedAudioCueIds) {
-      const cue = meowtalProductionManifest.audioCues.find((candidate) => candidate.id === cueId);
-      expect(cue?.provenance.status).toBe("planned");
-      expect(cue?.provenance.sourceKind).toBe("procedural");
-      expect(cue?.provenance.blocker).not.toBeNull();
-    }
+    expect(plannedAudioCueIds).toEqual([]);
   });
 
   it("tracks approved knockdown rows and remaining blocked rows", () => {

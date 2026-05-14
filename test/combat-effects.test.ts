@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { FightingSimulation } from "../src/core";
-import { effectsFromSnapshot, tickCombatEffects } from "../src/game/effects";
+import {
+  damageNumbersFromSnapshot,
+  damageNumberStyleForMove,
+  effectsFromSnapshot,
+  tickCombatEffects,
+  tickDamageNumbers,
+} from "../src/game/effects";
 
 describe("combat effects", () => {
   it("creates a hit effect at the defender contact point", () => {
@@ -71,5 +77,59 @@ describe("combat effects", () => {
     }
 
     expect(effects).toEqual([]);
+  });
+
+  it("creates floating damage numbers from hit events", () => {
+    const base = new FightingSimulation().snapshot();
+    const numbers = damageNumbersFromSnapshot({
+      ...base,
+      events: [
+        {
+          type: "hit",
+          frame: 22,
+          attacker: "p1",
+          defender: "p2",
+          move: "heavy",
+          damage: 90,
+        },
+      ],
+    });
+
+    expect(numbers).toEqual([
+      {
+        id: "22:damage:p1:p2:heavy:90",
+        kind: "heavy",
+        value: 90,
+        x: base.p2.x - base.p2.facing * 18,
+        y: base.p2.y - 182,
+        driftX: 0.42,
+        age: 0,
+        duration: 42,
+      },
+    ]);
+    expect(damageNumberStyleForMove("heavy")).toMatchObject({ color: "#ff9f1c", fontSize: 23 });
+  });
+
+  it("ages damage numbers out deterministically", () => {
+    const [number] = damageNumbersFromSnapshot({
+      ...new FightingSimulation().snapshot(),
+      events: [
+        {
+          type: "hit",
+          frame: 22,
+          attacker: "p1",
+          defender: "p2",
+          move: "special",
+          damage: 120,
+        },
+      ],
+    });
+
+    let numbers = [number];
+    for (let frame = 0; frame < number.duration; frame += 1) {
+      numbers = [...tickDamageNumbers(numbers)];
+    }
+
+    expect(numbers).toEqual([]);
   });
 });

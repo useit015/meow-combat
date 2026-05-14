@@ -355,7 +355,7 @@ Composite QA candidate: `output/imagegen/meowtal-courtyard-composite-preview.png
 
 ### UI, HUD, And Effects Surfaces
 
-Status: approved generated runtime UI assets plus approved procedural runtime shell/effects surfaces. One visual gap remains for floating per-hit damage-number popups.
+Status: approved generated runtime UI assets plus approved procedural runtime shell/effects/damage surfaces.
 
 - `ui:logo-title-mark`
   - Source path: `assets/source/imagegen/ui/meowtal/logo-title-mark.png`
@@ -483,12 +483,17 @@ Status: approved generated runtime UI assets plus approved procedural runtime sh
   - License status: procedural-owned
   - Runtime status: approved procedural surface by T118
   - QA notes: hit sparks, block rings, special/super trails, impact flashes, and shake are owned runtime effects; no bitmap particle atlas is required for the current scope.
-
-Remaining visual gap: `ui:damage-number-style` remains planned because floating per-hit damage-number popups are not implemented yet. The existing combo damage readout is useful but does not satisfy the requested popping damage-number surface.
+- `ui:damage-number-style`
+  - Source path: `src/game/effects.ts`
+  - Runtime path: `src/game/MeowtalArenaScene.ts`
+  - Provider: Phaser procedural text/effects
+  - License status: procedural-owned
+  - Runtime status: approved procedural surface by T119
+  - QA notes: floating per-hit damage popups use owned runtime text effects with move-specific color, stroke, scale, drift, and fade.
 
 ### Audio Cues
 
-Status: partially approved procedural runtime audio. Several production audio cues remain planned because the current runtime has a small shared WebAudio set, not distinct announcer, movement, special, K.O., or light/heavy impact cues.
+Status: approved procedural runtime audio. No external samples, music files, provider voices, or third-party audio libraries are required for the current scope.
 
 - `audio:music-loop`
   - Source path: `src/game/audio.ts`
@@ -503,11 +508,23 @@ Status: partially approved procedural runtime audio. Several production audio cu
   - Runtime status: approved procedural audio by T118
   - QA notes: shell confirm/start/reset/pause/fullscreen feedback is routed to an owned two-tone WebAudio cue.
 - `audio:fight-announcer`
-  - Status: planned; visual FIGHT overlay exists, but no distinct announcer/stinger audio is routed yet.
+  - Source path: `src/game/audio.ts`
+  - Runtime path: `src/game/MeowtalArenaScene.ts`
+  - License status: procedural-owned
+  - Runtime status: approved procedural audio by T119
+  - QA notes: fight-start transitions route to a dramatic owned WebAudio stinger; no external voice or sample is used.
 - `audio:hit-light`
-  - Status: planned; current runtime has one shared hit cue, not a distinct light-hit cue with production approval.
+  - Source path: `src/game/audio.ts`
+  - Runtime path: `src/game/MeowtalArenaScene.ts`
+  - License status: procedural-owned
+  - Runtime status: approved procedural audio by T119
+  - QA notes: light and light-kick impacts route to a distinct lighter WebAudio hit cue.
 - `audio:hit-heavy`
-  - Status: planned; current runtime has one shared hit cue, not a distinct heavy-hit cue with production approval.
+  - Source path: `src/game/audio.ts`
+  - Runtime path: `src/game/MeowtalArenaScene.ts`
+  - License status: procedural-owned
+  - Runtime status: approved procedural audio by T119
+  - QA notes: heavy impacts route to a distinct deeper WebAudio hit cue.
 - `audio:block-impact`
   - Source path: `src/game/audio.ts`
   - Runtime path: `src/game/MeowtalArenaScene.ts`
@@ -515,13 +532,29 @@ Status: partially approved procedural runtime audio. Several production audio cu
   - Runtime status: approved procedural audio by T118
   - QA notes: block events route to an owned WebAudio noise/tonal clack.
 - `audio:dash-whoosh`
-  - Status: planned; dash/hop movement does not yet trigger a distinct procedural whoosh cue.
+  - Source path: `src/game/audio.ts`
+  - Runtime path: `src/game/MeowtalArenaScene.ts`
+  - License status: procedural-owned
+  - Runtime status: approved procedural audio by T119
+  - QA notes: run, backdash, roll, and hop state transitions route to a distinct movement whoosh.
 - `audio:rabbit-tornado`
-  - Status: planned; rabbit tornado special does not yet trigger a distinct procedural special cue.
+  - Source path: `src/game/audio.ts`
+  - Runtime path: `src/game/MeowtalArenaScene.ts`
+  - License status: procedural-owned
+  - Runtime status: approved procedural audio by T119
+  - QA notes: Gray Rabbit special/super hit events route to a distinct spinning tornado cue.
 - `audio:cat-aura-blast`
-  - Status: planned; cat special does not yet trigger a distinct procedural aura/blast cue.
+  - Source path: `src/game/audio.ts`
+  - Runtime path: `src/game/MeowtalArenaScene.ts`
+  - License status: procedural-owned
+  - Runtime status: approved procedural audio by T119
+  - QA notes: Ginger Tabby Cat special/super hit events route to a distinct rising aura/blast cue.
 - `audio:ko-burst`
-  - Status: planned; round-over audio exists, but no over-the-top K.O. burst cue is implemented and approved yet.
+  - Source path: `src/game/audio.ts`
+  - Runtime path: `src/game/MeowtalArenaScene.ts`
+  - License status: procedural-owned
+  - Runtime status: approved procedural audio by T119
+  - QA notes: round-over transitions route to a larger K.O. burst with noise and descending bass impact.
 - `audio:victory-sting`
   - Source path: `src/game/audio.ts`
   - Runtime path: `src/game/MeowtalArenaScene.ts`

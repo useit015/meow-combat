@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { audioCueForCombatEvents, audioCueForMatchTransition } from "../src/game/audio";
+import { audioCueForCombatEvents, audioCuesForCombatEvents, audioCueForMatchTransition } from "../src/game/audio";
 import { impactFeedbackCue, selectReadinessLines } from "../src/game/presentation";
 
 describe("presentation helpers", () => {
@@ -29,7 +29,29 @@ describe("presentation helpers", () => {
   it("maps combat and match transitions to audio cues", () => {
     expect(
       audioCueForCombatEvents([{ type: "block", frame: 4, attacker: "p1", defender: "p2", move: "light" }]),
-    ).toBe("block");
+    ).toBe("block-impact");
+
+    expect(
+      audioCueForCombatEvents([{ type: "hit", frame: 4, attacker: "p1", defender: "p2", move: "light", damage: 45 }]),
+    ).toBe("hit-light");
+
+    expect(
+      audioCueForCombatEvents([{ type: "hit", frame: 4, attacker: "p1", defender: "p2", move: "heavy", damage: 90 }]),
+    ).toBe("hit-heavy");
+
+    expect(
+      audioCueForCombatEvents(
+        [{ type: "hit", frame: 4, attacker: "p1", defender: "p2", move: "special", damage: 120 }],
+        { p1: "gray-rabbit", p2: "ginger-tabby-cat" },
+      ),
+    ).toBe("rabbit-tornado");
+
+    expect(
+      audioCuesForCombatEvents([
+        { type: "state", frame: 9, fighter: "p1", from: "idle", to: "backdash" },
+        { type: "state", frame: 9, fighter: "p2", from: "idle", to: "hop" },
+      ]),
+    ).toEqual(["dash-whoosh"]);
 
     expect(
       audioCueForMatchTransition("fighting", "round-over", {
@@ -40,6 +62,17 @@ describe("presentation helpers", () => {
         lastRoundWinner: "p1",
         matchWinner: "p1",
       }),
-    ).toBe("match-over");
+    ).toBe("victory-sting");
+
+    expect(
+      audioCueForMatchTransition("fighting", "round-over", {
+        round: 1,
+        targetWins: 2,
+        wins: { p1: 1, p2: 0 },
+        status: "in-progress",
+        lastRoundWinner: "p1",
+        matchWinner: null,
+      }),
+    ).toBe("ko-burst");
   });
 });

@@ -24,9 +24,17 @@ import {
   type MatchSetState,
   type MatchSnapshot,
 } from "../core";
-import { ArenaAudio, audioCueForCombatEvents, audioCueForMatchTransition } from "./audio";
+import { ArenaAudio, audioCuesForCombatEvents, audioCueForMatchTransition } from "./audio";
 import { buildControlFallbackState, type ControlFallbackState } from "./controlFallback";
-import { effectsFromSnapshot, tickCombatEffects, type CombatEffect } from "./effects";
+import {
+  damageNumbersFromSnapshot,
+  damageNumberStyleForMove,
+  effectsFromSnapshot,
+  tickCombatEffects,
+  tickDamageNumbers,
+  type CombatEffect,
+  type DamageNumberPopup,
+} from "./effects";
 import {
   meowtalKombatConfig,
   nextCpuDifficultyFromConfig,
@@ -234,6 +242,8 @@ export class MeowtalArenaScene extends Phaser.Scene {
     this.demoMode === "backdash" ||
     this.demoMode === "knockdown";
   private effects: readonly CombatEffect[] = [];
+  private damageNumbers: readonly DamageNumberPopup[] = [];
+  private damageNumberTexts: Phaser.GameObjects.Text[] = [];
   private impactFlash: ImpactFlash | null = null;
   private shellFrame = 0;
   private shellPhaseFrame = 0;
@@ -562,6 +572,11 @@ export class MeowtalArenaScene extends Phaser.Scene {
         count: this.effects.length,
         kinds: this.effects.map((effect) => effect.kind),
       },
+      damageNumbers: {
+        count: this.damageNumbers.length,
+        values: this.damageNumbers.map((number) => number.value),
+        kinds: this.damageNumbers.map((number) => number.kind),
+      },
       presentation: {
         title: GAME_TITLE,
         subtitle: GAME_SUBTITLE,
@@ -623,6 +638,7 @@ export class MeowtalArenaScene extends Phaser.Scene {
       if (previousPhase !== "paused") {
         this.shellFrame += 1;
         this.effects = tickCombatEffects(this.effects);
+        this.damageNumbers = tickDamageNumbers(this.damageNumbers);
         this.impactFlash = tickImpactFlash(this.impactFlash);
       }
 
@@ -645,6 +661,7 @@ export class MeowtalArenaScene extends Phaser.Scene {
         this.simulation.reset();
         this.snapshot = this.simulation.snapshot();
         this.effects = [];
+        this.damageNumbers = [];
         this.impactFlash = null;
       }
 
@@ -653,7 +670,15 @@ export class MeowtalArenaScene extends Phaser.Scene {
 
       if (previousPhase === "select" && this.shell.phase === "fighting") {
         this.startSelectedMatch();
+        this.audio.play("fight-announcer");
         return;
+      }
+
+      if (
+        (previousPhase === "round-over" || previousPhase === "match-over") &&
+        this.shell.phase === "fighting"
+      ) {
+        this.audio.play("fight-announcer");
       }
 
       if (
@@ -685,8 +710,14 @@ export class MeowtalArenaScene extends Phaser.Scene {
       this.audio.play(
         audioCueForMatchTransition(wasFighting ? "fighting" : this.snapshot.status, this.snapshot.status, this.matchSet),
       );
-      this.audio.play(audioCueForCombatEvents(this.snapshot.events));
+      for (const cue of audioCuesForCombatEvents(this.snapshot.events, {
+        p1: this.snapshot.p1.character,
+        p2: this.snapshot.p2.character,
+      })) {
+        this.audio.play(cue);
+      }
       this.effects = [...this.effects, ...effectsFromSnapshot(this.snapshot)];
+      this.damageNumbers = [...this.damageNumbers, ...damageNumbersFromSnapshot(this.snapshot)];
       this.triggerImpactFeedback();
 
       this.shell = reduceShellState(this.shell, {
@@ -734,6 +765,7 @@ export class MeowtalArenaScene extends Phaser.Scene {
     drawShellBackdrop(g, this.shell, stageImagesRendered, runtimeUiReady);
     this.renderShellOverlay();
     this.renderTouchControls();
+    this.renderDamageNumbers(showFightLayer);
     this.statusText.setText(hudCenterLabel(this.snapshot, this.matchSet));
     this.roundText.setText(roundLabel(this.matchSet));
     this.modeText.setText(this.p2CpuEnabled ? `P2 CPU ${this.cpuDifficulty.toUpperCase()}` : "P2 MANUAL");
@@ -1032,6 +1064,59 @@ export class MeowtalArenaScene extends Phaser.Scene {
     drawImpactFlash(g, this.impactFlash);
   }
 
+  private renderDamageNumbers(showFightLayer: boolean): void {
+    while (this.damageNumberTexts.length < this.damageNumbers.length) {
+      this.damageNumberTexts.push(this.createDamageNumberText());
+    }
+
+    for (const text of this.damageNumberTexts) {
+      text.setVisible(false);
+    }
+
+    if (!showFightLayer) return;
+
+    for (const [index, number] of this.damageNumbers.entries()) {
+      const text = this.damageNumberTexts[index];
+      if (!text) continue;
+
+      const style = damageNumberStyleForMove(number.kind === "super" ? "super" : number.kind === "special" ? "special" : number.kind === "heavy" ? "heavy" : "light");
+      const progress = Phaser.Math.Clamp(number.age / number.duration, 0, 1);
+      const rise = number.age * 1.32;
+      const pop = 1 + Math.max(0, 1 - progress * 2.4) * 0.22;
+      text
+        .setText(`-${number.value}`)
+        .setStyle({
+          color: style.color,
+          fontFamily: "Inter, Arial, sans-serif",
+          fontSize: `${style.fontSize}px`,
+          fontStyle: "900",
+          stroke: style.stroke,
+          strokeThickness: 5,
+        })
+        .setPosition(number.x + number.driftX * number.age, number.y - rise)
+        .setAlpha(Math.max(0, 1 - progress))
+        .setScale(style.scale * pop)
+        .setVisible(true);
+    }
+  }
+
+  private createDamageNumberText(): Phaser.GameObjects.Text {
+    return this.add
+      .text(0, 0, "", {
+        align: "center",
+        color: "#fff7df",
+        fontFamily: "Inter, Arial, sans-serif",
+        fontSize: "20px",
+        fontStyle: "900",
+        stroke: "#12332d",
+        strokeThickness: 5,
+      })
+      .setOrigin(0.5, 0.5)
+      .setShadow(0, 2, "#000000", 4, true, true)
+      .setDepth(112)
+      .setVisible(false);
+  }
+
   private createSimulation(): FightingSimulation {
     return new FightingSimulation({
       p1Definition: selectedFighter(this.selectedFighterIndex.p1),
@@ -1044,6 +1129,7 @@ export class MeowtalArenaScene extends Phaser.Scene {
     this.snapshot = this.simulation.snapshot();
     this.matchSet = createMatchSet();
     this.effects = [];
+    this.damageNumbers = [];
     this.impactFlash = null;
   }
 
