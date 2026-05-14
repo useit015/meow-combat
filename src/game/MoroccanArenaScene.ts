@@ -40,10 +40,12 @@ import { selectSpritePose, spriteStanceConventionForAnimation } from "./spriteFr
 import {
   TOUCH_CONTROL_IDS,
   touchControlAtPoint,
+  touchControlLayoutForViewport,
   touchControlJustPressed,
   touchControlZonesForPhase,
   touchControlsVisibleForViewport,
   touchInputFromControls,
+  type TouchControlLayout,
   type TouchControlId,
 } from "./touchControls";
 
@@ -510,8 +512,10 @@ export class MoroccanArenaScene extends Phaser.Scene {
       },
       touchControls: {
         visible: this.shouldShowTouchControls(),
+        layout: this.touchControlLayout(),
+        viewport: this.touchViewport(),
         activeIds: [...this.activeTouchControls].sort(),
-        zones: touchControlZonesForPhase(this.shell.phase).map((zone) => ({
+        zones: this.touchControlZones().map((zone) => ({
           id: zone.id,
           label: zone.label,
           group: zone.group,
@@ -869,7 +873,7 @@ export class MoroccanArenaScene extends Phaser.Scene {
       return;
     }
 
-    for (const zone of touchControlZonesForPhase(this.shell.phase)) {
+    for (const zone of this.touchControlZones()) {
       const active = this.activeTouchControls.has(zone.id);
       const fill = zone.group === "movement" ? 0x164943 : zone.group === "action" ? 0x1d2f3f : 0x3a2b12;
       const stroke = active ? 0xfff1a8 : zone.group === "action" ? 0x5fc9ff : 0xf2cf7d;
@@ -889,7 +893,7 @@ export class MoroccanArenaScene extends Phaser.Scene {
   private handleTouchPointer(pointer: Phaser.Input.Pointer): void {
     if (!this.shouldShowTouchControls() || !pointer.isDown) return;
 
-    const control = touchControlAtPoint(touchControlZonesForPhase(this.shell.phase), { x: pointer.x, y: pointer.y });
+    const control = touchControlAtPoint(this.touchControlZones(), { x: pointer.x, y: pointer.y });
     if (control) {
       this.pointerTouchControls.set(pointer.id, control);
     } else {
@@ -908,8 +912,23 @@ export class MoroccanArenaScene extends Phaser.Scene {
   }
 
   private shouldShowTouchControls(): boolean {
-    const coarsePointer = window.matchMedia?.("(pointer: coarse)")?.matches ?? false;
-    return touchControlsVisibleForViewport({ width: window.innerWidth, height: window.innerHeight }, coarsePointer);
+    return touchControlsVisibleForViewport(this.touchViewport(), this.coarsePointerActive());
+  }
+
+  private touchControlZones(): ReturnType<typeof touchControlZonesForPhase> {
+    return touchControlZonesForPhase(this.shell.phase, this.touchControlLayout());
+  }
+
+  private touchControlLayout(): TouchControlLayout {
+    return touchControlLayoutForViewport(this.touchViewport(), this.coarsePointerActive());
+  }
+
+  private touchViewport(): { width: number; height: number } {
+    return { width: window.innerWidth, height: window.innerHeight };
+  }
+
+  private coarsePointerActive(): boolean {
+    return (window.matchMedia?.("(pointer: coarse)")?.matches ?? false) || navigator.maxTouchPoints > 0;
   }
 
   private runtimeOverlaySlot(): RuntimeUiImageSlot | null {

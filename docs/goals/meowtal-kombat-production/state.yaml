@@ -85,7 +85,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T107
+active_task: T108
 
 tasks:
   - id: T000
@@ -5516,7 +5516,7 @@ tasks:
   - id: T107
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: low
     objective: "Polish and verify mobile touch-control ergonomics for phone portrait and landscape layouts, including safe-area spacing, HUD/control readability, and automated smoke evidence, without changing combat rules or adding generated assets."
     inputs:
@@ -5542,6 +5542,77 @@ tasks:
       - "Gamepad support becomes necessary instead of a later separate task."
       - "Files outside allowed_files are needed."
       - "Browser smoke shows broken keyboard controls, unusable touch controls, hidden/clipped fighters, missing assets, or console/page errors after one scoped fix attempt."
+    receipt:
+      result: done
+      summary: "Polished procedural touch-control ergonomics for phone portrait and landscape layouts. Runtime text now reports touch layout and viewport, touch zones select phone-specific layouts with larger targets, paused touch controls no longer overlap the pause modal, and a reusable browser smoke script verifies desktop keyboard plus mobile portrait/landscape touch flows."
+      changed_files:
+        - "src/game/MoroccanArenaScene.ts"
+        - "src/game/touchControls.ts"
+        - "test/touch-controls.test.ts"
+        - "scripts/smoke-meowtal-browser.mjs"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+      commands:
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm test -- --run test/touch-controls.test.ts test/presentation.test.ts"
+          status: pass
+        - cmd: "node --check scripts/smoke-meowtal-browser.mjs"
+          status: pass
+        - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules node scripts/smoke-meowtal-browser.mjs --url http://127.0.0.1:4173/ --out-dir output/web-game/meowtal-touch-t107"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+      evidence:
+        - "output/web-game/meowtal-touch-t107/report.json"
+        - "output/web-game/meowtal-touch-t107/desktop-keyboard-fight.png"
+        - "output/web-game/meowtal-touch-t107/portrait-ready.png"
+        - "output/web-game/meowtal-touch-t107/portrait-fight.png"
+        - "output/web-game/meowtal-touch-t107/portrait-hold-right.png"
+        - "output/web-game/meowtal-touch-t107/portrait-hold-special.png"
+        - "output/web-game/meowtal-touch-t107/portrait-hold-guard.png"
+        - "output/web-game/meowtal-touch-t107/portrait-pause.png"
+        - "output/web-game/meowtal-touch-t107/landscape-ready.png"
+        - "output/web-game/meowtal-touch-t107/landscape-fight.png"
+        - "output/web-game/meowtal-touch-t107/landscape-hold-right.png"
+        - "output/web-game/meowtal-touch-t107/landscape-hold-special.png"
+        - "output/web-game/meowtal-touch-t107/landscape-hold-guard.png"
+        - "output/web-game/meowtal-touch-t107/landscape-pause.png"
+      judge:
+        initial_agent: "019e2864-fb4b-7600-b9fe-f9f6fc4f6d40"
+        initial_result: reject
+        initial_summary: "Judge rejected the first pass because paused GO/start touch zones overlapped the pause menu and smoke did not catch paused/system overlap."
+        final_agent: "019e286a-98df-7932-a221-02645ae4deb9"
+        final_result: approve
+        final_summary: "Judge approved the repair: paused touch zones no longer overlap the modal, tests and smoke assert that regression, and verification passed."
+      notes:
+        - "Residual risk: smoke uses pointer/mouse interaction in mobile browser contexts, which is acceptable for Phaser pointer plumbing but not full real-touch hardware coverage."
+        - "Residual risk: touch controls remain procedural and coordinate-fixed; broader responsive/gamepad polish is separate work."
+  - id: T108
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: low
+    objective: "Add a small production input-fallback slice for gamepad readiness or explicit in-game fallback messaging, so players without keyboard/touch support get a clear supported-control path without changing combat rules."
+    inputs:
+      - "T107 Judge recommendation"
+      - "Production requirement: keyboard controls and optional gamepad support or explicit fallback"
+      - "Existing shell/help text and render_game_to_text telemetry"
+    allowed_files:
+      - "src/game/MoroccanArenaScene.ts"
+      - "test/presentation.test.ts"
+      - "test/touch-controls.test.ts"
+      - "scripts/smoke-meowtal-browser.mjs"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+    verify:
+      - "npm run typecheck"
+      - "npm test -- --run test/presentation.test.ts test/touch-controls.test.ts"
+      - "npm run verify"
+      - "Browser/Playwright smoke should show supported-control messaging or gamepad readiness telemetry without breaking keyboard desktop or mobile touch flows."
+    stop_if:
+      - "Requires full gamepad combat implementation, external libraries, browser permissions, or hardware-only verification."
+      - "Requires changes to combat simulation rules, frame data timings, damage, physics, fighter assets, audio, particles, or animation rows."
+      - "Files outside allowed_files are needed."
+      - "Keyboard or mobile touch flows regress after one scoped fix attempt."
     receipt: null
   - id: T005
     type: worker
@@ -5693,13 +5764,17 @@ checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T106
+    task: T107
     commands:
       - cmd: "npm run typecheck"
         status: pass
       - cmd: "npm test -- --run test/touch-controls.test.ts test/presentation.test.ts"
         status: pass
+      - cmd: "node --check scripts/smoke-meowtal-browser.mjs"
+        status: pass
+      - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules node scripts/smoke-meowtal-browser.mjs --url http://127.0.0.1:4173/ --out-dir output/web-game/meowtal-touch-t107"
+        status: pass
       - cmd: "npm run verify"
         status: pass
-      - cmd: "Browser/Playwright smoke at output/web-game/meowtal-touch-t106/report.json"
+      - cmd: "Browser/Playwright smoke at output/web-game/meowtal-touch-t107/report.json"
         status: pass

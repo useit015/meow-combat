@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   touchControlAtPoint,
+  touchControlLayoutForViewport,
   touchControlJustPressed,
   touchControlZonesForPhase,
   touchControlsVisibleForViewport,
@@ -10,7 +11,7 @@ import {
 describe("touch controls", () => {
   it("uses shell zones for start/reset and fight zones for full combat input", () => {
     expect(touchControlZonesForPhase("ready").map((zone) => zone.id)).toEqual(["start", "reset"]);
-    expect(touchControlZonesForPhase("paused").map((zone) => zone.id)).toEqual(["start", "pause", "reset"]);
+    expect(touchControlZonesForPhase("paused").map((zone) => zone.id)).toEqual(["pause", "reset"]);
     expect(touchControlZonesForPhase("fighting").map((zone) => zone.id)).toEqual([
       "left",
       "right",
@@ -61,4 +62,35 @@ describe("touch controls", () => {
     expect(touchControlsVisibleForViewport({ width: 844, height: 390 }, false)).toBe(false);
     expect(touchControlsVisibleForViewport({ width: 1024, height: 576 }, true)).toBe(true);
   });
+
+  it("selects larger phone layouts for portrait and coarse landscape devices", () => {
+    expect(touchControlLayoutForViewport({ width: 390, height: 844 }, false)).toBe("phone-portrait");
+    expect(touchControlLayoutForViewport({ width: 844, height: 390 }, true)).toBe("phone-landscape");
+    expect(touchControlLayoutForViewport({ width: 1024, height: 576 }, false)).toBe("standard");
+
+    const portraitZones = touchControlZonesForPhase("fighting", "phone-portrait");
+    const portraitActionTargets = portraitZones.filter((zone) => zone.group !== "system");
+    expect(Math.min(...portraitActionTargets.map((zone) => Math.min(zone.width, zone.height)))).toBeGreaterThanOrEqual(50);
+    expect(Math.max(...portraitActionTargets.map((zone) => zone.y + zone.height))).toBeLessThanOrEqual(554);
+
+    const landscapeZones = touchControlZonesForPhase("fighting", "phone-landscape");
+    expect(Math.max(...landscapeZones.map((zone) => zone.y + zone.height))).toBeLessThanOrEqual(552);
+    expect(touchControlZonesForPhase("ready", "phone-portrait").find((zone) => zone.id === "start")?.width).toBeGreaterThan(
+      touchControlZonesForPhase("ready").find((zone) => zone.id === "start")?.width ?? 0,
+    );
+  });
+
+  it("keeps paused controls out of the pause menu panel", () => {
+    const pausePanel = { x: 326, y: 132, width: 372, height: 314 };
+    for (const layout of ["standard", "phone-portrait", "phone-landscape"] as const) {
+      expect(touchControlZonesForPhase("paused", layout).some((zone) => zonesOverlap(zone, pausePanel))).toBe(false);
+    }
+  });
 });
+
+function zonesOverlap(
+  a: { x: number; y: number; width: number; height: number },
+  b: { x: number; y: number; width: number; height: number },
+) {
+  return a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.y + a.height > b.y;
+}

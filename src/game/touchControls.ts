@@ -15,6 +15,7 @@ export type TouchControlId =
   | "reset";
 
 export type TouchShellPhase = "ready" | "select" | "fighting" | "paused" | "round-over" | "match-over";
+export type TouchControlLayout = "standard" | "phone-portrait" | "phone-landscape";
 
 export interface TouchControlZone {
   id: TouchControlId;
@@ -58,6 +59,11 @@ const SHELL_ZONES: readonly TouchControlZone[] = [
   { id: "reset", label: "RST", x: 42, y: 88, width: 86, height: 46, group: "system" },
 ];
 
+const PORTRAIT_SHELL_ZONES: readonly TouchControlZone[] = [
+  { id: "start", label: "GO", x: 350, y: 386, width: 324, height: 104, group: "system" },
+  { id: "reset", label: "RST", x: 34, y: 82, width: 112, height: 52, group: "system" },
+];
+
 const FIGHT_ZONES: readonly TouchControlZone[] = [
   { id: "left", label: "L", x: 44, y: 438, width: 74, height: 74, group: "movement" },
   { id: "right", label: "R", x: 148, y: 438, width: 74, height: 74, group: "movement" },
@@ -72,15 +78,56 @@ const FIGHT_ZONES: readonly TouchControlZone[] = [
   { id: "reset", label: "RST", x: 42, y: 82, width: 86, height: 44, group: "system" },
 ];
 
-const PAUSED_ZONES: readonly TouchControlZone[] = [
-  { id: "start", label: "GO", x: 402, y: 286, width: 220, height: 64, group: "system" },
+const PORTRAIT_FIGHT_ZONES: readonly TouchControlZone[] = [
+  { id: "left", label: "L", x: 36, y: 414, width: 112, height: 84, group: "movement" },
+  { id: "right", label: "R", x: 174, y: 414, width: 112, height: 84, group: "movement" },
+  { id: "up", label: "UP", x: 105, y: 324, width: 112, height: 80, group: "movement" },
+  { id: "down", label: "DN", x: 105, y: 474, width: 112, height: 80, group: "movement" },
+  { id: "guard", label: "G", x: 706, y: 420, width: 98, height: 84, group: "action" },
+  { id: "light", label: "LP", x: 812, y: 342, width: 98, height: 84, group: "action" },
+  { id: "kick", label: "K", x: 918, y: 304, width: 90, height: 84, group: "action" },
+  { id: "heavy", label: "HP", x: 812, y: 474, width: 98, height: 80, group: "action" },
+  { id: "special", label: "SP", x: 918, y: 408, width: 90, height: 84, group: "action" },
+  { id: "pause", label: "II", x: 902, y: 82, width: 86, height: 46, group: "system" },
+  { id: "reset", label: "RST", x: 34, y: 82, width: 112, height: 46, group: "system" },
+];
+
+const LANDSCAPE_FIGHT_ZONES: readonly TouchControlZone[] = [
+  { id: "left", label: "L", x: 38, y: 424, width: 82, height: 78, group: "movement" },
+  { id: "right", label: "R", x: 150, y: 424, width: 82, height: 78, group: "movement" },
+  { id: "up", label: "UP", x: 94, y: 338, width: 82, height: 72, group: "movement" },
+  { id: "down", label: "DN", x: 94, y: 488, width: 82, height: 64, group: "movement" },
+  { id: "guard", label: "G", x: 746, y: 430, width: 72, height: 72, group: "action" },
+  { id: "light", label: "LP", x: 832, y: 362, width: 72, height: 72, group: "action" },
+  { id: "kick", label: "K", x: 920, y: 326, width: 72, height: 72, group: "action" },
+  { id: "heavy", label: "HP", x: 832, y: 486, width: 72, height: 66, group: "action" },
+  { id: "special", label: "SP", x: 922, y: 424, width: 72, height: 72, group: "action" },
   { id: "pause", label: "II", x: 910, y: 82, width: 74, height: 44, group: "system" },
   { id: "reset", label: "RST", x: 42, y: 82, width: 86, height: 44, group: "system" },
 ];
 
-export function touchControlZonesForPhase(phase: TouchShellPhase): readonly TouchControlZone[] {
-  if (phase === "fighting") return FIGHT_ZONES;
+const PAUSED_ZONES: readonly TouchControlZone[] = [
+  { id: "pause", label: "II", x: 910, y: 82, width: 74, height: 44, group: "system" },
+  { id: "reset", label: "RST", x: 42, y: 82, width: 86, height: 44, group: "system" },
+];
+
+const PORTRAIT_PAUSED_ZONES: readonly TouchControlZone[] = [
+  { id: "pause", label: "II", x: 902, y: 82, width: 86, height: 46, group: "system" },
+  { id: "reset", label: "RST", x: 34, y: 82, width: 112, height: 46, group: "system" },
+];
+
+export function touchControlZonesForPhase(
+  phase: TouchShellPhase,
+  layout: TouchControlLayout = "standard",
+): readonly TouchControlZone[] {
+  if (phase === "fighting") {
+    if (layout === "phone-portrait") return PORTRAIT_FIGHT_ZONES;
+    if (layout === "phone-landscape") return LANDSCAPE_FIGHT_ZONES;
+    return FIGHT_ZONES;
+  }
+  if (phase === "paused" && layout === "phone-portrait") return PORTRAIT_PAUSED_ZONES;
   if (phase === "paused") return PAUSED_ZONES;
+  if (layout === "phone-portrait") return PORTRAIT_SHELL_ZONES;
   return SHELL_ZONES;
 }
 
@@ -123,6 +170,12 @@ export function touchControlJustPressed(
 
 export function touchControlsVisibleForViewport(viewport: TouchViewport, coarsePointer: boolean): boolean {
   return coarsePointer || viewport.width <= 720 || viewport.height > viewport.width;
+}
+
+export function touchControlLayoutForViewport(viewport: TouchViewport, coarsePointer: boolean): TouchControlLayout {
+  if (viewport.height > viewport.width) return "phone-portrait";
+  if (coarsePointer && viewport.height <= 520) return "phone-landscape";
+  return "standard";
 }
 
 function pointInZone(point: { x: number; y: number }, zone: TouchControlZone): boolean {
