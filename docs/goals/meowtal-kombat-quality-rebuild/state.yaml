@@ -69,7 +69,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T001
+active_task: T003
 
 tasks:
   - id: T000
@@ -93,7 +93,7 @@ tasks:
   - id: T001
     type: scout
     assignee: Scout
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Perform a ruthless visible-quality teardown of the current Meowtal Kombat game and prior final captures. Identify why it still looks bad, rank the highest-impact fixes, and map exact files/systems involved."
     inputs:
@@ -114,11 +114,56 @@ tasks:
       - "Ranked rebuild candidates"
       - "Verification commands"
       - "Candidate first Worker task with allowed_files, verify, and stop_if"
-    receipt: null
+    receipt:
+      result: done
+      summary: "Ruthless teardown found that the rejected quality is plausible even though the previous board passed technical gates. The current build has strong asset coverage and smoke reports, but visible quality is undermined by inconsistent action rows, fighter-obscuring special presentation, oversized fight overlays, cramped ornate HUD composition, weak portrait layout, and tests that validate routing rather than perceived quality."
+      changed_files:
+        - "docs/goals/meowtal-kombat-quality-rebuild/state.yaml"
+      evidence:
+        - "output/web-game/meowtal-final-preview-t999/landscape-fight.png"
+        - "output/web-game/meowtal-final-preview-t999/portrait-fight.png"
+        - "output/web-game/meowtal-final-preview-t999/portrait-ready.png"
+        - "output/web-game/meowtal-final-preview-flow-t999/special.png"
+        - "output/web-game/meowtal-final-preview-flow-t999/ko.png"
+        - "public/assets/generated/fighters/gray-rabbit/special.png"
+        - "public/assets/generated/fighters/ginger-tabby-cat/special.png"
+        - "src/game/MeowtalArenaScene.ts"
+        - "src/game/spriteFrame.ts"
+        - "src/game/touchControls.ts"
+        - "src/style.css"
+      findings:
+        - "Character action consistency is the top visible blocker. The gray-rabbit special row hides the rabbit inside a large tornado for key contact frames, and the ginger-tabby-cat special row contains a flipped/upside-down body and a duplicated stacked body. These are approved runtime rows, so asset approval alone is not a quality gate."
+        - "The special preview capture shows the fight overlay and special animation competing for the same center space, hiding the action instead of selling impact. Runtime code keeps the FIGHT overlay visible for the first 72 fighting frames, and the overlay spec is large enough to cover the fighters' upper bodies."
+        - "Fighters look pasted onto the stage in still frames because runtime sprites have no consistent grounding shadow or shared contact treatment. The bright courtyard is attractive but very saturated, so the characters need stronger separation and contact with the floor."
+        - "Portrait mobile captures waste most of the viewport on dark page background because the Phaser game is a fixed 1024x576 FIT canvas with a portrait CSS margin. Touch controls are technically large enough but visually sit over the fight lane and make the screen feel like a testing overlay."
+        - "The HUD is ornate and asset-rich, but the runtime text, portrait medallions, health bars, timer, and bottom meter are visually cramped. It reads as a collage of generated pieces rather than one integrated fighting-game interface."
+        - "The previous smoke reports prove no console errors, runtime fallbacks, or missing UI assets, but they do not challenge whether the first screen, action poses, effects, or responsive composition look good. This is the likely prior completion misfire."
+      ranked_rebuild_candidates:
+        - "1. Rebuild character action readability first: curate/avoid defective special frames, reduce fighter-obscuring fight/special overlays, and add runtime grounding/contrast so fighters read as one coherent production set."
+        - "2. Rebuild portrait/mobile composition so the game uses the viewport more intentionally and touch controls feel integrated rather than pasted over the fight."
+        - "3. Recompose HUD/title overlays into a cleaner fighting-game interface with less generated ornament conflict and clearer labels."
+        - "4. Tune stage lighting/parallax contrast around the fight lane so the arena remains beautiful while serving silhouettes."
+        - "5. Add stricter visual smoke/capture checks that explicitly inspect action frames, overlays, and responsive composition, not only asset availability."
+      candidate_worker:
+        objective: "Improve immediate visible quality by sanitizing special/action frame playback, reducing fight-overlay occlusion, and adding fighter grounding shadows/separation without changing generated assets."
+        allowed_files:
+          - "src/game/MeowtalArenaScene.ts"
+          - "src/game/spriteFrame.ts"
+          - "test/sprite-frame.test.ts"
+        verify:
+          - "npm test -- --run test/sprite-frame.test.ts"
+          - "npm run typecheck"
+          - "npm run build"
+          - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/meowtal-quality-slice-t003"
+        stop_if:
+          - "Need to edit generated/source image assets for this slice."
+          - "The fix only changes metadata or tests and does not visibly improve action readability."
+          - "Special/super playback still selects visibly broken cat frames or hides the rabbit in the tornado body."
+          - "Build or browser smoke breaks."
   - id: T002
     type: judge
     assignee: Judge
-    status: queued
+    status: done
     reasoning_hint: high
     objective: "Review the teardown and choose the first high-leverage quality rebuild slice. Reject vague or cosmetic-only work; pick a slice likely to make the game visibly better."
     inputs:
@@ -136,15 +181,44 @@ tasks:
       - "verify commands"
       - "stop_if conditions"
       - "visual acceptance criteria"
-    receipt: null
+    receipt:
+      result: done
+      decision: "activate T003 as a focused character-action readability slice"
+      rationale: "The Scout evidence shows that character action presentation is the most direct owner-visible quality failure: approved special rows contain broken/occluding frames, and the runtime overlays make captures look noisy. This is higher leverage than a broad HUD or mobile pass because it addresses the specific 'bad quality' signal in the actual fight screen while keeping scope small and locally verifiable."
+      worker_objective: "Sanitize special/action frame playback, reduce fight-overlay occlusion, and add fighter grounding shadows/separation so combat screenshots look cleaner and more cohesive without regenerating assets."
+      allowed_files:
+        - "src/game/MeowtalArenaScene.ts"
+        - "src/game/spriteFrame.ts"
+        - "test/sprite-frame.test.ts"
+      verify:
+        - "npm test -- --run test/sprite-frame.test.ts"
+        - "npm run typecheck"
+        - "npm run build"
+        - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/meowtal-quality-slice-t003"
+      visual_acceptance:
+        - "Special/super screenshots no longer use obviously broken cat frames or rabbit frames where the fighter is swallowed by the tornado column."
+        - "The FIGHT overlay no longer dominates special/action capture evidence or covers the fighters for an overlong opening beat."
+        - "Fighters have visible grounding/contact treatment so they feel placed in the stage rather than pasted on."
+        - "No normal gameplay stance convention regression; both fighters remain upright two-legged outside defeat/knockdown contexts."
+      stop_if:
+        - "Need files outside the allowed list."
+        - "Need generated asset edits to make the slice worthwhile."
+        - "The change worsens action readability, stance convention, or build health."
   - id: T003
     type: worker
     assignee: Worker
-    status: queued
+    status: active
     reasoning_hint: medium
-    objective: "Execute the first high-leverage quality rebuild slice selected by T002."
-    allowed_files: []
-    verify: []
+    objective: "Sanitize special/action frame playback, reduce fight-overlay occlusion, and add fighter grounding shadows/separation so combat screenshots look cleaner and more cohesive without regenerating assets."
+    allowed_files:
+      - "src/game/MeowtalArenaScene.ts"
+      - "src/game/spriteFrame.ts"
+      - "test/sprite-frame.test.ts"
+    verify:
+      - "npm test -- --run test/sprite-frame.test.ts"
+      - "npm run typecheck"
+      - "npm run build"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/meowtal-quality-slice-t003"
     stop_if:
       - "Need files outside allowed_files."
       - "The selected fix would only improve metadata/checklists, not visible quality."
