@@ -69,7 +69,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T004
+active_task: T011
 
 tasks:
   - id: T000
@@ -262,7 +262,7 @@ tasks:
   - id: T004
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Audit the first rebuild slice with before/after captures and decide whether to continue, revise, or activate the next highest-impact slice."
     inputs:
@@ -278,7 +278,42 @@ tasks:
       - "Quality delta"
       - "Next Worker task if more work remains"
       - "Updated acceptance criteria"
-    receipt: null
+    receipt:
+      result: done
+      verdict: approved_continue
+      summary: "Approved T003 as a meaningful first quality delta. The action captures are cleaner: special playback avoids the worst generated frames, demo specials are not covered by FIGHT, shadows improve floor contact, and damage popups are more readable. This resolves part of the owner-visible character-action problem, but the full quality rebuild remains incomplete because portrait composition, HUD/title cohesion, and touch-control integration still look rough."
+      approved_evidence:
+        - "output/web-game/meowtal-quality-slice-t003/landscape-hold-special.png"
+        - "output/web-game/meowtal-quality-slice-t003/portrait-hold-special.png"
+        - "output/web-game/meowtal-quality-slice-t003/desktop-cat-special.png"
+        - "output/web-game/meowtal-quality-slice-t003/report.json"
+      commands_reviewed:
+        - "npm test -- --run test/sprite-frame.test.ts"
+        - "npm run typecheck"
+        - "npm run build"
+        - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/meowtal-quality-slice-t003"
+      remaining_blockers:
+        - "Phone portrait captures still waste most of the screen on dark page background and make the game feel embedded rather than designed for the viewport."
+        - "Touch controls remain visually heavy and sit over the fight lane in a way that reads like test scaffolding."
+        - "HUD/title/help composition still has generated ornament, small text, and overlay collision that do not yet feel like one premium fighting-game interface."
+      next_task: T011
+      next_worker:
+        objective: "Rebuild UI, portrait shell, and touch-control composition so the game looks more intentional on first screen and mobile without changing generated assets."
+        allowed_files:
+          - "src/game/MeowtalArenaScene.ts"
+          - "src/game/touchControls.ts"
+          - "src/style.css"
+          - "test/touch-controls.test.ts"
+        verify:
+          - "npm test -- --run test/touch-controls.test.ts"
+          - "npm run typecheck"
+          - "npm run build"
+          - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/meowtal-quality-ui-t011"
+        visual_acceptance:
+          - "Portrait captures use the screen more intentionally and no longer feel like a tiny game strip floating in empty dark space."
+          - "Touch controls remain smoke-usable but look lighter, more integrated, and less like pasted debug targets."
+          - "Title/help and fight HUD text are cleaner and less cramped against generated UI art."
+          - "No loss of touch target minimums, pause readability, or production build health."
   - id: T010
     type: worker
     assignee: Worker
@@ -296,11 +331,19 @@ tasks:
   - id: T011
     type: worker
     assignee: Worker
-    status: queued
+    status: active
     reasoning_hint: medium
-    objective: "Reserved: rebuild HUD/overlay/menu/touch-control visual integration if T001/T002 identify UI composition as a root quality blocker."
-    allowed_files: []
-    verify: []
+    objective: "Rebuild UI, portrait shell, and touch-control composition so the game looks more intentional on first screen and mobile without changing generated assets."
+    allowed_files:
+      - "src/game/MeowtalArenaScene.ts"
+      - "src/game/touchControls.ts"
+      - "src/style.css"
+      - "test/touch-controls.test.ts"
+    verify:
+      - "npm test -- --run test/touch-controls.test.ts"
+      - "npm run typecheck"
+      - "npm run build"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/meowtal-quality-ui-t011"
     stop_if:
       - "Need files outside allowed_files."
       - "UI becomes less readable or more pasted-on."
