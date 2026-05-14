@@ -83,7 +83,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T029
+active_task: T030
 
 tasks:
   - id: T000
@@ -904,7 +904,7 @@ tasks:
   - id: T029
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Scope the next small animation-row generation batch after approved idle runtime rows. Choose a bounded follow-up that moves toward a complete Meowtal fighter set while preserving visual consistency and small commits."
     inputs:
@@ -929,6 +929,91 @@ tasks:
       - "verify commands"
       - "stop_if conditions"
       - "visual QA expectations"
+    receipt:
+      result: done
+      decision: "Authorize the next Worker batch as exactly two paired movement rows: gray-rabbit:walk-forward and ginger-tabby-cat:walk-forward. Runtime approval is deferred to a later Judge task."
+      next_allowed_task: T030
+      summary: "Walk-forward is the smallest useful non-idle batch because it tests locomotion, foot placement, upright two-legged rig consistency, scale, and cross-fighter style without expanding into attacks, effects, or runtime selection."
+      fighter_animation_pairs:
+        - "gray-rabbit:walk-forward"
+        - "ginger-tabby-cat:walk-forward"
+      visual_qa_expectations:
+        - "Both rows remain upright two-legged fighting-game locomotion, not four-legged animal movement."
+        - "Rabbit keeps long ears, gray fur, lighter belly, white paws, compact athletic hind-leg silhouette, and readable guarded walk."
+        - "Cat keeps orange tabby stripes, light muzzle/chest, visible striped tail, upright biped body, and confident guarded walk."
+        - "Walk motion shows clear frame separation, stable scale, consistent head/camera height, grounded feet/paws, and readable forward travel poses."
+        - "Both rows match approved idle rows in lighting, camera angle, outline thickness, detail level, transparency treatment, and cell scale."
+        - "No text, watermark, logo, frame numbers, background art, hit sparks, dust, projectiles, or other detached effects."
+      blocked_tasks:
+        - "Do not approve walk-forward for runtime in T030."
+        - "Do not copy walk-forward rows into public/assets/generated."
+        - "Do not switch runtime character selection to Meowtal."
+        - "Do not generate walk-back, crouch, jump, attack, special, hitstun, blockstun, knockdown, win, or lose rows in this batch."
+        - "Do not generate stage, UI, HUD, logo, particles, audio, or broad asset-pack files."
+  - id: T030
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: low
+    objective: "Generate or integrate exactly two Meowtal source animation rows: gray-rabbit:walk-forward and ginger-tabby-cat:walk-forward. Use the approved canonical sheets and approved idle rows as style-lock inputs. Normalize both rows to 8-frame 2048x256 candidates, update provenance/manifest/tests/docs so only these two walk-forward rows are generated-but-unapproved with runtimePath: null, and keep all other non-idle rows blocked."
+    allowed_files:
+      - "assets/source/imagegen/fighters/gray-rabbit/walk-forward.png"
+      - "assets/source/imagegen/fighters/ginger-tabby-cat/walk-forward.png"
+      - "src/assets/meowtalProductionManifest.ts"
+      - "docs/assets/meowtal-kombat-provenance.md"
+      - "test/meowtal-production-manifest.test.ts"
+      - "test/asset-qa.test.ts"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+    verify:
+      - "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-readiness.test.ts"
+      - "node scripts/normalize-fighter-rows.mjs --animation walk-forward --fighters gray-rabbit,ginger-tabby-cat"
+      - "sips -g pixelWidth -g pixelHeight -g hasAlpha output/imagegen/gray-rabbit-walk-forward-normalized.png output/imagegen/ginger-tabby-cat-walk-forward-normalized.png"
+      - "npm run imagegen:qa"
+      - "npm test -- --run test/asset-qa.test.ts"
+      - "npm run verify"
+    stop_if:
+      - "Any file outside allowed_files is needed, except ignored output/imagegen/*-walk-forward-normalized.png verification candidates."
+      - "Any row other than gray-rabbit:walk-forward or ginger-tabby-cat:walk-forward is generated, edited, approved, or given a runtime/public path."
+      - "Any public/assets/generated Meowtal non-idle runtime asset is created."
+      - "Runtime character selection, gameplay config, stage, UI, HUD, logo, particles, audio, or broad asset-pack files need editing."
+      - "Either row cannot normalize to 2048x256 with 8 separated 256x256 frames."
+      - "Either fighter drifts from upright two-legged stance, species identity, markings, proportions, camera angle, lighting, scale, outline/detail level, or render style after one retry."
+      - "Rows contain text, logos, watermarks, frame numbers, detached effects, background/arena art, or extra characters."
+      - "Existing Atlas/Sahara runtime tests must be weakened or runtime selection must switch to Meowtal."
+    visual_qa_expectations:
+      - "Both rows remain upright two-legged fighting-game locomotion, not four-legged animal movement."
+      - "Rabbit keeps long ears, gray fur, lighter belly, white paws, compact athletic hind-leg silhouette, and readable guarded walk."
+      - "Cat keeps orange tabby stripes, light muzzle/chest, visible striped tail, upright biped body, and confident guarded walk."
+      - "Walk motion shows clear frame separation, stable scale, consistent head/camera height, grounded feet/paws, and readable forward travel poses."
+      - "Both rows match approved idle rows in lighting, camera angle, outline thickness, detail level, transparency treatment, and cell scale."
+      - "No text, watermark, logo, frame numbers, background art, hit sparks, dust, projectiles, or other detached effects."
+    receipt: null
+  - id: T031
+    type: judge
+    assignee: Judge
+    status: queued
+    reasoning_hint: high
+    objective: "Visual QA the generated gray-rabbit:walk-forward and ginger-tabby-cat:walk-forward rows and decide whether they can be approved for runtime integration or need regeneration."
+    inputs:
+      - "assets/source/imagegen/fighters/gray-rabbit/walk-forward.png"
+      - "assets/source/imagegen/fighters/ginger-tabby-cat/walk-forward.png"
+      - "output/imagegen/gray-rabbit-walk-forward-normalized.png"
+      - "output/imagegen/ginger-tabby-cat-walk-forward-normalized.png"
+      - "public/assets/generated/fighters/gray-rabbit/idle.png"
+      - "public/assets/generated/fighters/ginger-tabby-cat/idle.png"
+      - "src/assets/meowtalProductionManifest.ts"
+    constraints:
+      - "Do not implement."
+      - "Reject if either row violates upright two-legged rig, species identity, markings, proportions, camera angle, lighting, scale, outline/detail level, frame separation, or style consistency with approved idle rows."
+      - "Reject if rows contain text, logos, watermarks, frame numbers, detached effects, arena/background art, or extra characters."
+      - "Do not approve runtime integration unless normalized candidates are 2048x256 and visually usable."
+    expected_output:
+      - "approved | rejected"
+      - "Visual QA findings"
+      - "Next Worker task"
+      - "allowed_files"
+      - "verify commands"
+      - "stop_if conditions"
     receipt: null
   - id: T005
     type: worker
