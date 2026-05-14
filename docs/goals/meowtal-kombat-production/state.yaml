@@ -83,7 +83,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T065
+active_task: T066
 
 tasks:
   - id: T000
@@ -3052,7 +3052,7 @@ tasks:
   - id: T065
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Visual QA only the T064 rebuilt Meowtal heavy-punch candidates, gray-rabbit:heavy-punch and ginger-tabby-cat:heavy-punch, against approved runtime rows through blockstun. Decide whether they are approved for later runtime promotion or must be regenerated again. Do not edit files."
     inputs:
@@ -3076,6 +3076,51 @@ tasks:
       - "Per-fighter visual QA notes"
       - "Runtime promotion constraints if approved"
       - "Regeneration notes if rejected"
+    receipt:
+      result: done
+      decision: regenerate
+      summary: "Judge rejected the T064 heavy-punch candidates. T064 fixed the artifact/style-drift failures: both rows keep upright two-legged stance, preserve species/style/scale, and have no visible chroma residue, detached parts, dark corruption, text, background, or runtime-blocking artifacts. The rows failed because they read as clean padded/extended light-punch rows rather than distinct committed heavy strikes."
+      evidence:
+        - "assets/source/imagegen/fighters/gray-rabbit/heavy-punch.png"
+        - "assets/source/imagegen/fighters/ginger-tabby-cat/heavy-punch.png"
+        - "output/imagegen/gray-rabbit-heavy-punch-normalized.png"
+        - "output/imagegen/ginger-tabby-cat-heavy-punch-normalized.png"
+      visual_qa:
+        - "gray-rabbit: clean, upright, style-consistent, and artifact-free, but visually reuses approved light-punch pose language with duplicated anticipation/active/recovery timing."
+        - "ginger-tabby-cat: clean, upright, style-consistent, and artifact-free, but also reads as an extended light-punch rather than a heavier committed strike."
+      regeneration_notes:
+        - "Do not promote current heavy-punch rows."
+        - "Keep deterministic approved-row construction for style-lock and transparency."
+        - "Rebuild exactly gray-rabbit:heavy-punch and ginger-tabby-cat:heavy-punch with a distinct heavy-strike silhouette: stronger wind-up, planted weight shift, larger shoulder/torso commitment, clearer follow-through, and recovery."
+        - "Do not approve any candidate that is just light-punch with extra duplicated frames."
+        - "Do not return to chroma-key imagegen sheets unless deterministic construction cannot produce readable heavy motion."
+      next_allowed_task: T066
+  - id: T066
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: low
+    objective: "Rebuild exactly the two Meowtal heavy-punch source rows after T065 rejection using deterministic approved-row construction, but make the motion visually distinct from light-punch. Use approved idle, crouch, walk-forward, and light-punch rows as clean transparent style-lock components to create stronger wind-up, planted weight shift, larger shoulder/torso commitment, follow-through, and recovery for gray-rabbit:heavy-punch and ginger-tabby-cat:heavy-punch. Normalize both to 8-frame 2048x256 QA candidates and keep heavy-punch generated-but-unapproved with runtimePath null. Do not approve runtime use."
+    allowed_files:
+      - "assets/source/imagegen/fighters/gray-rabbit/heavy-punch.png"
+      - "assets/source/imagegen/fighters/ginger-tabby-cat/heavy-punch.png"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+    verify:
+      - "node scripts/normalize-fighter-rows.mjs --animation heavy-punch --fighters gray-rabbit,ginger-tabby-cat"
+      - "sips -g pixelWidth -g pixelHeight -g hasAlpha output/imagegen/gray-rabbit-heavy-punch-normalized.png output/imagegen/ginger-tabby-cat-heavy-punch-normalized.png"
+      - "npm run typecheck"
+      - "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-qa.test.ts"
+      - "npm run imagegen:qa"
+      - "npm run verify"
+    stop_if:
+      - "Any file outside allowed_files is needed, except ignored output/imagegen/*-heavy-punch-normalized.png verification candidates."
+      - "Any public/assets/generated Meowtal heavy-punch runtime asset is created."
+      - "Any heavy-punch row is marked approved or given a runtimePath."
+      - "Any row other than gray-rabbit:heavy-punch or ginger-tabby-cat:heavy-punch is generated, edited, approved, or given a runtime/public path."
+      - "Either row cannot normalize to 2048x256 with eight separated 256x256 RGBA frames."
+      - "Either fighter drifts from upright two-legged stance, species identity, markings, proportions, camera angle, lighting, scale, outline/detail level, or render style after one retry."
+      - "Heavy-punch still reads as idle reuse, light-punch duplicate, walk reuse, hitstun/blockstun, collapse, four-legged animal motion, or unreadable posing."
+      - "Rows contain text, logos, watermarks, frame numbers, detached hit sparks/effects, background/arena art, extra characters, visible chroma edge residue, clipped/detached fists, or corrupted dark silhouette artifacts."
     receipt: null
   - id: T005
     type: worker
