@@ -83,7 +83,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T072
+active_task: T073
 
 tasks:
   - id: T000
@@ -3426,7 +3426,7 @@ tasks:
   - id: T072
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: low
     objective: "Regenerate exactly two Meowtal light-kick source rows, gray-rabbit:light-kick and ginger-tabby-cat:light-kick, to address T071 visual QA blockers. Keep them source-only non-runtime candidates, preserve the shared upright two-legged stance, create a clearer planted-support-leg plus extended-foot snap-kick silhouette, normalize both rows to 8-frame 2048x256 QA candidates, and update provenance/manifest/tests/docs only if needed to reflect the regeneration. Do not approve runtime use."
     inputs:
@@ -3456,6 +3456,74 @@ tasks:
       - "Regeneration introduces pasted-box artifacts, detached limb effects, clipped/detached feet, visible chroma residue, backgrounds, extra characters, text/logos/watermarks, or frame numbers."
       - "Normalized candidates cannot be exactly 2048x256 RGBA with eight separated 256x256 frames."
       - "Fixing verification would require touching scripts, gameplay, routing, UI, arena, audio, or unrelated files."
+    receipt:
+      result: done
+      summary: "Regenerated exactly the two scoped Meowtal light-kick source rows after T071 rejection. Both rows remain source-only non-runtime candidates, preserve the shared upright two-legged convention, and now use approved idle/crouch/heavy-punch style-lock frames with clearer planted-support and front-foot snap-kick silhouettes. No runtime light-kick assets or unrelated animation rows were created or promoted."
+      changed_files:
+        - "assets/source/imagegen/fighters/gray-rabbit/light-kick.png"
+        - "assets/source/imagegen/fighters/ginger-tabby-cat/light-kick.png"
+        - "src/assets/meowtalProductionManifest.ts"
+        - "docs/assets/meowtal-kombat-provenance.md"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+      evidence:
+        - "assets/source/imagegen/fighters/gray-rabbit/light-kick.png"
+        - "assets/source/imagegen/fighters/ginger-tabby-cat/light-kick.png"
+        - "output/imagegen/gray-rabbit-light-kick-normalized.png"
+        - "output/imagegen/ginger-tabby-cat-light-kick-normalized.png"
+        - "src/assets/meowtalProductionManifest.ts"
+        - "docs/assets/meowtal-kombat-provenance.md"
+      checksums:
+        gray_rabbit_light_kick_source_sha256: "cc2b7fe086c7a2e4e5211d844856521f3b6dba693c3374a5d852fde52bc876da"
+        ginger_tabby_cat_light_kick_source_sha256: "68e2d77db431d1138c51d203d1f812e369e7ede398b9d5b3c18c99dac9728772"
+        gray_rabbit_light_kick_normalized_sha256: "9b23c0418c8d76ee9d15cb0467978b5fad48ecfc02ca962b5ed1ac0276e4c382"
+        ginger_tabby_cat_light_kick_normalized_sha256: "ccab32de21bef88998201720ed7fca746861e1ba16a641a16444a3046f197f9d"
+        meowtal_manifest_sha256: "71a75eb2b34093c9e6574caab1f4ac666bf98816d1195802d2384d6c4256fb5c"
+        provenance_doc_sha256: "888e3db1ebf30f16983bce66e68c0ec4286db7ac208594348dc6ff8d39c55496"
+      commands:
+        - cmd: "node scripts/normalize-fighter-rows.mjs --animation light-kick --fighters gray-rabbit,ginger-tabby-cat"
+          status: pass
+        - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha output/imagegen/gray-rabbit-light-kick-normalized.png output/imagegen/ginger-tabby-cat-light-kick-normalized.png"
+          status: pass
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-qa.test.ts"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+      notes:
+        - "sips reported pixelWidth 2048, pixelHeight 256, hasAlpha yes for both normalized regenerated light-kick QA candidates."
+        - "Focused manifest/asset QA tests passed with 2 files and 17 tests."
+        - "Full verify passed with 21 test files, 111 tests, and a successful Vite production build."
+        - "A read-only sidecar review warned against crouch-height bodies, mixed stance, pose bleed, and unclear max-extension frames; this pass keeps the fighters upright two-legged with a clearer max-extension contact frame before returning to Judge QA."
+        - "No public/assets/generated Meowtal light-kick files, runtime paths, runtime roster/game config, stage, UI/HUD/logo, particles, audio, or other animation rows were touched."
+  - id: T073
+    type: judge
+    assignee: Judge
+    status: active
+    reasoning_hint: high
+    objective: "Visual QA only the regenerated Meowtal light-kick candidates from T072, gray-rabbit:light-kick and ginger-tabby-cat:light-kick, against approved runtime rows through heavy-punch. Decide whether they are approved for later runtime promotion or must be regenerated again. Do not edit files."
+    inputs:
+      - "assets/source/imagegen/fighters/gray-rabbit/light-kick.png"
+      - "assets/source/imagegen/fighters/ginger-tabby-cat/light-kick.png"
+      - "output/imagegen/gray-rabbit-light-kick-normalized.png"
+      - "output/imagegen/ginger-tabby-cat-light-kick-normalized.png"
+      - "T071 regenerate receipt"
+      - "T072 regeneration receipt"
+      - "approved runtime rows through heavy-punch"
+    constraints:
+      - "Do not implement or edit files."
+      - "Reject if either fighter shifts into four-legged animal motion or if rabbit and cat stance conventions differ; both must stay upright two-legged."
+      - "Reject if light-kick still reads as punch reuse, walk reuse, crouch reuse, jump reuse, collapse, rest, detached limb effect, oversized/pasted limb mass, or unreadable posing."
+      - "Reject visible text, logos, watermarks, frame numbers, detached effects, background/arena art, extra characters, visible chroma edge residue, clipped/detached feet, pasted-box artifacts, or non-transparent runtime-blocking artifacts."
+      - "Reject inconsistent species identity, markings, proportions, lighting, camera angle, scale, outline/detail level, or rendering style versus approved runtime rows."
+      - "Require normalized QA candidates to be exactly 2048x256 RGBA with eight separated 256x256 frames."
+      - "Approve only if a clear planted-support-leg and max-extension front-foot kick silhouette is visible for each fighter."
+      - "Do not approve runtime promotion for any row other than gray-rabbit:light-kick and ginger-tabby-cat:light-kick."
+    expected_output:
+      - "approved | regenerate"
+      - "Per-fighter visual QA notes"
+      - "Runtime promotion constraints if approved"
+      - "Regeneration notes if rejected"
     receipt: null
   - id: T005
     type: worker

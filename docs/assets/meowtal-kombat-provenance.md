@@ -210,7 +210,7 @@ Status: idle, walk-forward, walk-back, crouch, jump, light-punch, heavy-punch, h
   - Generated on: 2026-05-14
   - License status: owned generated source asset
   - Runtime status: not approved for runtime use; pending follow-up visual QA
-  - QA notes: eight separated upright two-legged gray rabbit low snap-kick frames with crouch-load, front foot extension, landing, and guard recovery; no visible text/watermark/frame numbers, deterministic transparent source construction from approved rows, normalized to 2048x256 RGBA QA candidate.
+  - QA notes: regenerated after T071 rejected the first candidate as too crouch-like; eight separated upright two-legged gray rabbit low snap-kick frames with crouch-load, planted support, clearer front-foot extension, recoil, and guard recovery; no visible text/watermark/frame numbers, deterministic transparent source construction from approved rows, normalized to 2048x256 RGBA QA candidate.
 - `ginger-tabby-cat:light-kick`
   - Source path: `assets/source/imagegen/fighters/ginger-tabby-cat/light-kick.png`
   - Runtime path: none
@@ -218,7 +218,7 @@ Status: idle, walk-forward, walk-back, crouch, jump, light-punch, heavy-punch, h
   - Generated on: 2026-05-14
   - License status: owned generated source asset
   - Runtime status: not approved for runtime use; pending follow-up visual QA
-  - QA notes: eight separated upright two-legged ginger tabby low snap-kick frames with crouch-load, front foot extension, landing, and guard recovery; no visible text/watermark/frame numbers, deterministic transparent source construction from approved rows, normalized to 2048x256 RGBA QA candidate.
+  - QA notes: regenerated after T071 rejected the first candidate as too crouch-like; eight separated upright two-legged ginger tabby low snap-kick frames with crouch-load, planted support, clearer front-foot extension, recoil, and guard recovery; no visible text/watermark/frame numbers, deterministic transparent source construction from approved rows, normalized to 2048x256 RGBA QA candidate.
 
 Each fighter needs rows for idle, walk-forward, walk-back, crouch, jump, light-punch, heavy-punch, light-kick, special, hitstun, blockstun, knockdown, win, and lose. Rows must preserve the shared upright two-legged rig, species identity, markings, proportions, lighting, camera angle, scale, outline/detail level, and rendering style.
 
