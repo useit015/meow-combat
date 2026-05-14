@@ -45,6 +45,7 @@ Discover the existing app shape, architecture, assets, rendering stack, and veri
 - No placeholder assets, broken menu states, silent critical interactions, overlapping HUD/text, console errors, missing run instructions, or "works only in dev by accident" completion.
 - Production readiness requires a local production build or production preview, stable frame pacing for the implemented effects, graceful loading/fallback behavior, and readable controls on supported viewports.
 - Commit work in small, coherent batches throughout implementation; do not save all production-game work for one large final commit.
+- Character animation assets must look consistent across each fighter's move set. Reject completion if animation frames vary noticeably in species identity, costume/markings, body proportions, lighting, camera angle, scale, outline/detail level, or rendering style.
 
 ## Stop Rule
 

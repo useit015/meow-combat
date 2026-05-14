@@ -37,6 +37,7 @@ goal:
       - "Combat: simple 2-3 hit combos, 4-5 unique attacks per character, rabbit tornado special, cat flip kick plus green/yellow projectile or aura blast."
       - "Physics: jumping, knockback, ground bouncing, simple ragdoll-like heavy-hit reactions."
       - "Audio provider readiness checked: Pixabay API key works for official image/video API; ElevenLabs key can generate sound effects via /v1/sound-generation, but read/model endpoints are permission-limited. Do not store secret values in repo."
+      - "Current asset quality concern: different animation frames for the same character sometimes look visually inconsistent; production work must normalize or regenerate animations so each fighter has consistent identity, proportions, lighting, scale, camera angle, and rendering style across all moves."
 
 rules:
   pm_owns_state: true
@@ -55,6 +56,7 @@ rules:
   capture_artifact_required_for_completion: true
   console_runtime_layout_performance_failures_block_completion: true
   commit_in_small_batches: true
+  character_animation_style_consistency_required: true
 
 agents:
   scout: installed
@@ -170,6 +172,26 @@ tasks:
         - "AGENTS.md"
         - "docs/goals/meowtal-kombat-production/goal.md"
         - "docs/goals/meowtal-kombat-production/state.yaml"
+  - id: T015
+    type: pm
+    assignee: PM
+    status: done
+    reasoning_hint: medium
+    objective: "Record the owner's animation consistency concern as a hard production requirement."
+    inputs:
+      - "User concern: in the current version different character animations sometimes look different and bad."
+    constraints:
+      - "Do not inspect or modify product implementation files in this PM task."
+      - "Do not generate or replace assets until a Worker task allows it."
+    expected_output:
+      - "Animation style consistency requirement recorded"
+      - "Completion gates strengthened"
+    receipt:
+      result: done
+      summary: "Recorded that character animation assets must maintain consistent fighter identity, body proportions, markings, lighting, camera angle, scale, outline/detail level, and rendering style across every move. Completion must reject visibly inconsistent animation sets."
+      changed_files:
+        - "docs/goals/meowtal-kombat-production/goal.md"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
   - id: T001
     type: scout
     assignee: Scout
@@ -190,6 +212,7 @@ tasks:
       - "Repo/app map with key files and ownership boundaries"
       - "Existing game architecture and rendering loop assessment"
       - "Asset pipeline and current asset inventory"
+      - "Current same-character animation consistency issues with concrete asset/file evidence"
       - "Verification commands and dev server command"
       - "Production build/preview command if available"
       - "Risks, blockers, and safe first implementation slices"
@@ -213,6 +236,7 @@ tasks:
       - "Recommended asset approach for rabbit, cat, arena, HUD portraits, particles, audio, and capture artifacts"
       - "Candidate generation/editing steps and tools"
       - "Risks around performance, copyright, file sizes, visual consistency, and license manifest requirements"
+      - "Animation consistency audit criteria and candidate normalization/regeneration strategy"
       - "Worker-ready asset slice proposals with suggested allowed_files"
     receipt: null
   - id: T003
@@ -259,13 +283,13 @@ tasks:
     assignee: Worker
     status: queued
     reasoning_hint: low
-    objective: "Implement or integrate production-quality character, arena, portrait, UI, audio, and effects assets for the selected project stack, with source/prompt/license tracking."
+    objective: "Implement or integrate production-quality character, arena, portrait, UI, audio, and effects assets for the selected project stack, with animation consistency and source/prompt/license tracking."
     allowed_files: []
     verify: []
     stop_if:
       - "Need files outside allowed_files."
       - "Asset generation, source, attribution, or licensing approach is unclear."
-      - "Generated assets do not fit the visual style after one retry."
+      - "Generated assets do not fit the visual style or character animation consistency bar after one retry."
       - "Verification fails twice for the same reason."
     receipt: null
   - id: T006
@@ -356,6 +380,7 @@ tasks:
       - "Reject if the full arcade package scope lacks obvious user-facing flow."
       - "Reject if the result still feels like a prototype, mockup, or tech demo."
       - "Reject if there are placeholder/unlicensed assets, missing run instructions, production build failures, console errors, or obvious layout/performance defects."
+      - "Reject if any fighter's animation set has visibly inconsistent identity, proportions, lighting, camera angle, scale, outline/detail level, or rendering style."
     expected_output:
       - "production_ready | not_ready"
       - "missing evidence or fixes"
@@ -382,6 +407,7 @@ tasks:
       - "Reject completion if the game cannot be run locally by the user."
       - "Reject completion if the result is an unfinished PoC, visual-only demo, or dev-only build."
       - "Reject completion if production build/preview, asset/license manifest, or run instructions are missing."
+      - "Reject completion if character animations look mismatched across a fighter's moves."
     expected_output:
       - "complete | not_complete"
       - "full_outcome_complete: true | false"
