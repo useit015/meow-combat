@@ -355,7 +355,7 @@ Composite QA candidate: `output/imagegen/meowtal-courtyard-composite-preview.png
 
 ### UI, HUD, And Effects Surfaces
 
-Status: approved runtime UI assets, not yet routed into scene rendering.
+Status: approved generated runtime UI assets plus approved procedural runtime shell/effects surfaces. One visual gap remains for floating per-hit damage-number popups.
 
 - `ui:logo-title-mark`
   - Source path: `assets/source/imagegen/ui/meowtal/logo-title-mark.png`
@@ -364,7 +364,7 @@ Status: approved runtime UI assets, not yet routed into scene rendering.
   - Provider: Codex built-in imagegen plus local text normalization
   - Generated on: 2026-05-14
   - License status: owned generated source asset
-  - Runtime status: approved by T095 visual QA and promoted by T096; not yet routed into scene rendering
+  - Runtime status: approved by T095 visual QA, promoted by T096, and routed into scene rendering by T100
   - Transform notes: generated blank title plate on magenta chroma key, resized to 1024x576, removed chroma key to transparent alpha, added crisp local MEOWTAL KOMBAT lettering, promoted to runtime.
   - QA notes: readable original title mark with rabbit-ear and cat-tail motifs, no copied branding, watermark, or brand marks.
 - `ui:hud-frame`
@@ -374,7 +374,7 @@ Status: approved runtime UI assets, not yet routed into scene rendering.
   - Provider: Codex built-in imagegen
   - Generated on: 2026-05-14
   - License status: owned generated source asset
-  - Runtime status: approved by T095 visual QA and promoted by T096; not yet routed into scene rendering
+  - Runtime status: approved by T095 visual QA, promoted by T096, and routed into scene rendering by T100
   - Transform notes: generated on magenta chroma key, resized to 1024x576, removed chroma key to transparent alpha, promoted to runtime.
   - QA notes: top HUD frame with left/right health housings and center timer medallion, no text, portraits, copied branding, watermark, or brand marks.
 - `ui:rabbit-portrait`
@@ -384,7 +384,7 @@ Status: approved runtime UI assets, not yet routed into scene rendering.
   - Provider: approved Codex imagegen runtime sprite plus local portrait-frame normalization
   - Generated on: 2026-05-14
   - License status: owned generated source asset
-  - Runtime status: approved by T098 visual QA and promoted by T099; not yet routed into scene rendering
+  - Runtime status: approved by T098 visual QA, promoted by T099, and routed into scene rendering by T100
   - Transform notes: derived from the approved transparent gray-rabbit idle runtime sprite to avoid character drift, composed into a transparent 1024x576 HUD portrait medallion with local frame, glow, and side markers, promoted to runtime.
   - QA notes: Gray Rabbit portrait preserves approved upright two-legged identity and proportions, no text, copied branding, watermark, or brand marks.
 - `ui:cat-portrait`
@@ -394,7 +394,7 @@ Status: approved runtime UI assets, not yet routed into scene rendering.
   - Provider: approved Codex imagegen runtime sprite plus local portrait-frame normalization
   - Generated on: 2026-05-14
   - License status: owned generated source asset
-  - Runtime status: approved by T098 visual QA and promoted by T099; not yet routed into scene rendering
+  - Runtime status: approved by T098 visual QA, promoted by T099, and routed into scene rendering by T100
   - Transform notes: derived from the approved transparent ginger-tabby-cat idle runtime sprite to avoid character drift, composed into a transparent 1024x576 HUD portrait medallion with local frame, glow, and side markers, promoted to runtime.
   - QA notes: Ginger Tabby Cat portrait preserves approved upright two-legged identity and proportions, no text, copied branding, watermark, or brand marks.
 - `ui:health-bar-rabbit`
@@ -404,7 +404,7 @@ Status: approved runtime UI assets, not yet routed into scene rendering.
   - Provider: Codex built-in imagegen
   - Generated on: 2026-05-14
   - License status: owned generated source asset
-  - Runtime status: approved by T095 visual QA and promoted by T096; not yet routed into scene rendering
+  - Runtime status: approved by T095 visual QA, promoted by T096, and routed into scene rendering by T100
   - Transform notes: generated on magenta chroma key, resized to 1024x576, removed chroma key to transparent alpha, promoted to runtime.
   - QA notes: red rabbit-side health bar treatment, no text, portraits, copied branding, watermark, or brand marks.
 - `ui:health-bar-cat`
@@ -414,7 +414,7 @@ Status: approved runtime UI assets, not yet routed into scene rendering.
   - Provider: Codex built-in imagegen
   - Generated on: 2026-05-14
   - License status: owned generated source asset
-  - Runtime status: approved by T095 visual QA and promoted by T096; not yet routed into scene rendering
+  - Runtime status: approved by T095 visual QA, promoted by T096, and routed into scene rendering by T100
   - Transform notes: generated on magenta chroma key, resized to 1024x576, removed chroma key to transparent alpha, promoted to runtime.
   - QA notes: blue cat-side health bar treatment, no text, portraits, copied branding, watermark, or brand marks.
 - `ui:super-meter`
@@ -424,7 +424,7 @@ Status: approved runtime UI assets, not yet routed into scene rendering.
   - Provider: Codex built-in imagegen
   - Generated on: 2026-05-14
   - License status: owned generated source asset
-  - Runtime status: approved by T098 visual QA and promoted by T099; not yet routed into scene rendering
+  - Runtime status: approved by T098 visual QA, promoted by T099, and routed into scene rendering by T100
   - Transform notes: generated on magenta chroma key, resized to 1024x576, removed chroma key to transparent alpha, promoted to runtime.
   - QA notes: bottom special/super meter bar with gold/obsidian trim and green/yellow segmented energy fill, no text, copied branding, watermark, or brand marks.
 - `ui:timer-frame`
@@ -434,7 +434,7 @@ Status: approved runtime UI assets, not yet routed into scene rendering.
   - Provider: Codex built-in imagegen
   - Generated on: 2026-05-14
   - License status: owned generated source asset
-  - Runtime status: approved by T095 visual QA and promoted by T096; not yet routed into scene rendering
+  - Runtime status: approved by T095 visual QA, promoted by T096, and routed into scene rendering by T100
   - Transform notes: generated on magenta chroma key, resized to 1024x576, removed chroma key to transparent alpha, promoted to runtime.
   - QA notes: circular center timer frame, no numbers, copied branding, watermark, or brand marks.
 - `ui:fight-ko-victory-overlays`
@@ -444,26 +444,89 @@ Status: approved runtime UI assets, not yet routed into scene rendering.
   - Provider: Codex built-in imagegen plus local text normalization
   - Generated on: 2026-05-14
   - License status: owned generated source asset
-  - Runtime status: approved by T095 visual QA and promoted by T096; not yet routed into scene rendering
+  - Runtime status: approved by T095 visual QA, promoted by T096, and routed into scene rendering by T100
   - Transform notes: generated blank overlay panels on magenta chroma key, resized to 1024x576, removed chroma key to transparent alpha, added crisp local FIGHT/K.O./victory lettering, promoted to runtime.
   - QA notes: FIGHT, K.O., Rabbit Wins, and Tabby Wins overlay sheet with readable local lettering, no copied branding, watermark, or brand marks.
 
-Still planned: `ui:title-key-art`, `ui:pause-options-panel`, `ui:touch-controls`, `ui:loading-fallback`, `ui:particle-atlas`, and `ui:damage-number-style`.
+- `ui:title-key-art`
+  - Source path: `src/game/MeowtalArenaScene.ts`
+  - Runtime path: `src/game/MeowtalArenaScene.ts`
+  - Provider: Phaser procedural graphics/runtime composition
+  - License status: procedural-owned
+  - Runtime status: approved procedural surface by T118
+  - QA notes: title/select key-art presentation composes approved stage layers, approved logo art, and approved upright two-legged idle sprites at runtime; no separate bitmap is required.
+- `ui:pause-options-panel`
+  - Source path: `src/game/MeowtalArenaScene.ts`
+  - Runtime path: `src/game/MeowtalArenaScene.ts`
+  - Provider: Phaser procedural graphics
+  - License status: procedural-owned
+  - Runtime status: approved procedural surface by T118
+  - QA notes: pause/options/rematch modal is implemented by owned runtime drawing and was verified for desktop/mobile readability by T102.
+- `ui:touch-controls`
+  - Source path: `src/game/touchControls.ts`
+  - Runtime path: `src/game/MeowtalArenaScene.ts`
+  - Provider: Phaser procedural graphics
+  - License status: procedural-owned
+  - Runtime status: approved procedural surface by T118
+  - QA notes: portrait and landscape phone controls use owned code-defined zones, labels, active states, and safe pause spacing; verified by T106-T107.
+- `ui:loading-fallback`
+  - Source path: `src/game/MeowtalArenaScene.ts`
+  - Runtime path: `src/game/MeowtalArenaScene.ts`
+  - Provider: Phaser procedural graphics
+  - License status: procedural-owned
+  - Runtime status: approved procedural surface by T118
+  - QA notes: procedural fallback stage/HUD/fighter drawing remains available if runtime textures fail, while production smoke confirms approved assets load without fallbacks.
+- `ui:particle-atlas`
+  - Source path: `src/game/effects.ts`
+  - Runtime path: `src/game/MeowtalArenaScene.ts`
+  - Provider: Phaser procedural graphics
+  - License status: procedural-owned
+  - Runtime status: approved procedural surface by T118
+  - QA notes: hit sparks, block rings, special/super trails, impact flashes, and shake are owned runtime effects; no bitmap particle atlas is required for the current scope.
+
+Remaining visual gap: `ui:damage-number-style` remains planned because floating per-hit damage-number popups are not implemented yet. The existing combo damage readout is useful but does not satisfy the requested popping damage-number surface.
 
 ### Audio Cues
 
-Status: planned.
+Status: partially approved procedural runtime audio. Several production audio cues remain planned because the current runtime has a small shared WebAudio set, not distinct announcer, movement, special, K.O., or light/heavy impact cues.
 
 - `audio:music-loop`
+  - Source path: `src/game/audio.ts`
+  - Runtime path: `src/game/audio.ts`
+  - License status: procedural-owned
+  - Runtime status: approved procedural audio by T118
+  - QA notes: low-volume fight loop is synthesized through WebAudio oscillators; no external music file is used.
 - `audio:ui-confirm`
+  - Source path: `src/game/audio.ts`
+  - Runtime path: `src/game/MeowtalArenaScene.ts`
+  - License status: procedural-owned
+  - Runtime status: approved procedural audio by T118
+  - QA notes: shell confirm/start/reset/pause/fullscreen feedback is routed to an owned two-tone WebAudio cue.
 - `audio:fight-announcer`
+  - Status: planned; visual FIGHT overlay exists, but no distinct announcer/stinger audio is routed yet.
 - `audio:hit-light`
+  - Status: planned; current runtime has one shared hit cue, not a distinct light-hit cue with production approval.
 - `audio:hit-heavy`
+  - Status: planned; current runtime has one shared hit cue, not a distinct heavy-hit cue with production approval.
 - `audio:block-impact`
+  - Source path: `src/game/audio.ts`
+  - Runtime path: `src/game/MeowtalArenaScene.ts`
+  - License status: procedural-owned
+  - Runtime status: approved procedural audio by T118
+  - QA notes: block events route to an owned WebAudio noise/tonal clack.
 - `audio:dash-whoosh`
+  - Status: planned; dash/hop movement does not yet trigger a distinct procedural whoosh cue.
 - `audio:rabbit-tornado`
+  - Status: planned; rabbit tornado special does not yet trigger a distinct procedural special cue.
 - `audio:cat-aura-blast`
+  - Status: planned; cat special does not yet trigger a distinct procedural aura/blast cue.
 - `audio:ko-burst`
+  - Status: planned; round-over audio exists, but no over-the-top K.O. burst cue is implemented and approved yet.
 - `audio:victory-sting`
+  - Source path: `src/game/audio.ts`
+  - Runtime path: `src/game/MeowtalArenaScene.ts`
+  - License status: procedural-owned
+  - Runtime status: approved procedural audio by T118
+  - QA notes: match-over transitions route to an owned three-tone WebAudio victory sting.
 
-Procedural WebAudio cues can be approved as owned procedural assets after implementation review. Provider-generated or library audio needs provider, prompt or source URL, license review, and transform notes before runtime use.
+Provider-generated or library audio still needs provider, prompt or source URL, license review, and transform notes before runtime use. The current approved cues avoid that dependency by using owned procedural synthesis.

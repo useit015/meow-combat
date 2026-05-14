@@ -68,16 +68,25 @@ describe("Meowtal production manifest", () => {
       "meowtal-courtyard:midground-trees-bushes",
       "meowtal-courtyard:playfield-stone-courtyard",
       "meowtal-courtyard:sky-lighting",
+      "audio:block-impact",
+      "audio:music-loop",
+      "audio:ui-confirm",
+      "audio:victory-sting",
       "ui:cat-portrait",
+      "ui:loading-fallback",
       "ui:fight-ko-victory-overlays",
       "ui:health-bar-cat",
       "ui:health-bar-rabbit",
       "ui:hud-frame",
       "ui:logo-title-mark",
+      "ui:particle-atlas",
+      "ui:pause-options-panel",
       "ui:rabbit-portrait",
       "ui:super-meter",
+      "ui:title-key-art",
       "ui:timer-frame",
-    ]);
+      "ui:touch-controls",
+    ].sort());
     expect(runtimeEntries.every((entry) => entry.status === "approved")).toBe(true);
   });
 
@@ -100,7 +109,7 @@ describe("Meowtal production manifest", () => {
     }
   });
 
-  it("tracks approved runtime HUD and logo assets without routing the remaining UI surfaces", () => {
+  it("tracks approved generated and procedural runtime UI/effects surfaces", () => {
     const generatedSurfaceIds = [
       "logo-title-mark",
       "hud-frame",
@@ -125,17 +134,82 @@ describe("Meowtal production manifest", () => {
       expect(provenance?.createdOrDownloadedOn).toBe("2026-05-14");
       expect(provenance?.approvalNotes).toContain("Approved runtime UI asset");
       expect(provenance?.approvalNotes).toContain(`output/imagegen/meowtal-ui-${surfaceId}.png`);
-      expect(provenance?.approvalNotes).toMatch(/Approved by T09[58] visual QA and promoted by T09[69]/);
-      expect(provenance?.approvalNotes).toContain("not yet routed into scene rendering");
+      expect(provenance?.approvalNotes).toMatch(/Approved by T09[58] visual QA, promoted by T09[69]/);
+      expect(provenance?.approvalNotes).toContain("routed into scene rendering by T100");
       expect(provenance?.blocker).toBeNull();
       expect(existsSync(join(process.cwd(), provenance?.sourcePath ?? ""))).toBe(true);
       expect(existsSync(join(process.cwd(), "public", provenance?.runtimePath ?? ""))).toBe(true);
     }
 
-    const outOfScopeSurfaces = meowtalProductionManifest.visualSurfaces.filter(
-      (surface) => !generatedSurfaceIds.includes(surface.id as (typeof generatedSurfaceIds)[number]),
+    const proceduralSurfaceIds = [
+      "title-key-art",
+      "pause-options-panel",
+      "touch-controls",
+      "loading-fallback",
+      "particle-atlas",
+    ] as const;
+
+    for (const surfaceId of proceduralSurfaceIds) {
+      const surface = meowtalProductionManifest.visualSurfaces.find((candidate) => candidate.id === surfaceId);
+      const provenance = surface?.provenance;
+
+      expect(provenance?.status).toBe("approved");
+      expect(provenance?.sourceKind).toBe("procedural");
+      expect(provenance?.license.kind).toBe("procedural-owned");
+      expect(provenance?.createdOrDownloadedOn).toBe("2026-05-14");
+      expect(provenance?.approvalNotes).toContain("Approved procedural runtime surface");
+      expect(provenance?.blocker).toBeNull();
+      expect(existsSync(join(process.cwd(), provenance?.sourcePath ?? ""))).toBe(true);
+      expect(existsSync(join(process.cwd(), provenance?.runtimePath ?? ""))).toBe(true);
+    }
+
+    const plannedSurfaces = meowtalProductionManifest.visualSurfaces.filter(
+      (surface) =>
+        !generatedSurfaceIds.includes(surface.id as (typeof generatedSurfaceIds)[number]) &&
+        !proceduralSurfaceIds.includes(surface.id as (typeof proceduralSurfaceIds)[number]),
     );
-    expect(outOfScopeSurfaces.every((surface) => surface.provenance.status === "planned")).toBe(true);
+    expect(plannedSurfaces.map((surface) => surface.id)).toEqual(["damage-number-style"]);
+    expect(plannedSurfaces.every((surface) => surface.provenance.status === "planned")).toBe(true);
+    expect(plannedSurfaces[0]?.provenance.blocker).toContain("Floating per-hit damage-number popups");
+  });
+
+  it("tracks implemented procedural audio cues and leaves missing production cues planned", () => {
+    const approvedAudioCueIds = ["music-loop", "ui-confirm", "block-impact", "victory-sting"] as const;
+
+    for (const cueId of approvedAudioCueIds) {
+      const cue = meowtalProductionManifest.audioCues.find((candidate) => candidate.id === cueId);
+      const provenance = cue?.provenance;
+
+      expect(provenance?.medium).toBe("audio");
+      expect(provenance?.status).toBe("approved");
+      expect(provenance?.sourceKind).toBe("procedural");
+      expect(provenance?.license.kind).toBe("procedural-owned");
+      expect(provenance?.createdOrDownloadedOn).toBe("2026-05-14");
+      expect(provenance?.approvalNotes).toContain("Approved procedural runtime audio");
+      expect(provenance?.blocker).toBeNull();
+      expect(existsSync(join(process.cwd(), provenance?.sourcePath ?? ""))).toBe(true);
+      expect(existsSync(join(process.cwd(), provenance?.runtimePath ?? ""))).toBe(true);
+    }
+
+    const plannedAudioCueIds = meowtalProductionManifest.audioCues
+      .filter((cue) => !approvedAudioCueIds.includes(cue.id as (typeof approvedAudioCueIds)[number]))
+      .map((cue) => cue.id);
+
+    expect(plannedAudioCueIds).toEqual([
+      "fight-announcer",
+      "hit-light",
+      "hit-heavy",
+      "dash-whoosh",
+      "rabbit-tornado",
+      "cat-aura-blast",
+      "ko-burst",
+    ]);
+    for (const cueId of plannedAudioCueIds) {
+      const cue = meowtalProductionManifest.audioCues.find((candidate) => candidate.id === cueId);
+      expect(cue?.provenance.status).toBe("planned");
+      expect(cue?.provenance.sourceKind).toBe("procedural");
+      expect(cue?.provenance.blocker).not.toBeNull();
+    }
   });
 
   it("tracks approved knockdown rows and remaining blocked rows", () => {

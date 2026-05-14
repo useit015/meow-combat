@@ -85,7 +85,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T118
+active_task: T119
 
 tasks:
   - id: T000
@@ -6144,14 +6144,14 @@ tasks:
   - id: T118
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: low
     objective: "Reconcile Meowtal production asset/audio/effects provenance with the already implemented runtime: either mark implemented procedural/routed surfaces as approved with owned/procedural provenance and updated tests/docs, or leave only truly missing surfaces planned and create the next narrow implementation gap. Do not change gameplay or generate new assets."
     inputs:
       - "T117 coverage map and decisions."
       - "src/assets/meowtalProductionManifest.ts currently leaves non-generated UI/effects surfaces and all audio cues as planned."
       - "docs/assets/meowtal-kombat-provenance.md still says some approved UI assets are not routed and lists several surfaces/audio cues as still planned."
-      - "Runtime evidence from T100-T107 and T111/T115 shows routed HUD/logo/portraits/meters/overlays, procedural touch controls, pause/options presentation, particles/effects, damage numbers, procedural audio, responsive smoke, and no runtime fallbacks."
+      - "Runtime evidence from T100-T107 and T111/T115 shows routed HUD/logo/portraits/meters/overlays, procedural touch controls, pause/options presentation, particles/effects, combo damage readout, procedural audio, responsive smoke, and no runtime fallbacks."
       - "Owner stance rule: both fighters share upright two-legged normal stance/movement/attack presentation; grounded/prone frames are only hit, K.O., or defeat reactions."
     allowed_files:
       - "src/assets/meowtalProductionManifest.ts"
@@ -6170,6 +6170,66 @@ tasks:
       - "Requires runtime gameplay, rendering, audio-engine, smoke-script, generated binary, dependency, or package-lock changes."
       - "Requires new image/audio generation, external downloads, secrets, provider calls, or license claims that are not already supported by repo evidence."
       - "Any planned surface or audio cue cannot be tied to an implemented routed asset, implemented procedural system, or explicit non-required scope decision from existing receipts."
+      - "Verification fails twice for the same reason."
+    receipt:
+      result: done
+      summary: "Reconciled the Meowtal production manifest/provenance ledger without gameplay, runtime rendering, audio-engine, dependency, package, or generated-binary changes. Approved already-routed generated UI as routed by T100; approved implemented procedural runtime surfaces for title/select key-art composition, pause/options panel, touch controls, loading/fallback drawing, and particle/effect rendering; approved implemented procedural audio for music-loop, UI confirm, block impact, and victory sting. Kept floating damage-number popups and seven distinct production audio cues planned because they are real runtime gaps, then activated T119 as the next narrow implementation task."
+      changed_files:
+        - "src/assets/meowtalProductionManifest.ts"
+        - "test/meowtal-production-manifest.test.ts"
+        - "docs/assets/meowtal-kombat-provenance.md"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+      commands:
+        - cmd: "rg -n \"Still planned|not yet routed into scene rendering|Planned production asset only\" src/assets/meowtalProductionManifest.ts test/meowtal-production-manifest.test.ts docs/assets/meowtal-kombat-provenance.md README.md || true"
+          status: pass
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm test -- --run test/meowtal-production-manifest.test.ts test/presentation.test.ts test/touch-controls.test.ts test/asset-readiness.test.ts"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+          status: pass
+        - cmd: "git diff --check"
+          status: pass
+      remaining_gaps:
+        - "ui:damage-number-style remains planned because floating per-hit damage-number popups are not implemented yet."
+        - "audio:fight-announcer, audio:hit-light, audio:hit-heavy, audio:dash-whoosh, audio:rabbit-tornado, audio:cat-aura-blast, and audio:ko-burst remain planned because the current runtime has only a small shared procedural audio set."
+      next_task: T119
+  - id: T119
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: low
+    objective: "Implement the remaining presentation/audio gap without external assets: add readable floating per-hit damage-number popups and distinct owned procedural audio cues for FIGHT start, light hit, heavy hit, dash/whoosh, rabbit tornado special, cat aura/blast special, and K.O. burst; update manifest/provenance/tests/docs so T005/T007/T011 can be reconciled next."
+    inputs:
+      - "T118 kept ui:damage-number-style planned because only combo damage readout exists, not floating per-hit damage-number popups."
+      - "T118 kept audio:fight-announcer, audio:hit-light, audio:hit-heavy, audio:dash-whoosh, audio:rabbit-tornado, audio:cat-aura-blast, and audio:ko-burst planned."
+      - "Existing procedural audio is in src/game/audio.ts and is routed from src/game/MeowtalArenaScene.ts."
+      - "Existing procedural hit/block effects are in src/game/effects.ts and rendered by src/game/MeowtalArenaScene.ts."
+      - "Do not call external providers, use secrets, download audio, or add generated binary assets."
+    allowed_files:
+      - "src/game/audio.ts"
+      - "src/game/MeowtalArenaScene.ts"
+      - "src/game/effects.ts"
+      - "src/assets/meowtalProductionManifest.ts"
+      - "test/presentation.test.ts"
+      - "test/combat-effects.test.ts"
+      - "test/meowtal-production-manifest.test.ts"
+      - "docs/assets/meowtal-kombat-provenance.md"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+    verify:
+      - "npm run typecheck"
+      - "npm test -- --run test/presentation.test.ts test/combat-effects.test.ts test/meowtal-production-manifest.test.ts"
+      - "npm run verify"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/meowtal-audio-damage-t119"
+      - "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+      - "git diff --check"
+    stop_if:
+      - "Requires new image/audio generation, external downloads, provider calls, secrets, dependencies, package-lock changes, or binary generated assets."
+      - "Requires changing core combat rules, frame data, shell flow semantics, fighter assets, stage assets, or generated UI images."
+      - "Damage-number popups obscure fighter readability, HUD readability, or mobile/touch controls after one repair attempt."
+      - "Browser audio policy prevents cues from being routed through the existing unlock/play model."
       - "Verification fails twice for the same reason."
     receipt: null
   - id: T005

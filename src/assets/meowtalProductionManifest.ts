@@ -218,23 +218,23 @@ const generatedUiSurfaceOutputCandidatePaths: Readonly<Partial<Record<MeowtalVis
 
 const generatedUiSurfaceQaNotes: Readonly<Partial<Record<MeowtalVisualSurfaceId, string>>> = {
   "logo-title-mark":
-    "Approved runtime UI asset: readable original MEOWTAL KOMBAT title mark with rabbit-ear and cat-tail motifs, transparent alpha, no copied branding, watermark, or brand marks. Approved by T095 visual QA and promoted by T096; not yet routed into scene rendering.",
+    "Approved runtime UI asset: readable original MEOWTAL KOMBAT title mark with rabbit-ear and cat-tail motifs, transparent alpha, no copied branding, watermark, or brand marks. Approved by T095 visual QA, promoted by T096, and routed into scene rendering by T100.",
   "hud-frame":
-    "Approved runtime UI asset: top HUD frame with left/right health housings and center timer medallion, transparent alpha, no text, portraits, copied branding, watermark, or brand marks. Approved by T095 visual QA and promoted by T096; not yet routed into scene rendering.",
+    "Approved runtime UI asset: top HUD frame with left/right health housings and center timer medallion, transparent alpha, no text, portraits, copied branding, watermark, or brand marks. Approved by T095 visual QA, promoted by T096, and routed into scene rendering by T100.",
   "rabbit-portrait":
-    "Approved runtime UI asset: Gray Rabbit HUD portrait medallion derived from approved transparent idle sprite to preserve upright two-legged identity and proportions, transparent alpha, no text, copied branding, watermark, or brand marks. Approved by T098 visual QA and promoted by T099; not yet routed into scene rendering.",
+    "Approved runtime UI asset: Gray Rabbit HUD portrait medallion derived from approved transparent idle sprite to preserve upright two-legged identity and proportions, transparent alpha, no text, copied branding, watermark, or brand marks. Approved by T098 visual QA, promoted by T099, and routed into scene rendering by T100.",
   "cat-portrait":
-    "Approved runtime UI asset: Ginger Tabby Cat HUD portrait medallion derived from approved transparent idle sprite to preserve upright two-legged identity and proportions, transparent alpha, no text, copied branding, watermark, or brand marks. Approved by T098 visual QA and promoted by T099; not yet routed into scene rendering.",
+    "Approved runtime UI asset: Ginger Tabby Cat HUD portrait medallion derived from approved transparent idle sprite to preserve upright two-legged identity and proportions, transparent alpha, no text, copied branding, watermark, or brand marks. Approved by T098 visual QA, promoted by T099, and routed into scene rendering by T100.",
   "health-bar-rabbit":
-    "Approved runtime UI asset: red rabbit-side health bar treatment with transparent alpha, no text, portraits, copied branding, watermark, or brand marks. Approved by T095 visual QA and promoted by T096; not yet routed into scene rendering.",
+    "Approved runtime UI asset: red rabbit-side health bar treatment with transparent alpha, no text, portraits, copied branding, watermark, or brand marks. Approved by T095 visual QA, promoted by T096, and routed into scene rendering by T100.",
   "health-bar-cat":
-    "Approved runtime UI asset: blue cat-side health bar treatment with transparent alpha, no text, portraits, copied branding, watermark, or brand marks. Approved by T095 visual QA and promoted by T096; not yet routed into scene rendering.",
+    "Approved runtime UI asset: blue cat-side health bar treatment with transparent alpha, no text, portraits, copied branding, watermark, or brand marks. Approved by T095 visual QA, promoted by T096, and routed into scene rendering by T100.",
   "super-meter":
-    "Approved runtime UI asset: bottom special/super meter bar with gold/obsidian trim and green/yellow segmented energy fill, transparent alpha, no text, copied branding, watermark, or brand marks. Approved by T098 visual QA and promoted by T099; not yet routed into scene rendering.",
+    "Approved runtime UI asset: bottom special/super meter bar with gold/obsidian trim and green/yellow segmented energy fill, transparent alpha, no text, copied branding, watermark, or brand marks. Approved by T098 visual QA, promoted by T099, and routed into scene rendering by T100.",
   "timer-frame":
-    "Approved runtime UI asset: circular center timer frame with transparent alpha, no numbers, copied branding, watermark, or brand marks. Approved by T095 visual QA and promoted by T096; not yet routed into scene rendering.",
+    "Approved runtime UI asset: circular center timer frame with transparent alpha, no numbers, copied branding, watermark, or brand marks. Approved by T095 visual QA, promoted by T096, and routed into scene rendering by T100.",
   "fight-ko-victory-overlays":
-    "Approved runtime UI asset: FIGHT, K.O., Rabbit Wins, and Tabby Wins overlay sheet with crisp local lettering, transparent alpha, no copied branding, watermark, or brand marks. Approved by T095 visual QA and promoted by T096; not yet routed into scene rendering.",
+    "Approved runtime UI asset: FIGHT, K.O., Rabbit Wins, and Tabby Wins overlay sheet with crisp local lettering, transparent alpha, no copied branding, watermark, or brand marks. Approved by T095 visual QA, promoted by T096, and routed into scene rendering by T100.",
 };
 
 const generatedUiSurfaceTransformNotes: Readonly<Partial<Record<MeowtalVisualSurfaceId, readonly string[]>>> = {
@@ -274,6 +274,144 @@ const generatedUiSurfaceTransformNotes: Readonly<Partial<Record<MeowtalVisualSur
     "Generated blank overlay panels with Codex built-in imagegen on magenta chroma-key background.",
     "Removed chroma-key background to alpha, resized to 1024x576, and added crisp local FIGHT/K.O./victory lettering for readability.",
   ],
+};
+
+const proceduralUiSurfaceDetails: Readonly<
+  Partial<
+    Record<
+      MeowtalVisualSurfaceId,
+      {
+        sourcePath: string;
+        runtimePath: string;
+        transforms: readonly string[];
+        approvalNotes: string;
+      }
+    >
+  >
+> = {
+  "title-key-art": {
+    sourcePath: "src/game/MeowtalArenaScene.ts",
+    runtimePath: "src/game/MeowtalArenaScene.ts",
+    transforms: [
+      "Composed at runtime from approved parallax stage layers, approved Meowtal logo/title art, and approved idle fighter sprites.",
+      "Uses Phaser scene placement and procedural frames instead of a separate static title-key-art bitmap.",
+    ],
+    approvalNotes:
+      "Approved procedural runtime surface: title and select key-art presentation is implemented by the Meowtal scene composition, with approved logo art and upright two-legged fighter sprites visible in the shell. Verified by T100-T103 and smoke evidence from T111/T115.",
+  },
+  "pause-options-panel": {
+    sourcePath: "src/game/MeowtalArenaScene.ts",
+    runtimePath: "src/game/MeowtalArenaScene.ts",
+    transforms: [
+      "Rendered at runtime through Phaser Graphics in drawPauseOptionsPanel.",
+      "Uses approved Meowtal palette, readable modal layout, and existing shell overlay depth.",
+    ],
+    approvalNotes:
+      "Approved procedural runtime surface: pause/options/rematch panel is implemented as an owned Phaser Graphics overlay and verified for desktop/mobile readability by T102.",
+  },
+  "touch-controls": {
+    sourcePath: "src/game/touchControls.ts",
+    runtimePath: "src/game/MeowtalArenaScene.ts",
+    transforms: [
+      "Defines phone portrait, phone landscape, and standard touch zones in code.",
+      "Renders labels, fills, strokes, active states, safe spacing, and pause-safe controls through Phaser Graphics.",
+    ],
+    approvalNotes:
+      "Approved procedural runtime surface: mobile touch controls are owned code assets with no external art dependency, verified by T106-T107 and smoke-tested on portrait and landscape phone viewports.",
+  },
+  "loading-fallback": {
+    sourcePath: "src/game/MeowtalArenaScene.ts",
+    runtimePath: "src/game/MeowtalArenaScene.ts",
+    transforms: [
+      "Keeps procedural stage, HUD, and fighter fallback rendering paths available if image textures are unavailable.",
+      "Production smoke verifies the approved generated runtime assets load, while fallback paths remain graceful instead of blank.",
+    ],
+    approvalNotes:
+      "Approved procedural runtime surface: loading/fallback presentation is implemented by owned canvas fallback rendering and runtime readiness text, with production smoke reporting no missing runtime UI or stage/fighter fallbacks.",
+  },
+  "particle-atlas": {
+    sourcePath: "src/game/effects.ts",
+    runtimePath: "src/game/MeowtalArenaScene.ts",
+    transforms: [
+      "Creates hit/block effect descriptors from combat events.",
+      "Draws impact sparks, block rings, action trails, aura flashes, screen flash, and camera shake procedurally at runtime instead of using a bitmap particle atlas.",
+    ],
+    approvalNotes:
+      "Approved procedural runtime surface: hit sparks, block flashes, special/super trails, impact flashes, and shake are implemented as owned code-driven effects. No external particle atlas is required for the current production scope.",
+  },
+};
+
+const plannedVisualSurfaceBlockers: Readonly<Partial<Record<MeowtalVisualSurfaceId, string>>> = {
+  "damage-number-style":
+    "Floating per-hit damage-number popups are not implemented yet; the current combo damage readout is useful but does not satisfy the planned popping damage-number surface.",
+};
+
+const implementedAudioCueDetails: Readonly<
+  Partial<
+    Record<
+      MeowtalAudioCueId,
+      {
+        sourcePath: string;
+        runtimePath: string;
+        transforms: readonly string[];
+        approvalNotes: string;
+      }
+    >
+  >
+> = {
+  "music-loop": {
+    sourcePath: "src/game/audio.ts",
+    runtimePath: "src/game/audio.ts",
+    transforms: [
+      "Synthesizes a low-volume looping fight phrase through WebAudio oscillators after browser audio unlock.",
+      "Does not download, embed, or license external music.",
+    ],
+    approvalNotes:
+      "Approved procedural runtime audio: ArenaAudio.startMusicLoop and playMusicPhrase synthesize the current fight music loop as an owned WebAudio cue.",
+  },
+  "ui-confirm": {
+    sourcePath: "src/game/audio.ts",
+    runtimePath: "src/game/MeowtalArenaScene.ts",
+    transforms: [
+      "Maps start, reset, pause, fullscreen, and shell confirm actions to the procedural ui-confirm cue.",
+      "Synthesizes a short two-tone confirmation tick through WebAudio oscillators.",
+    ],
+    approvalNotes:
+      "Approved procedural runtime audio: UI confirm/select feedback is implemented and routed through the Meowtal scene shell.",
+  },
+  "block-impact": {
+    sourcePath: "src/game/audio.ts",
+    runtimePath: "src/game/MeowtalArenaScene.ts",
+    transforms: [
+      "Maps block combat events to the procedural block cue.",
+      "Synthesizes a short noise burst plus tonal clack through WebAudio.",
+    ],
+    approvalNotes:
+      "Approved procedural runtime audio: block-impact is implemented through audioCueForCombatEvents and ArenaAudio.play('block').",
+  },
+  "victory-sting": {
+    sourcePath: "src/game/audio.ts",
+    runtimePath: "src/game/MeowtalArenaScene.ts",
+    transforms: [
+      "Maps match-over transitions to the procedural match-over cue.",
+      "Synthesizes a short three-tone victory sting through WebAudio oscillators.",
+    ],
+    approvalNotes:
+      "Approved procedural runtime audio: victory-sting is implemented through audioCueForMatchTransition and ArenaAudio.play('match-over').",
+  },
+};
+
+const plannedAudioCueBlockers: Readonly<Partial<Record<MeowtalAudioCueId, string>>> = {
+  "fight-announcer":
+    "No distinct FIGHT announcer/stinger audio is routed yet; the visual FIGHT overlay exists but audio needs a narrow implementation slice.",
+  "hit-light":
+    "The current runtime has one shared hit cue, not a distinct light-hit cue with production approval.",
+  "hit-heavy":
+    "The current runtime has one shared hit cue, not a distinct heavy-hit cue with production approval.",
+  "dash-whoosh": "Dash and hop movement do not yet trigger a distinct procedural whoosh cue.",
+  "rabbit-tornado": "Rabbit tornado special does not yet trigger a distinct procedural special audio cue.",
+  "cat-aura-blast": "Cat special does not yet trigger a distinct procedural aura/blast audio cue.",
+  "ko-burst": "Round-over audio exists, but no over-the-top K.O. burst cue is implemented and approved yet.",
 };
 
 const canonicalSheetSourcePaths: Readonly<Record<MeowtalFighterId, string>> = {
@@ -619,17 +757,17 @@ export const meowtalProductionManifest: MeowtalProductionManifest = {
     visualSurface("damage-number-style", "Damage number typography/style sprites or procedural style source."),
   ],
   audioCues: [
-    audioCue("music-loop", "Short arcade fight music loop for the courtyard match.", "manual"),
+    audioCue("music-loop", "Short arcade fight music loop for the courtyard match.", "procedural"),
     audioCue("ui-confirm", "Menu confirm and select tick.", "procedural"),
-    audioCue("fight-announcer", "FIGHT announcement voice or stylized bark.", "elevenlabs-sound-generation"),
+    audioCue("fight-announcer", "FIGHT announcement voice or stylized bark.", "procedural"),
     audioCue("hit-light", "Light hit impact.", "procedural"),
     audioCue("hit-heavy", "Heavy impact with hitstop punch.", "procedural"),
     audioCue("block-impact", "Guard impact clack.", "procedural"),
     audioCue("dash-whoosh", "Dash and hop movement whoosh.", "procedural"),
-    audioCue("rabbit-tornado", "Rabbit tornado special spin.", "elevenlabs-sound-generation"),
-    audioCue("cat-aura-blast", "Cat aura projectile or flip-kick special.", "elevenlabs-sound-generation"),
-    audioCue("ko-burst", "K.O. burst and particle explosion.", "elevenlabs-sound-generation"),
-    audioCue("victory-sting", "Short victory sting.", "elevenlabs-sound-generation"),
+    audioCue("rabbit-tornado", "Rabbit tornado special spin.", "procedural"),
+    audioCue("cat-aura-blast", "Cat aura projectile or flip-kick special.", "procedural"),
+    audioCue("ko-burst", "K.O. burst and particle explosion.", "procedural"),
+    audioCue("victory-sting", "Short victory sting.", "procedural"),
   ],
 };
 
@@ -689,7 +827,53 @@ export function validateMeowtalProductionManifest(
         }
       }
     } else if (surface.provenance.status !== "planned") {
-      errors.push(`${surface.provenance.assetId}: out-of-scope UI surface should remain planned.`);
+      const proceduralSurface = proceduralUiSurfaceDetails[surface.id];
+      if (proceduralSurface) {
+        if (surface.provenance.status !== "approved") {
+          errors.push(`${surface.provenance.assetId}: procedural UI surface should be approved after T118.`);
+        }
+        if (surface.provenance.sourceKind !== "procedural") {
+          errors.push(`${surface.provenance.assetId}: procedural UI surface should use procedural sourceKind.`);
+        }
+        if (surface.provenance.sourcePath !== proceduralSurface.sourcePath) {
+          errors.push(`${surface.provenance.assetId}: procedural UI surface requires the implementation source path.`);
+        }
+        if (surface.provenance.runtimePath !== proceduralSurface.runtimePath) {
+          errors.push(`${surface.provenance.assetId}: procedural UI surface requires the implementation runtime path.`);
+        }
+        if (surface.provenance.license.kind !== "procedural-owned") {
+          errors.push(`${surface.provenance.assetId}: procedural UI surface should use procedural-owned license.`);
+        }
+      } else {
+        errors.push(`${surface.provenance.assetId}: out-of-scope UI surface should remain planned.`);
+      }
+    } else if (!plannedVisualSurfaceBlockers[surface.id]) {
+      errors.push(`${surface.provenance.assetId}: planned UI surface requires an explicit remaining-gap blocker.`);
+    }
+  }
+
+  for (const cue of manifest.audioCues) {
+    const implementedCue = implementedAudioCueDetails[cue.id];
+    if (implementedCue) {
+      if (cue.provenance.status !== "approved") {
+        errors.push(`${cue.provenance.assetId}: implemented audio cue should be approved after T118.`);
+      }
+      if (cue.provenance.sourceKind !== "procedural") {
+        errors.push(`${cue.provenance.assetId}: implemented audio cue should use procedural sourceKind.`);
+      }
+      if (cue.provenance.sourcePath !== implementedCue.sourcePath) {
+        errors.push(`${cue.provenance.assetId}: implemented audio cue requires the implementation source path.`);
+      }
+      if (cue.provenance.runtimePath !== implementedCue.runtimePath) {
+        errors.push(`${cue.provenance.assetId}: implemented audio cue requires the implementation runtime path.`);
+      }
+      if (cue.provenance.license.kind !== "procedural-owned") {
+        errors.push(`${cue.provenance.assetId}: implemented audio cue should use procedural-owned license.`);
+      }
+    } else if (cue.provenance.status !== "planned") {
+      errors.push(`${cue.provenance.assetId}: unimplemented audio cue should remain planned.`);
+    } else if (!plannedAudioCueBlockers[cue.id]) {
+      errors.push(`${cue.provenance.assetId}: planned audio cue requires an explicit remaining-gap blocker.`);
     }
   }
 
@@ -1419,6 +1603,16 @@ function ownedGeneratedImageLicense(summary: string): AssetLicense {
   };
 }
 
+function ownedProceduralLicense(summary: string): AssetLicense {
+  return {
+    kind: "procedural-owned",
+    summary,
+    sourceUrl: null,
+    attribution: null,
+    checkedOn: generatedOn,
+  };
+}
+
 function visualSurface(id: MeowtalVisualSurfaceId, role: string): MeowtalVisualSurfacePlan {
   const generatedSourcePath = generatedUiSurfaceSourcePaths[id];
   if (generatedSourcePath) {
@@ -1429,6 +1623,15 @@ function visualSurface(id: MeowtalVisualSurfaceId, role: string): MeowtalVisualS
     };
   }
 
+  const proceduralSurface = proceduralUiSurfaceDetails[id];
+  if (proceduralSurface) {
+    return {
+      id,
+      role,
+      provenance: approvedProceduralUiSurfaceProvenance(id, role, proceduralSurface),
+    };
+  }
+
   return {
     id,
     role,
@@ -1436,7 +1639,7 @@ function visualSurface(id: MeowtalVisualSurfaceId, role: string): MeowtalVisualS
       assetId: `ui:${id}`,
       promptSlug: `meowtal-ui-${id}`,
       prompt: `Create the ${id} visual surface for Meowtal Kombat. ${role} Keep it original, readable, arcade-polished, and free of copied fighting-game branding.`,
-      blocker: binaryBlocker,
+      blocker: plannedVisualSurfaceBlockers[id] ?? binaryBlocker,
     }),
   };
 }
@@ -1460,7 +1663,7 @@ function approvedUiSurfaceProvenance(
     runtimePath: runtimePath ?? null,
     license: ownedGeneratedImageLicense(
       isApproved
-        ? "Generated with Codex built-in imagegen for this project; approved as a runtime UI asset but not yet routed into scene rendering."
+        ? "Generated with Codex built-in imagegen for this project; approved as a runtime UI asset and routed into scene rendering by T100."
         : "Generated or derived from Codex imagegen source material for this project; source-only UI candidate pending visual QA and runtime promotion.",
     ),
     createdOrDownloadedOn: generatedOn,
@@ -1472,7 +1675,62 @@ function approvedUiSurfaceProvenance(
   };
 }
 
+function approvedProceduralUiSurfaceProvenance(
+  id: MeowtalVisualSurfaceId,
+  role: string,
+  details: NonNullable<(typeof proceduralUiSurfaceDetails)[MeowtalVisualSurfaceId]>,
+): AssetProvenance {
+  return {
+    ...imageProvenance({
+      assetId: `ui:${id}`,
+      promptSlug: `meowtal-ui-${id}`,
+      prompt: `Implement the ${id} visual surface for Meowtal Kombat as an owned procedural runtime surface. ${role} Keep it readable, original, arcade-polished, and free of copied fighting-game branding.`,
+      status: "approved",
+      blocker: "",
+    }),
+    sourceKind: "procedural",
+    provider: providerFor("procedural"),
+    sourcePath: details.sourcePath,
+    runtimePath: details.runtimePath,
+    license: ownedProceduralLicense(
+      "Implemented as owned procedural Phaser/Web canvas rendering for this project; no external image asset, copied branding, watermark, or third-party art is used.",
+    ),
+    createdOrDownloadedOn: generatedOn,
+    transforms: details.transforms,
+    approvalNotes: details.approvalNotes,
+    blocker: null,
+  };
+}
+
 function audioCue(id: MeowtalAudioCueId, role: string, sourceKind: AssetSourceKind): MeowtalAudioCuePlan {
+  const implementedCue = implementedAudioCueDetails[id];
+  if (implementedCue) {
+    return {
+      id,
+      role,
+      provenance: {
+        ...baseProvenance({
+          assetId: `audio:${id}`,
+          sourceKind: "procedural",
+          promptSlug: `meowtal-audio-${id}`,
+          prompt: `Implement or synthesize ${id} for Meowtal Kombat as an owned procedural runtime audio cue. ${role}`,
+          status: "approved",
+          blocker: "",
+        }),
+        medium: "audio",
+        sourcePath: implementedCue.sourcePath,
+        runtimePath: implementedCue.runtimePath,
+        license: ownedProceduralLicense(
+          "Implemented as owned procedural WebAudio synthesis for this project; no external audio file, provider voice, sample pack, or third-party music is used.",
+        ),
+        createdOrDownloadedOn: generatedOn,
+        transforms: implementedCue.transforms,
+        approvalNotes: implementedCue.approvalNotes,
+        blocker: null,
+      },
+    };
+  }
+
   return {
     id,
     role,
@@ -1482,7 +1740,7 @@ function audioCue(id: MeowtalAudioCueId, role: string, sourceKind: AssetSourceKi
         sourceKind,
         promptSlug: `meowtal-audio-${id}`,
         prompt: `Create or synthesize ${id} for Meowtal Kombat. ${role}`,
-        blocker: binaryBlocker,
+        blocker: plannedAudioCueBlockers[id] ?? binaryBlocker,
       }),
       medium: "audio",
     },
