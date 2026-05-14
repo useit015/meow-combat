@@ -85,7 +85,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T100
+active_task: T101
 
 tasks:
   - id: T000
@@ -5105,7 +5105,7 @@ tasks:
   - id: T100
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: low
     objective: "Route only the approved Meowtal in-fight UI runtime assets into the playable scene shell: HUD frame, health bars, timer frame, portraits, super meter, and fight/K.O./victory overlays. Do not generate new assets and do not change gameplay/combat, fighter assets, stage assets, audio, or particle logic."
     inputs:
@@ -5132,6 +5132,74 @@ tasks:
       - "Reintroduces Atlas/Viper runtime content."
       - "Browser smoke shows missing UI assets, runtime fallbacks, unreadable overlays, overlap regressions, or console/page errors."
       - "The approved UI assets cannot be loaded/rendered without broad scene rearchitecture."
+    receipt:
+      result: done
+      summary: "Routed the nine approved Meowtal runtime UI assets into the playable scene shell without generating assets or changing gameplay/combat, fighter assets, stage assets, audio, or particle logic. The scene now preloads configured UI assets, renders cropped HUD/logo/portrait/health/timer/super/overlay art, preserves live procedural health/timer/meter fills over the approved frames, exposes runtime UI readiness and visible-slot telemetry, and suppresses old shell panels where victory overlay art owns the moment."
+      changed_files:
+        - "src/game/gameConfig.ts"
+        - "src/game/MoroccanArenaScene.ts"
+        - "test/asset-runtime.test.ts"
+        - "test/game-config.test.ts"
+      commands:
+        - cmd: "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+          status: pass
+        - cmd: "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-update.mjs --json"
+          status: pass
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm test -- --run test/asset-runtime.test.ts test/game-config.test.ts test/presentation.test.ts"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "Direct Playwright smoke for ready/select/fight and ?demo=win"
+          status: pass
+      evidence:
+        - "output/web-game/meowtal-ui-direct/ready.png"
+        - "output/web-game/meowtal-ui-direct/select.png"
+        - "output/web-game/meowtal-ui-direct/fight.png"
+        - "output/web-game/meowtal-ui-direct/victory.png"
+        - "output/web-game/meowtal-ui-direct/ready.json"
+        - "output/web-game/meowtal-ui-direct/select.json"
+        - "output/web-game/meowtal-ui-direct/fight.json"
+        - "output/web-game/meowtal-ui-direct/victory.json"
+      judge:
+        decision: approve
+        agent: "019e27e4-6193-7383-aedb-efd8805fb696"
+        summary: "Judge approved T100: the diff stays within expected implementation/test files, routes only the approved nine runtime UI PNGs, exposes UI readiness/visible-slot telemetry, and passes typecheck, targeted tests, full verify, production build, and Playwright smoke."
+      notes:
+        - "Smoke states showed runtimeUi.allLoaded true, missingUi empty, and no console/page errors."
+        - "Ready/select showed the title-logo slot; fight showed HUD frame, portraits, health bars, super meter, timer frame, and fight overlay; victory showed rabbit-win-overlay."
+        - "Residual risk: K.O. overlay and cat victory overlay need a separate screenshot-smoke/polish pass."
+  - id: T101
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: low
+    objective: "Polish and verify routed Meowtal UI edge cases without new assets: K.O. overlay, both victory overlays, timer/health/super depletion readability, and desktop/mobile viewport fit. Keep this as a presentation/QA slice only."
+    inputs:
+      - "T100 runtime UI routing receipt and Judge approval"
+      - "Approved runtime UI assets already loaded through game config"
+      - "Smoke artifacts under output/web-game/meowtal-ui-direct"
+    allowed_files:
+      - "src/game/gameConfig.ts"
+      - "src/game/MoroccanArenaScene.ts"
+      - "src/style.css"
+      - "src/main.ts"
+      - "test/asset-runtime.test.ts"
+      - "test/game-config.test.ts"
+      - "test/presentation.test.ts"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+    verify:
+      - "npm run typecheck"
+      - "npm test -- --run test/asset-runtime.test.ts test/game-config.test.ts test/presentation.test.ts"
+      - "npm run verify"
+      - "Browser/Playwright smoke: ready/select/fight/K.O./rabbit-victory/cat-victory at desktop and at least one mobile-sized viewport should show approved UI assets, no missing assets, no runtime fallbacks, no console/page errors, and readable non-overlapping HUD/overlays."
+    stop_if:
+      - "Requires generating, editing, or promoting additional UI assets."
+      - "Touches fighter assets, stage assets, audio, particle files, combat/gameplay logic, frame data, or animation rows."
+      - "Reintroduces Atlas/Viper runtime content."
+      - "Viewport or overlay issues require broad shell/layout rearchitecture beyond this narrow UI presentation slice."
+      - "Browser smoke shows missing UI assets, runtime fallbacks, unreadable overlays, overlap regressions, or console/page errors after one scoped fix attempt."
     receipt: null
   - id: T005
     type: worker

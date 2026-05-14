@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import {
   meowtalFighterAssetManifests,
   meowtalStageAssetManifests,
@@ -11,6 +13,7 @@ import {
   stageLayerAssetKey,
   type FighterAssetManifest,
 } from "../src/assets";
+import { meowtalKombatConfig } from "../src/game/gameConfig";
 
 const rabbitManifest = manifestById("gray-rabbit");
 const catManifest = manifestById("ginger-tabby-cat");
@@ -212,6 +215,13 @@ describe("asset runtime resolver", () => {
       expect(layer.assetKey).toBe(stageLayerAssetKey("meowtal-courtyard", layer.layerId));
       expect(layer.outputPath).toBe(`/assets/generated/stages/meowtal-courtyard/${layer.layerId}.png`);
       expect(layer.sourceStatus).toBe("approved");
+    }
+  });
+
+  it("points every routed Meowtal UI asset at an existing runtime PNG", () => {
+    for (const asset of meowtalKombatConfig.runtimeUiAssets) {
+      expect(asset.path).toMatch(/^\/assets\/generated\/ui\/meowtal\/.+\.png$/);
+      expect(existsSync(join(process.cwd(), "public", asset.path))).toBe(true);
     }
   });
 });

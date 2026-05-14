@@ -29,6 +29,8 @@ import { effectsFromSnapshot, tickCombatEffects, type CombatEffect } from "./eff
 import {
   meowtalKombatConfig,
   nextCpuDifficultyFromConfig,
+  type RuntimeUiAssetConfig,
+  type RuntimeUiAssetId,
   selectedFighterFromConfig,
   versionedAssetFromConfig,
 } from "./gameConfig";
@@ -39,6 +41,30 @@ import { selectSpritePose } from "./spriteFrame";
 type KeyMap = Record<string, Phaser.Input.Keyboard.Key>;
 type ImpactFlash = { color: number; alpha: number; remainingFrames: number; totalFrames: number };
 type StageLayerImage = { layer: StageRuntimeLayer; image: Phaser.GameObjects.Image };
+type RuntimeUiImageSlot =
+  | "title-logo"
+  | "hud-frame"
+  | "rabbit-portrait"
+  | "cat-portrait"
+  | "health-bar-rabbit"
+  | "health-bar-cat"
+  | "super-meter"
+  | "timer-frame"
+  | "fight-overlay"
+  | "ko-overlay"
+  | "rabbit-win-overlay"
+  | "cat-win-overlay";
+type UiCrop = { x: number; y: number; width: number; height: number };
+type RuntimeUiImageSpec = {
+  slot: RuntimeUiImageSlot;
+  assetId: RuntimeUiAssetId;
+  crop: UiCrop;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  depth: number;
+};
 const GAME_CONFIG = meowtalKombatConfig;
 const GAME_TITLE = GAME_CONFIG.title;
 const GAME_SUBTITLE = GAME_CONFIG.subtitle;
@@ -47,6 +73,129 @@ const FIGHTER_ASSET_MANIFESTS = GAME_CONFIG.fighterAssetManifests;
 const CONCEPT_SHEET = GAME_CONFIG.conceptSheet;
 const RUNTIME_SPRITESHEETS = GAME_CONFIG.runtimeSpritesheets;
 const RUNTIME_SPRITE_CELL_SIZE = GAME_CONFIG.runtimeSpriteCellSize;
+const RUNTIME_UI_ASSETS = GAME_CONFIG.runtimeUiAssets;
+const RUNTIME_UI_IMAGE_SPECS = [
+  {
+    slot: "title-logo",
+    assetId: "logo-title-mark",
+    crop: { x: 43, y: 106, width: 941, height: 381 },
+    x: 512,
+    y: 140,
+    width: 520,
+    height: 210,
+    depth: 96,
+  },
+  {
+    slot: "hud-frame",
+    assetId: "hud-frame",
+    crop: { x: 6, y: 24, width: 1010, height: 154 },
+    x: 512,
+    y: 80,
+    width: 1010,
+    height: 154,
+    depth: 82,
+  },
+  {
+    slot: "rabbit-portrait",
+    assetId: "rabbit-portrait",
+    crop: { x: 156, y: 0, width: 713, height: 576 },
+    x: 72,
+    y: 72,
+    width: 138,
+    height: 112,
+    depth: 85,
+  },
+  {
+    slot: "cat-portrait",
+    assetId: "cat-portrait",
+    crop: { x: 156, y: 0, width: 713, height: 576 },
+    x: 952,
+    y: 72,
+    width: 138,
+    height: 112,
+    depth: 85,
+  },
+  {
+    slot: "health-bar-rabbit",
+    assetId: "health-bar-rabbit",
+    crop: { x: 52, y: 189, width: 932, height: 156 },
+    x: 270,
+    y: 62,
+    width: 430,
+    height: 72,
+    depth: 84,
+  },
+  {
+    slot: "health-bar-cat",
+    assetId: "health-bar-cat",
+    crop: { x: 34, y: 219, width: 953, height: 131 },
+    x: 754,
+    y: 62,
+    width: 430,
+    height: 59,
+    depth: 84,
+  },
+  {
+    slot: "super-meter",
+    assetId: "super-meter",
+    crop: { x: 16, y: 222, width: 992, height: 137 },
+    x: 512,
+    y: 528,
+    width: 700,
+    height: 96,
+    depth: 82,
+  },
+  {
+    slot: "timer-frame",
+    assetId: "timer-frame",
+    crop: { x: 203, y: 23, width: 617, height: 531 },
+    x: 512,
+    y: 58,
+    width: 104,
+    height: 90,
+    depth: 86,
+  },
+  {
+    slot: "fight-overlay",
+    assetId: "fight-ko-victory-overlays",
+    crop: { x: 30, y: 17, width: 477, height: 271 },
+    x: 512,
+    y: 236,
+    width: 520,
+    height: 296,
+    depth: 96,
+  },
+  {
+    slot: "ko-overlay",
+    assetId: "fight-ko-victory-overlays",
+    crop: { x: 514, y: 24, width: 487, height: 264 },
+    x: 512,
+    y: 236,
+    width: 520,
+    height: 282,
+    depth: 96,
+  },
+  {
+    slot: "rabbit-win-overlay",
+    assetId: "fight-ko-victory-overlays",
+    crop: { x: 25, y: 288, width: 473, height: 231 },
+    x: 512,
+    y: 312,
+    width: 560,
+    height: 274,
+    depth: 96,
+  },
+  {
+    slot: "cat-win-overlay",
+    assetId: "fight-ko-victory-overlays",
+    crop: { x: 513, y: 288, width: 483, height: 230 },
+    x: 512,
+    y: 312,
+    width: 560,
+    height: 267,
+    depth: 96,
+  },
+] as const satisfies readonly RuntimeUiImageSpec[];
 
 export class MoroccanArenaScene extends Phaser.Scene {
   private selectedFighterIndex: Record<"p1" | "p2", number> = { ...GAME_CONFIG.defaultSelections };
@@ -76,6 +225,7 @@ export class MoroccanArenaScene extends Phaser.Scene {
   private effects: readonly CombatEffect[] = [];
   private impactFlash: ImpactFlash | null = null;
   private shellFrame = 0;
+  private shellPhaseFrame = 0;
   private keys!: KeyMap;
   private statusText!: Phaser.GameObjects.Text;
   private roundText!: Phaser.GameObjects.Text;
@@ -88,11 +238,13 @@ export class MoroccanArenaScene extends Phaser.Scene {
   private helpText!: Phaser.GameObjects.Text;
   private versusText!: Phaser.GameObjects.Text;
   private conceptPreviews!: Record<"p1" | "p2", Phaser.GameObjects.Image | null>;
+  private runtimeUiImages!: Record<RuntimeUiImageSlot, Phaser.GameObjects.Image>;
   private selectSprites!: Record<"p1" | "p2", Phaser.GameObjects.Sprite>;
   private fighterSprites!: Record<"p1" | "p2", Phaser.GameObjects.Sprite>;
   private stageLayerImages: StageLayerImage[] = [];
   private readonly graphicsKey = "arena-debug";
   private readonly effectsGraphicsKey = "arena-effects";
+  private readonly runtimeUiMeterGraphicsKey = "arena-runtime-ui-meters";
   private readonly stageRuntimeLayers = resolveStageRuntimeLayers(GAME_CONFIG.stage);
 
   constructor() {
@@ -107,6 +259,9 @@ export class MoroccanArenaScene extends Phaser.Scene {
       if (layer.kind === "image-layer" && layer.outputPath) {
         this.load.image(layer.assetKey, versionedAsset(layer.outputPath));
       }
+    }
+    for (const asset of RUNTIME_UI_ASSETS) {
+      this.load.image(asset.key, versionedAsset(asset.path));
     }
     for (const spritesheet of RUNTIME_SPRITESHEETS) {
       this.load.spritesheet(spritesheet.key, versionedAsset(spritesheet.path), {
@@ -151,12 +306,13 @@ export class MoroccanArenaScene extends Phaser.Scene {
     this.cameras.main.setBackgroundColor("#163936");
     this.statusText = this.add
       .text(512, 30, "", {
-        color: "#0b1817",
+        color: "#fff7df",
         fontFamily: "Inter, Arial, sans-serif",
-        fontSize: "18px",
-        fontStyle: "700",
+        fontSize: "22px",
+        fontStyle: "900",
       })
-      .setOrigin(0.5, 0);
+      .setOrigin(0.5, 0)
+      .setShadow(0, 2, "#000000", 4, true, true);
     this.statusText.setDepth(100);
     this.roundText = this.add
       .text(512, 78, "", {
@@ -255,6 +411,7 @@ export class MoroccanArenaScene extends Phaser.Scene {
       p1: this.createConceptPreview("p1"),
       p2: this.createConceptPreview("p2"),
     };
+    this.runtimeUiImages = this.createRuntimeUiImages();
     this.fighterSprites = {
       p1: this.add.sprite(0, 0, this.initialSpriteKey("p1"), 0).setOrigin(0.5, 1).setDepth(55).setVisible(false),
       p2: this.add.sprite(0, 0, this.initialSpriteKey("p2"), 0).setOrigin(0.5, 1).setDepth(55).setVisible(false),
@@ -307,6 +464,7 @@ export class MoroccanArenaScene extends Phaser.Scene {
       frame: this.snapshot.frame,
       timer: this.snapshot.roundTimer,
       shellPhase: this.shell.phase,
+      shellPhaseFrame: this.shellPhaseFrame,
       status: this.snapshot.status,
       winner: this.snapshot.winner,
       combo: this.snapshot.combo,
@@ -325,6 +483,19 @@ export class MoroccanArenaScene extends Phaser.Scene {
         p2: this.runtimeAssetFor("p2"),
       },
       stageRuntime: this.stageRuntimeLayers,
+      runtimeUi: {
+        allLoaded: this.canRenderRuntimeUi(),
+        overlaySlot: this.runtimeOverlaySlot(),
+        assets: RUNTIME_UI_ASSETS.map((asset) => ({
+          id: asset.id,
+          key: asset.key,
+          path: asset.path,
+          loaded: this.textures.exists(asset.key),
+        })),
+        visibleSlots: Object.entries(this.runtimeUiImages)
+          .filter(([, image]) => image.visible)
+          .map(([slot]) => slot),
+      },
       assetReadiness: this.assetReadiness,
       conceptArt: {
         key: CONCEPT_SHEET?.key ?? null,
@@ -424,6 +595,7 @@ export class MoroccanArenaScene extends Phaser.Scene {
     }
 
     this.shell = nextShell;
+    this.shellPhaseFrame = previousPhase === this.shell.phase ? this.shellPhaseFrame + 1 : 0;
 
     if (previousPhase === "select" && this.shell.phase === "fighting") {
       this.startSelectedMatch();
@@ -476,12 +648,15 @@ export class MoroccanArenaScene extends Phaser.Scene {
     }
     g.clear();
     const showFightLayer = this.shell.phase !== "ready" && this.shell.phase !== "select";
+    const runtimeUiReady = this.canRenderRuntimeUi();
     const stageImagesRendered = this.renderStageLayers(this.canRenderStageArt());
     if (!stageImagesRendered) {
       drawStage(g);
     }
     if (showFightLayer) {
-      drawHud(g, this.snapshot, this.matchSet);
+      if (!runtimeUiReady) {
+        drawHud(g, this.snapshot, this.matchSet);
+      }
       const p1SpriteRendered = this.renderFighterSprite("p1", this.runtimeAssetFor("p1"));
       const p2SpriteRendered = this.renderFighterSprite("p2", this.runtimeAssetFor("p2"));
       if (!p1SpriteRendered) {
@@ -494,8 +669,10 @@ export class MoroccanArenaScene extends Phaser.Scene {
       this.fighterSprites.p1.setVisible(false);
       this.fighterSprites.p2.setVisible(false);
     }
+    this.renderRuntimeUi(showFightLayer, runtimeUiReady);
+    this.renderRuntimeUiMeters(showFightLayer && runtimeUiReady);
     this.renderEffectOverlay(showFightLayer);
-    drawShellBackdrop(g, this.shell, stageImagesRendered);
+    drawShellBackdrop(g, this.shell, stageImagesRendered, runtimeUiReady);
     this.statusText.setText(hudCenterLabel(this.snapshot, this.matchSet));
     this.roundText.setText(roundLabel(this.matchSet));
     this.modeText.setText(this.p2CpuEnabled ? `P2 CPU ${this.cpuDifficulty.toUpperCase()}` : "P2 MANUAL");
@@ -513,6 +690,95 @@ export class MoroccanArenaScene extends Phaser.Scene {
     this.renderReadinessText();
     this.renderConceptArt();
     this.renderSelectSprites();
+  }
+
+  private createRuntimeUiImages(): Record<RuntimeUiImageSlot, Phaser.GameObjects.Image> {
+    return Object.fromEntries(
+      RUNTIME_UI_IMAGE_SPECS.map((spec) => {
+        const asset = runtimeUiAssetConfig(spec.assetId);
+        const image = this.add
+          .image(spec.x, spec.y, asset.key)
+          .setCrop(spec.crop.x, spec.crop.y, spec.crop.width, spec.crop.height)
+          .setDisplaySize(spec.width, spec.height)
+          .setDepth(spec.depth)
+          .setVisible(false);
+        return [spec.slot, image] as const;
+      }),
+    ) as Record<RuntimeUiImageSlot, Phaser.GameObjects.Image>;
+  }
+
+  private renderRuntimeUi(showFightLayer: boolean, runtimeUiReady: boolean): void {
+    for (const image of Object.values(this.runtimeUiImages)) {
+      image.setVisible(false);
+    }
+    if (!runtimeUiReady) return;
+
+    const logo = this.runtimeUiImages["title-logo"];
+    if (this.shell.phase === "ready") {
+      logo.setPosition(512, 140).setDisplaySize(520, 210).setVisible(true);
+    } else if (this.shell.phase === "select") {
+      logo.setPosition(512, 48).setDisplaySize(280, 113).setVisible(true);
+    }
+
+    if (showFightLayer) {
+      for (const slot of [
+        "hud-frame",
+        "rabbit-portrait",
+        "cat-portrait",
+        "health-bar-rabbit",
+        "health-bar-cat",
+        "super-meter",
+        "timer-frame",
+      ] as const) {
+        this.runtimeUiImages[slot].setVisible(true);
+      }
+    }
+
+    const overlaySlot = this.runtimeOverlaySlot();
+    if (overlaySlot) {
+      this.runtimeUiImages[overlaySlot].setVisible(true);
+    }
+  }
+
+  private renderRuntimeUiMeters(showRuntimeUi: boolean): void {
+    const graphics = this.children.getByName(this.runtimeUiMeterGraphicsKey) as Phaser.GameObjects.Graphics | null;
+    const g = graphics ?? this.add.graphics();
+    if (!graphics) {
+      g.setName(this.runtimeUiMeterGraphicsKey);
+      g.setDepth(88);
+    }
+
+    g.clear();
+    if (!showRuntimeUi) return;
+
+    drawRuntimeHudMeters(g, this.snapshot, this.matchSet);
+  }
+
+  private runtimeOverlaySlot(): RuntimeUiImageSlot | null {
+    if (this.shell.phase === "fighting" && this.snapshot.status === "fighting" && this.snapshot.frame < 72) {
+      return "fight-overlay";
+    }
+
+    if (this.shell.phase === "round-over" || this.shell.phase === "match-over") {
+      if (this.shellPhaseFrame < 54) return "ko-overlay";
+      if (!this.snapshot.winner || this.snapshot.winner === "draw") return "ko-overlay";
+      return this.victoryOverlaySlot(this.snapshot.winner);
+    }
+
+    if (this.shell.phase === "fighting" && this.snapshot.status === "round-over") {
+      return "ko-overlay";
+    }
+
+    return null;
+  }
+
+  private victoryOverlaySlot(winner: "p1" | "p2"): RuntimeUiImageSlot {
+    const winnerFighter = selectedFighter(this.selectedFighterIndex[winner]);
+    return winnerFighter.id === "gray-rabbit" ? "rabbit-win-overlay" : "cat-win-overlay";
+  }
+
+  private canRenderRuntimeUi(): boolean {
+    return RUNTIME_UI_ASSETS.length > 0 && RUNTIME_UI_ASSETS.every((asset) => this.textures.exists(asset.key));
   }
 
   private renderStageLayers(showFightLayer: boolean): boolean {
@@ -994,6 +1260,7 @@ export class MoroccanArenaScene extends Phaser.Scene {
 
   private primeWinDemo(): void {
     this.shell = { phase: "match-over" };
+    this.shellPhaseFrame = 72;
     this.matchSet = {
       ...this.matchSet,
       wins: { p1: this.matchSet.targetWins, p2: 0 },
@@ -1112,13 +1379,16 @@ export class MoroccanArenaScene extends Phaser.Scene {
   private renderShellText(): void {
     this.titleText.setText(shellTitle(this.shell, this.snapshot, this.matchSet));
     this.helpText.setText(shellHelp(this.shell, this.selectionLabel()));
+    this.titleText.setVisible(true);
     this.versusText.setVisible(this.shell.phase === "select");
+    this.helpText.setVisible(true);
     if (this.shell.phase === "fighting") {
       this.titleText.setPosition(512, 182);
       this.titleText.setFontSize(34);
       this.helpText.setPosition(512, 532);
       this.helpText.setFontSize(13);
       this.helpText.setAlpha(0.78);
+      this.helpText.setVisible(!this.canRenderRuntimeUi());
     } else if (this.shell.phase === "select") {
       this.titleText.setPosition(512, 132);
       this.titleText.setFontSize(30);
@@ -1126,9 +1396,12 @@ export class MoroccanArenaScene extends Phaser.Scene {
       this.helpText.setFontSize(15);
       this.helpText.setAlpha(1);
     } else if (this.shell.phase === "ready") {
+      if (this.canRenderRuntimeUi()) {
+        this.titleText.setText("");
+      }
       this.titleText.setPosition(512, 148);
       this.titleText.setFontSize(48);
-      this.helpText.setPosition(512, 264);
+      this.helpText.setPosition(512, this.canRenderRuntimeUi() ? 334 : 264);
       this.helpText.setFontSize(16);
       this.helpText.setAlpha(1);
     } else {
@@ -1137,6 +1410,15 @@ export class MoroccanArenaScene extends Phaser.Scene {
       this.helpText.setPosition(512, 258);
       this.helpText.setFontSize(18);
       this.helpText.setAlpha(1);
+    }
+
+    if (
+      (this.shell.phase === "round-over" || this.shell.phase === "match-over") &&
+      this.canRenderRuntimeUi() &&
+      this.runtimeOverlaySlot()
+    ) {
+      this.titleText.setVisible(false);
+      this.helpText.setVisible(false);
     }
   }
 
@@ -1328,6 +1610,14 @@ function selectedFighter(index: number) {
   return selectedFighterFromConfig(GAME_CONFIG, index);
 }
 
+function runtimeUiAssetConfig(id: RuntimeUiAssetId): RuntimeUiAssetConfig {
+  const asset = RUNTIME_UI_ASSETS.find((candidate) => candidate.id === id);
+  if (!asset) {
+    throw new Error(`Missing runtime UI asset config for ${id}.`);
+  }
+  return asset;
+}
+
 function selectSpritePlacement(shell: ShellState, player: "p1" | "p2"): { x: number; y: number; scale: number } {
   if (shell.phase === "ready") {
     return player === "p1"
@@ -1379,9 +1669,16 @@ function versionedAsset(path: string): string {
   return versionedAssetFromConfig(GAME_CONFIG, path);
 }
 
-function drawShellBackdrop(g: Phaser.GameObjects.Graphics, shell: ShellState, stageArtVisible: boolean): void {
+function drawShellBackdrop(
+  g: Phaser.GameObjects.Graphics,
+  shell: ShellState,
+  stageArtVisible: boolean,
+  runtimeUiVisible: boolean,
+): void {
   if (shell.phase === "fighting") {
-    g.fillStyle(0x0b1817, 0.52).fillRoundedRect(158, 512, 708, 36, 6);
+    if (!runtimeUiVisible) {
+      g.fillStyle(0x0b1817, 0.52).fillRoundedRect(158, 512, 708, 36, 6);
+    }
     return;
   }
   if (stageArtVisible) {
@@ -1394,6 +1691,10 @@ function drawShellBackdrop(g: Phaser.GameObjects.Graphics, shell: ShellState, st
     drawSelectionCard(g, 166, 228, 298, 264, 0x2ec4b6, "left");
     drawSelectionCard(g, 560, 228, 298, 264, 0xff9f1c, "right");
     drawVsMedallion(g, 512, 360);
+    return;
+  }
+  if ((shell.phase === "round-over" || shell.phase === "match-over") && runtimeUiVisible) {
+    g.fillStyle(0x071312, 0.26).fillRect(0, 0, 1024, 576);
     return;
   }
   drawTitlePortraitFrame(g, 42, 120, 244, 410, 0x2ec4b6);
@@ -1543,6 +1844,32 @@ function drawStage(g: Phaser.GameObjects.Graphics): void {
   g.lineStyle(4, 0x513b24, 1).strokeRect(64, 84, 896, 392);
 }
 
+function drawRuntimeHudMeters(g: Phaser.GameObjects.Graphics, snapshot: MatchSnapshot, matchSet: MatchSetState): void {
+  const p1Ratio = Phaser.Math.Clamp(snapshot.p1.health / 1000, 0, 1);
+  const p2Ratio = Phaser.Math.Clamp(snapshot.p2.health / 1000, 0, 1);
+  const p1PowerRatio = Phaser.Math.Clamp(snapshot.p1.meter / POWER_METER_MAX, 0, 1);
+  const p2PowerRatio = Phaser.Math.Clamp(snapshot.p2.meter / POWER_METER_MAX, 0, 1);
+
+  g.fillStyle(0x071312, 0.86).fillCircle(512, 56, 24);
+  g.fillStyle(0x31090b, 0.82).fillRoundedRect(112, 53, 326, 15, 2);
+  g.fillStyle(0xff3434, 0.98).fillRoundedRect(112, 53, 326 * p1Ratio, 15, 2);
+  g.fillStyle(0xfff1a8, 0.44).fillRect(116, 55, Math.max(0, 318 * p1Ratio), 3);
+
+  g.fillStyle(0x071a38, 0.82).fillRoundedRect(586, 53, 326, 15, 2);
+  g.fillStyle(0x338dff, 0.98).fillRoundedRect(912 - 326 * p2Ratio, 53, 326 * p2Ratio, 15, 2);
+  g.fillStyle(0xe2f1ff, 0.44).fillRect(908 - 318 * p2Ratio, 55, Math.max(0, 318 * p2Ratio), 3);
+
+  g.fillStyle(0x122617, 0.78).fillRoundedRect(250, 523, 224, 11, 2);
+  g.fillStyle(0xb7ff2d, 0.92).fillRoundedRect(250, 523, 224 * p1PowerRatio, 11, 2);
+  g.fillStyle(0x10243b, 0.78).fillRoundedRect(550, 523, 224, 11, 2);
+  g.fillStyle(0x4bdcff, 0.92).fillRoundedRect(774 - 224 * p2PowerRatio, 523, 224 * p2PowerRatio, 11, 2);
+
+  drawPowerStocks(g, 274, 542, snapshot.p1.meter, 1);
+  drawPowerStocks(g, 750, 542, snapshot.p2.meter, -1);
+  drawScorePips(g, 114, 88, matchSet.wins.p1, matchSet.targetWins, 0xff3434);
+  drawScorePips(g, 910, 88, matchSet.wins.p2, matchSet.targetWins, 0x338dff, -1);
+}
+
 function drawHud(g: Phaser.GameObjects.Graphics, snapshot: MatchSnapshot, matchSet: MatchSetState): void {
   const p1Ratio = snapshot.p1.health / 1000;
   const p2Ratio = snapshot.p2.health / 1000;
@@ -1552,8 +1879,8 @@ function drawHud(g: Phaser.GameObjects.Graphics, snapshot: MatchSnapshot, matchS
   g.lineStyle(1, 0xf2cf7d, 0.48).strokeRoundedRect(56, 18, 912, 76, 6);
   g.fillStyle(0x142522, 1).fillRoundedRect(100, 44, 338, 18, 2);
   g.fillStyle(0x142522, 1).fillRoundedRect(586, 44, 338, 18, 2);
-  g.fillStyle(0x2ec4b6, 1).fillRoundedRect(100, 44, 338 * p1Ratio, 18, 2);
-  g.fillStyle(0xff9f1c, 1).fillRoundedRect(924 - 338 * p2Ratio, 44, 338 * p2Ratio, 18, 2);
+  g.fillStyle(0xff3434, 1).fillRoundedRect(100, 44, 338 * p1Ratio, 18, 2);
+  g.fillStyle(0x338dff, 1).fillRoundedRect(924 - 338 * p2Ratio, 44, 338 * p2Ratio, 18, 2);
   g.fillStyle(0x0b1817, 1).fillRoundedRect(100, 64, 338, 7, 1);
   g.fillStyle(0x0b1817, 1).fillRoundedRect(586, 64, 338, 7, 1);
   g.fillStyle(0xfff1a8, 1).fillRoundedRect(100, 64, 338 * p1PowerRatio, 7, 1);
@@ -1562,8 +1889,8 @@ function drawHud(g: Phaser.GameObjects.Graphics, snapshot: MatchSnapshot, matchS
   drawPowerStocks(g, 580, 67, snapshot.p2.meter, -1);
   g.fillStyle(0xf2cf7d, 1).fillCircle(512, 54, 28);
   g.fillStyle(0x0b1817, 1).fillCircle(512, 54, 22);
-  drawScorePips(g, 104, 74, matchSet.wins.p1, matchSet.targetWins, 0x2ec4b6);
-  drawScorePips(g, 902, 74, matchSet.wins.p2, matchSet.targetWins, 0xff9f1c, -1);
+  drawScorePips(g, 104, 74, matchSet.wins.p1, matchSet.targetWins, 0xff3434);
+  drawScorePips(g, 902, 74, matchSet.wins.p2, matchSet.targetWins, 0x338dff, -1);
 }
 
 function drawPowerStocks(g: Phaser.GameObjects.Graphics, x: number, y: number, meter: number, direction: 1 | -1): void {

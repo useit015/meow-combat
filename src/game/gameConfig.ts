@@ -27,6 +27,23 @@ export interface RuntimeSpritesheetConfig {
   path: string;
 }
 
+export type RuntimeUiAssetId =
+  | "logo-title-mark"
+  | "hud-frame"
+  | "rabbit-portrait"
+  | "cat-portrait"
+  | "health-bar-rabbit"
+  | "health-bar-cat"
+  | "super-meter"
+  | "timer-frame"
+  | "fight-ko-victory-overlays";
+
+export interface RuntimeUiAssetConfig {
+  id: RuntimeUiAssetId;
+  key: string;
+  path: string;
+}
+
 export interface GameContentConfig {
   title: string;
   subtitle: string;
@@ -37,6 +54,7 @@ export interface GameContentConfig {
   conceptSheet: ConceptSheetConfig | null;
   runtimeSpritesheets: readonly RuntimeSpritesheetConfig[];
   runtimeSpriteCellSize: number;
+  runtimeUiAssets: readonly RuntimeUiAssetConfig[];
   assetVersion: string;
   stage: StageAssetManifest;
 }
@@ -51,6 +69,17 @@ export const meowtalKombatConfig: GameContentConfig = {
   conceptSheet: null,
   runtimeSpritesheets: runtimeSpritesheetsFor(meowtalFighterAssetManifests),
   runtimeSpriteCellSize: 256,
+  runtimeUiAssets: runtimeUiAssetsFor([
+    "logo-title-mark",
+    "hud-frame",
+    "rabbit-portrait",
+    "cat-portrait",
+    "health-bar-rabbit",
+    "health-bar-cat",
+    "super-meter",
+    "timer-frame",
+    "fight-ko-victory-overlays",
+  ]),
   assetVersion: "meowtal-courtyard-1",
   stage: meowtalStageAssetManifests[0] ?? stageAssetManifests[0],
 };
@@ -66,6 +95,18 @@ function runtimeSpritesheetsFor(manifests: readonly FighterAssetManifest[]): rea
       return { key: `${manifest.id}:${animation.id}`, path };
     }),
   );
+}
+
+function runtimeUiAssetsFor(ids: readonly RuntimeUiAssetId[]): readonly RuntimeUiAssetConfig[] {
+  return ids.map((id) => ({
+    id,
+    key: runtimeUiAssetKey(id),
+    path: `/assets/generated/ui/meowtal/${id}.png`,
+  }));
+}
+
+export function runtimeUiAssetKey(id: RuntimeUiAssetId): string {
+  return `meowtal-ui:${id}`;
 }
 
 export function selectedFighterFromConfig(config: GameContentConfig, index: number): FighterDefinition {

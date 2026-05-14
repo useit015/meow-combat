@@ -3,6 +3,7 @@ import { REQUIRED_FIGHTER_ANIMATIONS } from "../src/assets";
 import {
   meowtalKombatConfig,
   nextCpuDifficultyFromConfig,
+  runtimeUiAssetKey,
   selectedFighterFromConfig,
   versionedAssetFromConfig,
 } from "../src/game/gameConfig";
@@ -38,6 +39,26 @@ describe("game content config", () => {
     expect(versionedAssetFromConfig(meowtalKombatConfig, "/assets/generated/fighters/gray-rabbit/idle.png")).toBe(
       "/assets/generated/fighters/gray-rabbit/idle.png?v=meowtal-courtyard-1",
     );
+  });
+
+  it("routes the approved Meowtal runtime UI asset set through config", () => {
+    expect(meowtalKombatConfig.runtimeUiAssets.map((asset) => asset.id)).toEqual([
+      "logo-title-mark",
+      "hud-frame",
+      "rabbit-portrait",
+      "cat-portrait",
+      "health-bar-rabbit",
+      "health-bar-cat",
+      "super-meter",
+      "timer-frame",
+      "fight-ko-victory-overlays",
+    ]);
+    for (const asset of meowtalKombatConfig.runtimeUiAssets) {
+      expect(asset.key).toBe(runtimeUiAssetKey(asset.id));
+      expect(asset.path).toBe(`/assets/generated/ui/meowtal/${asset.id}.png`);
+      expect(asset.path).not.toContain("atlas");
+      expect(asset.path).not.toContain("viper");
+    }
   });
 
   it("includes a runtime spritesheet for each approved animation row", () => {
