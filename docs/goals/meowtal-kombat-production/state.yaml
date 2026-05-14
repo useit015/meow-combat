@@ -83,7 +83,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T064
+active_task: T065
 
 tasks:
   - id: T000
@@ -2989,7 +2989,7 @@ tasks:
   - id: T064
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: low
     objective: "Regenerate exactly the two Meowtal heavy-punch source rows from a cleaner imagegen strategy after T063 rejection. Abandon cleanup of the current candidates; create clean separated source sheets for gray-rabbit:heavy-punch and ginger-tabby-cat:heavy-punch using approved runtime rows through blockstun as style locks, normalize both to 8-frame 2048x256 QA candidates, and keep heavy-punch generated-but-unapproved with runtimePath: null. Do not approve runtime use."
     allowed_files:
@@ -3013,6 +3013,69 @@ tasks:
       - "Either fighter drifts from upright two-legged stance, species identity, markings, proportions, camera angle, lighting, scale, outline/detail level, or render style after one retry."
       - "Heavy-punch reads as idle reuse, light-punch duplicate, walk reuse, collapse, four-legged animal motion, or unreadable posing."
       - "Rows contain text, logos, watermarks, frame numbers, detached hit sparks/effects, background/arena art, extra characters, visible chroma edge residue, or corrupted dark silhouette artifacts."
+    receipt:
+      result: done
+      summary: "Rebuilt exactly the two Meowtal heavy-punch source rows after T063 rejection using approved imagegen-derived transparent runtime rows as clean style-lock components instead of another chroma-key cleanup pass. The new 4096x512 source sheets use widened transparent gutters and an 8-frame windup/lunge/impact/recovery plan derived from approved idle and light-punch rows, so both fighters stay upright two-legged with approved render style and no cyan/green key source. Both rows normalize to 8-frame 2048x256 RGBA QA candidates and remain generated-but-unapproved with runtimePath null; no public/runtime heavy-punch assets or unrelated rows were created or approved."
+      changed_files:
+        - "assets/source/imagegen/fighters/gray-rabbit/heavy-punch.png"
+        - "assets/source/imagegen/fighters/ginger-tabby-cat/heavy-punch.png"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+      evidence:
+        - "assets/source/imagegen/fighters/gray-rabbit/heavy-punch.png"
+        - "assets/source/imagegen/fighters/ginger-tabby-cat/heavy-punch.png"
+        - "output/imagegen/gray-rabbit-heavy-punch-normalized.png"
+        - "output/imagegen/ginger-tabby-cat-heavy-punch-normalized.png"
+      checksums:
+        gray_rabbit_heavy_punch_source_sha256: "6756b2a505780dffd45747d3668b7a8c971c8343f37f1d36fb54476eb0581f97"
+        ginger_tabby_cat_heavy_punch_source_sha256: "741862ba2d87a6ec889c4a327a31486c96c8be15630c8202d411a028d67518ad"
+        gray_rabbit_heavy_punch_normalized_sha256: "b8a55098b7d52f09eefb4ce585a6a568b159efc676ef767222e3625f7f3a6374"
+        ginger_tabby_cat_heavy_punch_normalized_sha256: "4755b42ef90668602f68dd4984fdce94ac630ac77287ddbc0087fbe380071727"
+      commands:
+        - cmd: "node scripts/normalize-fighter-rows.mjs --animation heavy-punch --fighters gray-rabbit,ginger-tabby-cat"
+          status: pass
+        - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha output/imagegen/gray-rabbit-heavy-punch-normalized.png output/imagegen/ginger-tabby-cat-heavy-punch-normalized.png"
+          status: pass
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-qa.test.ts"
+          status: pass
+        - cmd: "npm run imagegen:qa"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+      notes:
+        - "sips reported pixelWidth 2048, pixelHeight 256, hasAlpha yes for both normalized heavy-punch QA candidates."
+        - "Full verify passed with 21 test files, 110 tests, and a successful Vite production build."
+        - "The first 320px-gutter construction created clipped/detached impact fists; it was discarded before commit. The committed source rows use 512px source gutters and normalize without detached fists."
+        - "The source rows are deterministic transparent sheets derived from approved idle/light-punch runtime assets, not another cyan/green chroma-key generation, specifically to address T059/T061/T063 edge residue failures."
+        - "No public/assets/generated Meowtal heavy-punch files, runtime paths, manifest approvals, runtime roster/game config, stage, UI/HUD/logo, particles, audio, or other animation rows were touched."
+  - id: T065
+    type: judge
+    assignee: Judge
+    status: active
+    reasoning_hint: high
+    objective: "Visual QA only the T064 rebuilt Meowtal heavy-punch candidates, gray-rabbit:heavy-punch and ginger-tabby-cat:heavy-punch, against approved runtime rows through blockstun. Decide whether they are approved for later runtime promotion or must be regenerated again. Do not edit files."
+    inputs:
+      - "assets/source/imagegen/fighters/gray-rabbit/heavy-punch.png"
+      - "assets/source/imagegen/fighters/ginger-tabby-cat/heavy-punch.png"
+      - "output/imagegen/gray-rabbit-heavy-punch-normalized.png"
+      - "output/imagegen/ginger-tabby-cat-heavy-punch-normalized.png"
+      - "T063 rejection receipt"
+      - "T064 rebuild receipt"
+      - "approved runtime rows through blockstun"
+    constraints:
+      - "Do not implement or edit files."
+      - "Reject if either fighter shifts into four-legged animal motion or if rabbit and cat stance conventions differ; both must stay upright two-legged."
+      - "Reject if heavy-punch reads as idle reuse, light-punch duplicate, walk reuse, hitstun/blockstun, collapse, rest, or unreadable posing."
+      - "Reject visible text, logos, watermarks, frame numbers, detached effects, background/arena art, extra characters, visible cyan/green chroma edge residue, clipped/detached fists, corrupted dark silhouette artifacts, or non-transparent runtime-blocking artifacts."
+      - "Reject inconsistent species identity, markings, proportions, lighting, camera angle, scale, outline/detail level, or rendering style versus approved idle/walk/crouch/jump/light-punch/hitstun/blockstun rows."
+      - "Require normalized QA candidates to be exactly 2048x256 RGBA with eight separated 256x256 frames."
+      - "Do not approve runtime promotion for any row other than gray-rabbit:heavy-punch and ginger-tabby-cat:heavy-punch."
+    expected_output:
+      - "approved | regenerate"
+      - "Per-fighter visual QA notes"
+      - "Runtime promotion constraints if approved"
+      - "Regeneration notes if rejected"
     receipt: null
   - id: T005
     type: worker
@@ -3164,7 +3227,7 @@ checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T062
+    task: T064
     commands:
       - cmd: "node scripts/normalize-fighter-rows.mjs --animation heavy-punch --fighters gray-rabbit,ginger-tabby-cat"
         status: pass
