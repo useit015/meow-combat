@@ -83,7 +83,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T041
+active_task: T042
 
 tasks:
   - id: T000
@@ -1611,7 +1611,7 @@ tasks:
   - id: T041
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Scope the next small Meowtal production slice after idle, walk-forward, walk-back, and crouch runtime rows are approved. Decide whether to continue fighter animation coverage, begin parallax arena asset generation, begin logo/HUD/UI surface generation, or prepare runtime routing."
     inputs:
@@ -1636,6 +1636,63 @@ tasks:
       - "verify commands"
       - "stop_if conditions"
       - "visual QA or runtime verification expectations"
+    receipt:
+      result: done
+      decision: "Continue fighter animation coverage with exactly two paired jump source rows: gray-rabbit:jump and ginger-tabby-cat:jump. Runtime approval is deferred to a later Judge task."
+      next_allowed_task: T042
+      summary: "Runtime routing is still premature with only idle, walk, and crouch covered. Parallax arena and HUD/UI/logo generation remain required soon, but jump is the next tight gameplay dependency because it supports core movement/hop behavior while keeping the work to two source rows and one QA candidate shape."
+      fighter_animation_pairs:
+        - "gray-rabbit:jump"
+        - "ginger-tabby-cat:jump"
+      visual_qa_expectations:
+        - "Both rows remain the same upright two-legged characters from approved idle/walk/crouch rows."
+        - "Jump poses read as airborne/hop motion, not four-legged animal movement, floating idle reuse, collapse, or rest."
+        - "Rabbit keeps long ears, gray fur, lighter belly, white paws, compact athletic hind-leg silhouette, and readable hop/jump shapes."
+        - "Cat keeps orange tabby stripes, light muzzle/chest, visible striped tail, upright biped body, and readable acrobatic jump shapes."
+        - "Motion has clear frame separation, stable scale, consistent head/camera height, and style consistency with approved idle/walk-forward/walk-back/crouch rows."
+        - "No text, watermark, logo, frame numbers, background art, hit sparks, dust, projectiles, or other detached effects."
+      blocked_tasks:
+        - "Do not approve jump for runtime in T042."
+        - "Do not copy jump rows into public/assets/generated."
+        - "Do not switch runtime character selection to Meowtal."
+        - "Do not generate attacks, special, hitstun, blockstun, knockdown, win, or lose rows in this batch."
+        - "Do not generate stage, UI, HUD, logo, particles, audio, or broad asset-pack files."
+  - id: T042
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: low
+    objective: "Generate or integrate exactly two Meowtal source animation rows: gray-rabbit:jump and ginger-tabby-cat:jump. Use approved canonical sheets plus approved idle, walk-forward, walk-back, and crouch runtime rows as style locks. Normalize both rows to 6-frame 1536x256 QA candidates, update provenance/manifest/tests/docs so only these two jump rows are generated-but-unapproved with runtimePath: null, and keep all other remaining rows blocked. Do not approve runtime use."
+    allowed_files:
+      - "assets/source/imagegen/fighters/gray-rabbit/jump.png"
+      - "assets/source/imagegen/fighters/ginger-tabby-cat/jump.png"
+      - "src/assets/meowtalProductionManifest.ts"
+      - "docs/assets/meowtal-kombat-provenance.md"
+      - "test/meowtal-production-manifest.test.ts"
+      - "test/asset-qa.test.ts"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+    verify:
+      - "node scripts/normalize-fighter-rows.mjs --animation jump --fighters gray-rabbit,ginger-tabby-cat"
+      - "sips -g pixelWidth -g pixelHeight -g hasAlpha output/imagegen/gray-rabbit-jump-normalized.png output/imagegen/ginger-tabby-cat-jump-normalized.png"
+      - "npm run typecheck"
+      - "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-qa.test.ts"
+      - "npm run imagegen:qa"
+      - "npm run verify"
+    stop_if:
+      - "Any file outside allowed_files is needed, except ignored output/imagegen/*-jump-normalized.png verification candidates."
+      - "Any public/assets/generated Meowtal jump runtime asset is created."
+      - "Any jump row is marked approved or given a runtimePath."
+      - "Any row other than gray-rabbit:jump or ginger-tabby-cat:jump is generated, edited, approved, or given a runtime/public path."
+      - "Runtime roster/game config, scene behavior, gameplay, stage, UI/HUD/logo, particles, or audio need changes."
+      - "Either row cannot normalize to 1536x256 with six separated 256x256 RGBA frames."
+      - "Either fighter drifts from upright two-legged stance, species identity, markings, proportions, camera angle, lighting, scale, outline/detail level, or render style after one retry."
+      - "Jump poses become four-legged animal motion, floating idle reuse, collapse, or unreadable airborne/rest poses."
+      - "Rows contain text, logos, watermarks, frame numbers, detached effects, background/arena art, or extra characters."
+    visual_qa_expectations:
+      - "Both rows read as airborne/hop jump motion, not four-legged animal movement, floating idle reuse, collapse, or rest."
+      - "Rabbit keeps long ears, gray fur, lighter belly, white paws, compact athletic hind-leg silhouette, and readable hop/jump shapes."
+      - "Cat keeps orange tabby stripes, light muzzle/chest, visible striped tail, upright biped body, and readable acrobatic jump shapes."
+      - "Motion has clear frame separation, stable scale, consistent head/camera height, and consistency with approved idle/walk-forward/walk-back/crouch rows."
     receipt: null
   - id: T005
     type: worker
