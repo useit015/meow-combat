@@ -85,7 +85,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T117
+active_task: T118
 
 tasks:
   - id: T000
@@ -6106,7 +6106,7 @@ tasks:
   - id: T117
     type: pm
     assignee: PM
-    status: active
+    status: done
     reasoning_hint: medium
     objective: "Reconcile the remaining broad queued placeholder tasks T005/T006/T007/T008/T009/T011 against the concrete completed slices and decide the next safe step toward final audit. Do not edit product code or claim full completion in this task."
     inputs:
@@ -6123,6 +6123,54 @@ tasks:
       - "Coverage map from broad placeholders to concrete receipts"
       - "Status decisions for T005/T006/T007/T008/T009/T011"
       - "Next active task: final audit if placeholders are covered, or one narrow follow-up Worker if a real gap remains"
+    receipt:
+      result: done
+      summary: "Reconciled the remaining broad placeholder Workers against concrete receipts through T116. T006, T008, and T009 are covered well enough to mark done/superseded by verified slices. T005, T007, and T011 are not honestly closable yet because the Meowtal production manifest/provenance ledger still marks several UI/effects/audio surfaces as planned and includes stale notes saying approved UI is not routed, even though runtime slices implemented routed UI, procedural touch controls, procedural effects, and procedural audio. Created narrow Worker T118 to reconcile that asset/audio/provenance gap before final audit."
+      coverage_map:
+        T005: "Mostly implemented by T020-T100 and T104: canonical sheets, complete approved fighter rows, parallax courtyard layers, title/logo/HUD/portraits/meters/overlays, routed runtime assets, and stance consistency. Not closed because title-key-art, pause-options-panel, touch-controls, loading-fallback, particle-atlas, damage-number-style, and audio cue provenance remain planned/stale in the manifest ledger."
+        T006: "Covered by the existing deterministic combat core found in T001 plus verified runtime routing/smoke in T090, T100, T101, T104, T107, T111, and T115. Final Judge still owns the subjective Tough Love Arena feel audit."
+        T007: "Partially covered by T094-T101 routed HUD/overlays, combat presentation tests, procedural effects, screen shake, damage numbers, and audio calls. Not closed because the manifest/provenance ledger still treats effects/audio surfaces as planned rather than approved procedural/runtime assets."
+        T008: "Covered by T100-T103 and T106-T109: title/select/fight/pause/round-over/match-over shell, restart/rematch, responsive framing, phone touch controls, keyboard controls, and gamepad fallback messaging/telemetry."
+        T009: "Covered by T111 plus T115 production-preview smoke artifacts under output/web-game/meowtal-smoke-t111 and output/web-game/meowtal-scene-rename-t115, with npm run smoke:meowtal documented in README."
+        T011: "Partially covered by T111-T116 identity/runbook/build/readiness hardening. Not closed because asset/license provenance is stale/incomplete for procedural UI/effects/audio and must be reconciled before final readiness audit."
+      decisions:
+        - "Mark T006 done as superseded by concrete combat/runtime verification receipts."
+        - "Mark T008 done as superseded by concrete shell/responsive/input receipts."
+        - "Mark T009 done as superseded by repeatable smoke/runbook/capture receipts."
+        - "Keep T005, T007, and T011 queued until T118 reconciles asset/audio/provenance truth without changing runtime behavior."
+      next_task: T118
+      changed_files:
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+  - id: T118
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: low
+    objective: "Reconcile Meowtal production asset/audio/effects provenance with the already implemented runtime: either mark implemented procedural/routed surfaces as approved with owned/procedural provenance and updated tests/docs, or leave only truly missing surfaces planned and create the next narrow implementation gap. Do not change gameplay or generate new assets."
+    inputs:
+      - "T117 coverage map and decisions."
+      - "src/assets/meowtalProductionManifest.ts currently leaves non-generated UI/effects surfaces and all audio cues as planned."
+      - "docs/assets/meowtal-kombat-provenance.md still says some approved UI assets are not routed and lists several surfaces/audio cues as still planned."
+      - "Runtime evidence from T100-T107 and T111/T115 shows routed HUD/logo/portraits/meters/overlays, procedural touch controls, pause/options presentation, particles/effects, damage numbers, procedural audio, responsive smoke, and no runtime fallbacks."
+      - "Owner stance rule: both fighters share upright two-legged normal stance/movement/attack presentation; grounded/prone frames are only hit, K.O., or defeat reactions."
+    allowed_files:
+      - "src/assets/meowtalProductionManifest.ts"
+      - "test/meowtal-production-manifest.test.ts"
+      - "docs/assets/meowtal-kombat-provenance.md"
+      - "README.md"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+    verify:
+      - "rg -n \"Still planned|not yet routed into scene rendering|Planned production asset only\" src/assets/meowtalProductionManifest.ts test/meowtal-production-manifest.test.ts docs/assets/meowtal-kombat-provenance.md README.md || true"
+      - "npm run typecheck"
+      - "npm test -- --run test/meowtal-production-manifest.test.ts test/presentation.test.ts test/touch-controls.test.ts test/asset-readiness.test.ts"
+      - "npm run verify"
+      - "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+      - "git diff --check"
+    stop_if:
+      - "Requires runtime gameplay, rendering, audio-engine, smoke-script, generated binary, dependency, or package-lock changes."
+      - "Requires new image/audio generation, external downloads, secrets, provider calls, or license claims that are not already supported by repo evidence."
+      - "Any planned surface or audio cue cannot be tied to an implemented routed asset, implemented procedural system, or explicit non-required scope decision from existing receipts."
+      - "Verification fails twice for the same reason."
     receipt: null
   - id: T005
     type: worker
@@ -6142,18 +6190,33 @@ tasks:
   - id: T006
     type: worker
     assignee: Worker
-    status: queued
+    status: done
     reasoning_hint: low
     objective: "Implement responsive fighting mechanics with Tough Love Arena-level feel as the benchmark: movement, jump, dash, block, hitboxes, combos, specials, hitstop, knockback, bounce, K.O., and victory states."
-    allowed_files: []
-    verify: []
+    allowed_files:
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+    verify:
+      - "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
     stop_if:
       - "Need files outside allowed_files."
       - "Combat mechanics conflict with existing architecture."
       - "Controls or hit detection cannot be verified locally."
       - "The game feels mushy, unreadable, or unresponsive after implementation."
       - "Verification fails twice for the same reason."
-    receipt: null
+    receipt:
+      result: done
+      summary: "Closed as covered by concrete existing implementation and verification receipts rather than activating the unsafe broad placeholder. The codebase already has deterministic movement, jump/hop, dash/run, block, hitbox/hurtbox, combo, special, hitstop, knockback, bounce, K.O., and victory behavior; later slices routed Meowtal assets and repeated browser smoke. Final T010 remains responsible for rejecting if the subjective feel still falls short of the Tough Love Arena benchmark."
+      changed_files:
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+      commands:
+        - cmd: "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+          status: pass
+      evidence:
+        - "T001 mapped the existing deterministic combat core and browser hooks."
+        - "T090 routed the active game to Meowtal fighters without removing combat behavior."
+        - "T100-T101 verified routed in-fight UI and K.O./victory edge cases."
+        - "T104 verified shared stance routing for normal and grounded defeat states."
+        - "T111 and T115 passed repeatable production-preview browser smoke."
   - id: T007
     type: worker
     assignee: Worker
@@ -6171,31 +6234,61 @@ tasks:
   - id: T008
     type: worker
     assignee: Worker
-    status: queued
+    status: done
     reasoning_hint: low
     objective: "Build the full arcade shell: title/start flow, character presentation, pause/options, restart/rematch flow, responsive layout, keyboard controls, mobile-friendly controls, and gamepad support or an explicit in-game fallback."
-    allowed_files: []
-    verify: []
+    allowed_files:
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+    verify:
+      - "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
     stop_if:
       - "Need files outside allowed_files."
       - "Any proposed scope reduction needs PM/Judge escalation before completion."
       - "Gamepad support is unsupported by the chosen stack and an explicit in-game keyboard/touch fallback is required."
       - "Verification fails twice for the same reason."
-    receipt: null
+    receipt:
+      result: done
+      summary: "Closed as covered by concrete shell/input/responsive slices instead of activating the unsafe broad placeholder. The arcade shell now covers title/select/fight/pause/round-over/match-over phases, restart/rematch, responsive desktop/mobile framing, keyboard controls, phone portrait/landscape touch controls, and explicit gamepad fallback messaging/telemetry. Final T010 still audits whether the complete player flow feels production-ready."
+      changed_files:
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+      commands:
+        - cmd: "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+          status: pass
+      evidence:
+        - "T100 routed approved Meowtal UI into the playable scene shell."
+        - "T101 verified K.O., victory, timer/health/super depletion, and desktop/mobile fit."
+        - "T102 verified pause/options, reset, next-round, and new-match flows."
+        - "T103 polished portrait mobile framing."
+        - "T106-T107 implemented and smoke-tested phone touch controls."
+        - "T108-T109 implemented and tested gamepad fallback messaging/telemetry."
   - id: T009
     type: worker
     assignee: Worker
-    status: queued
+    status: done
     reasoning_hint: low
     objective: "Add or update production verification, smoke checks, browser checks, performance/readability checks, and create the production capture artifact."
-    allowed_files: []
-    verify: []
+    allowed_files:
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+    verify:
+      - "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
     stop_if:
       - "Need files outside allowed_files."
       - "A browser/dev-server target is unavailable."
       - "Capture tooling cannot record the required evidence after one alternate approach."
       - "Verification fails twice for the same reason."
-    receipt: null
+    receipt:
+      result: done
+      summary: "Closed as covered by repeatable production-preview verification and capture artifacts. T111 added npm run smoke:meowtal and documented the production preview/smoke workflow; T111 and T115 produced desktop/mobile browser capture directories with report.json and screenshots. Final T010 can request a fresh smoke run if it needs current audit evidence after T118."
+      changed_files:
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+      commands:
+        - cmd: "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+          status: pass
+      evidence:
+        - "README.md production preview and smoke workflow."
+        - "package.json smoke:meowtal script."
+        - "output/web-game/meowtal-smoke-t111/report.json"
+        - "output/web-game/meowtal-scene-rename-t115/report.json"
   - id: T011
     type: worker
     assignee: Worker
