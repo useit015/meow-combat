@@ -83,7 +83,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T042
+active_task: T043
 
 tasks:
   - id: T000
@@ -1660,7 +1660,7 @@ tasks:
   - id: T042
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: low
     objective: "Generate or integrate exactly two Meowtal source animation rows: gray-rabbit:jump and ginger-tabby-cat:jump. Use approved canonical sheets plus approved idle, walk-forward, walk-back, and crouch runtime rows as style locks. Normalize both rows to 6-frame 1536x256 QA candidates, update provenance/manifest/tests/docs so only these two jump rows are generated-but-unapproved with runtimePath: null, and keep all other remaining rows blocked. Do not approve runtime use."
     allowed_files:
@@ -1693,6 +1693,76 @@ tasks:
       - "Rabbit keeps long ears, gray fur, lighter belly, white paws, compact athletic hind-leg silhouette, and readable hop/jump shapes."
       - "Cat keeps orange tabby stripes, light muzzle/chest, visible striped tail, upright biped body, and readable acrobatic jump shapes."
       - "Motion has clear frame separation, stable scale, consistent head/camera height, and consistency with approved idle/walk-forward/walk-back/crouch rows."
+    receipt:
+      result: done
+      summary: "Generated and integrated exactly two Meowtal jump source rows for the gray rabbit and ginger/orange tabby cat. Rabbit generation passed on the first candidate; cat generation used the allowed retry to remove detached motion streaks. Both final rows preserve the approved upright two-legged fighting-game rig, were chroma-key cleaned to transparent-alpha RGBA source PNGs, normalize to 6-frame 1536x256 QA candidates, remain non-runtime with runtimePath null, and keep every other remaining animation row blocked pending jump-row QA."
+      changed_files:
+        - "assets/source/imagegen/fighters/gray-rabbit/jump.png"
+        - "assets/source/imagegen/fighters/ginger-tabby-cat/jump.png"
+        - "src/assets/meowtalProductionManifest.ts"
+        - "docs/assets/meowtal-kombat-provenance.md"
+        - "test/meowtal-production-manifest.test.ts"
+        - "test/asset-qa.test.ts"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+      evidence:
+        - "assets/source/imagegen/fighters/gray-rabbit/jump.png"
+        - "assets/source/imagegen/fighters/ginger-tabby-cat/jump.png"
+        - "output/imagegen/gray-rabbit-jump-normalized.png"
+        - "output/imagegen/ginger-tabby-cat-jump-normalized.png"
+      checksums:
+        gray_rabbit_jump_source_sha256: "5bbd573624aa1ce029c0d412c9baa59a7660a6634329309cf2f837bf0b7dfd44"
+        ginger_tabby_cat_jump_source_sha256: "ed29abcf54742f8d78b05550040f706b5989510626bdfadb898c069ea2aa547d"
+        gray_rabbit_jump_normalized_sha256: "0fa28b8ba325de18f8029d448902fb32c25ee08158da3332fe391f288ef720ef"
+        ginger_tabby_cat_jump_normalized_sha256: "ff366033ed1d552754e332bb52296a350ee73068df53fb3dc6c7e3565b23b608"
+      commands:
+        - cmd: "node scripts/normalize-fighter-rows.mjs --animation jump --fighters gray-rabbit,ginger-tabby-cat"
+          status: pass
+        - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha output/imagegen/gray-rabbit-jump-normalized.png output/imagegen/ginger-tabby-cat-jump-normalized.png"
+          status: pass
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-qa.test.ts"
+          status: pass
+        - cmd: "npm run imagegen:qa"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+      notes:
+        - "sips reported pixelWidth 1536, pixelHeight 256, hasAlpha yes for both normalized jump QA candidates."
+        - "Full verify passed with 21 test files and 106 tests."
+        - "No public/runtime jump assets, other animation rows, stage, UI, HUD, logo, particle, audio, gameplay config, or selectable runtime character switch were added."
+  - id: T043
+    type: judge
+    assignee: Judge
+    status: active
+    reasoning_hint: high
+    objective: "Visual QA gray-rabbit:jump and ginger-tabby-cat:jump source and normalized candidates, then decide whether to approve a separate narrow runtime-promotion Worker or require regeneration."
+    inputs:
+      - "assets/source/imagegen/fighters/gray-rabbit/jump.png"
+      - "assets/source/imagegen/fighters/ginger-tabby-cat/jump.png"
+      - "output/imagegen/gray-rabbit-jump-normalized.png"
+      - "output/imagegen/ginger-tabby-cat-jump-normalized.png"
+      - "public/assets/generated/fighters/gray-rabbit/idle.png"
+      - "public/assets/generated/fighters/ginger-tabby-cat/idle.png"
+      - "public/assets/generated/fighters/gray-rabbit/walk-forward.png"
+      - "public/assets/generated/fighters/ginger-tabby-cat/walk-forward.png"
+      - "public/assets/generated/fighters/gray-rabbit/walk-back.png"
+      - "public/assets/generated/fighters/ginger-tabby-cat/walk-back.png"
+      - "public/assets/generated/fighters/gray-rabbit/crouch.png"
+      - "public/assets/generated/fighters/ginger-tabby-cat/crouch.png"
+      - "src/assets/meowtalProductionManifest.ts"
+    constraints:
+      - "Do not implement."
+      - "Reject if either row violates jump readability, upright two-legged rig, species identity, markings, proportions, camera angle, lighting, scale, outline/detail level, frame separation, or style consistency with approved rows."
+      - "Reject if rows contain text, logos, watermarks, frame numbers, detached effects, arena/background art, or extra characters."
+      - "Do not approve runtime integration unless normalized candidates are 1536x256 and visually usable."
+    expected_output:
+      - "approved | rejected"
+      - "Visual QA findings"
+      - "Next Worker task"
+      - "allowed_files"
+      - "verify commands"
+      - "stop_if conditions"
     receipt: null
   - id: T005
     type: worker
@@ -1844,11 +1914,11 @@ checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T040
+    task: T042
     commands:
-      - cmd: "node scripts/normalize-fighter-rows.mjs --animation crouch --fighters gray-rabbit,ginger-tabby-cat"
+      - cmd: "node scripts/normalize-fighter-rows.mjs --animation jump --fighters gray-rabbit,ginger-tabby-cat"
         status: pass
-      - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha public/assets/generated/fighters/gray-rabbit/crouch.png public/assets/generated/fighters/ginger-tabby-cat/crouch.png"
+      - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha output/imagegen/gray-rabbit-jump-normalized.png output/imagegen/ginger-tabby-cat-jump-normalized.png"
         status: pass
       - cmd: "npm run typecheck"
         status: pass
