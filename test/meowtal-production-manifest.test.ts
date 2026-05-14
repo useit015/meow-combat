@@ -42,6 +42,7 @@ describe("Meowtal production manifest", () => {
       "ginger-tabby-cat:jump",
       "ginger-tabby-cat:light-kick",
       "ginger-tabby-cat:light-punch",
+      "ginger-tabby-cat:special",
       "ginger-tabby-cat:walk-back",
       "ginger-tabby-cat:walk-forward",
       "gray-rabbit:blockstun",
@@ -52,6 +53,7 @@ describe("Meowtal production manifest", () => {
       "gray-rabbit:jump",
       "gray-rabbit:light-kick",
       "gray-rabbit:light-punch",
+      "gray-rabbit:special",
       "gray-rabbit:walk-back",
       "gray-rabbit:walk-forward",
     ]);
@@ -122,10 +124,10 @@ describe("Meowtal production manifest", () => {
     expect(lightKickRows.every((row) => row.provenance.status === "approved")).toBe(true);
     expect(lightKickRows.every((row) => row.provenance.runtimePath?.includes("/assets/generated/fighters/"))).toBe(true);
     expect(specialRows).toHaveLength(2);
-    expect(specialRows.every((row) => row.provenance.status === "generated")).toBe(true);
-    expect(specialRows.every((row) => row.provenance.runtimePath === null)).toBe(true);
+    expect(specialRows.every((row) => row.provenance.status === "approved")).toBe(true);
+    expect(specialRows.every((row) => row.provenance.runtimePath?.includes("/assets/generated/fighters/"))).toBe(true);
     expect(remainingRows.every((row) => row.provenance.status === "blocked")).toBe(true);
-    expect(remainingRows.every((row) => row.provenance.blocker?.includes("special row QA"))).toBe(true);
+    expect(remainingRows.every((row) => row.provenance.blocker?.includes("knockdown row scope"))).toBe(true);
   });
 
   it("tracks approved idle source and runtime files", () => {
@@ -292,18 +294,19 @@ describe("Meowtal production manifest", () => {
     }
   });
 
-  it("tracks generated special source files without approving runtime use", () => {
+  it("tracks approved special source and runtime files", () => {
     for (const fighter of meowtalProductionManifest.fighters) {
       const specialRow = fighter.animationRows.find((row) => row.animationId === "special");
 
-      expect(specialRow?.provenance.status).toBe("generated");
+      expect(specialRow?.provenance.status).toBe("approved");
       expect(specialRow?.provenance.sourcePath).toBe(`assets/source/imagegen/fighters/${fighter.id}/special.png`);
-      expect(specialRow?.provenance.runtimePath).toBeNull();
+      expect(specialRow?.provenance.runtimePath).toBe(`/assets/generated/fighters/${fighter.id}/special.png`);
       expect(specialRow?.provenance.license.kind).toBe("owned-generated");
-      expect(specialRow?.provenance.approvalNotes).toContain("Generated source special row candidate");
+      expect(specialRow?.provenance.approvalNotes).toContain("Approved runtime special row");
       expect(specialRow?.provenance.approvalNotes).toContain("upright two-legged");
       expect(specialRow?.provenance.approvalNotes).toContain("magenta chroma-key removed to transparent alpha");
       expect(existsSync(join(process.cwd(), specialRow?.provenance.sourcePath ?? ""))).toBe(true);
+      expect(existsSync(join(process.cwd(), "public", specialRow?.provenance.runtimePath ?? ""))).toBe(true);
     }
   });
 

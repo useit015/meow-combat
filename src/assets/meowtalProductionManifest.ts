@@ -195,6 +195,11 @@ const specialRowSourcePaths: Readonly<Record<MeowtalFighterId, string>> = {
   "ginger-tabby-cat": "assets/source/imagegen/fighters/ginger-tabby-cat/special.png",
 };
 
+const specialRowRuntimePaths: Readonly<Record<MeowtalFighterId, string>> = {
+  "gray-rabbit": "/assets/generated/fighters/gray-rabbit/special.png",
+  "ginger-tabby-cat": "/assets/generated/fighters/ginger-tabby-cat/special.png",
+};
+
 const hitstunRowSourcePaths: Readonly<Record<MeowtalFighterId, string>> = {
   "gray-rabbit": "assets/source/imagegen/fighters/gray-rabbit/hitstun.png",
   "ginger-tabby-cat": "assets/source/imagegen/fighters/ginger-tabby-cat/hitstun.png",
@@ -297,9 +302,9 @@ const lightKickRowQaNotes: Readonly<Record<MeowtalFighterId, string>> = {
 
 const specialRowQaNotes: Readonly<Record<MeowtalFighterId, string>> = {
   "gray-rabbit":
-    "Generated source special row candidate. Visual self-check: ten separated upright two-legged gray rabbit rapid spinning tornado frames with crouch-load, readable spin build-up, character-attached green energy ribbons, deceleration, recovery, and guard settle; no visible text/watermark/frame numbers, magenta chroma-key removed to transparent alpha, normalized to a 2560x256 RGBA QA candidate, and pending follow-up visual QA before runtime publication.",
+    "Approved runtime special row. Visual QA: ten separated upright two-legged gray rabbit rapid spinning tornado frames with crouch-load, readable spin build-up, character-attached green energy ribbons, deceleration, recovery, and guard settle; no visible text/watermark/frame numbers, magenta chroma-key removed to transparent alpha, normalized to 2560x256 RGBA, and approved for runtime publication by T079.",
   "ginger-tabby-cat":
-    "Generated source special row candidate. Visual self-check: ten separated upright two-legged ginger tabby acrobatic flip-kick frames with planted chamber, readable mid-flip, green/yellow foot-attached aura crescents, controlled landing, recovery, and guard settle; no visible text/watermark/frame numbers, magenta chroma-key removed to transparent alpha, normalized to a 2560x256 RGBA QA candidate, and pending follow-up visual QA before runtime publication.",
+    "Approved runtime special row. Visual QA: ten separated upright two-legged ginger tabby acrobatic flip-kick frames with planted chamber, readable mid-flip, green/yellow foot-attached aura crescents, controlled landing, recovery, and guard settle; no visible text/watermark/frame numbers, magenta chroma-key removed to transparent alpha, normalized to 2560x256 RGBA, and approved for runtime publication by T079.",
 };
 
 const animationFrameCounts: Readonly<Record<FighterAnimationId, number>> = {
@@ -508,18 +513,18 @@ export function validateMeowtalProductionManifest(
           errors.push(`${row.provenance.assetId}: approved light-kick row requires a generated runtime path`);
         }
       } else if (row.animationId === "special") {
-        if (row.provenance.status !== "generated") {
-          errors.push(`${row.provenance.assetId}: special row should remain generated until follow-up visual QA`);
+        if (row.provenance.status !== "approved") {
+          errors.push(`${row.provenance.assetId}: special row should be runtime-approved after T080`);
         }
-        if (row.provenance.runtimePath !== null) {
-          errors.push(`${row.provenance.assetId}: generated special row must not have a runtime path before QA`);
+        if (!row.provenance.runtimePath?.includes("/assets/generated/fighters/")) {
+          errors.push(`${row.provenance.assetId}: approved special row requires a generated runtime path`);
         }
       } else {
         if (row.provenance.status !== "blocked") {
           errors.push(`${row.provenance.assetId}: remaining animation rows must remain blocked`);
         }
-        if (!row.provenance.blocker?.includes("special row QA")) {
-          errors.push(`${row.provenance.assetId}: remaining row blocker must reference special row QA`);
+        if (!row.provenance.blocker?.includes("knockdown row scope")) {
+          errors.push(`${row.provenance.assetId}: remaining row blocker must reference knockdown row scope`);
         }
       }
     }
@@ -582,7 +587,7 @@ function makeFighters(): readonly MeowtalFighterAssetPlan[] {
                             : animationId === "light-kick"
                               ? approvedLightKickRowProvenance(fighterId, details)
                               : animationId === "special"
-                                ? generatedSpecialRowProvenance(fighterId, details)
+                                ? approvedSpecialRowProvenance(fighterId, details)
                       : blockedAnimationRowProvenance(fighterId, animationId, details),
       })),
     };
@@ -600,11 +605,11 @@ function blockedAnimationRowProvenance(
     prompt: animationRowPrompt(details.displayName, animationId),
     status: "blocked",
     blocker:
-      "Wait for special row QA and a separate scoped generation task before generating this remaining animation row.",
+      "Wait for knockdown row scope and a separate generation task before generating this remaining animation row.",
   });
 }
 
-function generatedSpecialRowProvenance(
+function approvedSpecialRowProvenance(
   fighterId: MeowtalFighterId,
   details: (typeof fighterDetails)[MeowtalFighterId],
 ): AssetProvenance {
@@ -613,15 +618,15 @@ function generatedSpecialRowProvenance(
       assetId: `${fighterId}:special`,
       promptSlug: `${fighterId}-special-animation-row`,
       prompt: animationRowPrompt(details.displayName, "special"),
-      status: "generated",
+      status: "approved",
       blocker: "",
     }),
     sourcePath: specialRowSourcePaths[fighterId],
-    runtimePath: null,
+    runtimePath: specialRowRuntimePaths[fighterId],
     license: {
       kind: "owned-generated",
       summary:
-        "Generated with Codex built-in imagegen as a magenta chroma-keyed special-attack reference row for this project; retained as a non-runtime special row candidate pending follow-up visual QA.",
+        "Generated with Codex built-in imagegen as a magenta chroma-keyed special-attack reference row for this project; approved normalized runtime special row after T079 visual QA.",
       sourceUrl: null,
       attribution: null,
       checkedOn: generatedOn,
@@ -630,7 +635,7 @@ function generatedSpecialRowProvenance(
     transforms: [
       "Generated a magenta-keyed imagegen special-attack reference row after T077 scoped paired source-only specials.",
       "Removed the magenta chroma-key background with soft matte and despill to preserve green/yellow character-attached effects.",
-      "Normalized to a 10-frame 2560x256 QA candidate under output/imagegen for visual review only.",
+      "Normalized to a 10-frame 2560x256 QA candidate under output/imagegen and promoted the approved row to public runtime assets after T079 visual QA.",
     ],
     approvalNotes: specialRowQaNotes[fighterId],
     blocker: null,

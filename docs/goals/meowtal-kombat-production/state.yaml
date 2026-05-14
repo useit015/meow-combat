@@ -83,7 +83,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T080
+active_task: T081
 
 tasks:
   - id: T000
@@ -3912,7 +3912,7 @@ tasks:
   - id: T080
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: low
     objective: "Promote exactly the two Judge-approved Meowtal special rows, gray-rabbit:special and ginger-tabby-cat:special, from normalized QA candidates into runtime assets. Update manifest/provenance/tests so these two rows become approved runtime rows with public asset paths. Do not generate or approve knockdown, win, lose, arena, UI, logo, audio, effects, or runtime routing."
     inputs:
@@ -3944,6 +3944,76 @@ tasks:
       - "Promoted files are not exactly 2560x256 RGBA with ten 256x256 frames."
       - "Manifest/provenance cannot clearly distinguish source generation, visual QA approval, and runtime promotion."
       - "Verification fails after one focused fix."
+    receipt:
+      result: done
+      summary: "Promoted exactly the two T079-approved Meowtal special rows into runtime assets. Manifest, provenance, and manifest tests now mark gray-rabbit:special and ginger-tabby-cat:special as approved runtime rows with public asset paths. No knockdown, win, lose, arena, UI, logo, audio, effects, runtime routing, or gameplay files were generated or changed."
+      changed_files:
+        - "public/assets/generated/fighters/gray-rabbit/special.png"
+        - "public/assets/generated/fighters/ginger-tabby-cat/special.png"
+        - "src/assets/meowtalProductionManifest.ts"
+        - "docs/assets/meowtal-kombat-provenance.md"
+        - "test/meowtal-production-manifest.test.ts"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+      evidence:
+        - "public/assets/generated/fighters/gray-rabbit/special.png"
+        - "public/assets/generated/fighters/ginger-tabby-cat/special.png"
+        - "assets/source/imagegen/fighters/gray-rabbit/special.png"
+        - "assets/source/imagegen/fighters/ginger-tabby-cat/special.png"
+        - "src/assets/meowtalProductionManifest.ts"
+        - "docs/assets/meowtal-kombat-provenance.md"
+        - "test/meowtal-production-manifest.test.ts"
+      checksums:
+        gray_rabbit_special_runtime_sha256: "944bf42138c156d93a9dc91c767a6bd1c1a7cdfb52be0de24bc7fc92265c5855"
+        ginger_tabby_cat_special_runtime_sha256: "e051b71926f450f8a6127a11dc0f3f3a3c3bf631942a276f4c678851ed8a210c"
+        gray_rabbit_special_source_sha256: "4b4ec8316a0f659314a17cd94fbf4a3ebb36ed873d07d9445a372009149316cc"
+        ginger_tabby_cat_special_source_sha256: "b0a2c6218849bdd5e2309ded90f879279d087723b5eac0d0c43b34cc31d666fa"
+        meowtal_manifest_sha256: "a21387ea6051b646a787675fa470f25f992a8d8264e87c81077b6f270498bc4b"
+        provenance_doc_sha256: "0835cab3195610a3fdcfb1c8c7e5cc6b5c729c800ff741cab49ec911e1058478"
+        manifest_test_sha256: "dac0b93076dfddd37dd5b5ce599ffa3d96e1cda91c1d22dcb775306d63ae132d"
+      commands:
+        - cmd: "cp output/imagegen/gray-rabbit-special-normalized.png public/assets/generated/fighters/gray-rabbit/special.png"
+          status: pass
+        - cmd: "cp output/imagegen/ginger-tabby-cat-special-normalized.png public/assets/generated/fighters/ginger-tabby-cat/special.png"
+          status: pass
+        - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha public/assets/generated/fighters/gray-rabbit/special.png public/assets/generated/fighters/ginger-tabby-cat/special.png"
+          status: pass
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-qa.test.ts"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+      notes:
+        - "sips reported pixelWidth 2560, pixelHeight 256, hasAlpha yes for both promoted runtime special rows."
+        - "Focused manifest/asset QA tests passed with 2 files and 18 tests."
+        - "Full verify passed with 21 test files, 112 tests, and a successful Vite production build."
+        - "Remaining ungenerated Meowtal animation rows now block on knockdown row scope."
+        - "Runtime character routing/switch, knockdown, win, lose, stage, UI/HUD/logo, particles, audio, and gameplay code were not touched."
+  - id: T081
+    type: judge
+    assignee: Judge
+    status: active
+    reasoning_hint: high
+    objective: "Scope the next smallest safe production asset slice after special runtime promotion. Decide whether to proceed with exactly two paired Meowtal knockdown source rows, gray-rabbit:knockdown and ginger-tabby-cat:knockdown, or choose a different narrow blocker-removing slice. Do not edit files."
+    inputs:
+      - "T080 promotion receipt"
+      - "Current Meowtal approved runtime rows through special"
+      - "Remaining Meowtal rows: knockdown, win, lose"
+      - "Original owner requirement: knockout/KO, victory pose, production-ready complete arcade flow"
+    constraints:
+      - "Do not implement or edit files."
+      - "Prefer the smallest production-relevant slice that advances complete game readiness and unblocks later runtime routing."
+      - "Do not scope broad all-assets/stage/HUD/logo/audio/gameplay work if a narrower fighter-row slice is safer."
+      - "If knockdown rows are chosen, keep them source-only until separate visual QA; runtime approval must require a later Judge task."
+      - "Both fighters must preserve species identity/style and return/read as compatible with the shared upright two-legged fighting-game rig; knockdown may go prone only as a clear hit reaction, not as inconsistent normal stance."
+      - "No runtime character routing switch yet unless explicitly justified as the smallest next slice."
+    expected_output:
+      - "decision"
+      - "next_allowed_task"
+      - "allowed_files"
+      - "verification commands"
+      - "stop conditions"
+      - "why this advances production readiness without becoming broad asset-pack work"
     receipt: null
   - id: T005
     type: worker
