@@ -83,7 +83,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T056
+active_task: T057
 
 tasks:
   - id: T000
@@ -2531,7 +2531,7 @@ tasks:
   - id: T056
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: low
     objective: "Promote only the approved normalized Meowtal blockstun rows to runtime assets. Copy normalized candidates into public runtime paths, update manifest provenance from generated/non-runtime to approved/runtime for only gray-rabbit:blockstun and ginger-tabby-cat:blockstun, update provenance docs/tests, and keep every other remaining animation row blocked."
     allowed_files:
@@ -2559,6 +2559,66 @@ tasks:
       - "Manifest/provenance cannot clearly record T055 visual approval and runtime promotion."
       - "Files outside allowed_files are required."
       - "Verification fails twice for the same underlying reason."
+    receipt:
+      result: done
+      summary: "Promoted only the two approved normalized Meowtal blockstun rows into public runtime assets and updated the Meowtal manifest/docs/tests so gray-rabbit:blockstun and ginger-tabby-cat:blockstun are approved runtime assets. Every remaining ungenerated Meowtal row stays blocked behind a separate scoped generation task, and no runtime character selection or gameplay config was switched."
+      changed_files:
+        - "public/assets/generated/fighters/gray-rabbit/blockstun.png"
+        - "public/assets/generated/fighters/ginger-tabby-cat/blockstun.png"
+        - "src/assets/meowtalProductionManifest.ts"
+        - "docs/assets/meowtal-kombat-provenance.md"
+        - "test/meowtal-production-manifest.test.ts"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+      evidence:
+        - "public/assets/generated/fighters/gray-rabbit/blockstun.png"
+        - "public/assets/generated/fighters/ginger-tabby-cat/blockstun.png"
+        - "src/assets/meowtalProductionManifest.ts"
+      checksums:
+        gray_rabbit_blockstun_runtime_sha256: "5fc2565ddde90a81bb8f4f89bd5bdd0a1e61cdfc70b83822449e02dfdc680c66"
+        ginger_tabby_cat_blockstun_runtime_sha256: "d947582f8c7c6f8179727710a9c8ac651981913794f1ad73b06f1d0dca150b23"
+      commands:
+        - cmd: "node scripts/normalize-fighter-rows.mjs --animation blockstun --fighters gray-rabbit,ginger-tabby-cat"
+          status: pass
+        - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha public/assets/generated/fighters/gray-rabbit/blockstun.png public/assets/generated/fighters/ginger-tabby-cat/blockstun.png"
+          status: pass
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-qa.test.ts"
+          status: pass
+        - cmd: "npm run imagegen:qa"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+      notes:
+        - "sips reported pixelWidth 1280, pixelHeight 256, hasAlpha yes for both public blockstun runtime PNGs."
+        - "Full verify passed with 21 test files, 109 tests, and a successful Vite production build."
+        - "No source imagegen PNGs, non-blockstun rows, canonical sheets, stage, UI, HUD, logo, particle, audio, gameplay config, or selectable runtime character switch were touched."
+  - id: T057
+    type: judge
+    assignee: Judge
+    status: active
+    reasoning_hint: high
+    objective: "Scope the next small Meowtal production slice after idle, walk-forward, walk-back, crouch, jump, light-punch, hitstun, and blockstun runtime rows are approved. Decide whether to continue fighter animation coverage, begin parallax arena asset generation, begin logo/HUD/UI surface generation, or prepare runtime routing."
+    inputs:
+      - "T056 blockstun runtime promotion receipt"
+      - "src/assets/meowtalProductionManifest.ts"
+      - "docs/assets/meowtal-kombat-provenance.md"
+      - "Goal requirements: complete fighter animation set, parallax arena, complete HUD/logo/UI assets, audio/effects, Tough Love Arena-level feel, small commits, no PoC completion"
+      - "User stance requirement: rabbit and cat must use one shared stance convention; current Meowtal assets are locked to upright two-legged."
+    constraints:
+      - "Do not implement."
+      - "Do not choose a broad all-assets task."
+      - "Prefer a small reviewable Worker task with tight allowed_files and verification."
+      - "Preserve upright two-legged fighter consistency and defer runtime character switch until enough attack/reaction coverage exists."
+      - "If choosing more animation rows, runtime approval must be deferred to a later Judge task."
+      - "If choosing non-character assets, require provenance/license docs and visual QA gates."
+    expected_output:
+      - "Decision and rationale"
+      - "Exact next Worker objective"
+      - "allowed_files"
+      - "verify commands"
+      - "stop_if conditions"
+      - "visual QA or runtime verification expectations"
     receipt: null
   - id: T005
     type: worker
@@ -2710,11 +2770,11 @@ checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T054
+    task: T056
     commands:
       - cmd: "node scripts/normalize-fighter-rows.mjs --animation blockstun --fighters gray-rabbit,ginger-tabby-cat"
         status: pass
-      - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha output/imagegen/gray-rabbit-blockstun-normalized.png output/imagegen/ginger-tabby-cat-blockstun-normalized.png"
+      - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha public/assets/generated/fighters/gray-rabbit/blockstun.png public/assets/generated/fighters/ginger-tabby-cat/blockstun.png"
         status: pass
       - cmd: "npm run typecheck"
         status: pass
