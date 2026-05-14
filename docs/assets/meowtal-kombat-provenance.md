@@ -57,7 +57,22 @@ These are approved before animation rows as style locks only. Required sheet str
 
 ### Character Animation Rows
 
-Status: blocked by canonical character sheet approval.
+Status: idle source candidates generated; all non-idle rows remain blocked pending idle row QA.
+
+- `gray-rabbit:idle`
+  - Source path: `assets/source/imagegen/fighters/gray-rabbit/idle.png`
+  - Provider: Codex built-in imagegen
+  - Generated on: 2026-05-14
+  - License status: owned generated source asset
+  - Runtime status: not approved; normalize and QA before copying to `public/assets/generated`
+  - QA notes: eight separated upright two-legged gray rabbit idle frames, no visible text/watermark/frame numbers, chroma-key removed to transparent alpha, pending normalized-row review.
+- `ginger-tabby-cat:idle`
+  - Source path: `assets/source/imagegen/fighters/ginger-tabby-cat/idle.png`
+  - Provider: Codex built-in imagegen
+  - Generated on: 2026-05-14
+  - License status: owned generated source asset
+  - Runtime status: not approved; normalize and QA before copying to `public/assets/generated`
+  - QA notes: eight separated upright two-legged ginger tabby idle frames, no visible text/watermark/frame numbers, chroma-key removed to transparent alpha, pending normalized-row review.
 
 Each fighter needs rows for idle, walk-forward, walk-back, crouch, jump, light-punch, heavy-punch, light-kick, special, hitstun, blockstun, knockdown, win, and lose. Rows must preserve the shared upright two-legged rig, species identity, markings, proportions, lighting, camera angle, scale, outline/detail level, and rendering style.
 

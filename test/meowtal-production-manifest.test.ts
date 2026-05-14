@@ -35,16 +35,36 @@ describe("Meowtal production manifest", () => {
     expect(entries.every((entry) => entry.runtimePath === null)).toBe(true);
   });
 
-  it("keeps animation rows blocked until canonical character sheets are approved", () => {
+  it("tracks generated idle rows while keeping non-idle rows blocked", () => {
     expect(canonicalSheetsApproved()).toBe(true);
 
     const blockedRows = blockedAnimationRowsUntilCanonicalApproved();
     expect(blockedRows).toHaveLength(0);
     const animationRows = meowtalProductionManifest.fighters.flatMap((fighter) => fighter.animationRows);
+    const idleRows = animationRows.filter((row) => row.animationId === "idle");
+    const nonIdleRows = animationRows.filter((row) => row.animationId !== "idle");
+
     expect(animationRows).toHaveLength(2 * REQUIRED_FIGHTER_ANIMATIONS.length);
-    expect(animationRows.every((row) => row.provenance.status === "blocked")).toBe(true);
-    expect(blockedRows.every((row) => row.provenance.status === "blocked")).toBe(true);
-    expect(blockedRows.every((row) => row.provenance.blocker?.includes("canonical character sheet"))).toBe(true);
+    expect(idleRows).toHaveLength(2);
+    expect(idleRows.every((row) => row.provenance.status === "generated")).toBe(true);
+    expect(idleRows.every((row) => row.provenance.runtimePath === null)).toBe(true);
+    expect(nonIdleRows.every((row) => row.provenance.status === "blocked")).toBe(true);
+    expect(nonIdleRows.every((row) => row.provenance.blocker?.includes("idle row QA"))).toBe(true);
+  });
+
+  it("tracks generated idle source files without approving runtime use", () => {
+    for (const fighter of meowtalProductionManifest.fighters) {
+      const idleRow = fighter.animationRows.find((row) => row.animationId === "idle");
+
+      expect(idleRow?.provenance.status).toBe("generated");
+      expect(idleRow?.provenance.sourcePath).toBe(`assets/source/imagegen/fighters/${fighter.id}/idle.png`);
+      expect(idleRow?.provenance.runtimePath).toBeNull();
+      expect(idleRow?.provenance.license.kind).toBe("owned-generated");
+      expect(idleRow?.provenance.approvalNotes).toContain("Generated source idle row candidate");
+      expect(idleRow?.provenance.approvalNotes).toContain("upright two-legged");
+      expect(idleRow?.provenance.approvalNotes).toContain("transparent alpha");
+      expect(existsSync(join(process.cwd(), idleRow?.provenance.sourcePath ?? ""))).toBe(true);
+    }
   });
 
   it("tracks approved style-lock canonical sheet source files without approving runtime use", () => {

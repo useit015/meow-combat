@@ -105,7 +105,6 @@ export interface MeowtalProductionManifest {
   audioCues: readonly MeowtalAudioCuePlan[];
 }
 
-const canonicalBlocker = "Generate and approve the canonical character sheet before creating animation rows.";
 const binaryBlocker = "Planned production asset only; no binary image or audio generated in the T020 scaffold.";
 const generatedOn = "2026-05-14";
 
@@ -119,6 +118,18 @@ const canonicalSheetQaNotes: Readonly<Record<MeowtalFighterId, string>> = {
     "Approved as animation style-lock reference only. Visual QA: rabbit-only upright two-legged sheet, no visible text/watermark, includes front/side/back/three-quarter pose, action pose, idle pose, head close-up, expressions, detail callouts, size reference, color swatches, green tornado language, and consistent gray rabbit proportions.",
   "ginger-tabby-cat":
     "Approved as animation style-lock reference only. Visual QA: cat-only upright two-legged sheet, no visible text/watermark, includes front/side/back views, upright combat poses, upright idle, head close-up, expressions, detail callouts, size reference, color swatches, yellow-green energy language, and consistent orange tabby markings.",
+};
+
+const idleRowSourcePaths: Readonly<Record<MeowtalFighterId, string>> = {
+  "gray-rabbit": "assets/source/imagegen/fighters/gray-rabbit/idle.png",
+  "ginger-tabby-cat": "assets/source/imagegen/fighters/ginger-tabby-cat/idle.png",
+};
+
+const idleRowQaNotes: Readonly<Record<MeowtalFighterId, string>> = {
+  "gray-rabbit":
+    "Generated source idle row candidate. Visual QA: eight separated upright two-legged gray rabbit idle frames, no visible text/watermark/frame numbers, same stance and proportions as the canonical sheet, chroma-key removed to transparent alpha, pending normalized-row review before runtime approval.",
+  "ginger-tabby-cat":
+    "Generated source idle row candidate. Visual QA: eight separated upright two-legged ginger tabby idle frames, no visible text/watermark/frame numbers, same stance and proportions as the canonical sheet, chroma-key removed to transparent alpha, pending normalized-row review before runtime approval.",
 };
 
 const animationFrameCounts: Readonly<Record<FighterAnimationId, number>> = {
@@ -256,11 +267,20 @@ export function validateMeowtalProductionManifest(
       errors.push(`${fighter.id}: missing animation row plans`);
     }
     for (const row of fighter.animationRows) {
-      if (row.provenance.status !== "blocked") {
-        errors.push(`${row.provenance.assetId}: animation rows must remain blocked before canonical approval`);
-      }
-      if (!row.provenance.blocker?.includes("canonical character sheet")) {
-        errors.push(`${row.provenance.assetId}: animation row blocker must reference canonical sheet approval`);
+      if (row.animationId === "idle") {
+        if (row.provenance.status !== "generated") {
+          errors.push(`${row.provenance.assetId}: idle row should be generated after T026`);
+        }
+        if (row.provenance.runtimePath) {
+          errors.push(`${row.provenance.assetId}: generated idle row is not runtime-approved yet`);
+        }
+      } else {
+        if (row.provenance.status !== "blocked") {
+          errors.push(`${row.provenance.assetId}: non-idle animation rows must remain blocked`);
+        }
+        if (!row.provenance.blocker?.includes("idle row QA")) {
+          errors.push(`${row.provenance.assetId}: non-idle row blocker must reference idle row QA`);
+        }
       }
     }
   }
@@ -300,21 +320,67 @@ function makeFighters(): readonly MeowtalFighterAssetPlan[] {
         animationId,
         frameCount: animationFrameCounts[animationId],
         cellSize: 256,
-        provenance: imageProvenance({
-          assetId: `${fighterId}:${animationId}`,
-          promptSlug: `${fighterId}-${animationId}-animation-row`,
-          prompt: [
-            `Using the approved canonical character sheet for ${details.displayName}, create the ${animationId} animation row.`,
-            "Use the same upright two-legged fighting-game rig as the canonical sheet.",
-            "Keep the fighter identity, species, markings, proportions, camera angle, lighting, scale, and render style consistent.",
-            "Do not include detached hit sparks, dust, text, logos, watermarks, frame numbers, or background art in the row.",
-          ].join("\n"),
-          status: "blocked",
-          blocker: canonicalBlocker,
-        }),
+        provenance:
+          animationId === "idle"
+            ? generatedIdleRowProvenance(fighterId, details)
+            : blockedAnimationRowProvenance(fighterId, animationId, details),
       })),
     };
   });
+}
+
+function blockedAnimationRowProvenance(
+  fighterId: MeowtalFighterId,
+  animationId: FighterAnimationId,
+  details: (typeof fighterDetails)[MeowtalFighterId],
+): AssetProvenance {
+  return imageProvenance({
+    assetId: `${fighterId}:${animationId}`,
+    promptSlug: `${fighterId}-${animationId}-animation-row`,
+    prompt: animationRowPrompt(details.displayName, animationId),
+    status: "blocked",
+    blocker: "Wait for idle row QA and runtime-row approval before generating additional animation rows.",
+  });
+}
+
+function generatedIdleRowProvenance(
+  fighterId: MeowtalFighterId,
+  details: (typeof fighterDetails)[MeowtalFighterId],
+): AssetProvenance {
+  return {
+    ...imageProvenance({
+      assetId: `${fighterId}:idle`,
+      promptSlug: `${fighterId}-idle-animation-row`,
+      prompt: animationRowPrompt(details.displayName, "idle"),
+      status: "generated",
+      blocker: "",
+    }),
+    sourcePath: idleRowSourcePaths[fighterId],
+    runtimePath: null,
+    license: {
+      kind: "owned-generated",
+      summary: "Generated with Codex built-in imagegen for this project; source row only, pending normalized-row QA before runtime use.",
+      sourceUrl: null,
+      attribution: null,
+      checkedOn: generatedOn,
+    },
+    createdOrDownloadedOn: generatedOn,
+    transforms: [
+      "Copied selected built-in imagegen output into the repo source asset tree.",
+      "Removed generated chroma-key background to transparent alpha with the imagegen remove_chroma_key helper.",
+    ],
+    approvalNotes: idleRowQaNotes[fighterId],
+    blocker: null,
+  };
+}
+
+function animationRowPrompt(displayName: string, animationId: FighterAnimationId): string {
+  return [
+    `Using the approved canonical character sheet for ${displayName}, create the ${animationId} animation row.`,
+    "Use the same upright two-legged fighting-game rig as the canonical sheet.",
+    "Keep the fighter identity, species, markings, proportions, camera angle, lighting, scale, and render style consistent.",
+    "Do not include detached hit sparks, dust, text, logos, watermarks, frame numbers, or background art in the row.",
+  ].join("\n");
 }
 
 function generatedCanonicalSheetProvenance(fighterId: MeowtalFighterId): AssetProvenance {
