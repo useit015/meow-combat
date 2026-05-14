@@ -120,6 +120,15 @@ const stageLayerSourcePaths: Readonly<Record<MeowtalStageLayerId, string>> = {
   "foreground-dust-leaves": "assets/source/imagegen/stages/meowtal-courtyard/foreground-dust-leaves.png",
 };
 
+const stageLayerRuntimePaths: Readonly<Record<MeowtalStageLayerId, string>> = {
+  "sky-lighting": "/assets/generated/stages/meowtal-courtyard/sky-lighting.png",
+  "distant-hills-city": "/assets/generated/stages/meowtal-courtyard/distant-hills-city.png",
+  "background-walls-pillars": "/assets/generated/stages/meowtal-courtyard/background-walls-pillars.png",
+  "midground-trees-bushes": "/assets/generated/stages/meowtal-courtyard/midground-trees-bushes.png",
+  "playfield-stone-courtyard": "/assets/generated/stages/meowtal-courtyard/playfield-stone-courtyard.png",
+  "foreground-dust-leaves": "/assets/generated/stages/meowtal-courtyard/foreground-dust-leaves.png",
+};
+
 const stageLayerOutputCandidatePaths: Readonly<Record<MeowtalStageLayerId, string>> = {
   "sky-lighting": "output/imagegen/meowtal-courtyard-sky-lighting.png",
   "distant-hills-city": "output/imagegen/meowtal-courtyard-distant-hills-city.png",
@@ -158,17 +167,17 @@ const stageLayerTransformNotes: Readonly<Record<MeowtalStageLayerId, readonly st
 
 const stageLayerQaNotes: Readonly<Record<MeowtalStageLayerId, string>> = {
   "sky-lighting":
-    "Generated source-only parallax layer candidate: bright blue sky, warm lens flare, no fighters, HUD, text, logos, watermarks, or brand marks. Pending visual QA and runtime promotion.",
+    "Approved runtime parallax layer: bright blue sky, warm lens flare, no fighters, HUD, text, logos, watermarks, or brand marks. Approved for runtime promotion by T093.",
   "distant-hills-city":
-    "Generated source-only parallax layer candidate: colorful distant hills and cityscape behind the courtyard wall, no fighters, HUD, text, logos, watermarks, or brand marks. Pending visual QA and runtime promotion.",
+    "Approved runtime parallax layer: colorful distant hills and cityscape behind the courtyard wall, no fighters, HUD, text, logos, watermarks, or brand marks. Approved for runtime promotion by T093.",
   "background-walls-pillars":
-    "Generated source-only parallax layer candidate: low stone walls and pillars with readable depth, no fighters, HUD, text, logos, watermarks, or brand marks. Pending visual QA and runtime promotion.",
+    "Approved runtime parallax layer: low stone walls and pillars with readable depth, no fighters, HUD, text, logos, watermarks, or brand marks. Approved for runtime promotion by T093.",
   "midground-trees-bushes":
-    "Generated source-only parallax layer candidate: trees and bushes frame the combat lane without covering the center, no fighters, HUD, text, logos, watermarks, or brand marks. Pending visual QA and runtime promotion.",
+    "Approved runtime parallax layer: trees and bushes frame the combat lane without covering the center, no fighters, HUD, text, logos, watermarks, or brand marks. Approved for runtime promotion by T093.",
   "playfield-stone-courtyard":
-    "Generated source-only parallax layer candidate: bright stone-paved fighting lane with solid bottom coverage and clear gameplay readability, no fighters, HUD, text, logos, watermarks, or brand marks. Pending visual QA and runtime promotion.",
+    "Approved runtime parallax layer: bright stone-paved fighting lane with solid bottom coverage and clear gameplay readability, no fighters, HUD, text, logos, watermarks, or brand marks. Approved for runtime promotion by T093.",
   "foreground-dust-leaves":
-    "Generated source-only parallax layer candidate: edge props, leaves, petals, and dust puffs for foreground parallax, no fighters, HUD, text, logos, watermarks, or brand marks. Pending visual QA and runtime promotion.",
+    "Approved runtime parallax layer: edge props, leaves, petals, and dust puffs for foreground parallax, no fighters, HUD, text, logos, watermarks, or brand marks. Approved for runtime promotion by T093.",
 };
 
 const canonicalSheetSourcePaths: Readonly<Record<MeowtalFighterId, string>> = {
@@ -550,14 +559,14 @@ export function validateMeowtalProductionManifest(
   if (manifest.stage.layers.length < 5) errors.push("Meowtal courtyard requires at least five parallax layers.");
 
   for (const layer of manifest.stage.layers) {
-    if (layer.provenance.status !== "generated") {
-      errors.push(`${layer.provenance.assetId}: courtyard layer should remain source-only generated until visual QA.`);
+    if (layer.provenance.status !== "approved") {
+      errors.push(`${layer.provenance.assetId}: courtyard layer should be runtime-approved after T093.`);
     }
     if (layer.provenance.sourcePath !== stageLayerSourcePaths[layer.id]) {
       errors.push(`${layer.provenance.assetId}: courtyard layer requires the scoped generated source path.`);
     }
-    if (layer.provenance.runtimePath !== null) {
-      errors.push(`${layer.provenance.assetId}: courtyard source candidate must not have runtimePath before promotion.`);
+    if (layer.provenance.runtimePath !== stageLayerRuntimePaths[layer.id]) {
+      errors.push(`${layer.provenance.assetId}: courtyard layer requires the promoted runtime path.`);
     }
   }
 
@@ -1249,26 +1258,29 @@ function stageLayer(id: MeowtalStageLayerId, parallax: number, role: string): Me
     id,
     parallax,
     role,
-    provenance: generatedStageLayerProvenance(id, role),
+    provenance: approvedStageLayerProvenance(id, role),
   };
 }
 
-function generatedStageLayerProvenance(id: MeowtalStageLayerId, role: string): AssetProvenance {
+function approvedStageLayerProvenance(id: MeowtalStageLayerId, role: string): AssetProvenance {
   return {
     ...imageProvenance({
       assetId: `meowtal-courtyard:${id}`,
       promptSlug: `meowtal-courtyard-${id}`,
       prompt: `Create the ${id} parallax layer for Meowtal Kombat's bright outdoor stone courtyard. ${role} Keep fighters and HUD readable. No text, logos, watermarks, real brand marks, characters, or UI.`,
-      status: "generated",
+      status: "approved",
       blocker: "",
     }),
     sourcePath: stageLayerSourcePaths[id],
-    runtimePath: null,
+    runtimePath: stageLayerRuntimePaths[id],
     license: ownedGeneratedImageLicense(
-      "Generated with Codex built-in imagegen for this project; source-only parallax candidate pending visual QA and runtime promotion.",
+      "Generated with Codex built-in imagegen for this project; approved as a runtime parallax stage layer for Meowtal Kombat.",
     ),
     createdOrDownloadedOn: generatedOn,
-    transforms: stageLayerTransformNotes[id],
+    transforms: [
+      ...stageLayerTransformNotes[id],
+      `Promoted normalized QA candidate ${stageLayerOutputCandidatePaths[id]} to ${stageLayerRuntimePaths[id]}.`,
+    ],
     approvalNotes: `${stageLayerQaNotes[id]} QA candidate: ${stageLayerOutputCandidatePaths[id]}. Composite preview: output/imagegen/meowtal-courtyard-composite-preview.png.`,
     blocker: null,
   };

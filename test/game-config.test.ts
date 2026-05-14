@@ -16,7 +16,15 @@ describe("game content config", () => {
       "Ginger Tabby Cat",
     ]);
     expect(meowtalKombatConfig.defaultSelections).toEqual({ p1: 0, p2: 1 });
-    expect(meowtalKombatConfig.stage.id).toBe("marrakesh-rooftop");
+    expect(meowtalKombatConfig.stage.id).toBe("meowtal-courtyard");
+    expect(meowtalKombatConfig.stage.layers.map((layer) => layer.id)).toEqual([
+      "sky-lighting",
+      "distant-hills-city",
+      "background-walls-pillars",
+      "midground-trees-bushes",
+      "playfield-stone-courtyard",
+      "foreground-dust-leaves",
+    ]);
   });
 
   it("keeps Meowtal runtime sprite metadata centralized", () => {
@@ -28,7 +36,7 @@ describe("game content config", () => {
     expect(meowtalKombatConfig.runtimeSpriteCellSize).toBe(256);
     expect(meowtalKombatConfig.runtimeSpritesheets).toHaveLength(2 * REQUIRED_FIGHTER_ANIMATIONS.length);
     expect(versionedAssetFromConfig(meowtalKombatConfig, "/assets/generated/fighters/gray-rabbit/idle.png")).toBe(
-      "/assets/generated/fighters/gray-rabbit/idle.png?v=meowtal-routing-1",
+      "/assets/generated/fighters/gray-rabbit/idle.png?v=meowtal-courtyard-1",
     );
   });
 

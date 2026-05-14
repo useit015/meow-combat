@@ -85,7 +85,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T093
+active_task: T094
 
 tasks:
   - id: T000
@@ -4674,7 +4674,7 @@ tasks:
   - id: T093
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: low
     objective: "Promote only the approved Meowtal courtyard parallax layer pack into runtime stage assets and route the active stage config to those runtime layers. Keep existing Gray Rabbit and Ginger Tabby Cat fighter routing intact, do not change HUD/logo/UI/audio/gameplay, and preserve the source-only provenance history while marking the promoted stage layers approved."
     inputs:
@@ -4689,8 +4689,10 @@ tasks:
       - "public/assets/generated/stages/meowtal-courtyard/playfield-stone-courtyard.png"
       - "public/assets/generated/stages/meowtal-courtyard/foreground-dust-leaves.png"
       - "src/assets/catalog.ts"
+      - "src/assets/types.ts"
       - "src/assets/meowtalProductionManifest.ts"
-      - "src/scenes/MoroccanArenaScene.ts"
+      - "src/game/gameConfig.ts"
+      - "src/game/MoroccanArenaScene.ts"
       - "docs/assets/meowtal-kombat-provenance.md"
       - "test/meowtal-production-manifest.test.ts"
       - "test/asset-runtime.test.ts"
@@ -4709,6 +4711,90 @@ tasks:
       - "Any promoted runtime layer has wrong dimensions, missing alpha where needed, a baked fighter/HUD/text/logo/watermark/brand mark, or a sky-colored bottom gap."
       - "Runtime config cannot load the stage as layered parallax assets without rearchitecting the scene."
       - "The active fighter route regresses away from Gray Rabbit versus Ginger Tabby Cat."
+      - "Verification fails twice for the same root cause."
+    receipt:
+      completed_at: "2026-05-14"
+      result: done
+      summary: "Promoted the approved Meowtal courtyard parallax layer pack into runtime stage assets and routed the active game stage to meowtal-courtyard. Runtime now resolves six image layers with zero stage fallbacks, the browser fight route shows Gray Rabbit versus Ginger Tabby Cat on the promoted courtyard, and the scene applies a small overscanned parallax offset so the arena does not behave as one flat bitmap. HUD/logo/UI, audio, combat/gameplay, and fighter assets were not changed."
+      changed_files:
+        - "public/assets/generated/stages/meowtal-courtyard/sky-lighting.png"
+        - "public/assets/generated/stages/meowtal-courtyard/distant-hills-city.png"
+        - "public/assets/generated/stages/meowtal-courtyard/background-walls-pillars.png"
+        - "public/assets/generated/stages/meowtal-courtyard/midground-trees-bushes.png"
+        - "public/assets/generated/stages/meowtal-courtyard/playfield-stone-courtyard.png"
+        - "public/assets/generated/stages/meowtal-courtyard/foreground-dust-leaves.png"
+        - "src/assets/catalog.ts"
+        - "src/assets/types.ts"
+        - "src/assets/meowtalProductionManifest.ts"
+        - "src/game/gameConfig.ts"
+        - "src/game/MoroccanArenaScene.ts"
+        - "docs/assets/meowtal-kombat-provenance.md"
+        - "test/meowtal-production-manifest.test.ts"
+        - "test/asset-runtime.test.ts"
+        - "test/game-config.test.ts"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+      evidence:
+        - "sips -g pixelWidth -g pixelHeight -g hasAlpha public/assets/generated/stages/meowtal-courtyard/*.png passed: all runtime layers are 1024x576; cutout layers have alpha and sky-lighting is opaque."
+        - "npm run typecheck passed."
+        - "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-runtime.test.ts test/game-config.test.ts test/character-select.test.ts passed: 4 files, 37 tests."
+        - "npm run build passed."
+        - "npm run verify passed: 21 files, 116 tests, production build completed."
+        - "Browser/Playwright smokes passed for ready/select/fight. State JSONs show stageArtVisible true, six meowtal-courtyard image layers, runtimeFallbacks { fighterAnimations: 0, stageLayers: 0 }, title MEOWTAL KOMBAT, and selected Gray Rabbit/Ginger Tabby Cat."
+        - "Fight screenshot evidence: output/web-game/meowtal-courtyard-fight/shot-0.png."
+        - "Judge audit returned approved_complete for T093."
+      commands:
+        - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha public/assets/generated/stages/meowtal-courtyard/*.png"
+          status: pass
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-runtime.test.ts test/game-config.test.ts test/character-select.test.ts"
+          status: pass
+        - cmd: "npm run build"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "node /Users/oussmustaine/.codex/skills/develop-web-game/scripts/web_game_playwright_client.js --url http://127.0.0.1:4173/ --actions-json '{\"steps\":[{\"buttons\":[],\"frames\":8}]}' --iterations 1 --pause-ms 200 --screenshot-dir output/web-game/meowtal-courtyard-ready"
+          status: pass
+        - cmd: "node /Users/oussmustaine/.codex/skills/develop-web-game/scripts/web_game_playwright_client.js --url http://127.0.0.1:4173/ --actions-json '{\"steps\":[{\"buttons\":[\"enter\"],\"frames\":3},{\"buttons\":[],\"frames\":30}]}' --iterations 1 --pause-ms 300 --screenshot-dir output/web-game/meowtal-courtyard-select"
+          status: pass
+        - cmd: "node /Users/oussmustaine/.codex/skills/develop-web-game/scripts/web_game_playwright_client.js --url http://127.0.0.1:4173/ --actions-json '{\"steps\":[{\"buttons\":[],\"frames\":4},{\"buttons\":[\"enter\"],\"frames\":2},{\"buttons\":[],\"frames\":4},{\"buttons\":[\"enter\"],\"frames\":2},{\"buttons\":[],\"frames\":60},{\"buttons\":[\"right\"],\"frames\":12},{\"buttons\":[],\"frames\":12}]}' --iterations 1 --pause-ms 300 --screenshot-dir output/web-game/meowtal-courtyard-fight"
+          status: pass
+      browser_smoke:
+        ready: "State and screenshot show MEOWTAL KOMBAT with stageArtVisible true, six meowtal-courtyard runtime image layers, zero runtime fallbacks, and Gray Rabbit/Ginger Tabby Cat selected."
+        select: "State and screenshot show the select shell over the Meowtal courtyard with zero runtime fallbacks and Meowtal fighter runtime sprites."
+        fighting: "State and screenshot show active Gray Rabbit versus Ginger Tabby Cat fight on the promoted courtyard, zero runtime fallbacks, no console/page error files, and no sky-colored bottom gap."
+  - id: T094
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: low
+    objective: "Generate and normalize source-only candidates for the first Meowtal HUD/logo/UI surface batch only: logo-title-mark, hud-frame, health-bar-rabbit, health-bar-cat, timer-frame, and fight-ko-victory-overlays. Keep them non-runtime pending visual QA; do not touch fighter routing, stage routing, combat/gameplay, audio, particles, or runtime UI rendering."
+    inputs:
+      - "T093 runtime courtyard receipt and Judge approved_complete audit"
+      - "Production UI requirement: Mortal-Kombat-faithful top health bars, portraits later, center timer, FIGHT/K.O./victory overlays, special meters later, damage numbers later, original Meowtal branding, no copied fighting-game branding."
+      - "Current runtime still uses procedural HUD/shell drawing; this task creates source-only UI art candidates for a later visual QA and promotion slice."
+    allowed_files:
+      - "assets/source/imagegen/ui/meowtal/logo-title-mark.png"
+      - "assets/source/imagegen/ui/meowtal/hud-frame.png"
+      - "assets/source/imagegen/ui/meowtal/health-bar-rabbit.png"
+      - "assets/source/imagegen/ui/meowtal/health-bar-cat.png"
+      - "assets/source/imagegen/ui/meowtal/timer-frame.png"
+      - "assets/source/imagegen/ui/meowtal/fight-ko-victory-overlays.png"
+      - "output/imagegen/meowtal-ui-*.png"
+      - "src/assets/meowtalProductionManifest.ts"
+      - "docs/assets/meowtal-kombat-provenance.md"
+      - "test/meowtal-production-manifest.test.ts"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+    verify:
+      - "sips -g pixelWidth -g pixelHeight -g hasAlpha assets/source/imagegen/ui/meowtal/*.png output/imagegen/meowtal-ui-*.png"
+      - "npm run typecheck"
+      - "npm test -- --run test/meowtal-production-manifest.test.ts"
+      - "npm run verify"
+    stop_if:
+      - "Any runtime UI file, gameplay/combat file, fighter asset, stage route, audio, particle runtime, or broad scene rendering change would be needed."
+      - "Generated UI candidates include copied Mortal Kombat branding, logos, real brand marks, watermarks, illegible text, extra characters, or baked fighter sprites."
+      - "HUD/source surfaces cannot be clearly marked as source-only generated candidates with runtimePath null."
+      - "The batch cannot stay limited to the six named UI surfaces."
       - "Verification fails twice for the same root cause."
     receipt: null
   - id: T005

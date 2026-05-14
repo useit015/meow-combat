@@ -6,6 +6,7 @@ import {
   resolveFighterRuntimeAsset,
   type FighterAnimationId,
   type FighterRuntimeAsset,
+  type StageRuntimeLayer,
   resolveManifestRuntimeAsset,
   resolveStageRuntimeLayers,
 } from "../assets";
@@ -37,6 +38,7 @@ import { selectSpritePose } from "./spriteFrame";
 
 type KeyMap = Record<string, Phaser.Input.Keyboard.Key>;
 type ImpactFlash = { color: number; alpha: number; remainingFrames: number; totalFrames: number };
+type StageLayerImage = { layer: StageRuntimeLayer; image: Phaser.GameObjects.Image };
 const GAME_CONFIG = meowtalKombatConfig;
 const GAME_TITLE = GAME_CONFIG.title;
 const GAME_SUBTITLE = GAME_CONFIG.subtitle;
@@ -88,7 +90,7 @@ export class MoroccanArenaScene extends Phaser.Scene {
   private conceptPreviews!: Record<"p1" | "p2", Phaser.GameObjects.Image | null>;
   private selectSprites!: Record<"p1" | "p2", Phaser.GameObjects.Sprite>;
   private fighterSprites!: Record<"p1" | "p2", Phaser.GameObjects.Sprite>;
-  private stageLayerImages: Phaser.GameObjects.Image[] = [];
+  private stageLayerImages: StageLayerImage[] = [];
   private readonly graphicsKey = "arena-debug";
   private readonly effectsGraphicsKey = "arena-effects";
   private readonly stageRuntimeLayers = resolveStageRuntimeLayers(GAME_CONFIG.stage);
@@ -103,7 +105,7 @@ export class MoroccanArenaScene extends Phaser.Scene {
     }
     for (const layer of this.stageRuntimeLayers) {
       if (layer.kind === "image-layer" && layer.outputPath) {
-        this.load.image(layer.assetKey, layer.outputPath);
+        this.load.image(layer.assetKey, versionedAsset(layer.outputPath));
       }
     }
     for (const spritesheet of RUNTIME_SPRITESHEETS) {
@@ -263,13 +265,10 @@ export class MoroccanArenaScene extends Phaser.Scene {
     };
     this.stageLayerImages = this.stageRuntimeLayers
       .filter((layer) => layer.kind === "image-layer" && this.textures.exists(layer.assetKey))
-      .map((layer, index) =>
-        this.add
-          .image(512, 288, layer.assetKey)
-          .setDisplaySize(1024, 576)
-          .setDepth(1 + index)
-          .setVisible(false),
-      );
+      .map((layer, index) => ({
+        layer,
+        image: this.add.image(512, 288, layer.assetKey).setDisplaySize(1104, 621).setDepth(1 + index).setVisible(false),
+      }));
     this.installDebugHooks();
     this.applyDemoMode();
   }
@@ -522,13 +521,23 @@ export class MoroccanArenaScene extends Phaser.Scene {
       showFightLayer &&
       imageLayerCount > 0 &&
       this.stageLayerImages.length === imageLayerCount &&
-      this.stageLayerImages.every((image) => this.textures.exists(image.texture.key));
+      this.stageLayerImages.every(({ image }) => this.textures.exists(image.texture.key));
 
-    for (const image of this.stageLayerImages) {
+    for (const { layer, image } of this.stageLayerImages) {
+      const parallaxOffset = canRenderImages ? this.stageParallaxOffset(layer.parallax) : 0;
+      image.setPosition(512 + parallaxOffset, 288);
       image.setVisible(canRenderImages);
     }
 
     return canRenderImages;
+  }
+
+  private stageParallaxOffset(parallax: number): number {
+    const fightCenter = (this.snapshot.p1.x + this.snapshot.p2.x) / 2;
+    const cameraDrift = Phaser.Math.Clamp((512 - fightCenter) * 0.05, -20, 20);
+    const ambientDrift = Math.sin(this.shellFrame / 150) * 5;
+
+    return cameraDrift * (1 - parallax) + ambientDrift * parallax * 0.18;
   }
 
   private createConceptPreview(player: "p1" | "p2"): Phaser.GameObjects.Image | null {

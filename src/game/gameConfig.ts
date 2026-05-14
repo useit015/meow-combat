@@ -1,5 +1,6 @@
 import {
   meowtalFighterAssetManifests,
+  meowtalStageAssetManifests,
   stageAssetManifests,
   type FighterAssetManifest,
   type StageAssetManifest,
@@ -50,8 +51,8 @@ export const meowtalKombatConfig: GameContentConfig = {
   conceptSheet: null,
   runtimeSpritesheets: runtimeSpritesheetsFor(meowtalFighterAssetManifests),
   runtimeSpriteCellSize: 256,
-  assetVersion: "meowtal-routing-1",
-  stage: stageAssetManifests[0],
+  assetVersion: "meowtal-courtyard-1",
+  stage: meowtalStageAssetManifests[0] ?? stageAssetManifests[0],
 };
 
 function runtimeSpritesheetsFor(manifests: readonly FighterAssetManifest[]): readonly RuntimeSpritesheetConfig[] {

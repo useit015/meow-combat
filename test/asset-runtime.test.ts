@@ -1,11 +1,14 @@
 import { describe, expect, it } from "vitest";
 import {
   meowtalFighterAssetManifests,
+  meowtalStageAssetManifests,
   renderAssetForAnimationId,
   renderAssetForState,
   resolveFighterRuntimeAsset,
   resolveManifestRuntimeAsset,
+  resolveStageRuntimeLayers,
   runtimeAssetKey,
+  stageLayerAssetKey,
   type FighterAssetManifest,
 } from "../src/assets";
 
@@ -189,5 +192,26 @@ describe("asset runtime resolver", () => {
 
   it("uses stable runtime asset keys", () => {
     expect(runtimeAssetKey("gray-rabbit", "knockdown")).toBe("gray-rabbit:knockdown");
+  });
+
+  it("promotes approved Meowtal courtyard layers to runtime stage images", () => {
+    const stage = meowtalStageAssetManifests[0];
+    const layers = resolveStageRuntimeLayers(stage);
+
+    expect(stage.id).toBe("meowtal-courtyard");
+    expect(layers.map((layer) => layer.layerId)).toEqual([
+      "sky-lighting",
+      "distant-hills-city",
+      "background-walls-pillars",
+      "midground-trees-bushes",
+      "playfield-stone-courtyard",
+      "foreground-dust-leaves",
+    ]);
+    for (const layer of layers) {
+      expect(layer.kind).toBe("image-layer");
+      expect(layer.assetKey).toBe(stageLayerAssetKey("meowtal-courtyard", layer.layerId));
+      expect(layer.outputPath).toBe(`/assets/generated/stages/meowtal-courtyard/${layer.layerId}.png`);
+      expect(layer.sourceStatus).toBe("approved");
+    }
   });
 });

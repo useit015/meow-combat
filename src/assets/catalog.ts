@@ -236,6 +236,74 @@ export const stageAssetManifests: readonly StageAssetManifest[] = [
   },
 ];
 
+export const meowtalStageAssetManifests: readonly StageAssetManifest[] = [
+  {
+    id: "meowtal-courtyard",
+    displayName: "Meowtal Courtyard",
+    moroccanDesignNotes: [
+      "Bright outdoor stone-paved courtyard built as layered parallax art for Meowtal Kombat.",
+      "Readable central fighting lane with trees, bushes, walls, pillars, city/hills, dust, leaves, and warm arcade lighting.",
+      "No fighters, HUD, text, real brand marks, signage, watermarks, or copyrighted characters are baked into the stage layers.",
+    ],
+    layers: [
+      {
+        id: "sky-lighting",
+        parallax: 0.08,
+        promptIntent: "Vibrant blue sky, warm sun rays, lens flare, and soft atmosphere.",
+        source: approvedSource(
+          "meowtal-courtyard-sky-lighting",
+          "/assets/generated/stages/meowtal-courtyard/sky-lighting.png",
+        ),
+      },
+      {
+        id: "distant-hills-city",
+        parallax: 0.18,
+        promptIntent: "Distant colorful hills and city shapes behind the arena.",
+        source: approvedSource(
+          "meowtal-courtyard-distant-hills-city",
+          "/assets/generated/stages/meowtal-courtyard/distant-hills-city.png",
+        ),
+      },
+      {
+        id: "background-walls-pillars",
+        parallax: 0.34,
+        promptIntent: "Low stone walls, courtyard pillars, and readable architectural depth.",
+        source: approvedSource(
+          "meowtal-courtyard-background-walls-pillars",
+          "/assets/generated/stages/meowtal-courtyard/background-walls-pillars.png",
+        ),
+      },
+      {
+        id: "midground-trees-bushes",
+        parallax: 0.58,
+        promptIntent: "Scattered trees and bushes that frame the fight without covering silhouettes.",
+        source: approvedSource(
+          "meowtal-courtyard-midground-trees-bushes",
+          "/assets/generated/stages/meowtal-courtyard/midground-trees-bushes.png",
+        ),
+      },
+      {
+        id: "playfield-stone-courtyard",
+        parallax: 1,
+        promptIntent: "Bright stone-paved fighting lane with stable gameplay readability.",
+        source: approvedSource(
+          "meowtal-courtyard-playfield-stone-courtyard",
+          "/assets/generated/stages/meowtal-courtyard/playfield-stone-courtyard.png",
+        ),
+      },
+      {
+        id: "foreground-dust-leaves",
+        parallax: 1.16,
+        promptIntent: "Subtle foreground leaves, dust puffs, and edge props for parallax motion.",
+        source: approvedSource(
+          "meowtal-courtyard-foreground-dust-leaves",
+          "/assets/generated/stages/meowtal-courtyard/foreground-dust-leaves.png",
+        ),
+      },
+    ],
+  },
+];
+
 function animationSpecsFor(fighterId: string): readonly FighterAnimationSpec[] {
   return animationBriefs.map(([id, frameCount, promptIntent]) => animation(fighterId, id, frameCount, promptIntent));
 }

@@ -62,25 +62,32 @@ describe("Meowtal production manifest", () => {
       "gray-rabbit:walk-back",
       "gray-rabbit:walk-forward",
       "gray-rabbit:win",
+      "meowtal-courtyard:background-walls-pillars",
+      "meowtal-courtyard:distant-hills-city",
+      "meowtal-courtyard:foreground-dust-leaves",
+      "meowtal-courtyard:midground-trees-bushes",
+      "meowtal-courtyard:playfield-stone-courtyard",
+      "meowtal-courtyard:sky-lighting",
     ]);
     expect(runtimeEntries.every((entry) => entry.status === "approved")).toBe(true);
   });
 
-  it("tracks generated source-only parallax courtyard layer candidates", () => {
+  it("tracks approved runtime parallax courtyard layers", () => {
     for (const layer of meowtalProductionManifest.stage.layers) {
       const provenance = layer.provenance;
 
-      expect(provenance.status).toBe("generated");
+      expect(provenance.status).toBe("approved");
       expect(provenance.sourceKind).toBe("codex-imagegen");
       expect(provenance.sourcePath).toBe(`assets/source/imagegen/stages/meowtal-courtyard/${layer.id}.png`);
-      expect(provenance.runtimePath).toBeNull();
+      expect(provenance.runtimePath).toBe(`/assets/generated/stages/meowtal-courtyard/${layer.id}.png`);
       expect(provenance.license.kind).toBe("owned-generated");
       expect(provenance.createdOrDownloadedOn).toBe("2026-05-14");
-      expect(provenance.approvalNotes).toContain("Generated source-only parallax layer candidate");
+      expect(provenance.approvalNotes).toContain("Approved runtime parallax layer");
       expect(provenance.approvalNotes).toContain(`output/imagegen/meowtal-courtyard-${layer.id}.png`);
-      expect(provenance.approvalNotes).toContain("Pending visual QA and runtime promotion");
+      expect(provenance.approvalNotes).toContain("Approved for runtime promotion by T093");
       expect(provenance.blocker).toBeNull();
       expect(existsSync(join(process.cwd(), provenance.sourcePath ?? ""))).toBe(true);
+      expect(existsSync(join(process.cwd(), "public", provenance.runtimePath ?? ""))).toBe(true);
     }
   });
 

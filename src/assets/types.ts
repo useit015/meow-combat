@@ -16,7 +16,17 @@ export type FighterAnimationId =
   | "win"
   | "lose";
 
-export type StageLayerId = "sky" | "far-architecture" | "playfield" | "foreground-props";
+export type StageLayerId =
+  | "sky"
+  | "far-architecture"
+  | "playfield"
+  | "foreground-props"
+  | "sky-lighting"
+  | "distant-hills-city"
+  | "background-walls-pillars"
+  | "midground-trees-bushes"
+  | "playfield-stone-courtyard"
+  | "foreground-dust-leaves";
 
 export interface CellSize {
   width: number;
