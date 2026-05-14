@@ -1,0 +1,259 @@
+# GoalBuddy v2 state.yaml
+# Board truth lives here. goal.md is the editable charter; notes/ holds long receipts only.
+
+version: 2
+
+goal:
+  title: "Meowtal Kombat Quality Rebuild"
+  slug: "meowtal-kombat-quality-rebuild"
+  kind: recovery
+  tranche: "Recover from the rejected completion by auditing visible quality, rebuilding the weakest player-facing slices, and continuing until the game is genuinely polished rather than checklist-complete."
+  status: active
+  intake:
+    original_request: "The previous completion is not acceptable; quality is still bad, use a new set_goal."
+    interpreted_outcome: "Create a fresh GoalBuddy run that raises Meowtal Kombat's visible art quality, animation cohesion, game feel, effects, UI integration, and final proof above the rejected version."
+    input_shape: recovery
+    audience: "owner as final quality reviewer, plus players of the finished scoped web fighting game"
+    authority: requested
+    proof_type: review
+    completion_proof: "Fresh technical verification plus strict visual/browser capture review prove the game is substantially better than the rejected version, with cohesive characters/animations, polished UI/effects/stage, smooth combat feel, production preview evidence, and a final Judge receipt with full_outcome_complete: true."
+    likely_misfire: "Repeating the prior checklist-complete mistake: passing tests/build/smoke/provenance while the visible game still looks bad, inconsistent, pasted together, stiff, or not fun."
+    blind_spots_considered:
+      - "The owner rejected the previous final state; treat that as a blocking quality signal, not a minor opinion."
+      - "Screenshots can pass smoke checks while still looking amateur; visual critique and design judgment are required."
+      - "Animation consistency must be judged in motion and in still captures, not only by manifest status."
+      - "The current two-legged stance rule remains mandatory for normal gameplay."
+      - "Small commits and pushes remain mandatory."
+      - "The final audit must challenge whether the game feels good, not only whether tasks are done."
+    existing_plan_facts:
+      - "Previous board: docs/goals/meowtal-kombat-production/."
+      - "Previous final preview captures: output/web-game/meowtal-final-preview-t999/ and output/web-game/meowtal-final-preview-flow-t999/."
+      - "Game concept remains Meowtal Kombat: gray rabbit versus ginger/orange tabby cat in a bright parallax courtyard."
+      - "Tough Love Arena remains the feel and polish benchmark without copying IP, assets, UI, code, brand, or exact mechanics."
+
+rules:
+  pm_owns_state: true
+  one_active_task: true
+  max_write_workers: 1
+  no_implementation_without_worker_or_pm_task: true
+  no_completion_without_judge_or_pm_audit: true
+  planning_is_not_completion: true
+  queued_required_worker_blocks_completion: true
+  continuous_until_full_outcome: true
+  missing_input_or_credentials_do_not_stop_goal: true
+  preserve_and_validate_existing_plan: true
+  intake_misfire_must_be_audited: true
+  owner_quality_rejection_blocks_completion: true
+  visual_quality_review_required: true
+  no_checklist_only_completion: true
+  character_animation_style_consistency_required: true
+  shared_fighter_stance_convention_required: true
+  parallax_arena_required: true
+  tough_love_arena_feel_benchmark_required: true
+  commit_in_small_batches: true
+
+agents:
+  scout: installed
+  worker: installed
+  judge: installed
+
+visual_board:
+  selected: local
+  local:
+    status: live
+    url: "http://goalbuddy.localhost:41737/meowtal-kombat-quality-rebuild/"
+    command: "npx goalbuddy board /Users/oussmustaine/Documents/New\\ project/docs/goals/meowtal-kombat-quality-rebuild"
+  github_projects:
+    status: not_requested
+    url: null
+    command: "npx goalbuddy extend github-projects"
+    missing: []
+
+active_task: T001
+
+tasks:
+  - id: T000
+    type: pm
+    assignee: PM
+    status: done
+    reasoning_hint: medium
+    objective: "Create a fresh recovery board after the owner rejected the previous production-complete verdict."
+    constraints:
+      - "Only edit GoalBuddy control files during setup."
+      - "Do not inspect implementation files or generate assets during setup."
+    expected_output:
+      - "New goal charter and state file"
+      - "Fresh starter /goal command"
+    receipt:
+      result: done
+      summary: "Created a new quality-rebuild recovery goal. The previous completion is explicitly treated as rejected by the owner, and final completion now requires strict visual/feel acceptance rather than checklist proof alone."
+      changed_files:
+        - "docs/goals/meowtal-kombat-quality-rebuild/goal.md"
+        - "docs/goals/meowtal-kombat-quality-rebuild/state.yaml"
+  - id: T001
+    type: scout
+    assignee: Scout
+    status: active
+    reasoning_hint: high
+    objective: "Perform a ruthless visible-quality teardown of the current Meowtal Kombat game and prior final captures. Identify why it still looks bad, rank the highest-impact fixes, and map exact files/systems involved."
+    inputs:
+      - "docs/goals/meowtal-kombat-quality-rebuild/goal.md"
+      - "docs/goals/meowtal-kombat-production/goal.md"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+      - "output/web-game/meowtal-final-preview-t999/"
+      - "output/web-game/meowtal-final-preview-flow-t999/"
+      - "Current app source, assets, tests, and run scripts"
+    constraints:
+      - "Read-only."
+      - "Do not edit implementation files."
+      - "Use screenshots/browser captures and source evidence, not generic advice."
+      - "Specifically audit character animation consistency, pose mechanics, stance consistency, compositing, scale, UI integration, stage composition, effects readability, audio/feel hooks, and responsive layout."
+      - "Do not mark completion."
+    expected_output:
+      - "Concrete quality failures with file/capture references"
+      - "Ranked rebuild candidates"
+      - "Verification commands"
+      - "Candidate first Worker task with allowed_files, verify, and stop_if"
+    receipt: null
+  - id: T002
+    type: judge
+    assignee: Judge
+    status: queued
+    reasoning_hint: high
+    objective: "Review the teardown and choose the first high-leverage quality rebuild slice. Reject vague or cosmetic-only work; pick a slice likely to make the game visibly better."
+    inputs:
+      - "T001 receipt"
+      - "Owner rejected current quality as bad"
+    constraints:
+      - "Do not implement."
+      - "Prefer a small but visibly meaningful change over a broad refactor."
+      - "Require visual before/after proof."
+      - "If character art/animation is the root problem, choose a slice that directly addresses consistency rather than hiding it with effects."
+    expected_output:
+      - "Decision and rationale"
+      - "Exact Worker objective"
+      - "allowed_files"
+      - "verify commands"
+      - "stop_if conditions"
+      - "visual acceptance criteria"
+    receipt: null
+  - id: T003
+    type: worker
+    assignee: Worker
+    status: queued
+    reasoning_hint: medium
+    objective: "Execute the first high-leverage quality rebuild slice selected by T002."
+    allowed_files: []
+    verify: []
+    stop_if:
+      - "Need files outside allowed_files."
+      - "The selected fix would only improve metadata/checklists, not visible quality."
+      - "The change worsens character consistency, stance convention, readability, responsiveness, or production build health."
+      - "Verification fails twice for the same reason."
+    receipt: null
+  - id: T004
+    type: judge
+    assignee: Judge
+    status: queued
+    reasoning_hint: high
+    objective: "Audit the first rebuild slice with before/after captures and decide whether to continue, revise, or activate the next highest-impact slice."
+    inputs:
+      - "T003 receipt"
+      - "Before/after browser captures"
+      - "Latest verification"
+    constraints:
+      - "Do not implement."
+      - "Reject if the result is technically passing but still visually bad."
+      - "Reject if the owner-quality rejection remains substantially unaddressed."
+    expected_output:
+      - "approved | rejected"
+      - "Quality delta"
+      - "Next Worker task if more work remains"
+      - "Updated acceptance criteria"
+    receipt: null
+  - id: T010
+    type: worker
+    assignee: Worker
+    status: queued
+    reasoning_hint: medium
+    objective: "Reserved: rebuild character presentation and animation consistency if T001/T002 identify character art as a root quality blocker."
+    allowed_files: []
+    verify: []
+    stop_if:
+      - "Need files outside allowed_files."
+      - "Generated or edited character presentation still looks inconsistent after one retry."
+      - "Normal stance conventions become mixed."
+      - "No objective before/after captures can be produced."
+    receipt: null
+  - id: T011
+    type: worker
+    assignee: Worker
+    status: queued
+    reasoning_hint: medium
+    objective: "Reserved: rebuild HUD/overlay/menu/touch-control visual integration if T001/T002 identify UI composition as a root quality blocker."
+    allowed_files: []
+    verify: []
+    stop_if:
+      - "Need files outside allowed_files."
+      - "UI becomes less readable or more pasted-on."
+      - "Responsive smoke or production build fails."
+    receipt: null
+  - id: T012
+    type: worker
+    assignee: Worker
+    status: queued
+    reasoning_hint: medium
+    objective: "Reserved: rebuild combat feel, hit feedback, camera, timing, and effects if T001/T002 identify feel as a root quality blocker."
+    allowed_files: []
+    verify: []
+    stop_if:
+      - "Need files outside allowed_files."
+      - "Gameplay becomes less responsive, less readable, or less deterministic."
+      - "Effects hide fighters or HUD."
+    receipt: null
+  - id: T013
+    type: worker
+    assignee: Worker
+    status: queued
+    reasoning_hint: medium
+    objective: "Reserved: rebuild stage composition, parallax presentation, lighting, and first-screen composition if T001/T002 identify the arena/title composition as a root quality blocker."
+    allowed_files: []
+    verify: []
+    stop_if:
+      - "Need files outside allowed_files."
+      - "Arena loses parallax depth."
+      - "Stage becomes less readable for fighting."
+    receipt: null
+  - id: T999
+    type: judge
+    assignee: Judge
+    status: queued
+    reasoning_hint: high
+    objective: "Final quality audit: decide whether the owner's rejected-quality signal is truly resolved and the rebuilt game is complete."
+    inputs:
+      - "All done task receipts"
+      - "Latest production build/preview verification"
+      - "Before/after browser captures"
+      - "Current dirty diff"
+    constraints:
+      - "Do not implement."
+      - "Reject if any required Worker task remains queued or active."
+      - "Reject if the game still looks bad, inconsistent, pasted together, stiff, or checklist-complete."
+      - "Reject if character animation inconsistency remains obvious."
+      - "Reject if controls, hit feedback, round flow, or readability fall clearly short of the Tough Love Arena feel benchmark for this compact scope."
+      - "Reject if production build/preview, run instructions, asset/provenance, or capture evidence are missing."
+      - "Reject if owner-visible quality concerns from the initial teardown are not addressed."
+    expected_output:
+      - "complete | not_complete"
+      - "full_outcome_complete: true | false"
+      - "Before/after quality mapping"
+      - "Remaining blockers"
+      - "Next task if not complete"
+    receipt: null
+
+checks:
+  dirty_fingerprint: unknown
+  last_verification:
+    result: unknown
+    task: null
+    commands: []
