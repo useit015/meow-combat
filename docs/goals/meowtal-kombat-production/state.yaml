@@ -83,7 +83,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T055
+active_task: T056
 
 tasks:
   - id: T000
@@ -2475,7 +2475,7 @@ tasks:
   - id: T055
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Visual QA only the two generated Meowtal blockstun candidates, gray-rabbit:blockstun and ginger-tabby-cat:blockstun, against the approved two-legged style-lock rows. Decide whether they are approved for later runtime promotion or must be regenerated. Do not edit files."
     inputs:
@@ -2511,6 +2511,54 @@ tasks:
       - "Per-fighter visual QA notes"
       - "Runtime promotion constraints if approved"
       - "Regeneration notes if rejected"
+    receipt:
+      result: done
+      decision: approved
+      summary: "Judge approved both generated blockstun rows for later runtime promotion. Rabbit and cat both stay upright two-legged, use the same stance convention, read as guarded block impact/recoil, preserve approved-row identity/style, and have no disallowed artifacts. Metadata gate passed: both normalized candidates are 1280x256 RGBA with five separated 256x256 frames."
+      evidence:
+        - "assets/source/imagegen/fighters/gray-rabbit/blockstun.png"
+        - "assets/source/imagegen/fighters/ginger-tabby-cat/blockstun.png"
+        - "output/imagegen/gray-rabbit-blockstun-normalized.png"
+        - "output/imagegen/ginger-tabby-cat-blockstun-normalized.png"
+      visual_qa:
+        - "Rabbit blockstun is visually usable: guarded block impact/recoil with arms up and compact defensive brace, upright two-legged, gray rabbit identity/proportions/lighting/camera/outline/style preserved, and no text/logos/watermarks/frame numbers/detached effects/background/extra characters."
+        - "Cat blockstun is visually usable: guarded block impact/recoil with the same upright two-legged stance convention as the rabbit, orange tabby markings/proportions/lighting/camera/outline/style preserved, and no disallowed artifacts."
+      runtime_promotion_constraints:
+        - "Promote only gray-rabbit:blockstun and ginger-tabby-cat:blockstun."
+        - "Do not edit, generate, approve, or route any non-blockstun asset or gameplay/runtime selection file."
+        - "Public runtime PNGs must be exactly 1280x256 RGBA with alpha."
+        - "Manifest and provenance must clearly record T055 visual approval."
+  - id: T056
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: low
+    objective: "Promote only the approved normalized Meowtal blockstun rows to runtime assets. Copy normalized candidates into public runtime paths, update manifest provenance from generated/non-runtime to approved/runtime for only gray-rabbit:blockstun and ginger-tabby-cat:blockstun, update provenance docs/tests, and keep every other remaining animation row blocked."
+    allowed_files:
+      - "public/assets/generated/fighters/gray-rabbit/blockstun.png"
+      - "public/assets/generated/fighters/ginger-tabby-cat/blockstun.png"
+      - "src/assets/meowtalProductionManifest.ts"
+      - "docs/assets/meowtal-kombat-provenance.md"
+      - "test/meowtal-production-manifest.test.ts"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+    inputs:
+      - "output/imagegen/gray-rabbit-blockstun-normalized.png"
+      - "output/imagegen/ginger-tabby-cat-blockstun-normalized.png"
+      - "T055 approval receipt"
+    verify:
+      - "node scripts/normalize-fighter-rows.mjs --animation blockstun --fighters gray-rabbit,ginger-tabby-cat"
+      - "sips -g pixelWidth -g pixelHeight -g hasAlpha public/assets/generated/fighters/gray-rabbit/blockstun.png public/assets/generated/fighters/ginger-tabby-cat/blockstun.png"
+      - "npm run typecheck"
+      - "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-qa.test.ts"
+      - "npm run imagegen:qa"
+      - "npm run verify"
+    stop_if:
+      - "Any row other than gray-rabbit:blockstun or ginger-tabby-cat:blockstun is edited, approved, generated, or given a runtime path."
+      - "Runtime roster/game config, scene behavior, gameplay, stage, UI/HUD/logo, particles, audio, or character-selection routing need changes."
+      - "Any promoted runtime PNG is not 1280x256 RGBA with alpha."
+      - "Manifest/provenance cannot clearly record T055 visual approval and runtime promotion."
+      - "Files outside allowed_files are required."
+      - "Verification fails twice for the same underlying reason."
     receipt: null
   - id: T005
     type: worker
