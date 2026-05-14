@@ -85,7 +85,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T091
+active_task: T092
 
 tasks:
   - id: T000
@@ -4558,7 +4558,7 @@ tasks:
   - id: T091
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Scope the next smallest safe production slice after Meowtal runtime routing. Decide whether to generate/integrate parallax courtyard arena layers, HUD/logo/UI assets, audio/effects, gameplay-feel controls, or another narrow blocker. Do not edit files."
     inputs:
@@ -4580,6 +4580,60 @@ tasks:
       - "verification commands"
       - "stop conditions"
       - "why this advances production readiness"
+    receipt:
+      result: done
+      decision: "Begin the Meowtal parallax courtyard with source-only stage layer candidates."
+      next_allowed_task: T092
+      summary: "Judge selected a source-only Meowtal courtyard layer pack as the next smallest production slice after runtime routing. The legacy Marrakesh stage is now the biggest visible mismatch, but runtime promotion should stay behind a later visual QA gate. HUD/logo/UI, audio, gameplay feel, effects, and runtime stage integration remain out of scope for T092."
+      scoped_assets:
+        - "sky-lighting"
+        - "distant-hills-city"
+        - "background-walls-pillars"
+        - "midground-trees-bushes"
+        - "playfield-stone-courtyard"
+        - "foreground-dust-leaves"
+      notes:
+        - "Generate and normalize source-only candidates under assets/source/imagegen/stages/meowtal-courtyard and output/imagegen."
+        - "Do not route the new stage into runtime until a separate visual QA approves the layer pack."
+        - "Layers must form a bright outdoor stone courtyard with clear parallax depth and a readable fighting lane."
+        - "Layers must not include fighters, HUD, text, logos, watermarks, extra characters, or brand marks."
+  - id: T092
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: low
+    objective: "Generate and normalize source-only candidates for the Meowtal courtyard parallax arena layers only. Create sky-lighting, distant-hills-city, background-walls-pillars, midground-trees-bushes, playfield-stone-courtyard, and foreground-dust-leaves candidates with provenance/manifest/test updates, but do not route them into runtime and do not touch HUD/logo/audio/gameplay."
+    inputs:
+      - "T091 scoping receipt"
+      - "T090 runtime routing receipt"
+      - "Original arena requirement: bright outdoor stone-paved courtyard with low stone walls, pillars, scattered trees/bushes, distant cityscape or hills, vibrant lighting, lens flares, particle-friendly atmosphere, and parallax depth."
+      - "Active playable route already shows Gray Rabbit and Ginger Tabby Cat with approved runtime sprites."
+    allowed_files:
+      - "assets/source/imagegen/stages/meowtal-courtyard/sky-lighting.png"
+      - "assets/source/imagegen/stages/meowtal-courtyard/distant-hills-city.png"
+      - "assets/source/imagegen/stages/meowtal-courtyard/background-walls-pillars.png"
+      - "assets/source/imagegen/stages/meowtal-courtyard/midground-trees-bushes.png"
+      - "assets/source/imagegen/stages/meowtal-courtyard/playfield-stone-courtyard.png"
+      - "assets/source/imagegen/stages/meowtal-courtyard/foreground-dust-leaves.png"
+      - "output/imagegen/meowtal-courtyard-*.png"
+      - "src/assets/meowtalProductionManifest.ts"
+      - "docs/assets/meowtal-kombat-provenance.md"
+      - "test/meowtal-production-manifest.test.ts"
+      - "test/asset-qa.test.ts"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+    verify:
+      - "sips -g pixelWidth -g pixelHeight -g hasAlpha assets/source/imagegen/stages/meowtal-courtyard/*.png output/imagegen/meowtal-courtyard-*.png"
+      - "npm run typecheck"
+      - "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-qa.test.ts"
+      - "npm run verify"
+    stop_if:
+      - "Any runtime stage file under public/assets/generated/stages/** would need to change."
+      - "Any fighter asset, HUD/logo/UI, audio, gameplay, routing, or existing Meowtal runtime character config would need to change."
+      - "Generated layers include fighters, HUD, text, logos, watermarks, frame numbers, extra characters, or brand marks."
+      - "The playfield layer is not readable as a bright stone-paved fighting lane."
+      - "The layers do not line up as one coherent courtyard or are too cluttered behind fighter silhouettes."
+      - "Provenance cannot clearly mark the layers as source-only, non-runtime candidates pending later visual QA."
+      - "Verification requires broad asset-pipeline or scene changes outside allowed files."
     receipt: null
   - id: T005
     type: worker
