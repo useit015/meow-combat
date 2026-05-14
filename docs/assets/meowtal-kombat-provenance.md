@@ -377,6 +377,24 @@ Status: first HUD/logo batch approved as runtime UI assets, not yet routed into 
   - Runtime status: approved by T095 visual QA and promoted by T096; not yet routed into scene rendering
   - Transform notes: generated on magenta chroma key, resized to 1024x576, removed chroma key to transparent alpha, promoted to runtime.
   - QA notes: top HUD frame with left/right health housings and center timer medallion, no text, portraits, copied branding, watermark, or brand marks.
+- `ui:rabbit-portrait`
+  - Source path: `assets/source/imagegen/ui/meowtal/rabbit-portrait.png`
+  - Output QA candidate: `output/imagegen/meowtal-ui-rabbit-portrait.png`
+  - Provider: approved Codex imagegen runtime sprite plus local portrait-frame normalization
+  - Generated on: 2026-05-14
+  - License status: owned generated source asset
+  - Runtime status: source-only candidate; runtime path is null pending visual QA and runtime promotion
+  - Transform notes: derived from the approved transparent gray-rabbit idle runtime sprite to avoid character drift, composed into a transparent 1024x576 HUD portrait medallion with local frame, glow, and side markers.
+  - QA notes: Gray Rabbit portrait preserves approved upright two-legged identity and proportions, no text, copied branding, watermark, or brand marks.
+- `ui:cat-portrait`
+  - Source path: `assets/source/imagegen/ui/meowtal/cat-portrait.png`
+  - Output QA candidate: `output/imagegen/meowtal-ui-cat-portrait.png`
+  - Provider: approved Codex imagegen runtime sprite plus local portrait-frame normalization
+  - Generated on: 2026-05-14
+  - License status: owned generated source asset
+  - Runtime status: source-only candidate; runtime path is null pending visual QA and runtime promotion
+  - Transform notes: derived from the approved transparent ginger-tabby-cat idle runtime sprite to avoid character drift, composed into a transparent 1024x576 HUD portrait medallion with local frame, glow, and side markers.
+  - QA notes: Ginger Tabby Cat portrait preserves approved upright two-legged identity and proportions, no text, copied branding, watermark, or brand marks.
 - `ui:health-bar-rabbit`
   - Source path: `assets/source/imagegen/ui/meowtal/health-bar-rabbit.png`
   - Runtime path: `/assets/generated/ui/meowtal/health-bar-rabbit.png`
@@ -397,6 +415,15 @@ Status: first HUD/logo batch approved as runtime UI assets, not yet routed into 
   - Runtime status: approved by T095 visual QA and promoted by T096; not yet routed into scene rendering
   - Transform notes: generated on magenta chroma key, resized to 1024x576, removed chroma key to transparent alpha, promoted to runtime.
   - QA notes: blue cat-side health bar treatment, no text, portraits, copied branding, watermark, or brand marks.
+- `ui:super-meter`
+  - Source path: `assets/source/imagegen/ui/meowtal/super-meter.png`
+  - Output QA candidate: `output/imagegen/meowtal-ui-super-meter.png`
+  - Provider: Codex built-in imagegen
+  - Generated on: 2026-05-14
+  - License status: owned generated source asset
+  - Runtime status: source-only candidate; runtime path is null pending visual QA and runtime promotion
+  - Transform notes: generated on magenta chroma key, resized to 1024x576, removed chroma key to transparent alpha.
+  - QA notes: bottom special/super meter bar with gold/obsidian trim and green/yellow segmented energy fill, no text, copied branding, watermark, or brand marks.
 - `ui:timer-frame`
   - Source path: `assets/source/imagegen/ui/meowtal/timer-frame.png`
   - Runtime path: `/assets/generated/ui/meowtal/timer-frame.png`
@@ -418,7 +445,7 @@ Status: first HUD/logo batch approved as runtime UI assets, not yet routed into 
   - Transform notes: generated blank overlay panels on magenta chroma key, resized to 1024x576, removed chroma key to transparent alpha, added crisp local FIGHT/K.O./victory lettering, promoted to runtime.
   - QA notes: FIGHT, K.O., Rabbit Wins, and Tabby Wins overlay sheet with readable local lettering, no copied branding, watermark, or brand marks.
 
-Still planned: `ui:title-key-art`, `ui:rabbit-portrait`, `ui:cat-portrait`, `ui:super-meter`, `ui:pause-options-panel`, `ui:touch-controls`, `ui:loading-fallback`, `ui:particle-atlas`, and `ui:damage-number-style`.
+Still planned: `ui:title-key-art`, `ui:pause-options-panel`, `ui:touch-controls`, `ui:loading-fallback`, `ui:particle-atlas`, and `ui:damage-number-style`.
 
 ### Audio Cues
 

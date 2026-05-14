@@ -183,8 +183,11 @@ const stageLayerQaNotes: Readonly<Record<MeowtalStageLayerId, string>> = {
 const generatedUiSurfaceSourcePaths: Readonly<Partial<Record<MeowtalVisualSurfaceId, string>>> = {
   "logo-title-mark": "assets/source/imagegen/ui/meowtal/logo-title-mark.png",
   "hud-frame": "assets/source/imagegen/ui/meowtal/hud-frame.png",
+  "rabbit-portrait": "assets/source/imagegen/ui/meowtal/rabbit-portrait.png",
+  "cat-portrait": "assets/source/imagegen/ui/meowtal/cat-portrait.png",
   "health-bar-rabbit": "assets/source/imagegen/ui/meowtal/health-bar-rabbit.png",
   "health-bar-cat": "assets/source/imagegen/ui/meowtal/health-bar-cat.png",
+  "super-meter": "assets/source/imagegen/ui/meowtal/super-meter.png",
   "timer-frame": "assets/source/imagegen/ui/meowtal/timer-frame.png",
   "fight-ko-victory-overlays": "assets/source/imagegen/ui/meowtal/fight-ko-victory-overlays.png",
 };
@@ -201,8 +204,11 @@ const generatedUiSurfaceRuntimePaths: Readonly<Partial<Record<MeowtalVisualSurfa
 const generatedUiSurfaceOutputCandidatePaths: Readonly<Partial<Record<MeowtalVisualSurfaceId, string>>> = {
   "logo-title-mark": "output/imagegen/meowtal-ui-logo-title-mark.png",
   "hud-frame": "output/imagegen/meowtal-ui-hud-frame.png",
+  "rabbit-portrait": "output/imagegen/meowtal-ui-rabbit-portrait.png",
+  "cat-portrait": "output/imagegen/meowtal-ui-cat-portrait.png",
   "health-bar-rabbit": "output/imagegen/meowtal-ui-health-bar-rabbit.png",
   "health-bar-cat": "output/imagegen/meowtal-ui-health-bar-cat.png",
+  "super-meter": "output/imagegen/meowtal-ui-super-meter.png",
   "timer-frame": "output/imagegen/meowtal-ui-timer-frame.png",
   "fight-ko-victory-overlays": "output/imagegen/meowtal-ui-fight-ko-victory-overlays.png",
 };
@@ -212,10 +218,16 @@ const generatedUiSurfaceQaNotes: Readonly<Partial<Record<MeowtalVisualSurfaceId,
     "Approved runtime UI asset: readable original MEOWTAL KOMBAT title mark with rabbit-ear and cat-tail motifs, transparent alpha, no copied branding, watermark, or brand marks. Approved by T095 visual QA and promoted by T096; not yet routed into scene rendering.",
   "hud-frame":
     "Approved runtime UI asset: top HUD frame with left/right health housings and center timer medallion, transparent alpha, no text, portraits, copied branding, watermark, or brand marks. Approved by T095 visual QA and promoted by T096; not yet routed into scene rendering.",
+  "rabbit-portrait":
+    "Generated source-only UI candidate: Gray Rabbit HUD portrait medallion derived from approved transparent idle sprite to preserve upright two-legged identity and proportions, transparent alpha, no text, copied branding, watermark, or brand marks. Pending visual QA and runtime promotion.",
+  "cat-portrait":
+    "Generated source-only UI candidate: Ginger Tabby Cat HUD portrait medallion derived from approved transparent idle sprite to preserve upright two-legged identity and proportions, transparent alpha, no text, copied branding, watermark, or brand marks. Pending visual QA and runtime promotion.",
   "health-bar-rabbit":
     "Approved runtime UI asset: red rabbit-side health bar treatment with transparent alpha, no text, portraits, copied branding, watermark, or brand marks. Approved by T095 visual QA and promoted by T096; not yet routed into scene rendering.",
   "health-bar-cat":
     "Approved runtime UI asset: blue cat-side health bar treatment with transparent alpha, no text, portraits, copied branding, watermark, or brand marks. Approved by T095 visual QA and promoted by T096; not yet routed into scene rendering.",
+  "super-meter":
+    "Generated source-only UI candidate: bottom special/super meter bar with gold/obsidian trim and green/yellow segmented energy fill, transparent alpha, no text, copied branding, watermark, or brand marks. Pending visual QA and runtime promotion.",
   "timer-frame":
     "Approved runtime UI asset: circular center timer frame with transparent alpha, no numbers, copied branding, watermark, or brand marks. Approved by T095 visual QA and promoted by T096; not yet routed into scene rendering.",
   "fight-ko-victory-overlays":
@@ -231,11 +243,23 @@ const generatedUiSurfaceTransformNotes: Readonly<Partial<Record<MeowtalVisualSur
     "Generated with Codex built-in imagegen on magenta chroma-key background.",
     "Removed chroma-key background to alpha and resized to 1024x576 as a source-only UI candidate.",
   ],
+  "rabbit-portrait": [
+    "Derived portrait medallion from approved Codex imagegen gray-rabbit idle runtime sprite to avoid character drift.",
+    "Composited into a transparent 1024x576 HUD portrait source candidate with local frame, glow, and side markers.",
+  ],
+  "cat-portrait": [
+    "Derived portrait medallion from approved Codex imagegen ginger-tabby-cat idle runtime sprite to avoid character drift.",
+    "Composited into a transparent 1024x576 HUD portrait source candidate with local frame, glow, and side markers.",
+  ],
   "health-bar-rabbit": [
     "Generated with Codex built-in imagegen on magenta chroma-key background.",
     "Removed chroma-key background to alpha and resized to 1024x576 as a source-only UI candidate.",
   ],
   "health-bar-cat": [
+    "Generated with Codex built-in imagegen on magenta chroma-key background.",
+    "Removed chroma-key background to alpha and resized to 1024x576 as a source-only UI candidate.",
+  ],
+  "super-meter": [
     "Generated with Codex built-in imagegen on magenta chroma-key background.",
     "Removed chroma-key background to alpha and resized to 1024x576 as a source-only UI candidate.",
   ],
@@ -643,14 +667,23 @@ export function validateMeowtalProductionManifest(
     const generatedSourcePath = generatedUiSurfaceSourcePaths[surface.id];
     const generatedRuntimePath = generatedUiSurfaceRuntimePaths[surface.id];
     if (generatedSourcePath) {
-      if (surface.provenance.status !== "approved") {
-        errors.push(`${surface.provenance.assetId}: UI surface should be runtime-approved after T096.`);
-      }
       if (surface.provenance.sourcePath !== generatedSourcePath) {
         errors.push(`${surface.provenance.assetId}: UI surface requires the scoped generated source path.`);
       }
-      if (surface.provenance.runtimePath !== generatedRuntimePath) {
-        errors.push(`${surface.provenance.assetId}: UI surface requires the promoted runtime path.`);
+      if (generatedRuntimePath) {
+        if (surface.provenance.status !== "approved") {
+          errors.push(`${surface.provenance.assetId}: UI surface should be runtime-approved after T096.`);
+        }
+        if (surface.provenance.runtimePath !== generatedRuntimePath) {
+          errors.push(`${surface.provenance.assetId}: UI surface requires the promoted runtime path.`);
+        }
+      } else {
+        if (surface.provenance.status !== "generated") {
+          errors.push(`${surface.provenance.assetId}: UI surface should remain generated source-only until visual QA.`);
+        }
+        if (surface.provenance.runtimePath !== null) {
+          errors.push(`${surface.provenance.assetId}: UI source candidate must not have runtimePath before promotion.`);
+        }
       }
     } else if (surface.provenance.status !== "planned") {
       errors.push(`${surface.provenance.assetId}: out-of-scope UI surface should remain planned.`);
@@ -1411,24 +1444,26 @@ function approvedUiSurfaceProvenance(
   sourcePath: string,
 ): AssetProvenance {
   const runtimePath = generatedUiSurfaceRuntimePaths[id];
+  const isApproved = Boolean(runtimePath);
   return {
     ...imageProvenance({
       assetId: `ui:${id}`,
       promptSlug: `meowtal-ui-${id}`,
       prompt: `Create the ${id} visual surface for Meowtal Kombat. ${role} Keep it original, readable, arcade-polished, source-only, and free of copied fighting-game branding, watermarks, or real brand marks.`,
-      status: "approved",
+      status: isApproved ? "approved" : "generated",
       blocker: "",
     }),
     sourcePath,
     runtimePath: runtimePath ?? null,
     license: ownedGeneratedImageLicense(
-      "Generated with Codex built-in imagegen for this project; approved as a runtime UI asset but not yet routed into scene rendering.",
+      isApproved
+        ? "Generated with Codex built-in imagegen for this project; approved as a runtime UI asset but not yet routed into scene rendering."
+        : "Generated or derived from Codex imagegen source material for this project; source-only UI candidate pending visual QA and runtime promotion.",
     ),
     createdOrDownloadedOn: generatedOn,
-    transforms: [
-      ...(generatedUiSurfaceTransformNotes[id] ?? []),
-      `Promoted source UI candidate to ${runtimePath}.`,
-    ],
+    transforms: runtimePath
+      ? [...(generatedUiSurfaceTransformNotes[id] ?? []), `Promoted source UI candidate to ${runtimePath}.`]
+      : (generatedUiSurfaceTransformNotes[id] ?? []),
     approvalNotes: `${generatedUiSurfaceQaNotes[id]} QA candidate: ${generatedUiSurfaceOutputCandidatePaths[id]}.`,
     blocker: null,
   };

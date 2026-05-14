@@ -85,7 +85,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T097
+active_task: T098
 
 tasks:
   - id: T000
@@ -4942,7 +4942,7 @@ tasks:
   - id: T097
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: low
     objective: "Generate and normalize source-only candidates for the next missing Meowtal UI batch only: rabbit-portrait, cat-portrait, and super-meter. Keep them non-runtime pending visual QA; do not route UI into the scene and do not touch fighter/stage/combat/gameplay/audio/particle files."
     inputs:
@@ -4971,6 +4971,58 @@ tasks:
       - "Generated portraits drift from approved upright two-legged Gray Rabbit/Ginger Tabby Cat identity, markings, proportions, or style."
       - "Generated UI candidates include copied branding, real brand marks, watermarks, illegible text, extra characters, or unusable alpha/key artifacts."
       - "The batch cannot stay limited to rabbit-portrait, cat-portrait, and super-meter."
+    receipt:
+      completed_at: "2026-05-14"
+      result: done
+      summary: "Generated and normalized exactly the three scoped next-batch Meowtal UI source candidates: rabbit-portrait, cat-portrait, and super-meter. Portraits were derived from approved transparent runtime idle sprites to preserve the shared upright two-legged fighter identity, while the super meter was generated with Codex imagegen and chroma-normalized. All three remain source-only with runtimePath null; no runtime UI files, scene/HUD rendering, fighter, stage, combat/gameplay, audio, or particle files were changed."
+      changed_files:
+        - "assets/source/imagegen/ui/meowtal/rabbit-portrait.png"
+        - "assets/source/imagegen/ui/meowtal/cat-portrait.png"
+        - "assets/source/imagegen/ui/meowtal/super-meter.png"
+        - "src/assets/meowtalProductionManifest.ts"
+        - "docs/assets/meowtal-kombat-provenance.md"
+        - "test/meowtal-production-manifest.test.ts"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+      evidence:
+        - "sips -g pixelWidth -g pixelHeight -g hasAlpha assets/source/imagegen/ui/meowtal/rabbit-portrait.png assets/source/imagegen/ui/meowtal/cat-portrait.png assets/source/imagegen/ui/meowtal/super-meter.png output/imagegen/meowtal-ui-rabbit-portrait.png output/imagegen/meowtal-ui-cat-portrait.png output/imagegen/meowtal-ui-super-meter.png passed: all are 1024x576 with alpha."
+        - "npm run typecheck passed."
+        - "npm test -- --run test/meowtal-production-manifest.test.ts passed: 1 file, 21 tests."
+        - "npm run verify passed: 21 files, 117 tests, production build completed."
+        - "Judge audit returned approved_complete for T097."
+      commands:
+        - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha assets/source/imagegen/ui/meowtal/rabbit-portrait.png assets/source/imagegen/ui/meowtal/cat-portrait.png assets/source/imagegen/ui/meowtal/super-meter.png output/imagegen/meowtal-ui-rabbit-portrait.png output/imagegen/meowtal-ui-cat-portrait.png output/imagegen/meowtal-ui-super-meter.png"
+          status: pass
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm test -- --run test/meowtal-production-manifest.test.ts"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+      notes:
+        - "Initial canonical-sheet portrait crops were rejected locally because they carried a sheet-paper rectangle; accepted portrait candidates use approved transparent idle sprites instead."
+        - "Judge reported visibleMagenta=0 for all three source files and all three QA outputs."
+  - id: T098
+    type: judge
+    assignee: Judge
+    status: active
+    reasoning_hint: high
+    objective: "Perform strict visual QA only for the T097 rabbit-portrait, cat-portrait, and super-meter source candidates, comparing them against the current Meowtal fighters, courtyard, and approved UI surfaces. Decide whether they are approved for a later narrow runtime-promotion task or require touch-up/regeneration. Do not promote runtime UI or modify assets."
+    inputs:
+      - "T097 source-only UI generation receipt"
+      - "assets/source/imagegen/ui/meowtal/rabbit-portrait.png"
+      - "assets/source/imagegen/ui/meowtal/cat-portrait.png"
+      - "assets/source/imagegen/ui/meowtal/super-meter.png"
+      - "Existing approved UI surfaces under assets/source/imagegen/ui/meowtal and public/assets/generated/ui/meowtal for visual compatibility"
+    allowed_files:
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+    verify:
+      - "Visual inspection of rabbit-portrait, cat-portrait, and super-meter on transparent/checker background."
+      - "Confirm manifest/provenance source-only status remains generated with runtimePath null for the three T097 candidates."
+    stop_if:
+      - "Any candidate contains copied branding, real brand marks, watermarks, extra characters, baked unrelated sprites, visible key artifacts, or unusable alpha."
+      - "Portraits drift from approved Gray Rabbit/Ginger Tabby Cat identity, markings, proportions, style, or shared upright two-legged convention."
+      - "Super meter is not visually compatible with the approved HUD/logo UI batch."
+      - "The next step would require scene/HUD rendering, gameplay/combat, audio, fighter, or stage changes before QA decision."
     receipt: null
   - id: T005
     type: worker

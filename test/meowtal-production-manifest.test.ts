@@ -106,6 +106,7 @@ describe("Meowtal production manifest", () => {
       "timer-frame",
       "fight-ko-victory-overlays",
     ] as const;
+    const pendingSurfaceIds = ["rabbit-portrait", "cat-portrait", "super-meter"] as const;
 
     for (const surfaceId of generatedSurfaceIds) {
       const surface = meowtalProductionManifest.visualSurfaces.find((candidate) => candidate.id === surfaceId);
@@ -126,8 +127,27 @@ describe("Meowtal production manifest", () => {
       expect(existsSync(join(process.cwd(), "public", provenance?.runtimePath ?? ""))).toBe(true);
     }
 
+    for (const surfaceId of pendingSurfaceIds) {
+      const surface = meowtalProductionManifest.visualSurfaces.find((candidate) => candidate.id === surfaceId);
+      const provenance = surface?.provenance;
+
+      expect(provenance?.status).toBe("generated");
+      expect(provenance?.sourceKind).toBe("codex-imagegen");
+      expect(provenance?.sourcePath).toBe(`assets/source/imagegen/ui/meowtal/${surfaceId}.png`);
+      expect(provenance?.runtimePath).toBeNull();
+      expect(provenance?.license.kind).toBe("owned-generated");
+      expect(provenance?.createdOrDownloadedOn).toBe("2026-05-14");
+      expect(provenance?.approvalNotes).toContain("Generated source-only UI candidate");
+      expect(provenance?.approvalNotes).toContain(`output/imagegen/meowtal-ui-${surfaceId}.png`);
+      expect(provenance?.approvalNotes).toContain("Pending visual QA and runtime promotion");
+      expect(provenance?.blocker).toBeNull();
+      expect(existsSync(join(process.cwd(), provenance?.sourcePath ?? ""))).toBe(true);
+    }
+
     const outOfScopeSurfaces = meowtalProductionManifest.visualSurfaces.filter(
-      (surface) => !generatedSurfaceIds.includes(surface.id as (typeof generatedSurfaceIds)[number]),
+      (surface) =>
+        !generatedSurfaceIds.includes(surface.id as (typeof generatedSurfaceIds)[number]) &&
+        !pendingSurfaceIds.includes(surface.id as (typeof pendingSurfaceIds)[number]),
     );
     expect(outOfScopeSurfaces.every((surface) => surface.provenance.status === "planned")).toBe(true);
   });
