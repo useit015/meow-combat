@@ -85,7 +85,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T105
+active_task: T106
 
 tasks:
   - id: T000
@@ -5424,7 +5424,7 @@ tasks:
   - id: T105
     type: pm
     assignee: PM
-    status: active
+    status: done
     reasoning_hint: medium
     objective: "Decompose the remaining broad queued production-game work after T104 and select the next smallest safe Worker slice with explicit allowed_files, verification, and stop conditions. Do not implement product changes in this task."
     inputs:
@@ -5443,6 +5443,43 @@ tasks:
       - "allowed_files"
       - "verify commands"
       - "stop_if conditions"
+    receipt:
+      result: done
+      decision: "Activate a bounded mobile/touch-controls Worker slice before broad asset, combat, arcade-shell, or production-hardening tasks."
+      rationale: "T103 improved portrait framing and T104 enforced stance consistency, but the full production goal still requires mobile-friendly controls. A procedural touch overlay/input bridge is the smallest high-leverage production-readiness gap that can be implemented and verified locally without generating assets or changing combat rules."
+      rejected_broad_tasks:
+        - "Do not activate T005/T006/T007/T008/T009/T011 as written because their allowed_files and verify lists are empty and the scopes are too broad for the small-batch rule."
+      next_allowed_task: T106
+      summary: "Selected a narrow touch-controls slice using existing/procedural canvas UI only. It should preserve keyboard controls, map touch buttons into the same InputSnapshot semantics as keyboard input, expose touch state in render_game_to_text, and smoke-test mobile portrait touch interactions."
+  - id: T106
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: low
+    objective: "Add mobile-friendly procedural touch controls for the playable P1 flow using existing canvas/UI only. Touch input should support start/confirm, movement, jump/crouch, light/kick/heavy/special, guard/back, pause, and reset where appropriate, while preserving keyboard controls and not changing combat rules or generating assets."
+    inputs:
+      - "T105 PM decomposition"
+      - "Existing keyboard input path in MoroccanArenaScene"
+      - "Existing createInput/buttonsFromKeys semantics"
+      - "T103 portrait framing evidence"
+    allowed_files:
+      - "src/game/MoroccanArenaScene.ts"
+      - "src/game/touchControls.ts"
+      - "test/touch-controls.test.ts"
+      - "test/presentation.test.ts"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+    verify:
+      - "npm run typecheck"
+      - "npm test -- --run test/touch-controls.test.ts test/presentation.test.ts"
+      - "npm run verify"
+      - "Browser/Playwright smoke on desktop keyboard and mobile portrait touch: ready/select/fight/pause/reset plus hold-left/right/jump/light/kick/heavy/special/guard interactions should show expected state/input telemetry, no missing assets, no console/page errors, and no overlap unreadability."
+    stop_if:
+      - "Requires generated/editable touch-control art assets, UI promotion, or external libraries."
+      - "Requires changes to combat simulation rules, frame data timings, damage, physics, stage, fighter assets, audio, particles, or animation rows."
+      - "Requires full responsive UI rearchitecture beyond procedural touch overlay/input bridging."
+      - "Gamepad support becomes necessary for this slice instead of a later optional fallback."
+      - "Files outside allowed_files are needed."
+      - "Browser smoke shows broken keyboard controls, unusable touch controls, hidden/clipped fighters, missing assets, or console/page errors after one scoped fix attempt."
     receipt: null
   - id: T005
     type: worker
