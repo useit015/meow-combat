@@ -68,6 +68,12 @@ describe("Meowtal production manifest", () => {
       "meowtal-courtyard:midground-trees-bushes",
       "meowtal-courtyard:playfield-stone-courtyard",
       "meowtal-courtyard:sky-lighting",
+      "ui:fight-ko-victory-overlays",
+      "ui:health-bar-cat",
+      "ui:health-bar-rabbit",
+      "ui:hud-frame",
+      "ui:logo-title-mark",
+      "ui:timer-frame",
     ]);
     expect(runtimeEntries.every((entry) => entry.status === "approved")).toBe(true);
   });
@@ -91,7 +97,7 @@ describe("Meowtal production manifest", () => {
     }
   });
 
-  it("tracks generated source-only HUD and logo candidates without approving runtime use", () => {
+  it("tracks approved runtime HUD and logo assets without routing the remaining UI surfaces", () => {
     const generatedSurfaceIds = [
       "logo-title-mark",
       "hud-frame",
@@ -105,17 +111,19 @@ describe("Meowtal production manifest", () => {
       const surface = meowtalProductionManifest.visualSurfaces.find((candidate) => candidate.id === surfaceId);
       const provenance = surface?.provenance;
 
-      expect(provenance?.status).toBe("generated");
+      expect(provenance?.status).toBe("approved");
       expect(provenance?.sourceKind).toBe("codex-imagegen");
       expect(provenance?.sourcePath).toBe(`assets/source/imagegen/ui/meowtal/${surfaceId}.png`);
-      expect(provenance?.runtimePath).toBeNull();
+      expect(provenance?.runtimePath).toBe(`/assets/generated/ui/meowtal/${surfaceId}.png`);
       expect(provenance?.license.kind).toBe("owned-generated");
       expect(provenance?.createdOrDownloadedOn).toBe("2026-05-14");
-      expect(provenance?.approvalNotes).toContain("Generated source-only UI candidate");
+      expect(provenance?.approvalNotes).toContain("Approved runtime UI asset");
       expect(provenance?.approvalNotes).toContain(`output/imagegen/meowtal-ui-${surfaceId}.png`);
-      expect(provenance?.approvalNotes).toContain("Pending visual QA and runtime promotion");
+      expect(provenance?.approvalNotes).toContain("Approved by T095 visual QA and promoted by T096");
+      expect(provenance?.approvalNotes).toContain("not yet routed into scene rendering");
       expect(provenance?.blocker).toBeNull();
       expect(existsSync(join(process.cwd(), provenance?.sourcePath ?? ""))).toBe(true);
+      expect(existsSync(join(process.cwd(), "public", provenance?.runtimePath ?? ""))).toBe(true);
     }
 
     const outOfScopeSurfaces = meowtalProductionManifest.visualSurfaces.filter(

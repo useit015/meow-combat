@@ -189,6 +189,15 @@ const generatedUiSurfaceSourcePaths: Readonly<Partial<Record<MeowtalVisualSurfac
   "fight-ko-victory-overlays": "assets/source/imagegen/ui/meowtal/fight-ko-victory-overlays.png",
 };
 
+const generatedUiSurfaceRuntimePaths: Readonly<Partial<Record<MeowtalVisualSurfaceId, string>>> = {
+  "logo-title-mark": "/assets/generated/ui/meowtal/logo-title-mark.png",
+  "hud-frame": "/assets/generated/ui/meowtal/hud-frame.png",
+  "health-bar-rabbit": "/assets/generated/ui/meowtal/health-bar-rabbit.png",
+  "health-bar-cat": "/assets/generated/ui/meowtal/health-bar-cat.png",
+  "timer-frame": "/assets/generated/ui/meowtal/timer-frame.png",
+  "fight-ko-victory-overlays": "/assets/generated/ui/meowtal/fight-ko-victory-overlays.png",
+};
+
 const generatedUiSurfaceOutputCandidatePaths: Readonly<Partial<Record<MeowtalVisualSurfaceId, string>>> = {
   "logo-title-mark": "output/imagegen/meowtal-ui-logo-title-mark.png",
   "hud-frame": "output/imagegen/meowtal-ui-hud-frame.png",
@@ -200,17 +209,17 @@ const generatedUiSurfaceOutputCandidatePaths: Readonly<Partial<Record<MeowtalVis
 
 const generatedUiSurfaceQaNotes: Readonly<Partial<Record<MeowtalVisualSurfaceId, string>>> = {
   "logo-title-mark":
-    "Generated source-only UI candidate: readable original MEOWTAL KOMBAT title mark with rabbit-ear and cat-tail motifs, transparent alpha, no copied branding, watermark, or brand marks. Pending visual QA and runtime promotion.",
+    "Approved runtime UI asset: readable original MEOWTAL KOMBAT title mark with rabbit-ear and cat-tail motifs, transparent alpha, no copied branding, watermark, or brand marks. Approved by T095 visual QA and promoted by T096; not yet routed into scene rendering.",
   "hud-frame":
-    "Generated source-only UI candidate: top HUD frame with left/right health housings and center timer medallion, transparent alpha, no text, portraits, copied branding, watermark, or brand marks. Pending visual QA and runtime promotion.",
+    "Approved runtime UI asset: top HUD frame with left/right health housings and center timer medallion, transparent alpha, no text, portraits, copied branding, watermark, or brand marks. Approved by T095 visual QA and promoted by T096; not yet routed into scene rendering.",
   "health-bar-rabbit":
-    "Generated source-only UI candidate: red rabbit-side health bar treatment with transparent alpha, no text, portraits, copied branding, watermark, or brand marks. Pending visual QA and runtime promotion.",
+    "Approved runtime UI asset: red rabbit-side health bar treatment with transparent alpha, no text, portraits, copied branding, watermark, or brand marks. Approved by T095 visual QA and promoted by T096; not yet routed into scene rendering.",
   "health-bar-cat":
-    "Generated source-only UI candidate: blue cat-side health bar treatment with transparent alpha, no text, portraits, copied branding, watermark, or brand marks. Pending visual QA and runtime promotion.",
+    "Approved runtime UI asset: blue cat-side health bar treatment with transparent alpha, no text, portraits, copied branding, watermark, or brand marks. Approved by T095 visual QA and promoted by T096; not yet routed into scene rendering.",
   "timer-frame":
-    "Generated source-only UI candidate: circular center timer frame with transparent alpha, no numbers, copied branding, watermark, or brand marks. Pending visual QA and runtime promotion.",
+    "Approved runtime UI asset: circular center timer frame with transparent alpha, no numbers, copied branding, watermark, or brand marks. Approved by T095 visual QA and promoted by T096; not yet routed into scene rendering.",
   "fight-ko-victory-overlays":
-    "Generated source-only UI candidate: FIGHT, K.O., Rabbit Wins, and Tabby Wins overlay sheet with crisp local lettering, transparent alpha, no copied branding, watermark, or brand marks. Pending visual QA and runtime promotion.",
+    "Approved runtime UI asset: FIGHT, K.O., Rabbit Wins, and Tabby Wins overlay sheet with crisp local lettering, transparent alpha, no copied branding, watermark, or brand marks. Approved by T095 visual QA and promoted by T096; not yet routed into scene rendering.",
 };
 
 const generatedUiSurfaceTransformNotes: Readonly<Partial<Record<MeowtalVisualSurfaceId, readonly string[]>>> = {
@@ -632,15 +641,16 @@ export function validateMeowtalProductionManifest(
 
   for (const surface of manifest.visualSurfaces) {
     const generatedSourcePath = generatedUiSurfaceSourcePaths[surface.id];
+    const generatedRuntimePath = generatedUiSurfaceRuntimePaths[surface.id];
     if (generatedSourcePath) {
-      if (surface.provenance.status !== "generated") {
-        errors.push(`${surface.provenance.assetId}: UI surface should be generated source-only after T094.`);
+      if (surface.provenance.status !== "approved") {
+        errors.push(`${surface.provenance.assetId}: UI surface should be runtime-approved after T096.`);
       }
       if (surface.provenance.sourcePath !== generatedSourcePath) {
         errors.push(`${surface.provenance.assetId}: UI surface requires the scoped generated source path.`);
       }
-      if (surface.provenance.runtimePath !== null) {
-        errors.push(`${surface.provenance.assetId}: UI source candidate must not have runtimePath before promotion.`);
+      if (surface.provenance.runtimePath !== generatedRuntimePath) {
+        errors.push(`${surface.provenance.assetId}: UI surface requires the promoted runtime path.`);
       }
     } else if (surface.provenance.status !== "planned") {
       errors.push(`${surface.provenance.assetId}: out-of-scope UI surface should remain planned.`);
@@ -1379,7 +1389,7 @@ function visualSurface(id: MeowtalVisualSurfaceId, role: string): MeowtalVisualS
     return {
       id,
       role,
-      provenance: generatedUiSurfaceProvenance(id, role, generatedSourcePath),
+      provenance: approvedUiSurfaceProvenance(id, role, generatedSourcePath),
     };
   }
 
@@ -1395,26 +1405,30 @@ function visualSurface(id: MeowtalVisualSurfaceId, role: string): MeowtalVisualS
   };
 }
 
-function generatedUiSurfaceProvenance(
+function approvedUiSurfaceProvenance(
   id: MeowtalVisualSurfaceId,
   role: string,
   sourcePath: string,
 ): AssetProvenance {
+  const runtimePath = generatedUiSurfaceRuntimePaths[id];
   return {
     ...imageProvenance({
       assetId: `ui:${id}`,
       promptSlug: `meowtal-ui-${id}`,
       prompt: `Create the ${id} visual surface for Meowtal Kombat. ${role} Keep it original, readable, arcade-polished, source-only, and free of copied fighting-game branding, watermarks, or real brand marks.`,
-      status: "generated",
+      status: "approved",
       blocker: "",
     }),
     sourcePath,
-    runtimePath: null,
+    runtimePath: runtimePath ?? null,
     license: ownedGeneratedImageLicense(
-      "Generated with Codex built-in imagegen for this project; source-only UI candidate pending visual QA and runtime promotion.",
+      "Generated with Codex built-in imagegen for this project; approved as a runtime UI asset but not yet routed into scene rendering.",
     ),
     createdOrDownloadedOn: generatedOn,
-    transforms: generatedUiSurfaceTransformNotes[id] ?? [],
+    transforms: [
+      ...(generatedUiSurfaceTransformNotes[id] ?? []),
+      `Promoted source UI candidate to ${runtimePath}.`,
+    ],
     approvalNotes: `${generatedUiSurfaceQaNotes[id]} QA candidate: ${generatedUiSurfaceOutputCandidatePaths[id]}.`,
     blocker: null,
   };

@@ -355,61 +355,67 @@ Composite QA candidate: `output/imagegen/meowtal-courtyard-composite-preview.png
 
 ### UI, HUD, And Effects Surfaces
 
-Status: first HUD/logo batch generated as source-only candidates, not approved for runtime use.
+Status: first HUD/logo batch approved as runtime UI assets, not yet routed into scene rendering.
 
 - `ui:logo-title-mark`
   - Source path: `assets/source/imagegen/ui/meowtal/logo-title-mark.png`
+  - Runtime path: `/assets/generated/ui/meowtal/logo-title-mark.png`
   - Output QA candidate: `output/imagegen/meowtal-ui-logo-title-mark.png`
   - Provider: Codex built-in imagegen plus local text normalization
   - Generated on: 2026-05-14
   - License status: owned generated source asset
-  - Runtime status: source-only candidate; runtime path is null pending visual QA and runtime promotion
-  - Transform notes: generated blank title plate on magenta chroma key, resized to 1024x576, removed chroma key to transparent alpha, added crisp local MEOWTAL KOMBAT lettering.
+  - Runtime status: approved by T095 visual QA and promoted by T096; not yet routed into scene rendering
+  - Transform notes: generated blank title plate on magenta chroma key, resized to 1024x576, removed chroma key to transparent alpha, added crisp local MEOWTAL KOMBAT lettering, promoted to runtime.
   - QA notes: readable original title mark with rabbit-ear and cat-tail motifs, no copied branding, watermark, or brand marks.
 - `ui:hud-frame`
   - Source path: `assets/source/imagegen/ui/meowtal/hud-frame.png`
+  - Runtime path: `/assets/generated/ui/meowtal/hud-frame.png`
   - Output QA candidate: `output/imagegen/meowtal-ui-hud-frame.png`
   - Provider: Codex built-in imagegen
   - Generated on: 2026-05-14
   - License status: owned generated source asset
-  - Runtime status: source-only candidate; runtime path is null pending visual QA and runtime promotion
-  - Transform notes: generated on magenta chroma key, resized to 1024x576, removed chroma key to transparent alpha.
+  - Runtime status: approved by T095 visual QA and promoted by T096; not yet routed into scene rendering
+  - Transform notes: generated on magenta chroma key, resized to 1024x576, removed chroma key to transparent alpha, promoted to runtime.
   - QA notes: top HUD frame with left/right health housings and center timer medallion, no text, portraits, copied branding, watermark, or brand marks.
 - `ui:health-bar-rabbit`
   - Source path: `assets/source/imagegen/ui/meowtal/health-bar-rabbit.png`
+  - Runtime path: `/assets/generated/ui/meowtal/health-bar-rabbit.png`
   - Output QA candidate: `output/imagegen/meowtal-ui-health-bar-rabbit.png`
   - Provider: Codex built-in imagegen
   - Generated on: 2026-05-14
   - License status: owned generated source asset
-  - Runtime status: source-only candidate; runtime path is null pending visual QA and runtime promotion
-  - Transform notes: generated on magenta chroma key, resized to 1024x576, removed chroma key to transparent alpha.
+  - Runtime status: approved by T095 visual QA and promoted by T096; not yet routed into scene rendering
+  - Transform notes: generated on magenta chroma key, resized to 1024x576, removed chroma key to transparent alpha, promoted to runtime.
   - QA notes: red rabbit-side health bar treatment, no text, portraits, copied branding, watermark, or brand marks.
 - `ui:health-bar-cat`
   - Source path: `assets/source/imagegen/ui/meowtal/health-bar-cat.png`
+  - Runtime path: `/assets/generated/ui/meowtal/health-bar-cat.png`
   - Output QA candidate: `output/imagegen/meowtal-ui-health-bar-cat.png`
   - Provider: Codex built-in imagegen
   - Generated on: 2026-05-14
   - License status: owned generated source asset
-  - Runtime status: source-only candidate; runtime path is null pending visual QA and runtime promotion
-  - Transform notes: generated on magenta chroma key, resized to 1024x576, removed chroma key to transparent alpha.
+  - Runtime status: approved by T095 visual QA and promoted by T096; not yet routed into scene rendering
+  - Transform notes: generated on magenta chroma key, resized to 1024x576, removed chroma key to transparent alpha, promoted to runtime.
   - QA notes: blue cat-side health bar treatment, no text, portraits, copied branding, watermark, or brand marks.
 - `ui:timer-frame`
   - Source path: `assets/source/imagegen/ui/meowtal/timer-frame.png`
+  - Runtime path: `/assets/generated/ui/meowtal/timer-frame.png`
   - Output QA candidate: `output/imagegen/meowtal-ui-timer-frame.png`
   - Provider: Codex built-in imagegen
   - Generated on: 2026-05-14
   - License status: owned generated source asset
-  - Runtime status: source-only candidate; runtime path is null pending visual QA and runtime promotion
-  - Transform notes: generated on magenta chroma key, resized to 1024x576, removed chroma key to transparent alpha.
+  - Runtime status: approved by T095 visual QA and promoted by T096; not yet routed into scene rendering
+  - Transform notes: generated on magenta chroma key, resized to 1024x576, removed chroma key to transparent alpha, promoted to runtime.
   - QA notes: circular center timer frame, no numbers, copied branding, watermark, or brand marks.
 - `ui:fight-ko-victory-overlays`
   - Source path: `assets/source/imagegen/ui/meowtal/fight-ko-victory-overlays.png`
+  - Runtime path: `/assets/generated/ui/meowtal/fight-ko-victory-overlays.png`
   - Output QA candidate: `output/imagegen/meowtal-ui-fight-ko-victory-overlays.png`
   - Provider: Codex built-in imagegen plus local text normalization
   - Generated on: 2026-05-14
   - License status: owned generated source asset
-  - Runtime status: source-only candidate; runtime path is null pending visual QA and runtime promotion
-  - Transform notes: generated blank overlay panels on magenta chroma key, resized to 1024x576, removed chroma key to transparent alpha, added crisp local FIGHT/K.O./victory lettering.
+  - Runtime status: approved by T095 visual QA and promoted by T096; not yet routed into scene rendering
+  - Transform notes: generated blank overlay panels on magenta chroma key, resized to 1024x576, removed chroma key to transparent alpha, added crisp local FIGHT/K.O./victory lettering, promoted to runtime.
   - QA notes: FIGHT, K.O., Rabbit Wins, and Tabby Wins overlay sheet with readable local lettering, no copied branding, watermark, or brand marks.
 
 Still planned: `ui:title-key-art`, `ui:rabbit-portrait`, `ui:cat-portrait`, `ui:super-meter`, `ui:pause-options-panel`, `ui:touch-controls`, `ui:loading-fallback`, `ui:particle-atlas`, and `ui:damage-number-style`.
