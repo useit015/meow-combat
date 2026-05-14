@@ -2,6 +2,7 @@ import { REQUIRED_FIGHTER_ANIMATIONS, type FighterAnimationId } from "./types";
 import {
   plannedLicense,
   validateProvenanceEntries,
+  type AssetLicense,
   type AssetProvenance,
   type AssetSourceKind,
   type ProvenanceStatus,
@@ -109,6 +110,66 @@ type MeowtalEndStateAnimationId = Extract<FighterAnimationId, "win" | "lose">;
 
 const binaryBlocker = "Planned production asset only; no binary image or audio generated in the T020 scaffold.";
 const generatedOn = "2026-05-14";
+
+const stageLayerSourcePaths: Readonly<Record<MeowtalStageLayerId, string>> = {
+  "sky-lighting": "assets/source/imagegen/stages/meowtal-courtyard/sky-lighting.png",
+  "distant-hills-city": "assets/source/imagegen/stages/meowtal-courtyard/distant-hills-city.png",
+  "background-walls-pillars": "assets/source/imagegen/stages/meowtal-courtyard/background-walls-pillars.png",
+  "midground-trees-bushes": "assets/source/imagegen/stages/meowtal-courtyard/midground-trees-bushes.png",
+  "playfield-stone-courtyard": "assets/source/imagegen/stages/meowtal-courtyard/playfield-stone-courtyard.png",
+  "foreground-dust-leaves": "assets/source/imagegen/stages/meowtal-courtyard/foreground-dust-leaves.png",
+};
+
+const stageLayerOutputCandidatePaths: Readonly<Record<MeowtalStageLayerId, string>> = {
+  "sky-lighting": "output/imagegen/meowtal-courtyard-sky-lighting.png",
+  "distant-hills-city": "output/imagegen/meowtal-courtyard-distant-hills-city.png",
+  "background-walls-pillars": "output/imagegen/meowtal-courtyard-background-walls-pillars.png",
+  "midground-trees-bushes": "output/imagegen/meowtal-courtyard-midground-trees-bushes.png",
+  "playfield-stone-courtyard": "output/imagegen/meowtal-courtyard-playfield-stone-courtyard.png",
+  "foreground-dust-leaves": "output/imagegen/meowtal-courtyard-foreground-dust-leaves.png",
+};
+
+const stageLayerTransformNotes: Readonly<Record<MeowtalStageLayerId, readonly string[]>> = {
+  "sky-lighting": [
+    "Generated with Codex built-in imagegen as the opaque 1024x576 sky and lighting base.",
+    "Copied selected output into the repo source asset tree and mirrored it as an output QA candidate.",
+  ],
+  "distant-hills-city": [
+    "Generated with Codex built-in imagegen as a magenta chroma-key parallax layer.",
+    "Copied selected output into the repo source asset tree, resized to 1024x576, and chroma-key normalized into the output QA candidate.",
+  ],
+  "background-walls-pillars": [
+    "Generated with Codex built-in imagegen as a magenta chroma-key parallax layer.",
+    "Copied selected output into the repo source asset tree, resized to 1024x576, and chroma-key normalized into the output QA candidate.",
+  ],
+  "midground-trees-bushes": [
+    "Generated with Codex built-in imagegen as a magenta chroma-key parallax layer after rejecting a UI-contaminated candidate.",
+    "Copied selected output into the repo source asset tree, resized to 1024x576, and chroma-key normalized into the output QA candidate.",
+  ],
+  "playfield-stone-courtyard": [
+    "Generated with Codex built-in imagegen as a magenta chroma-key parallax layer.",
+    "Copied selected output into the repo source asset tree, resized to 1024x576, shifted downward 40 pixels to fill the bottom of the fighting lane, and chroma-key normalized into the output QA candidate.",
+  ],
+  "foreground-dust-leaves": [
+    "Generated with Codex built-in imagegen as a magenta chroma-key parallax layer after rejecting candidates with unusable background artifacts.",
+    "Copied selected output into the repo source asset tree, resized to 1024x576, and chroma-key normalized into the output QA candidate.",
+  ],
+};
+
+const stageLayerQaNotes: Readonly<Record<MeowtalStageLayerId, string>> = {
+  "sky-lighting":
+    "Generated source-only parallax layer candidate: bright blue sky, warm lens flare, no fighters, HUD, text, logos, watermarks, or brand marks. Pending visual QA and runtime promotion.",
+  "distant-hills-city":
+    "Generated source-only parallax layer candidate: colorful distant hills and cityscape behind the courtyard wall, no fighters, HUD, text, logos, watermarks, or brand marks. Pending visual QA and runtime promotion.",
+  "background-walls-pillars":
+    "Generated source-only parallax layer candidate: low stone walls and pillars with readable depth, no fighters, HUD, text, logos, watermarks, or brand marks. Pending visual QA and runtime promotion.",
+  "midground-trees-bushes":
+    "Generated source-only parallax layer candidate: trees and bushes frame the combat lane without covering the center, no fighters, HUD, text, logos, watermarks, or brand marks. Pending visual QA and runtime promotion.",
+  "playfield-stone-courtyard":
+    "Generated source-only parallax layer candidate: bright stone-paved fighting lane with solid bottom coverage and clear gameplay readability, no fighters, HUD, text, logos, watermarks, or brand marks. Pending visual QA and runtime promotion.",
+  "foreground-dust-leaves":
+    "Generated source-only parallax layer candidate: edge props, leaves, petals, and dust puffs for foreground parallax, no fighters, HUD, text, logos, watermarks, or brand marks. Pending visual QA and runtime promotion.",
+};
 
 const canonicalSheetSourcePaths: Readonly<Record<MeowtalFighterId, string>> = {
   "gray-rabbit": "assets/source/imagegen/fighters/gray-rabbit/canonical-character-sheet.png",
@@ -487,6 +548,18 @@ export function validateMeowtalProductionManifest(
   const errors = [...validateProvenanceEntries(collectMeowtalProvenanceEntries(manifest)).errors];
   if (manifest.fighters.length !== 2) errors.push("Meowtal production manifest requires exactly two fighters.");
   if (manifest.stage.layers.length < 5) errors.push("Meowtal courtyard requires at least five parallax layers.");
+
+  for (const layer of manifest.stage.layers) {
+    if (layer.provenance.status !== "generated") {
+      errors.push(`${layer.provenance.assetId}: courtyard layer should remain source-only generated until visual QA.`);
+    }
+    if (layer.provenance.sourcePath !== stageLayerSourcePaths[layer.id]) {
+      errors.push(`${layer.provenance.assetId}: courtyard layer requires the scoped generated source path.`);
+    }
+    if (layer.provenance.runtimePath !== null) {
+      errors.push(`${layer.provenance.assetId}: courtyard source candidate must not have runtimePath before promotion.`);
+    }
+  }
 
   for (const fighter of manifest.fighters) {
     if (!fighter.canonicalSheet.requiredBeforeAnimationRows) {
@@ -1176,12 +1249,38 @@ function stageLayer(id: MeowtalStageLayerId, parallax: number, role: string): Me
     id,
     parallax,
     role,
-    provenance: imageProvenance({
+    provenance: generatedStageLayerProvenance(id, role),
+  };
+}
+
+function generatedStageLayerProvenance(id: MeowtalStageLayerId, role: string): AssetProvenance {
+  return {
+    ...imageProvenance({
       assetId: `meowtal-courtyard:${id}`,
       promptSlug: `meowtal-courtyard-${id}`,
-      prompt: `Create the ${id} parallax layer for Meowtal Kombat's bright outdoor stone courtyard. ${role} Keep fighters and HUD readable. No text, logos, watermarks, or real brand marks.`,
-      blocker: binaryBlocker,
+      prompt: `Create the ${id} parallax layer for Meowtal Kombat's bright outdoor stone courtyard. ${role} Keep fighters and HUD readable. No text, logos, watermarks, real brand marks, characters, or UI.`,
+      status: "generated",
+      blocker: "",
     }),
+    sourcePath: stageLayerSourcePaths[id],
+    runtimePath: null,
+    license: ownedGeneratedImageLicense(
+      "Generated with Codex built-in imagegen for this project; source-only parallax candidate pending visual QA and runtime promotion.",
+    ),
+    createdOrDownloadedOn: generatedOn,
+    transforms: stageLayerTransformNotes[id],
+    approvalNotes: `${stageLayerQaNotes[id]} QA candidate: ${stageLayerOutputCandidatePaths[id]}. Composite preview: output/imagegen/meowtal-courtyard-composite-preview.png.`,
+    blocker: null,
+  };
+}
+
+function ownedGeneratedImageLicense(summary: string): AssetLicense {
+  return {
+    kind: "owned-generated",
+    summary,
+    sourceUrl: null,
+    attribution: null,
+    checkedOn: generatedOn,
   };
 }
 

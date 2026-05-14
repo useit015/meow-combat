@@ -85,7 +85,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T092
+active_task: T093
 
 tasks:
   - id: T000
@@ -4600,7 +4600,7 @@ tasks:
   - id: T092
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: low
     objective: "Generate and normalize source-only candidates for the Meowtal courtyard parallax arena layers only. Create sky-lighting, distant-hills-city, background-walls-pillars, midground-trees-bushes, playfield-stone-courtyard, and foreground-dust-leaves candidates with provenance/manifest/test updates, but do not route them into runtime and do not touch HUD/logo/audio/gameplay."
     inputs:
@@ -4634,6 +4634,82 @@ tasks:
       - "The layers do not line up as one coherent courtyard or are too cluttered behind fighter silhouettes."
       - "Provenance cannot clearly mark the layers as source-only, non-runtime candidates pending later visual QA."
       - "Verification requires broad asset-pipeline or scene changes outside allowed files."
+    receipt:
+      completed_at: "2026-05-14"
+      result: done
+      summary: "Generated and normalized exactly the six scoped Meowtal courtyard parallax layer source candidates: sky-lighting, distant-hills-city, background-walls-pillars, midground-trees-bushes, playfield-stone-courtyard, and foreground-dust-leaves. The pack remains source-only/non-runtime with runtimePath null; no public runtime stage files, fighter assets, HUD/logo/UI, audio, gameplay, or routing files were touched. The composite QA preview reads as a bright outdoor stone courtyard with city/hills, walls/pillars, framed trees/bushes, a solid stone fighting lane, and foreground dust/leaves/props."
+      changed_files:
+        - "assets/source/imagegen/stages/meowtal-courtyard/sky-lighting.png"
+        - "assets/source/imagegen/stages/meowtal-courtyard/distant-hills-city.png"
+        - "assets/source/imagegen/stages/meowtal-courtyard/background-walls-pillars.png"
+        - "assets/source/imagegen/stages/meowtal-courtyard/midground-trees-bushes.png"
+        - "assets/source/imagegen/stages/meowtal-courtyard/playfield-stone-courtyard.png"
+        - "assets/source/imagegen/stages/meowtal-courtyard/foreground-dust-leaves.png"
+        - "src/assets/meowtalProductionManifest.ts"
+        - "docs/assets/meowtal-kombat-provenance.md"
+        - "test/meowtal-production-manifest.test.ts"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+      evidence:
+        - "sips -g pixelWidth -g pixelHeight -g hasAlpha assets/source/imagegen/stages/meowtal-courtyard/*.png output/imagegen/meowtal-courtyard-*.png passed: all source files are 1024x576 RGB/no-alpha; QA output layers are 1024x576 with alpha for all cutout layers and opaque sky."
+        - "npm run typecheck passed."
+        - "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-qa.test.ts passed: 2 files, 21 tests."
+        - "npm run verify passed: 21 files, 115 tests, production build completed."
+        - "Visual QA preview: output/imagegen/meowtal-courtyard-composite-preview.png."
+        - "Judge audit returned approved_complete for T092."
+      commands:
+        - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha assets/source/imagegen/stages/meowtal-courtyard/*.png output/imagegen/meowtal-courtyard-*.png"
+          status: pass
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-qa.test.ts"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+          status: pass
+      notes:
+        - "The first midground candidate was rejected because it contained UI/terminal-like contamination; the accepted midground was regenerated cleanly."
+        - "The playfield source was shifted downward 40 pixels during deterministic normalization to fill the bottom of the fighting lane and avoid a sky-colored bottom strip in the composite."
+        - "Output/imagegen QA artifacts are generated receipts; the committed source of truth for later promotion is under assets/source/imagegen/stages/meowtal-courtyard."
+  - id: T093
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: low
+    objective: "Promote only the approved Meowtal courtyard parallax layer pack into runtime stage assets and route the active stage config to those runtime layers. Keep existing Gray Rabbit and Ginger Tabby Cat fighter routing intact, do not change HUD/logo/UI/audio/gameplay, and preserve the source-only provenance history while marking the promoted stage layers approved."
+    inputs:
+      - "T092 source-only courtyard layer receipt and Judge approved_complete audit"
+      - "Composite QA preview: output/imagegen/meowtal-courtyard-composite-preview.png"
+      - "Runtime currently uses the legacy stage art after T090 fighter routing; the visible stage is the next mismatch."
+    allowed_files:
+      - "public/assets/generated/stages/meowtal-courtyard/sky-lighting.png"
+      - "public/assets/generated/stages/meowtal-courtyard/distant-hills-city.png"
+      - "public/assets/generated/stages/meowtal-courtyard/background-walls-pillars.png"
+      - "public/assets/generated/stages/meowtal-courtyard/midground-trees-bushes.png"
+      - "public/assets/generated/stages/meowtal-courtyard/playfield-stone-courtyard.png"
+      - "public/assets/generated/stages/meowtal-courtyard/foreground-dust-leaves.png"
+      - "src/assets/catalog.ts"
+      - "src/assets/meowtalProductionManifest.ts"
+      - "src/scenes/MoroccanArenaScene.ts"
+      - "docs/assets/meowtal-kombat-provenance.md"
+      - "test/meowtal-production-manifest.test.ts"
+      - "test/asset-runtime.test.ts"
+      - "test/game-config.test.ts"
+      - "test/character-select.test.ts"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+    verify:
+      - "sips -g pixelWidth -g pixelHeight -g hasAlpha public/assets/generated/stages/meowtal-courtyard/*.png"
+      - "npm run typecheck"
+      - "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-runtime.test.ts test/game-config.test.ts test/character-select.test.ts"
+      - "npm run build"
+      - "npm run verify"
+      - "Browser/Playwright smoke: ready/select/fight should load Meowtal fighters on the Meowtal courtyard with no runtime fallbacks or console errors."
+    stop_if:
+      - "Promotion requires fighter, HUD/logo/UI, audio, gameplay/combat, controls, or broad routing changes outside stage asset routing."
+      - "Any promoted runtime layer has wrong dimensions, missing alpha where needed, a baked fighter/HUD/text/logo/watermark/brand mark, or a sky-colored bottom gap."
+      - "Runtime config cannot load the stage as layered parallax assets without rearchitecting the scene."
+      - "The active fighter route regresses away from Gray Rabbit versus Ginger Tabby Cat."
+      - "Verification fails twice for the same root cause."
     receipt: null
   - id: T005
     type: worker

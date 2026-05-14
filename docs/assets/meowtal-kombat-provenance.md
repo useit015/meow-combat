@@ -288,14 +288,64 @@ Each fighter needs rows for idle, walk-forward, walk-back, crouch, jump, light-p
 
 ### Parallax Courtyard
 
-Status: planned.
+Status: generated source-only candidates, not approved for runtime use.
+
+Composite QA candidate: `output/imagegen/meowtal-courtyard-composite-preview.png`
 
 - `meowtal-courtyard:sky-lighting`
+  - Source path: `assets/source/imagegen/stages/meowtal-courtyard/sky-lighting.png`
+  - Output QA candidate: `output/imagegen/meowtal-courtyard-sky-lighting.png`
+  - Provider: Codex built-in imagegen
+  - Generated on: 2026-05-14
+  - License status: owned generated source asset
+  - Runtime status: source-only candidate; runtime path is null pending visual QA and runtime promotion
+  - Transform notes: generated as opaque 1024x576 sky and lighting base, copied into the source tree, mirrored as output QA candidate.
+  - QA notes: bright blue sky, warm lens flare, no fighters, HUD, text, logos, watermarks, or brand marks.
 - `meowtal-courtyard:distant-hills-city`
+  - Source path: `assets/source/imagegen/stages/meowtal-courtyard/distant-hills-city.png`
+  - Output QA candidate: `output/imagegen/meowtal-courtyard-distant-hills-city.png`
+  - Provider: Codex built-in imagegen
+  - Generated on: 2026-05-14
+  - License status: owned generated source asset
+  - Runtime status: source-only candidate; runtime path is null pending visual QA and runtime promotion
+  - Transform notes: generated as magenta chroma-key layer, copied into the source tree, resized to 1024x576, chroma-key normalized into an alpha QA candidate.
+  - QA notes: colorful distant hills and cityscape behind the wall, no fighters, HUD, text, logos, watermarks, or brand marks.
 - `meowtal-courtyard:background-walls-pillars`
+  - Source path: `assets/source/imagegen/stages/meowtal-courtyard/background-walls-pillars.png`
+  - Output QA candidate: `output/imagegen/meowtal-courtyard-background-walls-pillars.png`
+  - Provider: Codex built-in imagegen
+  - Generated on: 2026-05-14
+  - License status: owned generated source asset
+  - Runtime status: source-only candidate; runtime path is null pending visual QA and runtime promotion
+  - Transform notes: generated as magenta chroma-key layer, copied into the source tree, resized to 1024x576, chroma-key normalized into an alpha QA candidate.
+  - QA notes: low stone walls and pillars with readable depth, no fighters, HUD, text, logos, watermarks, or brand marks.
 - `meowtal-courtyard:midground-trees-bushes`
+  - Source path: `assets/source/imagegen/stages/meowtal-courtyard/midground-trees-bushes.png`
+  - Output QA candidate: `output/imagegen/meowtal-courtyard-midground-trees-bushes.png`
+  - Provider: Codex built-in imagegen
+  - Generated on: 2026-05-14
+  - License status: owned generated source asset
+  - Runtime status: source-only candidate; runtime path is null pending visual QA and runtime promotion
+  - Transform notes: regenerated after rejecting a UI-contaminated candidate, copied into the source tree, resized to 1024x576, chroma-key normalized into an alpha QA candidate.
+  - QA notes: trees and bushes frame the combat lane without covering the center, no fighters, HUD, text, logos, watermarks, or brand marks.
 - `meowtal-courtyard:playfield-stone-courtyard`
+  - Source path: `assets/source/imagegen/stages/meowtal-courtyard/playfield-stone-courtyard.png`
+  - Output QA candidate: `output/imagegen/meowtal-courtyard-playfield-stone-courtyard.png`
+  - Provider: Codex built-in imagegen
+  - Generated on: 2026-05-14
+  - License status: owned generated source asset
+  - Runtime status: source-only candidate; runtime path is null pending visual QA and runtime promotion
+  - Transform notes: generated as magenta chroma-key layer, copied into the source tree, resized to 1024x576, shifted downward 40 pixels to fill the bottom of the fighting lane, chroma-key normalized into an alpha QA candidate.
+  - QA notes: bright stone-paved fighting lane with solid bottom coverage and clear gameplay readability, no fighters, HUD, text, logos, watermarks, or brand marks.
 - `meowtal-courtyard:foreground-dust-leaves`
+  - Source path: `assets/source/imagegen/stages/meowtal-courtyard/foreground-dust-leaves.png`
+  - Output QA candidate: `output/imagegen/meowtal-courtyard-foreground-dust-leaves.png`
+  - Provider: Codex built-in imagegen
+  - Generated on: 2026-05-14
+  - License status: owned generated source asset
+  - Runtime status: source-only candidate; runtime path is null pending visual QA and runtime promotion
+  - Transform notes: regenerated after rejecting candidates with unusable background artifacts, copied into the source tree, resized to 1024x576, chroma-key normalized into an alpha QA candidate.
+  - QA notes: edge props, leaves, petals, and dust puffs for foreground parallax, no fighters, HUD, text, logos, watermarks, or brand marks.
 
 ### UI, HUD, And Effects Surfaces
 

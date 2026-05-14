@@ -66,6 +66,24 @@ describe("Meowtal production manifest", () => {
     expect(runtimeEntries.every((entry) => entry.status === "approved")).toBe(true);
   });
 
+  it("tracks generated source-only parallax courtyard layer candidates", () => {
+    for (const layer of meowtalProductionManifest.stage.layers) {
+      const provenance = layer.provenance;
+
+      expect(provenance.status).toBe("generated");
+      expect(provenance.sourceKind).toBe("codex-imagegen");
+      expect(provenance.sourcePath).toBe(`assets/source/imagegen/stages/meowtal-courtyard/${layer.id}.png`);
+      expect(provenance.runtimePath).toBeNull();
+      expect(provenance.license.kind).toBe("owned-generated");
+      expect(provenance.createdOrDownloadedOn).toBe("2026-05-14");
+      expect(provenance.approvalNotes).toContain("Generated source-only parallax layer candidate");
+      expect(provenance.approvalNotes).toContain(`output/imagegen/meowtal-courtyard-${layer.id}.png`);
+      expect(provenance.approvalNotes).toContain("Pending visual QA and runtime promotion");
+      expect(provenance.blocker).toBeNull();
+      expect(existsSync(join(process.cwd(), provenance.sourcePath ?? ""))).toBe(true);
+    }
+  });
+
   it("tracks approved knockdown rows and remaining blocked rows", () => {
     expect(canonicalSheetsApproved()).toBe(true);
 
