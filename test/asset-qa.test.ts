@@ -82,9 +82,9 @@ describe("imagegen asset QA command", () => {
     });
     const summary = JSON.parse(output) as AssetQaSummary;
 
-    expect(summary.checked).toBe(76);
-    expect(summary.runtimeReady).toBe(38);
-    expect(summary.needsNormalization).toBe(38);
+    expect(summary.checked).toBe(80);
+    expect(summary.runtimeReady).toBe(40);
+    expect(summary.needsNormalization).toBe(40);
     expect(summary.rows.map((row) => `${row.kind}:${row.fighterId}:${row.animationId}`).sort()).toEqual([
       "normalized-candidate:atlas-lion:blockstun",
       "normalized-candidate:atlas-lion:crouch",
@@ -103,11 +103,13 @@ describe("imagegen asset QA command", () => {
       "normalized-candidate:ginger-tabby-cat:crouch",
       "normalized-candidate:ginger-tabby-cat:idle",
       "normalized-candidate:ginger-tabby-cat:jump",
+      "normalized-candidate:ginger-tabby-cat:light-punch",
       "normalized-candidate:ginger-tabby-cat:walk-back",
       "normalized-candidate:ginger-tabby-cat:walk-forward",
       "normalized-candidate:gray-rabbit:crouch",
       "normalized-candidate:gray-rabbit:idle",
       "normalized-candidate:gray-rabbit:jump",
+      "normalized-candidate:gray-rabbit:light-punch",
       "normalized-candidate:gray-rabbit:walk-back",
       "normalized-candidate:gray-rabbit:walk-forward",
       "normalized-candidate:sahara-viper:blockstun",
@@ -141,11 +143,13 @@ describe("imagegen asset QA command", () => {
       "source:ginger-tabby-cat:crouch",
       "source:ginger-tabby-cat:idle",
       "source:ginger-tabby-cat:jump",
+      "source:ginger-tabby-cat:light-punch",
       "source:ginger-tabby-cat:walk-back",
       "source:ginger-tabby-cat:walk-forward",
       "source:gray-rabbit:crouch",
       "source:gray-rabbit:idle",
       "source:gray-rabbit:jump",
+      "source:gray-rabbit:light-punch",
       "source:gray-rabbit:walk-back",
       "source:gray-rabbit:walk-forward",
       "source:sahara-viper:blockstun",
@@ -183,11 +187,13 @@ describe("imagegen asset QA command", () => {
       "ginger-tabby-cat:crouch",
       "ginger-tabby-cat:idle",
       "ginger-tabby-cat:jump",
+      "ginger-tabby-cat:light-punch",
       "ginger-tabby-cat:walk-back",
       "ginger-tabby-cat:walk-forward",
       "gray-rabbit:crouch",
       "gray-rabbit:idle",
       "gray-rabbit:jump",
+      "gray-rabbit:light-punch",
       "gray-rabbit:walk-back",
       "gray-rabbit:walk-forward",
       "sahara-viper:blockstun",
@@ -225,7 +231,7 @@ describe("imagegen asset QA command", () => {
     }
 
     const normalizedRows = summary.rows.filter((row) => row.kind === "normalized-candidate");
-    expect(normalizedRows).toHaveLength(38);
+    expect(normalizedRows).toHaveLength(40);
     for (const row of normalizedRows) {
       expect(row.expected).toEqual({ width: row.frameCount * 256, height: 256 });
       expect(row.dimensions).toEqual(row.expected);

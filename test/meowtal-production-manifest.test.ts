@@ -48,7 +48,7 @@ describe("Meowtal production manifest", () => {
     expect(runtimeEntries.every((entry) => entry.status === "approved")).toBe(true);
   });
 
-  it("tracks approved locomotion, crouch, and jump rows while keeping remaining rows blocked", () => {
+  it("tracks approved locomotion/crouch/jump rows, generated light-punch candidates, and remaining blocked rows", () => {
     expect(canonicalSheetsApproved()).toBe(true);
 
     const blockedRows = blockedAnimationRowsUntilCanonicalApproved();
@@ -59,13 +59,15 @@ describe("Meowtal production manifest", () => {
     const walkBackRows = animationRows.filter((row) => row.animationId === "walk-back");
     const crouchRows = animationRows.filter((row) => row.animationId === "crouch");
     const jumpRows = animationRows.filter((row) => row.animationId === "jump");
+    const lightPunchRows = animationRows.filter((row) => row.animationId === "light-punch");
     const remainingRows = animationRows.filter(
       (row) =>
         row.animationId !== "idle" &&
         row.animationId !== "walk-forward" &&
         row.animationId !== "walk-back" &&
         row.animationId !== "crouch" &&
-        row.animationId !== "jump",
+        row.animationId !== "jump" &&
+        row.animationId !== "light-punch",
     );
 
     expect(animationRows).toHaveLength(2 * REQUIRED_FIGHTER_ANIMATIONS.length);
@@ -84,8 +86,11 @@ describe("Meowtal production manifest", () => {
     expect(jumpRows).toHaveLength(2);
     expect(jumpRows.every((row) => row.provenance.status === "approved")).toBe(true);
     expect(jumpRows.every((row) => row.provenance.runtimePath?.includes("/assets/generated/fighters/"))).toBe(true);
+    expect(lightPunchRows).toHaveLength(2);
+    expect(lightPunchRows.every((row) => row.provenance.status === "generated")).toBe(true);
+    expect(lightPunchRows.every((row) => row.provenance.runtimePath === null)).toBe(true);
     expect(remainingRows.every((row) => row.provenance.status === "blocked")).toBe(true);
-    expect(remainingRows.every((row) => row.provenance.blocker?.includes("jump runtime promotion"))).toBe(true);
+    expect(remainingRows.every((row) => row.provenance.blocker?.includes("light-punch row QA"))).toBe(true);
   });
 
   it("tracks approved idle source and runtime files", () => {
@@ -167,6 +172,23 @@ describe("Meowtal production manifest", () => {
       expect(jumpRow?.provenance.approvalNotes).toContain("transparent alpha");
       expect(existsSync(join(process.cwd(), jumpRow?.provenance.sourcePath ?? ""))).toBe(true);
       expect(existsSync(join(process.cwd(), "public", jumpRow?.provenance.runtimePath ?? ""))).toBe(true);
+    }
+  });
+
+  it("tracks generated light-punch source files without approving runtime use", () => {
+    for (const fighter of meowtalProductionManifest.fighters) {
+      const lightPunchRow = fighter.animationRows.find((row) => row.animationId === "light-punch");
+
+      expect(lightPunchRow?.provenance.status).toBe("generated");
+      expect(lightPunchRow?.provenance.sourcePath).toBe(
+        `assets/source/imagegen/fighters/${fighter.id}/light-punch.png`,
+      );
+      expect(lightPunchRow?.provenance.runtimePath).toBeNull();
+      expect(lightPunchRow?.provenance.license.kind).toBe("owned-generated");
+      expect(lightPunchRow?.provenance.approvalNotes).toContain("Generated source light-punch row candidate");
+      expect(lightPunchRow?.provenance.approvalNotes).toContain("upright two-legged");
+      expect(lightPunchRow?.provenance.approvalNotes).toContain("transparent alpha");
+      expect(existsSync(join(process.cwd(), lightPunchRow?.provenance.sourcePath ?? ""))).toBe(true);
     }
   });
 

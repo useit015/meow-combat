@@ -83,7 +83,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T046
+active_task: T047
 
 tasks:
   - id: T000
@@ -1907,7 +1907,7 @@ tasks:
   - id: T046
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: low
     objective: "Generate or integrate exactly two Meowtal source animation rows: gray-rabbit:light-punch and ginger-tabby-cat:light-punch. Use approved canonical sheets plus approved idle, walk-forward, walk-back, crouch, and jump runtime rows as style locks. Normalize both rows to 6-frame 1536x256 QA candidates, update provenance/manifest/tests/docs so only these two light-punch rows are generated-but-unapproved with runtimePath: null, and keep all other remaining rows blocked. Do not approve runtime use."
     allowed_files:
@@ -1940,6 +1940,78 @@ tasks:
       - "Rabbit keeps long ears, gray fur, lighter belly, white paws, compact athletic hind-leg silhouette, and readable jab/straight punch shapes."
       - "Cat keeps orange tabby stripes, light muzzle/chest, visible striped tail, upright biped body, and readable quick paw-strike shapes."
       - "Motion has clear frame separation, stable scale, consistent head/camera height, and consistency with approved idle/walk-forward/walk-back/crouch/jump rows."
+    receipt:
+      result: done
+      summary: "Generated and integrated exactly two Meowtal light-punch source rows for the gray rabbit and ginger/orange tabby cat. Both rows preserve the approved upright two-legged fighting-game rig, were chroma-key cleaned to transparent-alpha RGBA source PNGs, normalize to 6-frame 1536x256 QA candidates, remain non-runtime with runtimePath null, and keep every other remaining animation row blocked pending light-punch-row QA."
+      changed_files:
+        - "assets/source/imagegen/fighters/gray-rabbit/light-punch.png"
+        - "assets/source/imagegen/fighters/ginger-tabby-cat/light-punch.png"
+        - "src/assets/meowtalProductionManifest.ts"
+        - "docs/assets/meowtal-kombat-provenance.md"
+        - "test/meowtal-production-manifest.test.ts"
+        - "test/asset-qa.test.ts"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+      evidence:
+        - "assets/source/imagegen/fighters/gray-rabbit/light-punch.png"
+        - "assets/source/imagegen/fighters/ginger-tabby-cat/light-punch.png"
+        - "output/imagegen/gray-rabbit-light-punch-normalized.png"
+        - "output/imagegen/ginger-tabby-cat-light-punch-normalized.png"
+      checksums:
+        gray_rabbit_light_punch_source_sha256: "5a49a1b5a3cc0fa675632408dcc73e66052768b40240f756c3e9f53489c35c7e"
+        ginger_tabby_cat_light_punch_source_sha256: "2dcece94d9c3234ca48de17f31617f2ca5717c875eca3781bfab36969fa3f741"
+        gray_rabbit_light_punch_normalized_sha256: "8082a66e2fe255daa81c68a0abadefa711e5a4dc41bcc9c3571141a8e656993e"
+        ginger_tabby_cat_light_punch_normalized_sha256: "34ec742880045ef07ee528ed5968fef36572be963859f831a77f8443cb2edcee"
+      commands:
+        - cmd: "node scripts/normalize-fighter-rows.mjs --animation light-punch --fighters gray-rabbit,ginger-tabby-cat"
+          status: pass
+        - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha output/imagegen/gray-rabbit-light-punch-normalized.png output/imagegen/ginger-tabby-cat-light-punch-normalized.png"
+          status: pass
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-qa.test.ts"
+          status: pass
+        - cmd: "npm run imagegen:qa"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+      notes:
+        - "sips reported pixelWidth 1536, pixelHeight 256, hasAlpha yes for both normalized light-punch QA candidates."
+        - "Full verify passed with 21 test files and 107 tests."
+        - "No public/runtime light-punch assets, other animation rows, stage, UI, HUD, logo, particle, audio, gameplay config, or selectable runtime character switch were added."
+  - id: T047
+    type: judge
+    assignee: Judge
+    status: active
+    reasoning_hint: high
+    objective: "Visual QA gray-rabbit:light-punch and ginger-tabby-cat:light-punch source and normalized candidates, then decide whether to approve a separate narrow runtime-promotion Worker or require regeneration."
+    inputs:
+      - "assets/source/imagegen/fighters/gray-rabbit/light-punch.png"
+      - "assets/source/imagegen/fighters/ginger-tabby-cat/light-punch.png"
+      - "output/imagegen/gray-rabbit-light-punch-normalized.png"
+      - "output/imagegen/ginger-tabby-cat-light-punch-normalized.png"
+      - "public/assets/generated/fighters/gray-rabbit/idle.png"
+      - "public/assets/generated/fighters/ginger-tabby-cat/idle.png"
+      - "public/assets/generated/fighters/gray-rabbit/walk-forward.png"
+      - "public/assets/generated/fighters/ginger-tabby-cat/walk-forward.png"
+      - "public/assets/generated/fighters/gray-rabbit/walk-back.png"
+      - "public/assets/generated/fighters/ginger-tabby-cat/walk-back.png"
+      - "public/assets/generated/fighters/gray-rabbit/crouch.png"
+      - "public/assets/generated/fighters/ginger-tabby-cat/crouch.png"
+      - "public/assets/generated/fighters/gray-rabbit/jump.png"
+      - "public/assets/generated/fighters/ginger-tabby-cat/jump.png"
+      - "src/assets/meowtalProductionManifest.ts"
+    constraints:
+      - "Do not implement."
+      - "Reject if either row violates light-punch readability, upright two-legged rig, species identity, markings, proportions, camera angle, lighting, scale, outline/detail level, frame separation, or style consistency with approved rows."
+      - "Reject if rows contain text, logos, watermarks, frame numbers, detached effects, arena/background art, or extra characters."
+      - "Do not approve runtime integration unless normalized candidates are 1536x256 and visually usable."
+    expected_output:
+      - "approved | rejected"
+      - "Visual QA findings"
+      - "Next Worker task"
+      - "allowed_files"
+      - "verify commands"
+      - "stop_if conditions"
     receipt: null
   - id: T005
     type: worker
@@ -2091,11 +2163,11 @@ checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T044
+    task: T046
     commands:
-      - cmd: "node scripts/normalize-fighter-rows.mjs --animation jump --fighters gray-rabbit,ginger-tabby-cat"
+      - cmd: "node scripts/normalize-fighter-rows.mjs --animation light-punch --fighters gray-rabbit,ginger-tabby-cat"
         status: pass
-      - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha public/assets/generated/fighters/gray-rabbit/jump.png public/assets/generated/fighters/ginger-tabby-cat/jump.png"
+      - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha output/imagegen/gray-rabbit-light-punch-normalized.png output/imagegen/ginger-tabby-cat-light-punch-normalized.png"
         status: pass
       - cmd: "npm run typecheck"
         status: pass

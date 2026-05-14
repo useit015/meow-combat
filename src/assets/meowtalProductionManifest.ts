@@ -170,6 +170,11 @@ const jumpRowRuntimePaths: Readonly<Record<MeowtalFighterId, string>> = {
   "ginger-tabby-cat": "/assets/generated/fighters/ginger-tabby-cat/jump.png",
 };
 
+const lightPunchRowSourcePaths: Readonly<Record<MeowtalFighterId, string>> = {
+  "gray-rabbit": "assets/source/imagegen/fighters/gray-rabbit/light-punch.png",
+  "ginger-tabby-cat": "assets/source/imagegen/fighters/ginger-tabby-cat/light-punch.png",
+};
+
 const idleRowQaNotes: Readonly<Record<MeowtalFighterId, string>> = {
   "gray-rabbit":
     "Approved runtime idle row. Visual QA: eight separated upright two-legged gray rabbit idle frames, no visible text/watermark/frame numbers, same stance and proportions as the canonical sheet, chroma-key removed to transparent alpha, normalized to 2048x256 RGBA, and approved for runtime publication by T027.",
@@ -203,6 +208,13 @@ const jumpRowQaNotes: Readonly<Record<MeowtalFighterId, string>> = {
     "Approved runtime jump row. Visual QA: six separated upright two-legged gray rabbit jump/hop frames, no visible text/watermark/frame numbers, same stance and proportions as approved idle/walk-forward/walk-back/crouch, chroma-key removed to transparent alpha, normalized to 1536x256 RGBA, and approved for runtime publication by T043.",
   "ginger-tabby-cat":
     "Approved runtime jump row. Visual QA: six separated upright two-legged ginger tabby jump/hop frames, no visible text/watermark/frame numbers, same stance and proportions as approved idle/walk-forward/walk-back/crouch, chroma-key removed to transparent alpha, normalized to 1536x256 RGBA, and approved for runtime publication by T043.",
+};
+
+const lightPunchRowQaNotes: Readonly<Record<MeowtalFighterId, string>> = {
+  "gray-rabbit":
+    "Generated source light-punch row candidate. Visual self-check: six separated upright two-legged gray rabbit quick paw-jab frames, no visible text/watermark/frame numbers, same stance and proportions as approved idle/walk-forward/walk-back/crouch/jump, chroma-key removed to transparent alpha, normalized to a 1536x256 RGBA QA candidate, and pending follow-up visual QA before runtime publication.",
+  "ginger-tabby-cat":
+    "Generated source light-punch row candidate. Visual self-check: six separated upright two-legged ginger tabby quick paw-jab frames, no visible text/watermark/frame numbers, same stance and proportions as approved idle/walk-forward/walk-back/crouch/jump, chroma-key removed to transparent alpha, normalized to a 1536x256 RGBA QA candidate, and pending follow-up visual QA before runtime publication.",
 };
 
 const animationFrameCounts: Readonly<Record<FighterAnimationId, number>> = {
@@ -375,12 +387,19 @@ export function validateMeowtalProductionManifest(
         if (!row.provenance.runtimePath?.includes("/assets/generated/fighters/")) {
           errors.push(`${row.provenance.assetId}: approved jump row requires a generated runtime path`);
         }
+      } else if (row.animationId === "light-punch") {
+        if (row.provenance.status !== "generated") {
+          errors.push(`${row.provenance.assetId}: light-punch row should remain generated until follow-up visual QA`);
+        }
+        if (row.provenance.runtimePath !== null) {
+          errors.push(`${row.provenance.assetId}: generated light-punch row must not have a runtime path before QA`);
+        }
       } else {
         if (row.provenance.status !== "blocked") {
           errors.push(`${row.provenance.assetId}: remaining animation rows must remain blocked`);
         }
-        if (!row.provenance.blocker?.includes("jump runtime promotion")) {
-          errors.push(`${row.provenance.assetId}: remaining row blocker must reference jump runtime promotion`);
+        if (!row.provenance.blocker?.includes("light-punch row QA")) {
+          errors.push(`${row.provenance.assetId}: remaining row blocker must reference light-punch row QA`);
         }
       }
     }
@@ -432,7 +451,9 @@ function makeFighters(): readonly MeowtalFighterAssetPlan[] {
                   ? approvedCrouchRowProvenance(fighterId, details)
                   : animationId === "jump"
                     ? approvedJumpRowProvenance(fighterId, details)
-                  : blockedAnimationRowProvenance(fighterId, animationId, details),
+                    : animationId === "light-punch"
+                      ? generatedLightPunchRowProvenance(fighterId, details)
+                      : blockedAnimationRowProvenance(fighterId, animationId, details),
       })),
     };
   });
@@ -449,8 +470,41 @@ function blockedAnimationRowProvenance(
     prompt: animationRowPrompt(details.displayName, animationId),
     status: "blocked",
     blocker:
-      "Wait for jump runtime promotion and a separate scoped generation task before generating this remaining animation row.",
+      "Wait for light-punch row QA and a separate scoped generation task before generating this remaining animation row.",
   });
+}
+
+function generatedLightPunchRowProvenance(
+  fighterId: MeowtalFighterId,
+  details: (typeof fighterDetails)[MeowtalFighterId],
+): AssetProvenance {
+  return {
+    ...imageProvenance({
+      assetId: `${fighterId}:light-punch`,
+      promptSlug: `${fighterId}-light-punch-animation-row`,
+      prompt: animationRowPrompt(details.displayName, "light-punch"),
+      status: "generated",
+      blocker: "",
+    }),
+    sourcePath: lightPunchRowSourcePaths[fighterId],
+    runtimePath: null,
+    license: {
+      kind: "owned-generated",
+      summary:
+        "Generated with Codex built-in imagegen for this project; retained as a non-runtime light-punch row candidate pending follow-up visual QA.",
+      sourceUrl: null,
+      attribution: null,
+      checkedOn: generatedOn,
+    },
+    createdOrDownloadedOn: generatedOn,
+    transforms: [
+      "Copied selected built-in imagegen output into the repo source asset tree.",
+      "Removed generated chroma-key background to transparent alpha with the imagegen remove_chroma_key helper.",
+      "Normalized to a 6-frame 1536x256 QA candidate under output/imagegen for visual review only.",
+    ],
+    approvalNotes: lightPunchRowQaNotes[fighterId],
+    blocker: null,
+  };
 }
 
 function approvedJumpRowProvenance(
