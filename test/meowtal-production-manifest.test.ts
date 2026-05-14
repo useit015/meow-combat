@@ -40,6 +40,7 @@ describe("Meowtal production manifest", () => {
       "ginger-tabby-cat:hitstun",
       "ginger-tabby-cat:idle",
       "ginger-tabby-cat:jump",
+      "ginger-tabby-cat:knockdown",
       "ginger-tabby-cat:light-kick",
       "ginger-tabby-cat:light-punch",
       "ginger-tabby-cat:special",
@@ -51,6 +52,7 @@ describe("Meowtal production manifest", () => {
       "gray-rabbit:hitstun",
       "gray-rabbit:idle",
       "gray-rabbit:jump",
+      "gray-rabbit:knockdown",
       "gray-rabbit:light-kick",
       "gray-rabbit:light-punch",
       "gray-rabbit:special",
@@ -60,7 +62,7 @@ describe("Meowtal production manifest", () => {
     expect(runtimeEntries.every((entry) => entry.status === "approved")).toBe(true);
   });
 
-  it("tracks generated knockdown rows and remaining blocked rows", () => {
+  it("tracks approved knockdown rows and remaining blocked rows", () => {
     expect(canonicalSheetsApproved()).toBe(true);
 
     const blockedRows = blockedAnimationRowsUntilCanonicalApproved();
@@ -129,8 +131,8 @@ describe("Meowtal production manifest", () => {
     expect(specialRows.every((row) => row.provenance.status === "approved")).toBe(true);
     expect(specialRows.every((row) => row.provenance.runtimePath?.includes("/assets/generated/fighters/"))).toBe(true);
     expect(knockdownRows).toHaveLength(2);
-    expect(knockdownRows.every((row) => row.provenance.status === "generated")).toBe(true);
-    expect(knockdownRows.every((row) => row.provenance.runtimePath === null)).toBe(true);
+    expect(knockdownRows.every((row) => row.provenance.status === "approved")).toBe(true);
+    expect(knockdownRows.every((row) => row.provenance.runtimePath?.includes("/assets/generated/fighters/"))).toBe(true);
     expect(remainingRows.every((row) => row.provenance.status === "blocked")).toBe(true);
     expect(remainingRows.every((row) => row.provenance.blocker?.includes("win/lose row scope"))).toBe(true);
   });
@@ -315,21 +317,19 @@ describe("Meowtal production manifest", () => {
     }
   });
 
-  it("tracks generated knockdown source files without approving runtime use", () => {
+  it("tracks approved knockdown source and runtime files", () => {
     for (const fighter of meowtalProductionManifest.fighters) {
       const knockdownRow = fighter.animationRows.find((row) => row.animationId === "knockdown");
 
-      expect(knockdownRow?.provenance.status).toBe("generated");
+      expect(knockdownRow?.provenance.status).toBe("approved");
       expect(knockdownRow?.provenance.sourcePath).toBe(`assets/source/imagegen/fighters/${fighter.id}/knockdown.png`);
-      expect(knockdownRow?.provenance.runtimePath).toBeNull();
+      expect(knockdownRow?.provenance.runtimePath).toBe(`/assets/generated/fighters/${fighter.id}/knockdown.png`);
       expect(knockdownRow?.provenance.license.kind).toBe("owned-generated");
-      expect(knockdownRow?.provenance.approvalNotes).toContain("Generated source-only knockdown row candidate");
+      expect(knockdownRow?.provenance.approvalNotes).toContain("Approved runtime knockdown row");
       expect(knockdownRow?.provenance.approvalNotes).toContain("upright two-legged");
       expect(knockdownRow?.provenance.approvalNotes).toContain("no crawl/rest/sleeping");
       expect(existsSync(join(process.cwd(), knockdownRow?.provenance.sourcePath ?? ""))).toBe(true);
-      expect(existsSync(join(process.cwd(), "public/assets/generated/fighters", fighter.id, "knockdown.png"))).toBe(
-        false,
-      );
+      expect(existsSync(join(process.cwd(), "public", knockdownRow?.provenance.runtimePath ?? ""))).toBe(true);
     }
   });
 

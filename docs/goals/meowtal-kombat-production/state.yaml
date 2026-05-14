@@ -85,7 +85,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T084
+active_task: T085
 
 tasks:
   - id: T000
@@ -4138,7 +4138,7 @@ tasks:
   - id: T084
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: low
     objective: "Promote exactly the two T083-approved Meowtal knockdown rows, gray-rabbit:knockdown and ginger-tabby-cat:knockdown, from normalized QA candidates into runtime assets. Update manifest/provenance/tests so these two rows become approved runtime rows with public asset paths. Do not generate or approve win, lose, arena, UI, logo, audio, effects, runtime routing, or gameplay changes."
     inputs:
@@ -4166,6 +4166,59 @@ tasks:
       - "Promoted PNGs are not exactly 2048x256 with alpha."
       - "Manifest/provenance cannot clearly record source-only T083 approval before runtime promotion."
       - "Verification failures require changes outside the allowed files."
+    receipt:
+      result: done
+      summary: "Promoted exactly the two T083-approved Meowtal knockdown rows into runtime assets. Manifest, provenance, and manifest tests now mark gray-rabbit:knockdown and ginger-tabby-cat:knockdown as approved runtime rows with public asset paths. No win, lose, arena, UI, logo, audio, effects, runtime routing, or gameplay files were generated or changed."
+      changed_files:
+        - "public/assets/generated/fighters/gray-rabbit/knockdown.png"
+        - "public/assets/generated/fighters/ginger-tabby-cat/knockdown.png"
+        - "src/assets/meowtalProductionManifest.ts"
+        - "docs/assets/meowtal-kombat-provenance.md"
+        - "test/meowtal-production-manifest.test.ts"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+      checksums:
+        gray_rabbit_runtime_sha256: "fa281858409d578af11b98d7b7579eac8befeb76409d13c2511862a9586e428f"
+        ginger_tabby_runtime_sha256: "eb51a3d63cdaaa18950aaa320335b2c8812062cec6756db88104436a9fe03c0d"
+      commands:
+        - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha public/assets/generated/fighters/gray-rabbit/knockdown.png public/assets/generated/fighters/ginger-tabby-cat/knockdown.png"
+          status: pass
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-qa.test.ts"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+      notes:
+        - "Focused tests passed with 2 files and 19 tests."
+        - "Full verify passed with 21 test files and 113 tests plus a production Vite build."
+        - "Remaining ungenerated Meowtal animation rows now block on win/lose row scope."
+        - "Runtime character routing/switch, win, lose, stage, UI/HUD/logo, particles, audio, and gameplay code were not touched."
+  - id: T085
+    type: judge
+    assignee: Judge
+    status: active
+    reasoning_hint: high
+    objective: "Scope the next smallest safe production slice after knockdown runtime promotion. Decide whether to proceed with paired source-only win/lose rows, runtime routing, or a different narrow production blocker, and provide allowed_files, verify commands, and stop_if conditions. Do not edit files."
+    inputs:
+      - "T084 promotion receipt"
+      - "Current Meowtal approved runtime rows through knockdown"
+      - "Remaining Meowtal animation rows: win, lose"
+      - "Original owner requirement: K.O. finish screen, victory pose, complete arcade flow, and production-ready game feel."
+      - "Owner stance clarification: both fighters share the upright two-legged normal stance convention."
+    constraints:
+      - "Do not implement or edit files."
+      - "Prefer the smallest production-relevant slice that advances complete arcade readiness and does not become broad asset-pack work."
+      - "If win/lose rows are chosen, keep them source-only until separate visual QA; runtime approval must require a later Judge task."
+      - "Do not scope arena, HUD/logo, audio, gameplay feel, or runtime routing unless it is clearly safer and smaller than finishing the remaining fighter rows."
+      - "No runtime character routing switch yet unless explicitly justified as the smallest next slice."
+      - "Avoid PoC/demo-level completion shortcuts."
+    expected_output:
+      - "decision"
+      - "next_allowed_task"
+      - "allowed_files"
+      - "verification commands"
+      - "stop conditions"
+      - "why this advances production readiness without becoming broad asset-pack work"
     receipt: null
   - id: T005
     type: worker

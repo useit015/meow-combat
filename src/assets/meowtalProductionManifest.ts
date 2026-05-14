@@ -225,6 +225,11 @@ const knockdownRowSourcePaths: Readonly<Record<MeowtalFighterId, string>> = {
   "ginger-tabby-cat": "assets/source/imagegen/fighters/ginger-tabby-cat/knockdown.png",
 };
 
+const knockdownRowRuntimePaths: Readonly<Record<MeowtalFighterId, string>> = {
+  "gray-rabbit": "/assets/generated/fighters/gray-rabbit/knockdown.png",
+  "ginger-tabby-cat": "/assets/generated/fighters/ginger-tabby-cat/knockdown.png",
+};
+
 const heavyPunchRowSourcePaths: Readonly<Record<MeowtalFighterId, string>> = {
   "gray-rabbit": "assets/source/imagegen/fighters/gray-rabbit/heavy-punch.png",
   "ginger-tabby-cat": "assets/source/imagegen/fighters/ginger-tabby-cat/heavy-punch.png",
@@ -314,9 +319,9 @@ const specialRowQaNotes: Readonly<Record<MeowtalFighterId, string>> = {
 
 const knockdownRowQaNotes: Readonly<Record<MeowtalFighterId, string>> = {
   "gray-rabbit":
-    "Generated source-only knockdown row candidate. QA notes: eight separated gray rabbit fighting-game knockdown frames with upright two-legged hurt/fall anticipation, loss of balance, ground impact, and dazed grounded hit-reaction hold; no crawl/rest/sleeping or stance-convention reset, no visible text/watermark/frame numbers, green chroma-key removed to transparent alpha, normalized QA candidate is 2048x256 RGBA, pending Judge visual QA before runtime publication.",
+    "Approved runtime knockdown row. Visual QA: eight separated gray rabbit fighting-game knockdown frames with upright two-legged hurt/fall anticipation, loss of balance, ground impact, and dazed grounded hit-reaction hold; no crawl/rest/sleeping or stance-convention reset, no visible text/watermark/frame numbers, green chroma-key removed to transparent alpha, normalized to 2048x256 RGBA, and approved for runtime publication by T083.",
   "ginger-tabby-cat":
-    "Generated source-only knockdown row candidate. QA notes: eight separated ginger tabby fighting-game knockdown frames with upright two-legged hurt/fall anticipation, loss of balance, ground impact, and dazed grounded hit-reaction hold; no crawl/rest/sleeping or stance-convention reset, no visible text/watermark/frame numbers, green chroma-key removed to transparent alpha, normalized QA candidate is 2048x256 RGBA, pending Judge visual QA before runtime publication.",
+    "Approved runtime knockdown row. Visual QA: eight separated ginger tabby fighting-game knockdown frames with upright two-legged hurt/fall anticipation, loss of balance, ground impact, and dazed grounded hit-reaction hold; no crawl/rest/sleeping or stance-convention reset, no visible text/watermark/frame numbers, green chroma-key removed to transparent alpha, normalized to 2048x256 RGBA, and approved for runtime publication by T083.",
 };
 
 const animationFrameCounts: Readonly<Record<FighterAnimationId, number>> = {
@@ -532,11 +537,11 @@ export function validateMeowtalProductionManifest(
           errors.push(`${row.provenance.assetId}: approved special row requires a generated runtime path`);
         }
       } else if (row.animationId === "knockdown") {
-        if (row.provenance.status !== "generated") {
-          errors.push(`${row.provenance.assetId}: knockdown row should be source-generated after T082`);
+        if (row.provenance.status !== "approved") {
+          errors.push(`${row.provenance.assetId}: knockdown row should be runtime-approved after T084`);
         }
-        if (row.provenance.runtimePath !== null) {
-          errors.push(`${row.provenance.assetId}: source-only knockdown row must not have a runtime path before QA`);
+        if (!row.provenance.runtimePath?.includes("/assets/generated/fighters/")) {
+          errors.push(`${row.provenance.assetId}: approved knockdown row requires a generated runtime path`);
         }
         if (row.provenance.sourcePath !== knockdownRowSourcePaths[fighter.id]) {
           errors.push(`${row.provenance.assetId}: knockdown row requires the scoped generated source path`);
@@ -611,7 +616,7 @@ function makeFighters(): readonly MeowtalFighterAssetPlan[] {
                               : animationId === "special"
                                 ? approvedSpecialRowProvenance(fighterId, details)
                                 : animationId === "knockdown"
-                                  ? generatedKnockdownRowProvenance(fighterId, details)
+                                  ? approvedKnockdownRowProvenance(fighterId, details)
                                   : blockedAnimationRowProvenance(fighterId, animationId, details),
       })),
     };
@@ -633,7 +638,7 @@ function blockedAnimationRowProvenance(
   });
 }
 
-function generatedKnockdownRowProvenance(
+function approvedKnockdownRowProvenance(
   fighterId: MeowtalFighterId,
   details: (typeof fighterDetails)[MeowtalFighterId],
 ): AssetProvenance {
@@ -642,15 +647,15 @@ function generatedKnockdownRowProvenance(
       assetId: `${fighterId}:knockdown`,
       promptSlug: `${fighterId}-knockdown-animation-row`,
       prompt: animationRowPrompt(details.displayName, "knockdown"),
-      status: "generated",
+      status: "approved",
       blocker: "",
     }),
     sourcePath: knockdownRowSourcePaths[fighterId],
-    runtimePath: null,
+    runtimePath: knockdownRowRuntimePaths[fighterId],
     license: {
       kind: "owned-generated",
       summary:
-        "Generated with Codex built-in imagegen as a chroma-keyed knockdown reference row for this project; source-only candidate pending visual QA.",
+        "Generated with Codex built-in imagegen as a chroma-keyed knockdown reference row for this project; approved normalized runtime knockdown row after T083 visual QA.",
       sourceUrl: null,
       attribution: null,
       checkedOn: generatedOn,
@@ -660,7 +665,7 @@ function generatedKnockdownRowProvenance(
       "Generated green chroma-keyed imagegen knockdown reference rows after T081 scoped paired source-only knockdown candidates.",
       "Removed the green chroma-key background with soft matte and despill to produce transparent frame sources.",
       "Composed an eight-frame transparent source row from the best fall/impact frames while dropping sleepy or crawl-like end poses.",
-      "Normalized to an 8-frame 2048x256 QA candidate under output/imagegen; runtime publication remains blocked pending Judge visual QA.",
+      "Normalized to an 8-frame 2048x256 QA candidate under output/imagegen and promoted the approved row to public runtime assets after T083 visual QA.",
     ],
     approvalNotes: knockdownRowQaNotes[fighterId],
     blocker: null,
