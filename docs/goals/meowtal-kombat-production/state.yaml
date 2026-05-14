@@ -83,7 +83,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T061
+active_task: T062
 
 tasks:
   - id: T000
@@ -2839,7 +2839,7 @@ tasks:
   - id: T061
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Visual QA only the regenerated Meowtal heavy-punch candidates from T060, gray-rabbit:heavy-punch and ginger-tabby-cat:heavy-punch, against the approved two-legged style-lock rows. Decide whether they are approved for later runtime promotion or must be regenerated again. Do not edit files."
     inputs:
@@ -2863,6 +2863,45 @@ tasks:
       - "Per-fighter visual QA notes"
       - "Runtime promotion constraints if approved"
       - "Regeneration notes if rejected"
+    receipt:
+      result: done
+      decision: regenerate
+      summary: "Judge rejected the regenerated T060 heavy-punch rows. Metadata still passed at 2048x256 RGBA with eight frames, and both motions read as upright two-legged committed heavy strikes, but visible cyan/chroma edge residue remains on both fighters. The rabbit later active strike frame also remains too dark/high-contrast versus approved rows."
+      evidence:
+        - "assets/source/imagegen/fighters/gray-rabbit/heavy-punch.png"
+        - "assets/source/imagegen/fighters/ginger-tabby-cat/heavy-punch.png"
+        - "output/imagegen/gray-rabbit-heavy-punch-normalized.png"
+        - "output/imagegen/ginger-tabby-cat-heavy-punch-normalized.png"
+      regeneration_notes:
+        - "Clean up exactly gray-rabbit:heavy-punch and ginger-tabby-cat:heavy-punch again."
+        - "Keep the committed heavy-punch motion concept and upright two-legged stance."
+        - "Remove all cyan/green edge residue."
+        - "Fix rabbit active-frame dark/corrupted rendering so it matches approved style-lock rows."
+        - "Normalize again to 2048x256 RGBA QA candidates; do not approve runtime use or touch any other rows."
+  - id: T062
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: low
+    objective: "Touch up exactly the two Meowtal heavy-punch source rows after T061 rejection. Remove remaining cyan/green chroma residue, brighten/fix the rabbit active-frame dark rendering, normalize both rows to 8-frame 2048x256 QA candidates, and keep heavy-punch generated-but-unapproved with runtimePath: null. Do not approve runtime use."
+    allowed_files:
+      - "assets/source/imagegen/fighters/gray-rabbit/heavy-punch.png"
+      - "assets/source/imagegen/fighters/ginger-tabby-cat/heavy-punch.png"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+    verify:
+      - "node scripts/normalize-fighter-rows.mjs --animation heavy-punch --fighters gray-rabbit,ginger-tabby-cat"
+      - "sips -g pixelWidth -g pixelHeight -g hasAlpha output/imagegen/gray-rabbit-heavy-punch-normalized.png output/imagegen/ginger-tabby-cat-heavy-punch-normalized.png"
+      - "npm run typecheck"
+      - "npm test -- --run test/meowtal-production-manifest.test.ts test/asset-qa.test.ts"
+      - "npm run imagegen:qa"
+      - "npm run verify"
+    stop_if:
+      - "Any file outside allowed_files is needed, except ignored output/imagegen/*-heavy-punch-normalized.png verification candidates."
+      - "Any public/assets/generated Meowtal heavy-punch runtime asset is created."
+      - "Any heavy-punch row is marked approved or given a runtimePath."
+      - "Any row other than gray-rabbit:heavy-punch or ginger-tabby-cat:heavy-punch is generated, edited, approved, or given a runtime/public path."
+      - "Either row cannot normalize to 2048x256 with eight separated 256x256 RGBA frames."
+      - "Rows still contain visible chroma edge residue or corrupted dark silhouette artifacts after cleanup."
     receipt: null
   - id: T005
     type: worker
