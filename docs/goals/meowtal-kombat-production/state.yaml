@@ -85,7 +85,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T109
+active_task: T110
 
 tasks:
   - id: T000
@@ -5646,7 +5646,7 @@ tasks:
   - id: T109
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: low
     objective: "Harden T108 fallback verification by moving the control-fallback helper into a pure module and unit-testing connected-gamepad, no-gamepad, and unsupported-Gamepad-API states without changing gameplay behavior."
     inputs:
@@ -5668,6 +5668,52 @@ tasks:
       - "Requires external libraries, browser permissions, hardware gamepad verification, or full gamepad implementation."
       - "Files outside allowed_files are needed."
       - "Keyboard or mobile touch smoke behavior would need product changes beyond pure helper extraction."
+    receipt:
+      result: done
+      summary: "Extracted the control fallback formatter into a Phaser-free module and added focused unit coverage for no-gamepad, connected-gamepad, and unavailable-Gamepad-API states. Runtime behavior is unchanged; MoroccanArenaScene still gathers browser gamepad/touch state and delegates only formatting/state construction."
+      changed_files:
+        - "src/game/MoroccanArenaScene.ts"
+        - "src/game/controlFallback.ts"
+        - "test/control-fallback.test.ts"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+      commands:
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm test -- --run test/control-fallback.test.ts test/presentation.test.ts"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+      evidence:
+        - "test/control-fallback.test.ts"
+      judge:
+        agent: "019e2881-09cf-7480-b9b4-89bb14379eba"
+        result: approve
+        summary: "Judge approved T109: pure helper extraction plus focused tests, no gameplay behavior/input routing/assets/audio/particles/frame data changed, and verification passed."
+      notes:
+        - "Residual risk: tests verify the pure builder rather than the browser navigator integration path."
+        - "Actual gamepad combat input remains out of scope."
+  - id: T110
+    type: pm
+    assignee: PM
+    status: active
+    reasoning_hint: medium
+    objective: "Decompose the remaining broad queued production work after T109 and select the next smallest safe Worker slice with explicit allowed_files, verification, and stop conditions. Do not implement product changes in this task."
+    inputs:
+      - "T109 Judge recommendation"
+      - "Queued broad tasks T005/T006/T007/T008/T009/T011 and final readiness audits"
+      - "Goal requirement: full polished production-ready scoped game, not a PoC"
+      - "Small-batch commit rule"
+    constraints:
+      - "Do not activate broad queued tasks as written with empty allowed_files or verify."
+      - "Prefer a slice that closes a production-readiness gap while staying small and locally verifiable."
+      - "Do not edit product code, generated assets, audio, or tests in this decomposition task."
+      - "Keep one active task."
+    expected_output:
+      - "Decision and rationale"
+      - "Next Worker objective"
+      - "allowed_files"
+      - "verify commands"
+      - "stop_if conditions"
     receipt: null
   - id: T005
     type: worker
@@ -5819,17 +5865,11 @@ checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T108
+    task: T109
     commands:
       - cmd: "npm run typecheck"
         status: pass
-      - cmd: "npm test -- --run test/presentation.test.ts test/touch-controls.test.ts"
-        status: pass
-      - cmd: "node --check scripts/smoke-meowtal-browser.mjs"
-        status: pass
-      - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules node scripts/smoke-meowtal-browser.mjs --url http://127.0.0.1:4173/ --out-dir output/web-game/meowtal-input-fallback-t108"
+      - cmd: "npm test -- --run test/control-fallback.test.ts test/presentation.test.ts"
         status: pass
       - cmd: "npm run verify"
-        status: pass
-      - cmd: "Browser/Playwright smoke at output/web-game/meowtal-input-fallback-t108/report.json"
         status: pass

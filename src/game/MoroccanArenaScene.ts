@@ -25,6 +25,7 @@ import {
   type MatchSnapshot,
 } from "../core";
 import { ArenaAudio, audioCueForCombatEvents, audioCueForMatchTransition } from "./audio";
+import { buildControlFallbackState, type ControlFallbackState } from "./controlFallback";
 import { effectsFromSnapshot, tickCombatEffects, type CombatEffect } from "./effects";
 import {
   meowtalKombatConfig,
@@ -52,13 +53,6 @@ import {
 type KeyMap = Record<string, Phaser.Input.Keyboard.Key>;
 type ImpactFlash = { color: number; alpha: number; remainingFrames: number; totalFrames: number };
 type StageLayerImage = { layer: StageRuntimeLayer; image: Phaser.GameObjects.Image };
-type ControlFallbackState = {
-  keyboardSupported: boolean;
-  touchSupported: boolean;
-  gamepadSupported: boolean;
-  connectedGamepads: number;
-  fallbackLine: string;
-};
 type RuntimeUiImageSlot =
   | "title-logo"
   | "hud-frame"
@@ -1868,32 +1862,6 @@ function shellTitle(shell: ShellState, snapshot: MatchSnapshot, matchSet: MatchS
   if (shell.phase === "round-over") return roundResultLabel(snapshot);
   if (shell.phase === "match-over") return matchResultLabel(matchSet);
   return "";
-}
-
-export function buildControlFallbackState(input: {
-  connectedGamepads: number;
-  gamepadSupported: boolean;
-  touchSupported: boolean;
-}): ControlFallbackState {
-  if (input.connectedGamepads > 0) {
-    return {
-      keyboardSupported: true,
-      touchSupported: input.touchSupported,
-      gamepadSupported: input.gamepadSupported,
-      connectedGamepads: input.connectedGamepads,
-      fallbackLine: `${input.connectedGamepads} GAMEPAD DETECTED  |  KEYBOARD${input.touchSupported ? " / TOUCH" : ""} READY`,
-    };
-  }
-
-  return {
-    keyboardSupported: true,
-    touchSupported: input.touchSupported,
-    gamepadSupported: input.gamepadSupported,
-    connectedGamepads: 0,
-    fallbackLine: input.gamepadSupported
-      ? "NO GAMEPAD?  KEYBOARD / PHONE TOUCH"
-      : "GAMEPAD UNAVAILABLE  |  KEYBOARD / PHONE TOUCH",
-  };
 }
 
 function shellHelp(shell: ShellState, selectionLabel: string, controlFallbackLine: string): string {
