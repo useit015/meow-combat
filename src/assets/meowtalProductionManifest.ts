@@ -185,6 +185,11 @@ const lightKickRowSourcePaths: Readonly<Record<MeowtalFighterId, string>> = {
   "ginger-tabby-cat": "assets/source/imagegen/fighters/ginger-tabby-cat/light-kick.png",
 };
 
+const lightKickRowRuntimePaths: Readonly<Record<MeowtalFighterId, string>> = {
+  "gray-rabbit": "/assets/generated/fighters/gray-rabbit/light-kick.png",
+  "ginger-tabby-cat": "/assets/generated/fighters/ginger-tabby-cat/light-kick.png",
+};
+
 const hitstunRowSourcePaths: Readonly<Record<MeowtalFighterId, string>> = {
   "gray-rabbit": "assets/source/imagegen/fighters/gray-rabbit/hitstun.png",
   "ginger-tabby-cat": "assets/source/imagegen/fighters/ginger-tabby-cat/hitstun.png",
@@ -280,9 +285,9 @@ const heavyPunchRowQaNotes: Readonly<Record<MeowtalFighterId, string>> = {
 
 const lightKickRowQaNotes: Readonly<Record<MeowtalFighterId, string>> = {
   "gray-rabbit":
-    "Generated source light-kick row candidate from an imagegen light-kick reference row after T073 visual QA. Visual self-check: eight separated upright two-legged gray rabbit low snap-kick frames with crouch-load, planted support, organic hip/knee front-foot extension, recoil, and guard recovery; no visible text/watermark/frame numbers, same stance convention and proportions as approved runtime rows through heavy-punch, chroma-key removed to transparent alpha, normalized to a 2048x256 RGBA QA candidate, and pending follow-up visual QA before runtime publication.",
+    "Approved runtime light-kick row. Visual QA: eight separated upright two-legged gray rabbit low snap-kick frames with crouch-load, planted support, organic hip/knee front-foot extension, recoil, and guard recovery; no visible text/watermark/frame numbers, same stance convention and proportions as approved runtime rows through heavy-punch, chroma-key removed to transparent alpha, normalized to 2048x256 RGBA, and approved for runtime publication by T075.",
   "ginger-tabby-cat":
-    "Generated source light-kick row candidate from an imagegen light-kick reference row after T073 visual QA. Visual self-check: eight separated upright two-legged ginger tabby low snap-kick frames with crouch-load, planted support, organic hip/knee front-foot extension, recoil, and guard recovery; no visible text/watermark/frame numbers, same stance convention and proportions as approved runtime rows through heavy-punch, chroma-key removed to transparent alpha, normalized to a 2048x256 RGBA QA candidate, and pending follow-up visual QA before runtime publication.",
+    "Approved runtime light-kick row. Visual QA: eight separated upright two-legged ginger tabby low snap-kick frames with crouch-load, planted support, organic hip/knee front-foot extension, recoil, and guard recovery; no visible text/watermark/frame numbers, same stance convention and proportions as approved runtime rows through heavy-punch, chroma-key removed to transparent alpha, normalized to 2048x256 RGBA, and approved for runtime publication by T075.",
 };
 
 const animationFrameCounts: Readonly<Record<FighterAnimationId, number>> = {
@@ -484,18 +489,18 @@ export function validateMeowtalProductionManifest(
           errors.push(`${row.provenance.assetId}: approved heavy-punch row requires a generated runtime path`);
         }
       } else if (row.animationId === "light-kick") {
-        if (row.provenance.status !== "generated") {
-          errors.push(`${row.provenance.assetId}: light-kick row should remain generated until follow-up visual QA`);
+        if (row.provenance.status !== "approved") {
+          errors.push(`${row.provenance.assetId}: light-kick row should be runtime-approved after T076`);
         }
-        if (row.provenance.runtimePath !== null) {
-          errors.push(`${row.provenance.assetId}: generated light-kick row must not have a runtime path before QA`);
+        if (!row.provenance.runtimePath?.includes("/assets/generated/fighters/")) {
+          errors.push(`${row.provenance.assetId}: approved light-kick row requires a generated runtime path`);
         }
       } else {
         if (row.provenance.status !== "blocked") {
           errors.push(`${row.provenance.assetId}: remaining animation rows must remain blocked`);
         }
-        if (!row.provenance.blocker?.includes("light-kick row QA")) {
-          errors.push(`${row.provenance.assetId}: remaining row blocker must reference light-kick row QA`);
+        if (!row.provenance.blocker?.includes("special row scope")) {
+          errors.push(`${row.provenance.assetId}: remaining row blocker must reference special row scope`);
         }
       }
     }
@@ -556,7 +561,7 @@ function makeFighters(): readonly MeowtalFighterAssetPlan[] {
                           : animationId === "heavy-punch"
                             ? approvedHeavyPunchRowProvenance(fighterId, details)
                             : animationId === "light-kick"
-                              ? generatedLightKickRowProvenance(fighterId, details)
+                              ? approvedLightKickRowProvenance(fighterId, details)
                       : blockedAnimationRowProvenance(fighterId, animationId, details),
       })),
     };
@@ -574,11 +579,11 @@ function blockedAnimationRowProvenance(
     prompt: animationRowPrompt(details.displayName, animationId),
     status: "blocked",
     blocker:
-      "Wait for light-kick row QA and a separate scoped generation task before generating this remaining animation row.",
+      "Wait for special row scope and a separate generation task before generating this remaining animation row.",
   });
 }
 
-function generatedLightKickRowProvenance(
+function approvedLightKickRowProvenance(
   fighterId: MeowtalFighterId,
   details: (typeof fighterDetails)[MeowtalFighterId],
 ): AssetProvenance {
@@ -587,15 +592,15 @@ function generatedLightKickRowProvenance(
       assetId: `${fighterId}:light-kick`,
       promptSlug: `${fighterId}-light-kick-animation-row`,
       prompt: animationRowPrompt(details.displayName, "light-kick"),
-      status: "generated",
+      status: "approved",
       blocker: "",
     }),
     sourcePath: lightKickRowSourcePaths[fighterId],
-    runtimePath: null,
+    runtimePath: lightKickRowRuntimePaths[fighterId],
     license: {
       kind: "owned-generated",
       summary:
-        "Generated with Codex built-in imagegen as a chroma-keyed light-kick reference row for this project; retained as a non-runtime light-kick row candidate pending follow-up visual QA.",
+        "Generated with Codex built-in imagegen as a chroma-keyed light-kick reference row for this project; approved normalized runtime light-kick row after T075 visual QA.",
       sourceUrl: null,
       attribution: null,
       checkedOn: generatedOn,
@@ -604,7 +609,7 @@ function generatedLightKickRowProvenance(
     transforms: [
       "Generated a chroma-keyed imagegen light-kick reference row after T073 rejected deterministic composited candidates as tube-like.",
       "Removed the green chroma-key background with soft matte and despill to produce a transparent source row.",
-      "Normalized to an 8-frame 2048x256 QA candidate under output/imagegen for visual review only.",
+      "Normalized to an 8-frame 2048x256 QA candidate under output/imagegen and promoted the approved row to public runtime assets after T075 visual QA.",
     ],
     approvalNotes: lightKickRowQaNotes[fighterId],
     blocker: null,
