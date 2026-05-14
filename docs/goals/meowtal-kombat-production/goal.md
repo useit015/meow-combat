@@ -48,6 +48,7 @@ Discover the existing app shape, architecture, assets, rendering stack, and veri
 - Production readiness requires a local production build or production preview, stable frame pacing for the implemented effects, graceful loading/fallback behavior, and readable controls on supported viewports.
 - Commit work in small, coherent batches throughout implementation; do not save all production-game work for one large final commit.
 - Character animation assets must look consistent across each fighter's move set. Reject completion if animation frames vary noticeably in species identity, costume/markings, body proportions, lighting, camera angle, scale, outline/detail level, or rendering style.
+- The rabbit and cat must share one normal stance convention. The current production direction is upright two-legged for ordinary stance, movement, attacks, and victory presentation; grounded or prone poses are allowed only when they clearly read as hit reactions, K.O., or defeat, not four-legged locomotion, crawl/rest behavior, loafing, or a second normal rig.
 - Use Tough Love Arena (`https://toughlovearena.com/`) as a quality benchmark for smooth web fighting-game feel, responsive controls, readable combat, polished presentation, fast restart/rematch flow, and overall beauty. This is a feel benchmark only: do not copy its characters, art, UI, code, brand, or exact mechanics.
 
 ## Gameplay Feel Benchmark
@@ -74,6 +75,8 @@ Use these repo-local vision images as aspirational art-direction targets for the
 ## Character Sheet Template
 
 Before generating animation frames, create canonical character sheets for the gray rabbit and ginger/orange tabby cat. Use the structure below, adapted only to original Meowtal Kombat characters. Do not request or copy copyrighted characters, franchise outfits, logos, or named IP.
+
+Both sheets must use the same upright two-legged fighting-game rig selected for the production game. Do not mix two-legged and four-legged normal stance conventions across the fighters or across ordinary gameplay moves.
 
 ```text
 Create a complete polished character design sheet for [FIGHTER NAME], an original Meowtal Kombat fighter, on a clean light background. Show a faithful consistent depiction of [SPECIES AND ROLE] with [CORE SILHOUETTE], [FACE/PERSONALITY], [BODY PROPORTIONS], [FUR COLOR AND MARKINGS], [SIGNATURE COMBAT TRAITS], and [SPECIAL ENERGY COLOR].

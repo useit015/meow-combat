@@ -85,7 +85,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T110
+active_task: T111
 
 tasks:
   - id: T000
@@ -5695,7 +5695,7 @@ tasks:
   - id: T110
     type: pm
     assignee: PM
-    status: active
+    status: done
     reasoning_hint: medium
     objective: "Decompose the remaining broad queued production work after T109 and select the next smallest safe Worker slice with explicit allowed_files, verification, and stop conditions. Do not implement product changes in this task."
     inputs:
@@ -5703,6 +5703,7 @@ tasks:
       - "Queued broad tasks T005/T006/T007/T008/T009/T011 and final readiness audits"
       - "Goal requirement: full polished production-ready scoped game, not a PoC"
       - "Small-batch commit rule"
+      - "Owner clarification: both the rabbit and cat should either stand on two legs or four legs, not mix stance conventions."
     constraints:
       - "Do not activate broad queued tasks as written with empty allowed_files or verify."
       - "Prefer a slice that closes a production-readiness gap while staying small and locally verifiable."
@@ -5714,6 +5715,66 @@ tasks:
       - "allowed_files"
       - "verify commands"
       - "stop_if conditions"
+    receipt:
+      result: done
+      decision: "Reinforce the shared stance convention in the charter and activate T111, a narrow production smoke/runbook slice."
+      rationale: "The stance concern is already materially addressed by earlier T104 runtime stance enforcement, manifest/provenance gates, and visual/browser evidence: normal rabbit/cat presentation uses the same upright two-legged convention, while grounded/prone frames are limited to knockdown/lose/K.O. hit-reaction contexts. The next smallest non-duplicate production-readiness gap after T109 is making the existing browser smoke repeatable from npm and documenting the release-preview check, because it supports final readiness without changing gameplay, assets, or combat behavior."
+      changed_files:
+        - "docs/goals/meowtal-kombat-production/goal.md"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+      next_allowed_task: "T111"
+      next_worker_objective: "Make the Meowtal browser smoke repeatable from npm and document the production preview/smoke workflow for local release checks, without changing gameplay, assets, combat rules, audio, or generated binaries."
+      allowed_files:
+        - "package.json"
+        - "README.md"
+        - "scripts/smoke-meowtal-browser.mjs"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+      verify:
+        - "npm run typecheck"
+        - "npm test -- --run test/control-fallback.test.ts test/touch-controls.test.ts"
+        - "npm run verify"
+        - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/meowtal-smoke-t111"
+      stop_if:
+        - "Requires new npm dependencies, lockfile changes, external services, generated assets, audio, combat/gameplay changes, or files outside allowed_files."
+        - "Existing smoke script needs behavior changes beyond packaging/docs clarity."
+        - "A production preview target cannot be started locally."
+      notes:
+        - "Do not activate broad queued tasks T005/T006/T007/T008/T009/T011 as written because their allowed_files and verify lists are empty and their scopes are too broad for the small-batch rule."
+        - "The owner stance clarification remains a completion gate: both fighters share upright two-legged normal stance; four-legged/crawl/rest/loaf presentation is not acceptable as ordinary movement or attacks."
+  - id: T111
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: low
+    objective: "Make the Meowtal browser smoke repeatable from npm and document the production preview/smoke workflow for local release checks, without changing gameplay, assets, combat rules, audio, or generated binaries."
+    inputs:
+      - "Existing scripts/smoke-meowtal-browser.mjs from T107/T108"
+      - "T106-T109 touch/input fallback receipts"
+      - "T104 stance smoke evidence and owner stance clarification"
+      - "Production readiness requirement for repeatable browser verification"
+    constraints:
+      - "Do not change gameplay, combat simulation, frame data, generated image/audio assets, UI rendering, touch controls, gamepad behavior, or runtime visual behavior."
+      - "Do not add npm dependencies or modify package-lock.json."
+      - "Keep the task to package/docs/smoke entrypoint ergonomics."
+      - "Keep one small coherent commit."
+    expected_output:
+      - "npm script for the reusable Meowtal smoke check"
+      - "README production preview/smoke instructions that mention Playwright availability and output artifacts"
+      - "Verification receipt with typecheck, focused tests, full verify, and smoke output"
+    allowed_files:
+      - "package.json"
+      - "README.md"
+      - "scripts/smoke-meowtal-browser.mjs"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+    verify:
+      - "npm run typecheck"
+      - "npm test -- --run test/control-fallback.test.ts test/touch-controls.test.ts"
+      - "npm run verify"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/meowtal-smoke-t111"
+    stop_if:
+      - "Requires new npm dependencies, package-lock.json changes, external services, generated assets, audio, combat/gameplay changes, UI rendering changes, or files outside allowed_files."
+      - "Existing smoke script needs behavior changes beyond packaging/docs clarity."
+      - "A production preview target cannot be started locally."
     receipt: null
   - id: T005
     type: worker
