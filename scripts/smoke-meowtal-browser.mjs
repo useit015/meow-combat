@@ -5,6 +5,11 @@ import { createRequire } from "node:module";
 const GAME_WIDTH = 1024;
 const GAME_HEIGHT = 576;
 const PAUSE_PANEL = { x: 326, y: 132, width: 372, height: 314 };
+const GAMEPAD_BUTTON = {
+  Back: 8,
+  North: 3,
+  Start: 9,
+};
 const TITLE_UI_SLOTS = ["title-logo"];
 const FIGHT_UI_SLOTS = [
   "hud-frame",
@@ -155,6 +160,42 @@ async function holdControlsTogether(context, page, controlIds, frames) {
   }
 }
 
+async function setMockGamepad(page, input = {}) {
+  await page.evaluate(({ axes = [0, 0], buttons = {} }) => {
+    const buttonList = Array.from({ length: 16 }, (_, index) => ({
+      pressed: Boolean(buttons[index]),
+      value: buttons[index] ? 1 : 0,
+    }));
+    window.__meowtalGamepads = [
+      {
+        id: "Codex Standard Mock Gamepad",
+        index: 0,
+        connected: true,
+        mapping: "standard",
+        axes,
+        buttons: buttonList,
+        timestamp: performance.now(),
+      },
+    ];
+  }, input);
+}
+
+async function pressGamepadButton(page, buttonIndex, frames = 2) {
+  await setMockGamepad(page, { buttons: { [buttonIndex]: true } });
+  await waitFrames(page, frames);
+  await setMockGamepad(page);
+  await waitFrames(page, 6);
+}
+
+async function holdGamepadInput(page, input, frames) {
+  await setMockGamepad(page, input);
+  await waitFrames(page, frames);
+  const state = await readState(page);
+  await setMockGamepad(page);
+  await waitFrames(page, 4);
+  return state;
+}
+
 async function pressKey(page, key, frames = 2) {
   await page.keyboard.down(key);
   await waitFrames(page, frames);
@@ -287,6 +328,15 @@ async function openScenario(browser, url, scenario) {
     hasTouch: scenario.hasTouch ?? false,
     isMobile: scenario.isMobile ?? false,
   });
+  if (scenario.mockGamepad) {
+    await context.addInitScript(() => {
+      window.__meowtalGamepads = [];
+      Object.defineProperty(navigator, "getGamepads", {
+        configurable: true,
+        value: () => window.__meowtalGamepads,
+      });
+    });
+  }
   const page = await context.newPage();
   const errors = [];
   page.on("console", (msg) => {
@@ -330,6 +380,67 @@ async function runDesktop(browser, url, outDir) {
   return { name: "desktop", failures, errors, screenshot: shot, state };
 }
 
+async function runGamepad(browser, url, outDir) {
+  const failures = [];
+  const screenshots = [];
+  const { context, page, errors } = await openScenario(browser, url, {
+    viewport: { width: 1024, height: 576 },
+    mockGamepad: true,
+  });
+
+  await setMockGamepad(page);
+  let state = await readState(page);
+  screenshots.push(await screenshot(page, outDir, "gamepad-ready"));
+  assert(state.shellPhase === "ready", failures, `gamepad ready expected ready phase, got ${state.shellPhase}`);
+  assert(state.controls?.connectedGamepads === 1, failures, `gamepad expected one connected gamepad, got ${state.controls?.connectedGamepads}`);
+  assert(state.controls?.fallbackLine?.includes("1 GAMEPAD DETECTED"), failures, `gamepad fallback did not report connected pad: ${state.controls?.fallbackLine}`);
+  checkRuntimeUiLoaded(state, "gamepad ready", failures);
+  checkOnlyRuntimeUiSlots(state, "gamepad ready", TITLE_UI_SLOTS, failures);
+
+  await pressGamepadButton(page, GAMEPAD_BUTTON.Start);
+  state = await readState(page);
+  screenshots.push(await screenshot(page, outDir, "gamepad-select"));
+  assert(state.shellPhase === "select", failures, `gamepad start expected select phase, got ${state.shellPhase}`);
+  checkRuntimeUiLoaded(state, "gamepad select", failures);
+  checkOnlyRuntimeUiSlots(state, "gamepad select", TITLE_UI_SLOTS, failures);
+
+  await pressGamepadButton(page, GAMEPAD_BUTTON.Start);
+  await pressKey(page, "KeyC");
+  await waitFrames(page, 52);
+  state = await holdGamepadInput(page, { axes: [1, 0] }, 10);
+  screenshots.push(await screenshot(page, outDir, "gamepad-move-right"));
+  assert(state.shellPhase === "fighting", failures, `gamepad expected fighting phase, got ${state.shellPhase}`);
+  assert(["walkForward", "runForward"].includes(state.fighters?.p1?.state), failures, `gamepad right axis expected movement, got ${state.fighters?.p1?.state}`);
+  assert(state.fighters?.p1?.x > 300, failures, `gamepad right axis should move P1 forward, got x=${state.fighters?.p1?.x}`);
+
+  state = await holdGamepadInput(page, { buttons: { [GAMEPAD_BUTTON.North]: true } }, 10);
+  screenshots.push(await screenshot(page, outDir, "gamepad-special"));
+  assert(state.shellPhase === "fighting", failures, `gamepad expected fighting phase, got ${state.shellPhase}`);
+  assert(state.fighters?.p1?.state === "specialAttack", failures, `gamepad special expected specialAttack, got ${state.fighters?.p1?.state}`);
+  assert(state.p2Mode === "manual", failures, `gamepad expected P2 manual after CPU toggle, got ${state.p2Mode}`);
+  assert(state.controls?.connectedGamepads === 1, failures, "gamepad should remain connected during fight");
+  checkRuntimeUiLoaded(state, "gamepad fight", failures);
+  checkVisibleRuntimeUiSlots(state, "gamepad fight", FIGHT_UI_SLOTS, failures);
+
+  await pressGamepadButton(page, GAMEPAD_BUTTON.Start);
+  state = await readState(page);
+  screenshots.push(await screenshot(page, outDir, "gamepad-pause"));
+  assert(state.shellPhase === "paused", failures, `gamepad pause expected paused phase, got ${state.shellPhase}`);
+  checkRuntimeUiLoaded(state, "gamepad pause", failures);
+  checkVisibleRuntimeUiSlots(state, "gamepad pause", FIGHT_UI_SLOTS, failures);
+
+  await pressGamepadButton(page, GAMEPAD_BUTTON.Back);
+  state = await readState(page);
+  screenshots.push(await screenshot(page, outDir, "gamepad-reset"));
+  assert(state.shellPhase === "ready", failures, `gamepad reset expected ready phase, got ${state.shellPhase}`);
+  checkRuntimeUiLoaded(state, "gamepad reset", failures);
+  checkOnlyRuntimeUiSlots(state, "gamepad reset", TITLE_UI_SLOTS, failures);
+  assert(errors.length === 0, failures, `gamepad console/page errors: ${JSON.stringify(errors)}`);
+
+  await context.close();
+  return { name: "gamepad", failures, errors, screenshots, state };
+}
+
 async function runMobile(browser, url, outDir, name, viewport, expectedLayout) {
   const failures = [];
   const { context, page, errors } = await openScenario(browser, url, {
@@ -354,9 +465,12 @@ async function runMobile(browser, url, outDir, name, viewport, expectedLayout) {
 
   await tapControl(page, "start");
   state = await readState(page);
+  await pressKey(page, "KeyC");
+  state = await readState(page);
   const fightShot = await screenshot(page, outDir, `${name}-fight`);
 
   assert(state.shellPhase === "fighting", failures, `${name} expected fighting phase, got ${state.shellPhase}`);
+  assert(state.p2Mode === "manual", failures, `${name} expected manual P2 during input smoke, got ${state.p2Mode}`);
   assert(state.touchControls?.visible === true, failures, `${name} should show touch controls`);
   assert(state.touchControls?.layout === expectedLayout, failures, `${name} expected ${expectedLayout}, got ${state.touchControls?.layout}`);
   checkControlFallback(state, name, failures);
@@ -552,6 +666,7 @@ async function main() {
 
   try {
     results.push(await runDesktop(browser, args.url, args.outDir));
+    results.push(await runGamepad(browser, args.url, args.outDir));
     results.push(await runRollDemo(browser, args.url, args.outDir));
     results.push(await runEndgameDemo(browser, args.url, args.outDir));
     results.push(await runMobile(browser, args.url, args.outDir, "portrait", { width: 390, height: 844 }, "phone-portrait"));

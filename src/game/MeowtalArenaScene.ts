@@ -46,6 +46,12 @@ import {
   selectedFighterFromConfig,
   versionedAssetFromConfig,
 } from "./gameConfig";
+import {
+  EMPTY_GAMEPAD_INPUT,
+  gamepadControlJustPressed,
+  gamepadInputFromGamepads,
+  type GamepadInputState,
+} from "./gamepadInput";
 import { fighterRollMotionCue, fighterVisualSeparationOffset, impactFeedbackCue } from "./presentation";
 import { initialShellState, reduceShellState, type ShellState } from "./shellFlow";
 import { selectSpritePose, spriteStanceConventionForAnimation } from "./spriteFrame";
@@ -131,6 +137,7 @@ export class MeowtalArenaScene extends Phaser.Scene {
   private readonly pointerTouchControls = new Map<number, TouchControlId>();
   private activeTouchControls = new Set<TouchControlId>();
   private previousTouchControls = new Set<TouchControlId>();
+  private previousGamepadInput: GamepadInputState = EMPTY_GAMEPAD_INPUT;
   private touchControlLabels!: Record<TouchControlId, Phaser.GameObjects.Text>;
 
   constructor() {
@@ -470,17 +477,22 @@ export class MeowtalArenaScene extends Phaser.Scene {
     const touchControlsThisFrame = new Set(this.activeTouchControls);
     const touchPressed = (id: TouchControlId) =>
       touchControlJustPressed(touchControlsThisFrame, this.previousTouchControls, id);
+    const gamepadInputThisFrame = this.readGamepadInput();
+    const gamepadPressed = (id: "start" | "pause" | "reset") =>
+      gamepadControlJustPressed(gamepadInputThisFrame, this.previousGamepadInput, id);
 
     try {
-      const resetPressed = Phaser.Input.Keyboard.JustDown(this.keys.reset) || touchPressed("reset");
+      const resetPressed = Phaser.Input.Keyboard.JustDown(this.keys.reset) || touchPressed("reset") || gamepadPressed("reset");
       const startPressed =
         Phaser.Input.Keyboard.JustDown(this.keys.start) ||
         Phaser.Input.Keyboard.JustDown(this.keys.startAlt) ||
-        touchPressed("start");
+        touchPressed("start") ||
+        gamepadPressed("start");
       const pausePressed =
         Phaser.Input.Keyboard.JustDown(this.keys.pause) ||
         Phaser.Input.Keyboard.JustDown(this.keys.pauseAlt) ||
-        touchPressed("pause");
+        touchPressed("pause") ||
+        gamepadPressed("pause");
       const fullscreenPressed = Phaser.Input.Keyboard.JustDown(this.keys.fullscreen);
       if (Phaser.Input.Keyboard.JustDown(this.keys.cpuToggle)) {
         this.p2CpuEnabled = !this.p2CpuEnabled;
@@ -589,6 +601,7 @@ export class MeowtalArenaScene extends Phaser.Scene {
       });
     } finally {
       this.previousTouchControls = touchControlsThisFrame;
+      this.previousGamepadInput = gamepadInputThisFrame;
     }
   }
 
@@ -1156,20 +1169,23 @@ export class MeowtalArenaScene extends Phaser.Scene {
     }
 
     const touchInput = touchInputFromControls(this.activeTouchControls);
+    const gamepadInput = this.readGamepadInput();
     const keyboardHorizontal = keyDown(this.keys.p1Left) ? -1 : keyDown(this.keys.p1Right) || keyDown(this.keys.p1RightAlt) ? 1 : 0;
     const keyboardVertical = keyDown(this.keys.p1Down) ? 1 : keyDown(this.keys.p1Jump) ? -1 : 0;
+    const horizontal = touchInput.horizontal !== 0 ? touchInput.horizontal : gamepadInput.horizontal !== 0 ? gamepadInput.horizontal : keyboardHorizontal;
+    const vertical = touchInput.vertical !== 0 ? touchInput.vertical : gamepadInput.vertical !== 0 ? gamepadInput.vertical : keyboardVertical;
 
     return createInput(frame, {
-      horizontal: touchInput.horizontal !== 0 ? touchInput.horizontal : keyboardHorizontal,
-      vertical: touchInput.vertical !== 0 ? touchInput.vertical : keyboardVertical,
+      horizontal,
+      vertical,
       buttons: buttonsFromKeys({
-        jump: keyDown(this.keys.p1Jump) || touchInput.buttons.jump,
-        crouch: keyDown(this.keys.p1Down) || touchInput.buttons.crouch,
-        light: keyDown(this.keys.p1Light) || keyDown(this.keys.p1LightAlt) || touchInput.buttons.light,
-        kick: keyDown(this.keys.p1Kick) || touchInput.buttons.kick,
-        heavy: keyDown(this.keys.p1Heavy) || touchInput.buttons.heavy,
-        special: keyDown(this.keys.p1Special) || keyDown(this.keys.p1SpecialAlt) || touchInput.buttons.special,
-        guard: keyDown(this.keys.p1Left) || touchInput.buttons.guard,
+        jump: keyDown(this.keys.p1Jump) || touchInput.buttons.jump || gamepadInput.buttons.jump,
+        crouch: keyDown(this.keys.p1Down) || touchInput.buttons.crouch || gamepadInput.buttons.crouch,
+        light: keyDown(this.keys.p1Light) || keyDown(this.keys.p1LightAlt) || touchInput.buttons.light || gamepadInput.buttons.light,
+        kick: keyDown(this.keys.p1Kick) || touchInput.buttons.kick || gamepadInput.buttons.kick,
+        heavy: keyDown(this.keys.p1Heavy) || touchInput.buttons.heavy || gamepadInput.buttons.heavy,
+        special: keyDown(this.keys.p1Special) || keyDown(this.keys.p1SpecialAlt) || touchInput.buttons.special || gamepadInput.buttons.special,
+        guard: keyDown(this.keys.p1Left) || touchInput.buttons.guard || gamepadInput.buttons.guard,
       }),
     });
   }
@@ -1790,6 +1806,13 @@ export class MeowtalArenaScene extends Phaser.Scene {
       gamepadSupported,
       touchSupported: this.shouldShowTouchControls(),
     });
+  }
+
+  private readGamepadInput(): GamepadInputState {
+    if (typeof navigator.getGamepads !== "function") {
+      return EMPTY_GAMEPAD_INPUT;
+    }
+    return gamepadInputFromGamepads(Array.from(navigator.getGamepads()));
   }
 
   private toggleFullscreen(): void {

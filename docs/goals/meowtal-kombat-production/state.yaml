@@ -86,7 +86,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T141
+active_task: T143
 
 tasks:
   - id: T000
@@ -7544,7 +7544,7 @@ tasks:
   - id: T141
     type: worker
     assignee: Worker
-    status: active
+    status: blocked
     reasoning_hint: medium
     objective: "Resume credential-backed regeneration of all Meowtal UI elements after OPENAI_API_KEY is set locally, then approve/promote only candidates that pass visual QA and runtime verification."
     inputs:
@@ -7576,18 +7576,128 @@ tasks:
       - "Promoted runtime assets only when all QA gates pass."
       - "Browser smoke proof of regenerated UI."
       - "Task receipt and small coherent commit."
+    receipt:
+      result: blocked
+      summary: "A fresh preflight still reports OPENAI_API_KEY=missing, so live UI regeneration remains unavailable. The next local production slice will close the advertised-but-unwired gamepad control gap."
+      commands:
+        - cmd: "npm run imagegen:preflight"
+          status: blocked
+          notes: "OPENAI_API_KEY=missing"
+      blocker: "Set OPENAI_API_KEY locally to run live OpenAI Image API UI regeneration. Do not paste the key in chat."
+      next_task: T142
+  - id: T142
+    type: worker
+    assignee: Worker
+    status: done
+    reasoning_hint: medium
+    objective: "Add actual P1 gamepad input support for shell start/pause/reset and fight movement/actions, with tests and browser smoke proof using a mocked connected gamepad."
+    inputs:
+      - "Control fallback text already reports gamepad readiness and connected gamepad counts."
+      - "The scene currently reads navigator.getGamepads only for status, not gameplay input."
+      - "Original goal includes controls and optional gamepad readiness."
+    allowed_files:
+      - "src/game/gamepadInput.ts"
+      - "src/game/MeowtalArenaScene.ts"
+      - "scripts/smoke-meowtal-browser.mjs"
+      - "test/gamepad-input.test.ts"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+      - "progress.md"
+    verify:
+      - "npm test -- --run test/gamepad-input.test.ts test/control-fallback.test.ts test/shell-flow.test.ts"
+      - "npm run verify"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-gamepad"
+      - "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+    stop_if:
+      - "The slice requires broad combat-engine changes beyond mapping gamepad input into existing commands."
+      - "Browser smoke cannot mock a connected gamepad state."
+    expected_output:
+      - "Tested Gamepad API input mapper."
+      - "P1 gamepad movement/action integration in the live scene."
+      - "Production-preview smoke proof that a connected gamepad can start the game and trigger an attack."
+      - "Task receipt and small coherent commit."
+    receipt:
+      result: done
+      summary: "Added a tested standard Gamepad API input mapper, wired connected gamepads into P1 shell start/pause/reset and combat movement/actions, and extended production-preview smoke with a mocked connected gamepad that starts from ready, reaches select/fighting, moves P1 forward, triggers the approved special attack row, pauses, and resets to ready. Mobile input smoke now toggles P2 manual during touch checks to avoid CPU interruptions."
+      changed_files:
+        - "src/game/gamepadInput.ts"
+        - "src/game/MeowtalArenaScene.ts"
+        - "scripts/smoke-meowtal-browser.mjs"
+        - "test/gamepad-input.test.ts"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+        - "progress.md"
+      evidence:
+        - "output/web-game/postfinal-gamepad/report.json"
+        - "output/web-game/postfinal-gamepad/gamepad-ready.png"
+        - "output/web-game/postfinal-gamepad/gamepad-select.png"
+        - "output/web-game/postfinal-gamepad/gamepad-move-right.png"
+        - "output/web-game/postfinal-gamepad/gamepad-special.png"
+        - "output/web-game/postfinal-gamepad/gamepad-pause.png"
+        - "output/web-game/postfinal-gamepad/gamepad-reset.png"
+      commands:
+        - cmd: "npm test -- --run test/gamepad-input.test.ts test/control-fallback.test.ts test/shell-flow.test.ts"
+          status: pass
+        - cmd: "node --check scripts/smoke-meowtal-browser.mjs"
+          status: pass
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-gamepad"
+          status: pass
+        - cmd: "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+          status: pass
+      next_task: T143
+  - id: T143
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: medium
+    objective: "Resume credential-backed regeneration of all Meowtal UI elements after OPENAI_API_KEY is set locally, then approve/promote only candidates that pass visual QA and runtime verification."
+    inputs:
+      - "T137/T139/T141 confirmed no unpromoted local UI candidates exist and OPENAI_API_KEY is missing."
+      - "T142 added tested gamepad support while credential-backed regeneration remained blocked."
+      - "The imagegen skill requires OPENAI_API_KEY for live OpenAI Image API calls."
+    allowed_files:
+      - "assets/source/imagegen/ui/meowtal/*"
+      - "public/assets/generated/ui/meowtal/*"
+      - "src/assets/meowtalProductionManifest.ts"
+      - "src/game/gameConfig.ts"
+      - "test/asset-runtime.test.ts"
+      - "test/meowtal-production-manifest.test.ts"
+      - "docs/assets/meowtal-kombat-provenance.md"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+      - "progress.md"
+      - "output/imagegen/**"
+      - "tmp/imagegen/**"
+    verify:
+      - "npm run imagegen:preflight"
+      - "npm test -- --run test/asset-runtime.test.ts test/meowtal-production-manifest.test.ts"
+      - "npm run verify"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-ui-regen"
+    stop_if:
+      - "OPENAI_API_KEY is still missing."
+      - "Generated UI candidates fail visual QA, 1024x576 contract, or crop-bound tests after one targeted retry."
+    expected_output:
+      - "Live regenerated UI sheets or a fresh credential-blocked receipt."
+      - "Promoted runtime assets only when all QA gates pass."
+      - "Browser smoke proof of regenerated UI."
+      - "Task receipt and small coherent commit."
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T140
+    task: T142
     commands:
+      - cmd: "npm test -- --run test/gamepad-input.test.ts test/control-fallback.test.ts test/shell-flow.test.ts"
+        status: pass
       - cmd: "node --check scripts/smoke-meowtal-browser.mjs"
+        status: pass
+      - cmd: "npm run typecheck"
         status: pass
       - cmd: "npm run verify"
         status: pass
-      - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-ui-visible-slots"
+      - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-gamepad"
         status: pass
       - cmd: "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
         status: pass
