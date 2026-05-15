@@ -86,7 +86,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T151
+active_task: T152
 
 tasks:
   - id: T000
@@ -8035,7 +8035,7 @@ tasks:
   - id: T151
     type: worker
     assignee: Worker
-    status: active
+    status: blocked
     reasoning_hint: medium
     objective: "Resume credential-backed Meowtal UI regeneration once OPENAI_API_KEY is set locally, then approve/promote only candidates that preserve the original view, pass visual QA, crop contracts, production build, and browser smoke."
     inputs:
@@ -8064,6 +8064,45 @@ tasks:
     expected_output:
       - "Fresh regenerated UI assets or a blocked receipt if credentials remain unavailable."
       - "Approved UI manifest/runtime updates only for candidates that preserve original visual identity and pass verification."
+      - "Task receipt and small coherent commit."
+    receipt:
+      result: blocked
+      summary: "A fresh imagegen preflight still reports OPENAI_API_KEY=missing, so credential-backed Meowtal UI regeneration cannot run in this environment. The next local slice will harden the UI imagegen handoff so regenerated candidates are constrained to preserve original-view crop geometry, scale, and runtime compatibility once credentials are set."
+      commands:
+        - cmd: "npm run imagegen:preflight"
+          status: blocked
+          notes: "OPENAI_API_KEY=missing"
+      blocker: "Set OPENAI_API_KEY locally to run live OpenAI Image API UI regeneration. Do not paste the key in chat."
+      next_task: T152
+  - id: T152
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: medium
+    objective: "Harden the credential-free UI imagegen handoff so regenerated UI jobs and preflight output explicitly preserve the original view, crop-compatible layout, 1024x576 runtime contract, and no-branding constraints before live regeneration is retried."
+    inputs:
+      - "T151 remains blocked on missing OPENAI_API_KEY."
+      - "buildUiImagegenJobs() already emits the nine generated UI surface jobs."
+      - "The owner requires regenerated UI elements to function well, look good, and stay consistent with the original view."
+    allowed_files:
+      - "src/assets/imagegenJobs.ts"
+      - "scripts/imagegen-preflight.mjs"
+      - "test/imagegen-jobs.test.ts"
+      - "test/imagegen-preflight.test.ts"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+      - "progress.md"
+    verify:
+      - "npm run imagegen:preflight"
+      - "npm test -- --run test/imagegen-jobs.test.ts test/imagegen-preflight.test.ts"
+      - "npm run verify"
+      - "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+    stop_if:
+      - "Changing preflight to execute live image generation would be required."
+      - "The prompt hardening would require changing runtime UI crop geometry or generated binary assets."
+    expected_output:
+      - "UI imagegen job prompts explicitly lock original-view consistency and runtime crop compatibility."
+      - "Preflight output mentions prepared UI surface jobs, not only fighter/stage jobs."
+      - "Focused and full verification pass."
       - "Task receipt and small coherent commit."
 
 checks:
