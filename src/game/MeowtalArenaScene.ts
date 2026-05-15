@@ -53,7 +53,7 @@ import {
   gamepadInputFromGamepads,
   type GamepadInputState,
 } from "./gamepadInput";
-import { fighterRollMotionCue, fighterVisualSeparationOffset, impactFeedbackCue } from "./presentation";
+import { fighterMobilityMotionCue, fighterRollMotionCue, fighterVisualSeparationOffset, impactFeedbackCue } from "./presentation";
 import { initialShellState, reduceShellState, type ShellState } from "./shellFlow";
 import { selectSpritePose, spriteStanceConventionForAnimation } from "./spriteFrame";
 import {
@@ -2188,6 +2188,48 @@ function drawFighterActionEffect(
     g.lineStyle(7, 0xf8f5e9, alpha * 0.52).lineBetween(trailX, y + 6, leadX, y - 4);
     g.lineStyle(4, color, alpha * 0.74).lineBetween(trailX + rollCue.direction * 12, y + 16, leadX, y + 4);
     g.lineStyle(2, 0xff9f1c, alpha * 0.68).strokeCircle(leadX - rollCue.direction * 8, y + 10, 18 + rollCue.progress * 10);
+    return;
+  }
+
+  const mobilityCue = fighterMobilityMotionCue(fighter);
+  if (mobilityCue) {
+    const alpha = mobilityCue.alpha;
+    if (alpha <= 0.02) return;
+
+    const direction = mobilityCue.direction;
+    const visualX = fighter.x + visualOffsetX;
+    const leadX = mobilityCue.leadX + visualOffsetX;
+    const trailX = mobilityCue.trailX + visualOffsetX;
+    const y = mobilityCue.y;
+    const dustY = mobilityCue.dustY;
+    const highlight = mobilityCue.kind === "hop" ? 0xfff1a8 : 0xf8f5e9;
+    const accent = mobilityCue.kind === "backdash" ? 0x4d96ff : color;
+
+    if (mobilityCue.kind === "hop") {
+      g.fillStyle(0xf8f5e9, alpha * 0.16).fillEllipse(visualX - direction * 34, dustY, 66, 16);
+      g.lineStyle(7, highlight, alpha * 0.52).lineBetween(trailX, y + 22, visualX - direction * 4, y - 8);
+      g.lineStyle(4, accent, alpha * 0.72).lineBetween(trailX + direction * 12, y + 34, leadX, y + 10);
+      g.lineStyle(2, 0xff9f1c, alpha * 0.58).strokeCircle(visualX - direction * 22, dustY - 12, 16 + mobilityCue.progress * 8);
+      return;
+    }
+
+    g.fillStyle(0xf8f5e9, alpha * 0.18).fillEllipse(visualX - direction * 44, dustY, 84, 18);
+    g.fillStyle(0xfff1a8, alpha * 0.14).fillEllipse(leadX - direction * 18, dustY - 4, 46, 12);
+    g.lineStyle(3, highlight, alpha * 0.46).lineBetween(
+      trailX - direction * 26,
+      fighter.y - 132,
+      visualX - direction * 44,
+      fighter.y - 138,
+    );
+    g.lineStyle(2, accent, alpha * 0.7).lineBetween(
+      trailX - direction * 12,
+      fighter.y - 104,
+      visualX - direction * 28,
+      fighter.y - 110,
+    );
+    g.lineStyle(8, highlight, alpha * 0.48).lineBetween(trailX, y + 6, leadX, y - 8);
+    g.lineStyle(5, accent, alpha * 0.78).lineBetween(trailX - direction * 14, y + 24, leadX - direction * 24, y + 10);
+    g.lineStyle(3, 0xff9f1c, alpha * 0.54).lineBetween(trailX - direction * 22, y + 44, visualX - direction * 16, y + 28);
     return;
   }
 

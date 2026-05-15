@@ -33,10 +33,23 @@ export interface FighterRollMotionCue {
   spriteScale: 1;
 }
 
+export interface FighterMobilityMotionCue {
+  kind: "run" | "backdash" | "hop";
+  direction: Facing;
+  progress: number;
+  alpha: number;
+  trailX: number;
+  leadX: number;
+  y: number;
+  dustY: number;
+  spriteScale: 1;
+}
+
 const VISUAL_SEPARATION_DISTANCE = 112;
 const VISUAL_SEPARATION_MAX = 18;
 const VISUAL_SEPARATION_SCALE = 0.25;
 const ROLL_CUE_FRAMES = 25;
+const MOBILITY_CUE_FRAMES = 24;
 
 export function impactFeedbackCue(events: readonly CombatEvent[]): ImpactFeedbackCue | null {
   if (events.some((event) => event.type === "hit")) {
@@ -105,6 +118,30 @@ export function fighterRollMotionCue(fighter: FighterRollMotionState): FighterRo
     trailX: fighter.x - direction * (32 + progress * 24),
     leadX: fighter.x + direction * (22 + progress * 18),
     y: fighter.y - 38 + Math.sin(progress * Math.PI) * 4,
+    spriteScale: 1,
+  };
+}
+
+export function fighterMobilityMotionCue(fighter: FighterRollMotionState): FighterMobilityMotionCue | null {
+  if (fighter.state !== "runForward" && fighter.state !== "backdash" && fighter.state !== "hop") return null;
+
+  const progress = Math.min(1, Math.max(0, fighter.stateFrame / MOBILITY_CUE_FRAMES));
+  const kind = fighter.state === "hop" ? "hop" : fighter.state === "backdash" ? "backdash" : "run";
+  const direction = (fighter.state === "backdash" ? -fighter.facing : fighter.facing) as Facing;
+  const centerPulse = Math.sin(progress * Math.PI);
+  const alpha = Math.max(0, (kind === "hop" ? 0.72 : 0.82) * centerPulse);
+  const travel = kind === "hop" ? 46 : kind === "backdash" ? 58 : 68;
+  const lift = kind === "hop" ? 56 + centerPulse * 10 : 76;
+
+  return {
+    kind,
+    direction,
+    progress,
+    alpha,
+    trailX: fighter.x - direction * (travel + progress * 22),
+    leadX: fighter.x + direction * (18 + progress * 18),
+    y: fighter.y - lift,
+    dustY: fighter.y + (kind === "hop" ? 30 : -8),
     spriteScale: 1,
   };
 }

@@ -86,7 +86,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T161
+active_task: T162
 
 tasks:
   - id: T000
@@ -8544,7 +8544,7 @@ tasks:
   - id: T161
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: medium
     objective: "Add KOF-style motion readability cues for run-forward, backdash, and hop without changing approved fighter sprite proportions or regenerated UI assets."
     inputs:
@@ -8571,16 +8571,71 @@ tasks:
       - "Tested procedural motion cues for run-forward, backdash, and hop."
       - "Browser screenshots showing clearer KOF-style movement readability while preserving sprite identity and size."
       - "Small coherent motion-polish commit."
+    receipt:
+      result: done
+      summary: "Added tested procedural KOF-style motion readability cues for run-forward, backdash, and hop while leaving approved fighter sprite proportions and regenerated UI assets unchanged. Run-forward and backdash now add directional dust/speed streaks around the reused walk rows; hop adds an airborne takeoff trace. Verified the cues with focused presentation tests, full verify, targeted production-preview motion screenshots, and full smoke with zero failures."
+      changed_files:
+        - "src/game/presentation.ts"
+        - "src/game/MeowtalArenaScene.ts"
+        - "test/presentation.test.ts"
+      commands:
+        - cmd: "npm test -- --run test/presentation.test.ts"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "Node/Playwright demo capture for run-forward, backdash, hop, roll-forward, roll-back, K.O., rabbit victory, and cat victory to output/web-game/postfinal-motion-cues"
+          status: pass
+        - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-motion-cues"
+          status: pass
+        - cmd: "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+          status: pass
+      proof:
+        - "output/web-game/postfinal-motion-cues/run-forward.png"
+        - "output/web-game/postfinal-motion-cues/backdash.png"
+        - "output/web-game/postfinal-motion-cues/hop.png"
+        - "output/web-game/postfinal-motion-cues/roll-forward.png"
+        - "output/web-game/postfinal-motion-cues/desktop-keyboard-fight.png"
+        - "output/web-game/postfinal-motion-cues/portrait-fight.png"
+        - "output/web-game/postfinal-motion-cues/landscape-fight.png"
+      next_task: T162
+  - id: T162
+    type: pm
+    assignee: PM
+    status: active
+    reasoning_hint: high
+    objective: "Run the final production-ready v1 audit after motion cue polish and either mark the goal complete or identify the next concrete blocker."
+    inputs:
+      - "T161 added tested motion readability cues for run-forward, backdash, and hop."
+      - "T156/T158/T159 resolved the post-final UI regeneration/retention tranche."
+      - "T160 already verified no missing runtime assets, fallbacks, console errors, responsive layout failures, portrait drift, or side-switch/cross-up breakage before the motion cue polish."
+      - "Owner requires a solid production-ready v1, not a flashy but unfinished proof-of-concept."
+    allowed_files:
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+      - "progress.md"
+      - "output/web-game/**"
+    verify:
+      - "npm run verify"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-v1-audit"
+      - "Review motion/side-switch/UI evidence from output/web-game/postfinal-motion-cues and output/web-game/postfinal-visual-crossup."
+      - "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+    stop_if:
+      - "Any missing runtime asset/fallback, console/runtime error, layout break, portrait drift, unreadable HUD crop, or unacceptable KOF motion/side-switch visual issue remains."
+    expected_output:
+      - "Final pass/fail verdict for production-ready v1."
+      - "If passed, goal status complete with proof paths."
+      - "If failed, next concrete blocker task."
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T160
+    task: T161
     commands:
+      - cmd: "npm test -- --run test/presentation.test.ts"
+        status: pass
       - cmd: "npm run verify"
         status: pass
-      - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-readiness-v1"
+      - cmd: "Node/Playwright demo capture for run-forward, backdash, hop, roll-forward, roll-back, K.O., rabbit victory, and cat victory to output/web-game/postfinal-motion-cues"
         status: pass
-      - cmd: "Node/Playwright demo capture for run-forward, backdash, hop, roll-forward, roll-back, K.O., rabbit victory, and cat victory to output/web-game/postfinal-readiness-v1-motion"
+      - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-motion-cues"
         status: pass

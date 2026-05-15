@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { audioCueForCombatEvents, audioCuesForCombatEvents, audioCueForMatchTransition } from "../src/game/audio";
 import {
+  fighterMobilityMotionCue,
   fighterRollMotionCue,
   fighterVisualSeparationOffset,
   impactFeedbackCue,
@@ -72,6 +73,40 @@ describe("presentation helpers", () => {
         stateFrame: 10,
       })?.direction,
     ).toBe(1);
+  });
+
+  it("adds directional mobility cues without scaling approved fighter sprites", () => {
+    const run = fighterMobilityMotionCue({
+      x: 500,
+      y: 462,
+      facing: 1,
+      state: "runForward",
+      stateFrame: 12,
+    });
+    const backdash = fighterMobilityMotionCue({
+      x: 500,
+      y: 462,
+      facing: 1,
+      state: "backdash",
+      stateFrame: 12,
+    });
+    const hop = fighterMobilityMotionCue({
+      x: 500,
+      y: 388,
+      facing: -1,
+      state: "hop",
+      stateFrame: 12,
+    });
+
+    expect(run).toMatchObject({ kind: "run", direction: 1, spriteScale: 1 });
+    expect(run?.leadX).toBeGreaterThan(500);
+    expect(run?.trailX).toBeLessThan(500);
+    expect(backdash).toMatchObject({ kind: "backdash", direction: -1, spriteScale: 1 });
+    expect(backdash?.leadX).toBeLessThan(500);
+    expect(backdash?.trailX).toBeGreaterThan(500);
+    expect(hop).toMatchObject({ kind: "hop", direction: -1, spriteScale: 1 });
+    expect(hop?.y).toBeLessThan(388);
+    expect(hop?.alpha).toBeGreaterThan(0.3);
   });
 
   it("stops separating fighters once silhouettes have readable space", () => {
