@@ -86,7 +86,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T135
+active_task: T136
 
 tasks:
   - id: T000
@@ -7276,7 +7276,7 @@ tasks:
   - id: T135
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: medium
     objective: "Add production-preview smoke coverage for K.O., victory, and rematch/reset UI flow so late-round overlays, end-state animations, and match transitions are proven after the recent gameplay and UI polish."
     inputs:
@@ -7302,16 +7302,62 @@ tasks:
       - "Browser smoke proves K.O. overlay, victory overlay, and rematch/reset flow"
       - "No console/runtime failures in late-round states"
       - "Task receipt and small coherent commit"
+    receipt:
+      result: done
+      summary: "Extended production-preview smoke coverage through late-round and match-end UI states: K.O. overlay, delayed round victory overlay, rabbit match victory, cat match victory, win/lose runtime animation rows, Enter rematch reset, and R reset-to-ready. The new assertions run alongside desktop, roll, portrait, and landscape smoke coverage with no console/runtime failures."
+      changed_files:
+        - "scripts/smoke-meowtal-browser.mjs"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+        - "progress.md"
+      commands:
+        - cmd: "npm test -- --run test/shell-flow.test.ts test/match-flow.test.ts"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-ko-rematch"
+          status: pass
+      evidence:
+        - "output/web-game/postfinal-ko-rematch/ko-overlay.png"
+        - "output/web-game/postfinal-ko-rematch/round-victory-overlay.png"
+        - "output/web-game/postfinal-ko-rematch/match-victory-overlay.png"
+        - "output/web-game/postfinal-ko-rematch/cat-victory-overlay.png"
+        - "output/web-game/postfinal-ko-rematch/rematch-fighting.png"
+        - "output/web-game/postfinal-ko-rematch/reset-ready.png"
+        - "output/web-game/postfinal-ko-rematch/report.json"
+      next_task: T136
+  - id: T136
+    type: pm
+    assignee: PM
+    status: active
+    reasoning_hint: high
+    objective: "Run a post-roll/endgame production-readiness audit and decide whether any remaining owner blocker is executable without live imagegen credentials, especially the requested UI regeneration pass."
+    inputs:
+      - "T134 fixed and proved KOF-style roll behavior."
+      - "T135 added browser proof for K.O., victory, rematch, and reset UI flow."
+      - "Imagegen skill requires OPENAI_API_KEY for live UI regeneration."
+    allowed_files:
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+      - "progress.md"
+    verify:
+      - "npm run imagegen:preflight"
+      - "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+    stop_if:
+      - "Audit finds a remaining implementation blocker that can be handled without live image generation."
+      - "OPENAI_API_KEY is still missing and the only remaining blocker is credential-backed UI regeneration."
+    expected_output:
+      - "Clear readiness verdict after roll/endgame proof"
+      - "Next executable task if one exists"
+      - "No completion claim unless every owner objective is proven or explicitly blocked"
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T134
+    task: T135
     commands:
-      - cmd: "npm test -- --run test/combat-core.test.ts test/presentation.test.ts test/animation-map.test.ts"
+      - cmd: "npm test -- --run test/shell-flow.test.ts test/match-flow.test.ts"
         status: pass
       - cmd: "npm run verify"
         status: pass
-      - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-roll-feel"
+      - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-ko-rematch"
         status: pass

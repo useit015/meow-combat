@@ -355,6 +355,94 @@ async function runRollDemo(browser, url, outDir) {
   return { name: "roll-demo", failures, errors: [], screenshots, states };
 }
 
+async function runEndgameDemo(browser, url, outDir) {
+  const failures = [];
+  const screenshots = [];
+  const states = {};
+
+  {
+    const { context, page, errors } = await openScenario(browser, urlWithDemo(url, "ko"), {
+      viewport: { width: 1024, height: 576 },
+    });
+    let state = await readState(page);
+    screenshots.push(await screenshot(page, outDir, "ko-overlay"));
+    states["ko-overlay"] = state;
+    assert(state.shellPhase === "round-over", failures, `ko expected round-over phase, got ${state.shellPhase}`);
+    assert(state.runtimeUi?.overlaySlot === "ko-overlay", failures, `ko expected ko-overlay, got ${state.runtimeUi?.overlaySlot}`);
+    assert(state.fighters?.p2?.state === "knockdown", failures, `ko expected p2 knockdown, got ${state.fighters?.p2?.state}`);
+    assert(missingRuntimeUi(state).length === 0, failures, `ko missing runtime UI: ${missingRuntimeUi(state).join(", ")}`);
+
+    await waitFrames(page, 42);
+    state = await readState(page);
+    screenshots.push(await screenshot(page, outDir, "round-victory-overlay"));
+    states["round-victory-overlay"] = state;
+    assert(
+      state.runtimeUi?.overlaySlot === "rabbit-win-overlay",
+      failures,
+      `round victory expected rabbit-win-overlay, got ${state.runtimeUi?.overlaySlot}`,
+    );
+    assert(errors.length === 0, failures, `ko console/page errors: ${JSON.stringify(errors)}`);
+    await context.close();
+  }
+
+  {
+    const { context, page, errors } = await openScenario(browser, urlWithDemo(url, "win"), {
+      viewport: { width: 1024, height: 576 },
+    });
+    let state = await readState(page);
+    screenshots.push(await screenshot(page, outDir, "match-victory-overlay"));
+    states["match-victory-overlay"] = state;
+    assert(state.shellPhase === "match-over", failures, `win expected match-over phase, got ${state.shellPhase}`);
+    assert(state.matchSet?.status === "complete", failures, `win expected complete match set, got ${state.matchSet?.status}`);
+    assert(
+      state.runtimeUi?.overlaySlot === "rabbit-win-overlay",
+      failures,
+      `win expected rabbit-win-overlay, got ${state.runtimeUi?.overlaySlot}`,
+    );
+    assert(state.runtimeVisuals?.p1?.animationId === "win", failures, `win expected p1 win row, got ${state.runtimeVisuals?.p1?.animationId}`);
+    assert(state.runtimeVisuals?.p2?.animationId === "lose", failures, `win expected p2 lose row, got ${state.runtimeVisuals?.p2?.animationId}`);
+
+    await pressKey(page, "Enter");
+    state = await readState(page);
+    screenshots.push(await screenshot(page, outDir, "rematch-fighting"));
+    states["rematch-fighting"] = state;
+    assert(state.shellPhase === "fighting", failures, `rematch expected fighting phase, got ${state.shellPhase}`);
+    assert(state.matchSet?.status === "in-progress", failures, `rematch expected in-progress set, got ${state.matchSet?.status}`);
+    assert(state.matchSet?.wins?.p1 === 0 && state.matchSet?.wins?.p2 === 0, failures, "rematch should clear match wins");
+    assert(state.fighters?.p1?.health === 1000 && state.fighters?.p2?.health === 1000, failures, "rematch should reset fighter health");
+
+    await pressKey(page, "KeyR");
+    state = await readState(page);
+    screenshots.push(await screenshot(page, outDir, "reset-ready"));
+    states["reset-ready"] = state;
+    assert(state.shellPhase === "ready", failures, `reset expected ready phase, got ${state.shellPhase}`);
+    assert(errors.length === 0, failures, `win/rematch console/page errors: ${JSON.stringify(errors)}`);
+    await context.close();
+  }
+
+  {
+    const { context, page, errors } = await openScenario(browser, urlWithDemo(url, "cat-win"), {
+      viewport: { width: 1024, height: 576 },
+    });
+    const state = await readState(page);
+    screenshots.push(await screenshot(page, outDir, "cat-victory-overlay"));
+    states["cat-victory-overlay"] = state;
+    assert(state.shellPhase === "match-over", failures, `cat-win expected match-over phase, got ${state.shellPhase}`);
+    assert(
+      state.runtimeUi?.overlaySlot === "cat-win-overlay",
+      failures,
+      `cat-win expected cat-win-overlay, got ${state.runtimeUi?.overlaySlot}`,
+    );
+    assert(state.runtimeVisuals?.p1?.animationId === "lose", failures, `cat-win expected p1 lose row, got ${state.runtimeVisuals?.p1?.animationId}`);
+    assert(state.runtimeVisuals?.p2?.animationId === "win", failures, `cat-win expected p2 win row, got ${state.runtimeVisuals?.p2?.animationId}`);
+    assert(missingRuntimeUi(state).length === 0, failures, `cat-win missing runtime UI: ${missingRuntimeUi(state).join(", ")}`);
+    assert(errors.length === 0, failures, `cat-win console/page errors: ${JSON.stringify(errors)}`);
+    await context.close();
+  }
+
+  return { name: "endgame-demo", failures, errors: [], screenshots, states };
+}
+
 async function main() {
   const args = parseArgs(process.argv);
   await fs.mkdir(args.outDir, { recursive: true });
@@ -366,6 +454,7 @@ async function main() {
   try {
     results.push(await runDesktop(browser, args.url, args.outDir));
     results.push(await runRollDemo(browser, args.url, args.outDir));
+    results.push(await runEndgameDemo(browser, args.url, args.outDir));
     results.push(await runMobile(browser, args.url, args.outDir, "portrait", { width: 390, height: 844 }, "phone-portrait"));
     results.push(await runMobile(browser, args.url, args.outDir, "landscape", { width: 844, height: 390 }, "phone-landscape"));
   } finally {
