@@ -10,6 +10,7 @@ import {
   resolveManifestRuntimeAssetForSnapshot,
   resolveStageRuntimeLayers,
   visualStateForSnapshot,
+  type RuntimeSpriteAsset,
 } from "../assets";
 import {
   FightingSimulation,
@@ -56,6 +57,11 @@ import {
 import { fighterMobilityMotionCue, fighterRollMotionCue, fighterVisualSeparationOffset, impactFeedbackCue } from "./presentation";
 import { initialShellState, reduceShellState, selectedPlayMode, shellModeLabel, type ShellState } from "./shellFlow";
 import { selectSpritePose, spriteStanceConventionForAnimation } from "./spriteFrame";
+import {
+  spriteReferenceArea,
+  spriteVisualScaleForBounds,
+  type SpriteFrameVisualBounds,
+} from "./spriteVisualSizing";
 import {
   TOUCH_CONTROL_IDS,
   touchControlAtPoint,
@@ -128,6 +134,8 @@ export class MeowtalArenaScene extends Phaser.Scene {
   private runtimeUiImages!: Record<RuntimeUiImageSlot, Phaser.GameObjects.Image>;
   private selectSprites!: Record<"p1" | "p2", Phaser.GameObjects.Sprite>;
   private fighterSprites!: Record<"p1" | "p2", Phaser.GameObjects.Sprite>;
+  private spriteVisualScales = new Map<string, readonly number[]>();
+  private lastFighterSpriteScales: Record<"p1" | "p2", number> = { p1: 1, p2: 1 };
   private stageLayerImages: StageLayerImage[] = [];
   private readonly graphicsKey = "arena-debug";
   private readonly effectsGraphicsKey = "arena-effects";
@@ -327,6 +335,7 @@ export class MeowtalArenaScene extends Phaser.Scene {
         layer,
         image: this.add.image(512, 288, layer.assetKey).setDisplaySize(1104, 621).setDepth(1 + index).setVisible(false),
       }));
+    this.spriteVisualScales = this.buildSpriteVisualScaleMap();
     this.touchControlLabels = this.createTouchControlLabels();
     this.installTouchInput();
     this.installDebugHooks();
@@ -405,6 +414,10 @@ export class MeowtalArenaScene extends Phaser.Scene {
       runtimeVisuals: {
         p1: runtimeVisuals.p1,
         p2: runtimeVisuals.p2,
+      },
+      runtimeSpriteScale: {
+        p1: roundMetric(this.lastFighterSpriteScales.p1),
+        p2: roundMetric(this.lastFighterSpriteScales.p2),
       },
       runtimeStance: {
         rule: "normal gameplay is upright-two-legged for both fighters; grounded-prone-reaction is reserved for knockdown/lose presentation",
@@ -1141,22 +1154,88 @@ export class MeowtalArenaScene extends Phaser.Scene {
     const sprite = this.fighterSprites[player];
     if (runtimeAsset.kind !== "sprite" || !this.textures.exists(runtimeAsset.assetKey)) {
       sprite.setVisible(false);
+      this.lastFighterSpriteScales[player] = 1;
       return false;
     }
 
     const fighter = this.snapshot[player];
     const poseFrame = fighter.guarding && fighter.state === "idle" ? 0 : fighter.stateFrame;
     const pose = selectSpritePose(runtimeAsset.animationId, poseFrame, runtimeAsset.frameCount);
+    const visualScale = this.spriteVisualScaleFor(runtimeAsset.assetKey, pose.frame);
     const visualOffsetX = this.visualSeparationOffset(player);
+    this.lastFighterSpriteScales[player] = visualScale;
     sprite
       .setTexture(runtimeAsset.assetKey)
       .setFrame(pose.frame)
       .setPosition(fighter.x + visualOffsetX + pose.offsetX * fighter.facing, fighter.y + 6 + pose.offsetY)
       .setFlipX(fighter.facing < 0)
-      .setScale(1.15 * pose.scaleX, 1.15 * pose.scaleY)
+      .setScale(1.15 * pose.scaleX * visualScale, 1.15 * pose.scaleY * visualScale)
       .setRotation(Phaser.Math.DegToRad(pose.rotation * fighter.facing))
       .setVisible(true);
     return true;
+  }
+
+  private buildSpriteVisualScaleMap(): Map<string, readonly number[]> {
+    const scaleMap = new Map<string, readonly number[]>();
+    for (const manifest of FIGHTER_ASSET_MANIFESTS) {
+      const idleAsset = resolveFighterRuntimeAsset(renderAssetForAnimationId(manifest, "idle"));
+      if (idleAsset.kind !== "sprite" || !this.textures.exists(idleAsset.assetKey)) continue;
+
+      const referenceArea = spriteReferenceArea(this.frameVisualBoundsForAsset(idleAsset));
+      for (const animation of manifest.animations) {
+        const runtimeAsset = resolveFighterRuntimeAsset(renderAssetForAnimationId(manifest, animation.id));
+        if (runtimeAsset.kind !== "sprite" || !this.textures.exists(runtimeAsset.assetKey)) continue;
+
+        const bounds = this.frameVisualBoundsForAsset(runtimeAsset);
+        scaleMap.set(
+          runtimeAsset.assetKey,
+          bounds.map((bound) => spriteVisualScaleForBounds(bound, referenceArea)),
+        );
+      }
+    }
+
+    return scaleMap;
+  }
+
+  private spriteVisualScaleFor(assetKey: string, frame: number): number {
+    return this.spriteVisualScales.get(assetKey)?.[frame] ?? 1;
+  }
+
+  private frameVisualBoundsForAsset(asset: RuntimeSpriteAsset): readonly SpriteFrameVisualBounds[] {
+    const fallback = Array.from({ length: asset.frameCount }, () => ({
+      width: asset.frameWidth,
+      height: asset.frameHeight,
+    }));
+    if (!this.textures.exists(asset.assetKey)) return fallback;
+
+    const canvas = document.createElement("canvas");
+    const sheetWidth = asset.frameCount * asset.frameWidth;
+    canvas.width = sheetWidth;
+    canvas.height = asset.frameHeight;
+    const context = canvas.getContext("2d", { willReadFrequently: true });
+    if (!context) return fallback;
+
+    try {
+      context.drawImage(
+        this.textures.get(asset.assetKey).getSourceImage() as CanvasImageSource,
+        0,
+        0,
+        sheetWidth,
+        asset.frameHeight,
+      );
+    } catch {
+      return fallback;
+    }
+
+    const pixels = context.getImageData(0, 0, sheetWidth, asset.frameHeight).data;
+    return Array.from({ length: asset.frameCount }, (_, frame) =>
+      frameVisualBoundsFromPixels(pixels, {
+        sheetWidth,
+        frameX: frame * asset.frameWidth,
+        frameWidth: asset.frameWidth,
+        frameHeight: asset.frameHeight,
+      }),
+    );
   }
 
   private visualSeparationOffset(player: "p1" | "p2"): number {
@@ -2081,6 +2160,33 @@ function versionedAsset(path: string): string {
 
 function roundMetric(value: number): number {
   return Math.round(value * 100) / 100;
+}
+
+function frameVisualBoundsFromPixels(
+  pixels: Uint8ClampedArray,
+  frame: { sheetWidth: number; frameX: number; frameWidth: number; frameHeight: number },
+): SpriteFrameVisualBounds {
+  let minX = frame.frameWidth;
+  let maxX = -1;
+  let minY = frame.frameHeight;
+  let maxY = -1;
+
+  for (let y = 0; y < frame.frameHeight; y += 1) {
+    for (let localX = 0; localX < frame.frameWidth; localX += 1) {
+      const alpha = pixels[(y * frame.sheetWidth + frame.frameX + localX) * 4 + 3];
+      if (alpha > 20) {
+        minX = Math.min(minX, localX);
+        maxX = Math.max(maxX, localX);
+        minY = Math.min(minY, y);
+        maxY = Math.max(maxY, y);
+      }
+    }
+  }
+
+  return {
+    width: maxX >= 0 ? maxX - minX + 1 : 0,
+    height: maxY >= 0 ? maxY - minY + 1 : 0,
+  };
 }
 
 function drawShellBackdrop(

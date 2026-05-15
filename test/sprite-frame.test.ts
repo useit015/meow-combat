@@ -35,7 +35,7 @@ describe("runtime sprite frame selection", () => {
     ]).toEqual([0, 1, 6, 8, 9]);
   });
 
-  it("uses uniform pose scale so motion accents do not squash or stretch the character", () => {
+  it("keeps pose scale fixed so animation timelines do not resize the character", () => {
     const animationIds = [
       "idle",
       "walk-forward",
@@ -55,20 +55,21 @@ describe("runtime sprite frame selection", () => {
     for (const animationId of animationIds) {
       for (const stateFrame of [0, 6, 18, 36, 72]) {
         const pose = selectSpritePose(animationId, stateFrame, 10);
-        expect(pose.scaleX).toBe(pose.scaleY);
+        expect(pose.scaleX).toBe(1);
+        expect(pose.scaleY).toBe(1);
       }
     }
   });
 
-  it("compensates compact jump frames without changing the selected animation frames", () => {
+  it("selects jump frames without adding per-frame sprite scale changes", () => {
     expect(selectSpriteFrame("jump", 0, 6)).toBe(0);
     expect(selectSpriteFrame("jump", 7, 6)).toBe(1);
     expect(selectSpriteFrame("jump", 21, 6)).toBe(3);
     expect(selectSpriteFrame("jump", 90, 6)).toBe(5);
 
-    expect(selectSpritePose("jump", 0, 6).scaleX).toBeGreaterThan(selectSpritePose("jump", 7, 6).scaleX);
-    expect(selectSpritePose("jump", 21, 6).scaleX).toBeGreaterThan(1.25);
-    expect(selectSpritePose("jump", 90, 6).scaleX).toBe(selectSpritePose("jump", 0, 6).scaleX);
+    expect(selectSpritePose("jump", 0, 6).scaleX).toBe(1);
+    expect(selectSpritePose("jump", 21, 6).scaleX).toBe(1);
+    expect(selectSpritePose("jump", 90, 6).scaleX).toBe(1);
   });
 
   it("keeps active strikes at stable character scale while preserving attack motion", () => {
