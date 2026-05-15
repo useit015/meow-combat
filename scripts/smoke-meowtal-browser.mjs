@@ -85,6 +85,14 @@ async function waitFrames(page, frames) {
   }, frames);
 }
 
+async function waitRealFrames(page, frames) {
+  await page.evaluate(async (count) => {
+    for (let i = 0; i < count; i += 1) {
+      await new Promise((resolve) => window.requestAnimationFrame(resolve));
+    }
+  }, frames);
+}
+
 async function readState(page) {
   const raw = await page.evaluate(() => {
     if (typeof window.render_game_to_text !== "function") return null;
@@ -92,6 +100,11 @@ async function readState(page) {
   });
   if (!raw) throw new Error("render_game_to_text is unavailable");
   return JSON.parse(raw);
+}
+
+async function sampleFramePacing(page, frames = 20) {
+  await waitRealFrames(page, frames);
+  return readState(page);
 }
 
 async function canvasBox(page) {
@@ -325,6 +338,16 @@ function checkControlFallback(state, scenario, failures) {
   assert(Number.isInteger(controls?.connectedGamepads), failures, `${scenario} should report connected gamepad count`);
 }
 
+function checkFramePacing(state, scenario, failures) {
+  const pacing = state.framePacing;
+  assert(pacing && typeof pacing === "object", failures, `${scenario} should expose frame pacing telemetry`);
+  assert(pacing?.lastRawDeltaMs > 0, failures, `${scenario} should sample real frame delta`);
+  assert(pacing?.lastClampedDeltaMs <= pacing?.maxDeltaMs + 0.5, failures, `${scenario} clamped delta exceeded max`);
+  assert(pacing?.lastSteps <= pacing?.maxStepsPerFrame, failures, `${scenario} exceeded max fixed steps per frame`);
+  assert(pacing?.accumulatorMs >= 0 && pacing?.accumulatorMs < pacing?.maxDeltaMs, failures, `${scenario} accumulator out of bounds`);
+  assert(Number.isInteger(pacing?.cappedFrameCount), failures, `${scenario} capped frame count should be an integer`);
+}
+
 async function screenshot(page, outDir, name) {
   const file = path.join(outDir, `${name}.png`);
   await page.screenshot({ path: file, fullPage: true });
@@ -389,6 +412,8 @@ async function runDesktop(browser, url, outDir) {
   state = await holdKey(page, "Enter", 10);
   assert(state.shellPhase === "fighting", failures, `desktop Enter special should stay fighting, got ${state.shellPhase}`);
   assert(state.fighters?.p1?.state === "specialAttack", failures, `desktop Enter expected specialAttack, got ${state.fighters?.p1?.state}`);
+  state = await sampleFramePacing(page);
+  checkFramePacing(state, "desktop", failures);
 
   await context.close();
   return { name: "desktop", failures, errors, screenshot: shot, state };
@@ -502,6 +527,8 @@ async function runMobile(browser, url, outDir, name, viewport, expectedLayout) {
   checkVisibleRuntimeUiSlots(state, name, FIGHT_UI_SLOTS, failures);
   await checkTouchReadability(page, state, name, failures);
   await checkCanvasFraming(page, name, failures);
+  state = await sampleFramePacing(page);
+  checkFramePacing(state, name, failures);
 
   state = await holdControl(page, "right", 10);
   const rightShot = await screenshot(page, outDir, `${name}-hold-right`);

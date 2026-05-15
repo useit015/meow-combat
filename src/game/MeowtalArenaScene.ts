@@ -46,6 +46,7 @@ import {
   selectedFighterFromConfig,
   versionedAssetFromConfig,
 } from "./gameConfig";
+import { createFramePacingState, stepFramePacing } from "./framePacing";
 import {
   EMPTY_GAMEPAD_INPUT,
   gamepadControlJustPressed,
@@ -83,7 +84,7 @@ const RUNTIME_UI_ASSETS = GAME_CONFIG.runtimeUiAssets;
 export class MeowtalArenaScene extends Phaser.Scene {
   private selectedFighterIndex: Record<"p1" | "p2", number> = { ...GAME_CONFIG.defaultSelections };
   private simulation = this.createSimulation();
-  private accumulator = 0;
+  private framePacing = createFramePacingState();
   private snapshot: MatchSnapshot = this.simulation.snapshot();
   private matchSet: MatchSetState = createMatchSet();
   private shell: ShellState = initialShellState;
@@ -338,10 +339,10 @@ export class MeowtalArenaScene extends Phaser.Scene {
       return;
     }
 
-    this.accumulator += delta;
-    while (this.accumulator >= TICK_MS) {
+    const framePacing = stepFramePacing(this.framePacing, delta);
+    this.framePacing = framePacing.state;
+    for (let step = 0; step < framePacing.steps; step += 1) {
       this.stepOnce();
-      this.accumulator -= TICK_MS;
     }
     this.render();
   }
@@ -373,6 +374,15 @@ export class MeowtalArenaScene extends Phaser.Scene {
       shellPhase: this.shell.phase,
       shellPhaseFrame: this.shellPhaseFrame,
       status: this.snapshot.status,
+      framePacing: {
+        ...this.framePacing,
+        accumulatorMs: roundMetric(this.framePacing.accumulatorMs),
+        maxDeltaMs: roundMetric(this.framePacing.maxDeltaMs),
+        lastRawDeltaMs: roundMetric(this.framePacing.lastRawDeltaMs),
+        lastClampedDeltaMs: roundMetric(this.framePacing.lastClampedDeltaMs),
+        lastDroppedMs: roundMetric(this.framePacing.lastDroppedMs),
+        totalDroppedMs: roundMetric(this.framePacing.totalDroppedMs),
+      },
       winner: this.snapshot.winner,
       combo: this.snapshot.combo,
       p2Mode: this.p2CpuEnabled ? "cpu" : "manual",
@@ -2007,6 +2017,10 @@ function manifestForCharacter(characterId: string) {
 
 function versionedAsset(path: string): string {
   return versionedAssetFromConfig(GAME_CONFIG, path);
+}
+
+function roundMetric(value: number): number {
+  return Math.round(value * 100) / 100;
 }
 
 function drawShellBackdrop(

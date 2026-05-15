@@ -86,7 +86,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T149
+active_task: T150
 
 tasks:
   - id: T000
@@ -7932,7 +7932,7 @@ tasks:
   - id: T149
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: medium
     objective: "Add a frame-pacing catch-up guard and browser-verifiable timing telemetry so stalls cannot trigger unbounded simulation catch-up and smoke can prove stable production pacing."
     inputs:
@@ -7959,20 +7959,69 @@ tasks:
       - "Text-state telemetry exposes enough pacing data for smoke assertions."
       - "Browser smoke includes real-time pacing evidence."
       - "Task receipt and small coherent commit."
+    receipt:
+      result: done
+      summary: "Added a pure frame-pacing guard that caps catch-up work after stalls, swapped the Phaser update loop to use it, exposed frame-pacing telemetry in render_game_to_text, and added smoke sampling via real requestAnimationFrame frames across desktop and mobile scenarios."
+      changed_files:
+        - "src/game/framePacing.ts"
+        - "src/game/MeowtalArenaScene.ts"
+        - "test/frame-pacing.test.ts"
+        - "scripts/smoke-meowtal-browser.mjs"
+      commands:
+        - cmd: "npm test -- --run test/frame-pacing.test.ts"
+          status: pass
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "node --check scripts/smoke-meowtal-browser.mjs"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-frame-pacing"
+          status: pass
+      proof:
+        - "output/web-game/postfinal-frame-pacing/desktop-keyboard-fight.png"
+        - "output/web-game/postfinal-frame-pacing/portrait-fight.png"
+        - "output/web-game/postfinal-frame-pacing/landscape-fight.png"
+      next_task: T150
+  - id: T150
+    type: pm
+    assignee: PM
+    status: active
+    reasoning_hint: high
+    objective: "Run a post-frame-pacing readiness audit against the full objective and decide whether any local non-credential production blocker remains before returning to UI regeneration."
+    inputs:
+      - "T148 made paused touch CPU settings functional."
+      - "T149 added frame-pacing guard and browser telemetry."
+      - "Credential-backed UI regeneration remains blocked by missing OPENAI_API_KEY."
+    allowed_files:
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+      - "progress.md"
+    verify:
+      - "npm run imagegen:preflight"
+      - "npm run verify"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-frame-readiness-audit"
+      - "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+    stop_if:
+      - "The only remaining blocker is still OPENAI_API_KEY for live UI regeneration."
+    expected_output:
+      - "Concrete audit receipt with evidence and remaining blocker."
+      - "No completion unless every objective item, including UI regeneration, is satisfied."
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T148
+    task: T149
     commands:
-      - cmd: "npm test -- --run test/touch-controls.test.ts test/shell-flow.test.ts"
+      - cmd: "npm test -- --run test/frame-pacing.test.ts"
+        status: pass
+      - cmd: "npm run typecheck"
         status: pass
       - cmd: "node --check scripts/smoke-meowtal-browser.mjs"
         status: pass
       - cmd: "npm run verify"
         status: pass
-      - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-paused-touch-settings"
+      - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-frame-pacing"
         status: pass
       - cmd: "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
         status: pass

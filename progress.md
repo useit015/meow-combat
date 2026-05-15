@@ -149,6 +149,7 @@ Original prompt: create a KOF-style Moroccan-themed production-ready game, first
 - Keyboard confirm polish pass: phase-gated Enter/Space shell confirm so Space remains combat light and Enter remains alternate special during fights, with held-confirm suppression through fight start. Verification passed: focused shell/gamepad/control tests, `npm run verify`, and smoke at `output/web-game/postfinal-keyboard-confirm`.
 - Post-input readiness audit: `npm run verify` and production-preview smoke remain green after the confirm-input polish, including desktop keyboard, mocked gamepad, mobile touch, roll, K.O., victory, rematch, and reset coverage at `output/web-game/postfinal-readiness-audit`; completion is still blocked only by `OPENAI_API_KEY=missing` for live UI regeneration.
 - Paused touch settings pass: added paused touch CPU toggle and difficulty controls, kept them outside the pause panel across layouts, and proved portrait/landscape paused touch CPU/difficulty behavior in production-preview smoke at `output/web-game/postfinal-paused-touch-settings`. Verification passed: focused touch/shell tests, `npm run verify`, and smoke.
+- Frame-pacing pass: added a bounded catch-up guard for the Phaser update loop, exposed frame-pacing telemetry in text state, and added real `requestAnimationFrame` smoke sampling for desktop and mobile scenarios. Verification passed: focused frame-pacing tests, `npm run verify`, and production-preview smoke at `output/web-game/postfinal-frame-pacing`.
 
 ## Next Suggestions
 
