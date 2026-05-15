@@ -139,6 +139,8 @@ export class MeowtalArenaScene extends Phaser.Scene {
   private previousTouchControls = new Set<TouchControlId>();
   private previousGamepadInput: GamepadInputState = EMPTY_GAMEPAD_INPUT;
   private suppressGamepadLightUntilReleased = false;
+  private suppressKeyboardLightUntilReleased = false;
+  private suppressKeyboardSpecialUntilReleased = false;
   private touchControlLabels!: Record<TouchControlId, Phaser.GameObjects.Text>;
 
   constructor() {
@@ -483,7 +485,7 @@ export class MeowtalArenaScene extends Phaser.Scene {
       gamepadControlJustPressed(gamepadInputThisFrame, this.previousGamepadInput, id);
     const gamepadConfirmPressed = gamepadPressed("confirm");
     const gamepadStartPressed = gamepadPressed("start");
-    const shellAcceptsGamepadConfirm =
+    const shellAcceptsConfirm =
       this.shell.phase === "ready" ||
       this.shell.phase === "select" ||
       this.shell.phase === "round-over" ||
@@ -491,12 +493,12 @@ export class MeowtalArenaScene extends Phaser.Scene {
 
     try {
       const resetPressed = Phaser.Input.Keyboard.JustDown(this.keys.reset) || touchPressed("reset") || gamepadPressed("reset");
+      const keyboardEnterConfirmPressed = Phaser.Input.Keyboard.JustDown(this.keys.start);
+      const keyboardSpaceConfirmPressed = Phaser.Input.Keyboard.JustDown(this.keys.startAlt);
+      const keyboardConfirmPressed = keyboardEnterConfirmPressed || keyboardSpaceConfirmPressed;
       const startPressed =
-        Phaser.Input.Keyboard.JustDown(this.keys.start) ||
-        Phaser.Input.Keyboard.JustDown(this.keys.startAlt) ||
         touchPressed("start") ||
-        gamepadStartPressed ||
-        (shellAcceptsGamepadConfirm && gamepadConfirmPressed);
+        (shellAcceptsConfirm && (keyboardConfirmPressed || gamepadStartPressed || gamepadConfirmPressed));
       const pausePressed =
         Phaser.Input.Keyboard.JustDown(this.keys.pause) ||
         Phaser.Input.Keyboard.JustDown(this.keys.pauseAlt) ||
@@ -554,11 +556,19 @@ export class MeowtalArenaScene extends Phaser.Scene {
       if (
         previousPhase !== "fighting" &&
         this.shell.phase === "fighting" &&
-        shellAcceptsGamepadConfirm &&
+        shellAcceptsConfirm &&
         gamepadConfirmPressed &&
         gamepadInputThisFrame.buttons.light
       ) {
         this.suppressGamepadLightUntilReleased = true;
+      }
+      if (previousPhase !== "fighting" && this.shell.phase === "fighting" && shellAcceptsConfirm) {
+        if (keyboardSpaceConfirmPressed && keyDown(this.keys.p1LightAlt)) {
+          this.suppressKeyboardLightUntilReleased = true;
+        }
+        if (keyboardEnterConfirmPressed && keyDown(this.keys.p1SpecialAlt)) {
+          this.suppressKeyboardSpecialUntilReleased = true;
+        }
       }
 
       if (previousPhase === "select" && this.shell.phase === "fighting") {
@@ -1191,7 +1201,16 @@ export class MeowtalArenaScene extends Phaser.Scene {
     if (this.suppressGamepadLightUntilReleased && !gamepadInput.buttons.light) {
       this.suppressGamepadLightUntilReleased = false;
     }
+    if (this.suppressKeyboardLightUntilReleased && !keyDown(this.keys.p1LightAlt)) {
+      this.suppressKeyboardLightUntilReleased = false;
+    }
+    if (this.suppressKeyboardSpecialUntilReleased && !keyDown(this.keys.p1SpecialAlt)) {
+      this.suppressKeyboardSpecialUntilReleased = false;
+    }
     const gamepadLight = this.suppressGamepadLightUntilReleased ? false : gamepadInput.buttons.light;
+    const keyboardLight = keyDown(this.keys.p1Light) || (!this.suppressKeyboardLightUntilReleased && keyDown(this.keys.p1LightAlt));
+    const keyboardSpecial =
+      keyDown(this.keys.p1Special) || (!this.suppressKeyboardSpecialUntilReleased && keyDown(this.keys.p1SpecialAlt));
     const keyboardHorizontal = keyDown(this.keys.p1Left) ? -1 : keyDown(this.keys.p1Right) || keyDown(this.keys.p1RightAlt) ? 1 : 0;
     const keyboardVertical = keyDown(this.keys.p1Down) ? 1 : keyDown(this.keys.p1Jump) ? -1 : 0;
     const horizontal = touchInput.horizontal !== 0 ? touchInput.horizontal : gamepadInput.horizontal !== 0 ? gamepadInput.horizontal : keyboardHorizontal;
@@ -1203,10 +1222,10 @@ export class MeowtalArenaScene extends Phaser.Scene {
       buttons: buttonsFromKeys({
         jump: keyDown(this.keys.p1Jump) || touchInput.buttons.jump || gamepadInput.buttons.jump,
         crouch: keyDown(this.keys.p1Down) || touchInput.buttons.crouch || gamepadInput.buttons.crouch,
-        light: keyDown(this.keys.p1Light) || keyDown(this.keys.p1LightAlt) || touchInput.buttons.light || gamepadLight,
+        light: keyboardLight || touchInput.buttons.light || gamepadLight,
         kick: keyDown(this.keys.p1Kick) || touchInput.buttons.kick || gamepadInput.buttons.kick,
         heavy: keyDown(this.keys.p1Heavy) || touchInput.buttons.heavy || gamepadInput.buttons.heavy,
-        special: keyDown(this.keys.p1Special) || keyDown(this.keys.p1SpecialAlt) || touchInput.buttons.special || gamepadInput.buttons.special,
+        special: keyboardSpecial || touchInput.buttons.special || gamepadInput.buttons.special,
         guard: keyDown(this.keys.p1Left) || touchInput.buttons.guard || gamepadInput.buttons.guard,
       }),
     });

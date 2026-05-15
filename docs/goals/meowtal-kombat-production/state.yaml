@@ -86,7 +86,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T145
+active_task: T146
 
 tasks:
   - id: T000
@@ -7746,7 +7746,7 @@ tasks:
   - id: T145
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: medium
     objective: "Separate keyboard Space shell confirm from combat light input so Space confirms shell screens but does not behave like shell start or play UI-confirm feedback during active fights."
     inputs:
@@ -7772,20 +7772,65 @@ tasks:
       - "Space/Enter shell confirm is phase-gated consistently with gamepad confirm."
       - "Space remains a fighting light input without shell confirm feedback."
       - "Task receipt and small coherent commit."
+    receipt:
+      result: done
+      summary: "Phase-gated keyboard Enter/Space shell confirm so combat-phase Space stays a light attack and Enter stays an alternate special without shell-start feedback. Held Space or Enter through select-to-fight is suppressed until release, preventing first-frame buffered light/special attacks."
+      changed_files:
+        - "src/game/MeowtalArenaScene.ts"
+        - "scripts/smoke-meowtal-browser.mjs"
+      commands:
+        - cmd: "npm test -- --run test/shell-flow.test.ts test/gamepad-input.test.ts test/control-fallback.test.ts"
+          status: pass
+        - cmd: "node --check scripts/smoke-meowtal-browser.mjs"
+          status: pass
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-keyboard-confirm"
+          status: pass
+      proof:
+        - "output/web-game/postfinal-keyboard-confirm/desktop-keyboard-fight.png"
+      next_task: T146
+  - id: T146
+    type: pm
+    assignee: PM
+    status: active
+    reasoning_hint: high
+    objective: "Re-run the post-input production readiness audit and identify whether any local gameplay, animation, UI, or verification blocker remains besides credential-backed UI regeneration."
+    inputs:
+      - "T144 and T145 removed gamepad and keyboard confirm/combat input overlap."
+      - "T143 remains blocked on missing OPENAI_API_KEY for live UI regeneration."
+      - "Owner wants continued production-ready v1 work focused on smooth KOF-style gameplay, consistent animation, and regenerated UI."
+    allowed_files:
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+      - "progress.md"
+    verify:
+      - "npm run imagegen:preflight"
+      - "npm run verify"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-readiness-audit"
+      - "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+    stop_if:
+      - "OPENAI_API_KEY remains missing and no new local blocker can be substantiated from tests, smoke, source inspection, or runtime state."
+    expected_output:
+      - "Fresh readiness receipt listing remaining blockers and next executable task."
+      - "No completion unless the UI regeneration blocker is genuinely resolved."
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T144
+    task: T145
     commands:
-      - cmd: "npm test -- --run test/gamepad-input.test.ts test/control-fallback.test.ts test/shell-flow.test.ts"
+      - cmd: "npm test -- --run test/shell-flow.test.ts test/gamepad-input.test.ts test/control-fallback.test.ts"
         status: pass
       - cmd: "node --check scripts/smoke-meowtal-browser.mjs"
         status: pass
+      - cmd: "npm run typecheck"
+        status: pass
       - cmd: "npm run verify"
         status: pass
-      - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-gamepad-confirm"
+      - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-keyboard-confirm"
         status: pass
       - cmd: "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
         status: pass

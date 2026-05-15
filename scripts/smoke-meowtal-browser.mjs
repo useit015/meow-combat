@@ -204,6 +204,15 @@ async function pressKey(page, key, frames = 2) {
   await waitFrames(page, 6);
 }
 
+async function holdKey(page, key, frames) {
+  await page.keyboard.down(key);
+  await waitFrames(page, frames);
+  const state = await readState(page);
+  await page.keyboard.up(key);
+  await waitFrames(page, 4);
+  return state;
+}
+
 function assert(condition, failures, message) {
   if (!condition) failures.push(message);
 }
@@ -360,22 +369,26 @@ async function runDesktop(browser, url, outDir) {
     viewport: { width: 1024, height: 576 },
   });
 
-  await pressKey(page, "Enter");
-  await pressKey(page, "Enter");
-  await waitFrames(page, 52);
-  await page.keyboard.down("KeyJ");
+  await pressKey(page, "Space");
+  let state = await holdKey(page, "Space", 10);
+  assert(state.shellPhase === "fighting", failures, `desktop held Space confirm expected fighting phase, got ${state.shellPhase}`);
+  assert(state.fighters?.p1?.state === "idle", failures, `desktop held Space confirm should not buffer lightAttack, got ${state.fighters?.p1?.state}`);
   await waitFrames(page, 8);
-  const state = await readState(page);
-  await page.keyboard.up("KeyJ");
+  state = await holdKey(page, "Space", 10);
 
   const shot = await screenshot(page, outDir, "desktop-keyboard-fight");
   assert(state.touchControls?.visible === false, failures, "desktop should not show touch controls");
   checkControlFallback(state, "desktop", failures);
   assert(state.shellPhase === "fighting", failures, `desktop expected fighting phase, got ${state.shellPhase}`);
-  assert(state.fighters?.p1?.state === "lightAttack", failures, `desktop J expected lightAttack, got ${state.fighters?.p1?.state}`);
+  assert(state.fighters?.p1?.state === "lightAttack", failures, `desktop Space expected lightAttack, got ${state.fighters?.p1?.state}`);
   checkRuntimeUiLoaded(state, "desktop", failures);
   checkVisibleRuntimeUiSlots(state, "desktop", FIGHT_UI_SLOTS, failures);
   assert(errors.length === 0, failures, `desktop console/page errors: ${JSON.stringify(errors)}`);
+
+  await waitFrames(page, 24);
+  state = await holdKey(page, "Enter", 10);
+  assert(state.shellPhase === "fighting", failures, `desktop Enter special should stay fighting, got ${state.shellPhase}`);
+  assert(state.fighters?.p1?.state === "specialAttack", failures, `desktop Enter expected specialAttack, got ${state.fighters?.p1?.state}`);
 
   await context.close();
   return { name: "desktop", failures, errors, screenshot: shot, state };
