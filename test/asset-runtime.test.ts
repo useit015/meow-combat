@@ -8,9 +8,11 @@ import {
   renderAssetForState,
   resolveFighterRuntimeAsset,
   resolveManifestRuntimeAsset,
+  resolveManifestRuntimeAssetForSnapshot,
   resolveStageRuntimeLayers,
   runtimeAssetKey,
   stageLayerAssetKey,
+  visualStateForSnapshot,
   type FighterAssetManifest,
 } from "../src/assets";
 import type { FighterState } from "../src/core";
@@ -215,6 +217,19 @@ describe("asset runtime resolver", () => {
       kind: "sprite",
       assetKey: "ginger-tabby-cat:blockstun",
     });
+  });
+
+  it("routes held neutral guard to the approved defensive walk-back row", () => {
+    const guardedIdle = { state: "idle" as const, guarding: true };
+
+    expect(visualStateForSnapshot(guardedIdle)).toBe("walkBack");
+    expect(resolveManifestRuntimeAssetForSnapshot(rabbitManifest, guardedIdle)).toMatchObject({
+      kind: "sprite",
+      assetKey: "gray-rabbit:walk-back",
+      animationId: "walk-back",
+      path: "/assets/generated/fighters/gray-rabbit/walk-back.png",
+    });
+    expect(visualStateForSnapshot({ state: "lightAttack", guarding: true })).toBe("lightAttack");
   });
 
   it("keeps rabbit and cat runtime presentation on one upright normal stance convention", () => {

@@ -86,7 +86,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T131
+active_task: T132
 
 tasks:
   - id: T000
@@ -7091,7 +7091,7 @@ tasks:
   - id: T131
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: medium
     objective: "Improve held-guard visual readability so dedicated guard pressure has a clear character-consistent defensive pose without introducing new art assets."
     inputs:
@@ -7117,6 +7117,49 @@ tasks:
       - "Held guard uses an existing approved defensive row or pose consistently"
       - "Runtime text/debug output exposes the visual route"
       - "Browser smoke remains clean"
+      - "Task receipt and small coherent commit"
+    receipt:
+      result: done
+      summary: "Routed held neutral guard to the existing approved walk-back defensive row and froze the sprite pose at frame zero so guarding reads as a stable defensive stance instead of plain idle or walking in place. Runtime text now exposes the visual route through both visuals and runtimeVisuals, while combat state remains idle+guarding for deterministic simulation."
+      changed_files:
+        - "src/assets/runtime.ts"
+        - "src/game/MeowtalArenaScene.ts"
+        - "test/asset-runtime.test.ts"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+        - "progress.md"
+      commands:
+        - cmd: "npm test -- --run test/asset-runtime.test.ts"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-guard-visual"
+          status: pass
+      next_task: T132
+  - id: T132
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: medium
+    objective: "Improve portrait/mobile presentation framing so the playable arena, touch controls, and decorative background feel intentionally composed instead of visually top-heavy on tall screens."
+    inputs:
+      - "T129 improved touch-control hit targets and button rendering."
+      - "Portrait smoke screenshots still show the 16:9 game canvas sitting high on a tall background."
+      - "Owner wants UI elements to look good and function well with production-ready presentation."
+    allowed_files:
+      - "src/style.css"
+      - "src/main.ts"
+      - "scripts/smoke-meowtal-browser.mjs"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+      - "progress.md"
+    verify:
+      - "npm run verify"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-mobile-framing"
+    stop_if:
+      - "Requires changing the core 1024x576 gameplay coordinate system."
+      - "Requires generated UI art or live imagegen credentials."
+    expected_output:
+      - "Portrait and landscape presentation remain playable and visually intentional"
+      - "Touch smoke remains clean"
       - "Task receipt and small coherent commit"
 
 checks:

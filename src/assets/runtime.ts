@@ -1,4 +1,4 @@
-import type { FighterState } from "../core";
+import type { FighterSnapshot, FighterState } from "../core";
 import { renderAssetForState, type FighterRenderAsset } from "./animationMap";
 import type { AssetGenerationStatus, CellSize, FighterAnimationId, FighterAssetManifest } from "./types";
 
@@ -29,6 +29,7 @@ export interface RuntimeProceduralFallback {
 }
 
 export type FighterRuntimeAsset = RuntimeSpriteAsset | RuntimeProceduralFallback;
+type FighterVisualSnapshot = Pick<FighterSnapshot, "state" | "guarding">;
 
 export function resolveFighterRuntimeAsset(asset: FighterRenderAsset): FighterRuntimeAsset {
   const assetKey = runtimeAssetKey(asset.fighterId, asset.animationId);
@@ -64,6 +65,17 @@ export function resolveManifestRuntimeAsset(
   state: FighterState,
 ): FighterRuntimeAsset {
   return resolveFighterRuntimeAsset(renderAssetForState(manifest, state));
+}
+
+export function visualStateForSnapshot(fighter: FighterVisualSnapshot): FighterState {
+  return fighter.guarding && fighter.state === "idle" ? "walkBack" : fighter.state;
+}
+
+export function resolveManifestRuntimeAssetForSnapshot(
+  manifest: FighterAssetManifest,
+  fighter: FighterVisualSnapshot,
+): FighterRuntimeAsset {
+  return resolveManifestRuntimeAsset(manifest, visualStateForSnapshot(fighter));
 }
 
 export function runtimeAssetKey(fighterId: string, animationId: FighterAnimationId): string {

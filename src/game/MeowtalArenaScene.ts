@@ -7,8 +7,9 @@ import {
   type FighterAnimationId,
   type FighterRuntimeAsset,
   type StageRuntimeLayer,
-  resolveManifestRuntimeAsset,
+  resolveManifestRuntimeAssetForSnapshot,
   resolveStageRuntimeLayers,
+  visualStateForSnapshot,
 } from "../assets";
 import {
   FightingSimulation,
@@ -369,8 +370,8 @@ export class MeowtalArenaScene extends Phaser.Scene {
         p2: selectedFighter(this.selectedFighterIndex.p2).displayName,
       },
       visuals: {
-        p1: renderAssetForState(manifestForCharacter(this.snapshot.p1.character), this.snapshot.p1.state),
-        p2: renderAssetForState(manifestForCharacter(this.snapshot.p2.character), this.snapshot.p2.state),
+        p1: renderAssetForState(manifestForCharacter(this.snapshot.p1.character), visualStateForSnapshot(this.snapshot.p1)),
+        p2: renderAssetForState(manifestForCharacter(this.snapshot.p2.character), visualStateForSnapshot(this.snapshot.p2)),
       },
       runtimeVisuals: {
         p1: runtimeVisuals.p1,
@@ -1022,7 +1023,7 @@ export class MeowtalArenaScene extends Phaser.Scene {
       return resolveFighterRuntimeAsset(renderAssetForAnimationId(manifest, presentationAnimation));
     }
 
-    return resolveManifestRuntimeAsset(manifest, fighter.state);
+    return resolveManifestRuntimeAssetForSnapshot(manifest, fighter);
   }
 
   private presentationAnimationFor(player: "p1" | "p2"): FighterAnimationId | null {
@@ -1053,7 +1054,8 @@ export class MeowtalArenaScene extends Phaser.Scene {
     }
 
     const fighter = this.snapshot[player];
-    const pose = selectSpritePose(runtimeAsset.animationId, fighter.stateFrame, runtimeAsset.frameCount);
+    const poseFrame = fighter.guarding && fighter.state === "idle" ? 0 : fighter.stateFrame;
+    const pose = selectSpritePose(runtimeAsset.animationId, poseFrame, runtimeAsset.frameCount);
     const visualOffsetX = this.visualSeparationOffset(player);
     sprite
       .setTexture(runtimeAsset.assetKey)
