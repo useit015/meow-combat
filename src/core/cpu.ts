@@ -68,7 +68,7 @@ export function createCpuInput(
 
   if (distance <= config.reactionRange && isAttacking(opponent.state)) {
     return createInput(frame, {
-      horizontal: -self.facing as HorizontalIntent,
+      horizontal: 0,
       buttons: {
         guard: true,
       },

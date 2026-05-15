@@ -86,7 +86,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T130
+active_task: T131
 
 tasks:
   - id: T000
@@ -7048,7 +7048,7 @@ tasks:
   - id: T130
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: medium
     objective: "Smooth CPU sparring behavior so the opponent does not accidentally oscillate between run/backdash/guard movement while reacting to close-range pressure."
     inputs:
@@ -7070,6 +7070,52 @@ tasks:
     expected_output:
       - "Deterministic CPU reaction tests cover pressure movement without accidental dash oscillation"
       - "CPU keeps guarding/spacing readable under attack pressure"
+      - "Browser smoke remains clean"
+      - "Task receipt and small coherent commit"
+    receipt:
+      result: done
+      summary: "Made CPU pressure reactions use the dedicated guard button in place instead of pairing guard with backward horizontal movement. This keeps the AI deterministic while avoiding accidental dash/backdash input patterns during repeated close-range attack reactions. Added coverage for repeated close-pressure frames so CPU guard does not feed mobility taps."
+      changed_files:
+        - "src/core/cpu.ts"
+        - "test/cpu-controller.test.ts"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+        - "progress.md"
+      commands:
+        - cmd: "npm test -- --run test/cpu-controller.test.ts"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-cpu-sparring"
+          status: pass
+      next_task: T131
+  - id: T131
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: medium
+    objective: "Improve held-guard visual readability so dedicated guard pressure has a clear character-consistent defensive pose without introducing new art assets."
+    inputs:
+      - "T127 added a dedicated guard state in combat snapshots."
+      - "T130 makes CPU pressure reactions hold dedicated guard in place."
+      - "Browser smoke now shows guarded idle state, which is mechanically correct but visually understated."
+      - "Live imagegen UI/asset regeneration remains blocked by missing OPENAI_API_KEY, so this slice must use existing approved rows only."
+    allowed_files:
+      - "src/assets/animationMap.ts"
+      - "src/assets/runtime.ts"
+      - "src/game/MeowtalArenaScene.ts"
+      - "test/asset-runtime.test.ts"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+      - "progress.md"
+    verify:
+      - "npm test -- --run test/asset-runtime.test.ts"
+      - "npm run verify"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-guard-visual"
+    stop_if:
+      - "Requires generating new guard stance art or changing approved PNG dimensions."
+      - "Held guard visual routing causes blockstun/reaction rows to look like impact when no hit occurred."
+    expected_output:
+      - "Held guard uses an existing approved defensive row or pose consistently"
+      - "Runtime text/debug output exposes the visual route"
       - "Browser smoke remains clean"
       - "Task receipt and small coherent commit"
 

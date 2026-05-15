@@ -9,7 +9,7 @@ describe("cpu controller", () => {
     expect(createCpuInput(snapshot, "p1", 1).horizontal).toBe(1);
   });
 
-  it("guards by backing away when the opponent is attacking nearby", () => {
+  it("guards in place when the opponent is attacking nearby", () => {
     const snapshot = new FightingSimulation().snapshot();
     const closeThreat = {
       ...snapshot,
@@ -27,8 +27,31 @@ describe("cpu controller", () => {
 
     const input = createCpuInput(closeThreat, "p2", 12);
 
-    expect(input.horizontal).toBe(1);
+    expect(input.horizontal).toBe(0);
     expect(input.buttons.guard).toBe(true);
+  });
+
+  it("does not feed dash taps while guarding repeated close pressure", () => {
+    const snapshot = new FightingSimulation().snapshot();
+    const closeThreat = {
+      ...snapshot,
+      p1: {
+        ...snapshot.p1,
+        x: 620,
+        state: "lightAttack" as const,
+      },
+      p2: {
+        ...snapshot.p2,
+        x: 700,
+        facing: -1 as const,
+      },
+    };
+
+    for (let frame = 12; frame <= 18; frame += 1) {
+      const input = createCpuInput(closeThreat, "p2", frame);
+      expect(input.horizontal).toBe(0);
+      expect(input.buttons.guard).toBe(true);
+    }
   });
 
   it("presses deterministic attacks when it is already in range", () => {
