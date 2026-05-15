@@ -7146,6 +7146,7 @@ tasks:
       - "Portrait smoke screenshots still show the 16:9 game canvas sitting high on a tall background."
       - "Owner wants UI elements to look good and function well with production-ready presentation."
     allowed_files:
+      - ".impeccable.md"
       - "src/style.css"
       - "src/main.ts"
       - "scripts/smoke-meowtal-browser.mjs"
