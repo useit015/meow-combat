@@ -102,6 +102,8 @@ Pipeline entry points:
 
 - Fighter and stage manifests: `src/assets/catalog.ts`
 - Imagegen jobs: `src/assets/imagegenJobs.ts`
+- UI surface provenance: `src/assets/meowtalProductionManifest.ts`
+- Runtime UI crop specs: `src/game/gameConfig.ts`
 - Runtime asset resolution: `src/assets/runtime.ts` and `src/assets/stageRuntime.ts`
 - Readiness summary: `src/assets/readiness.ts`
 - QA report: `npm run imagegen:qa`

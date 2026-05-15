@@ -1,17 +1,19 @@
 # Imagegen Runbook
 
-The local game now has generated art integrated for both fighters and the Marrakesh rooftop stage. This runbook describes the current asset state and the safe path for future regeneration or replacement.
+The local game now has generated art integrated for both Meowtal fighters, the bright courtyard stage, and routed runtime UI sheets. This runbook describes the current asset state and the safe path for future regeneration or replacement.
 
 ## Current Asset State
 
-- Total imagegen jobs: 34
+- Fighter/stage imagegen jobs: 36
+- UI surface jobs: 9
 - Fighter canonical references: 2 generated source references.
 - Fighter animation rows: 28 approved runtime rows.
-- Stage layers: 4 approved runtime layers.
+- Stage layers: 6 approved runtime layers.
+- Runtime UI sheets: 9 approved runtime PNGs with crop specs in `src/game/gameConfig.ts`.
 - Runtime fallbacks: 0 fighter rows, 0 stage layers.
 - Blocked jobs: 0.
 
-Approved fighter rows for both `atlas-lion` and `sahara-viper`:
+Approved fighter rows for both `gray-rabbit` and `ginger-tabby-cat`:
 
 ```text
 idle
@@ -30,13 +32,29 @@ win
 lose
 ```
 
-Approved stage layers for `marrakesh-rooftop`:
+Approved stage layers for `meowtal-courtyard`:
 
 ```text
-sky
-far-architecture
-playfield
-foreground-props
+sky-lighting
+distant-hills-city
+background-walls-pillars
+midground-trees-bushes
+playfield-stone-courtyard
+foreground-dust-leaves
+```
+
+Approved generated UI sheets for `public/assets/generated/ui/meowtal/`:
+
+```text
+logo-title-mark
+hud-frame
+rabbit-portrait
+cat-portrait
+health-bar-rabbit
+health-bar-cat
+super-meter
+timer-frame
+fight-ko-victory-overlays
 ```
 
 ## Where Assets Live
@@ -45,7 +63,8 @@ Source imagegen outputs:
 
 ```text
 assets/source/imagegen/fighters/<fighter-id>/<animation-id>.png
-assets/source/imagegen/stages/marrakesh-rooftop/<layer-id>.png
+assets/source/imagegen/stages/meowtal-courtyard/<layer-id>.png
+assets/source/imagegen/ui/meowtal/<ui-surface-id>.png
 ```
 
 Normalized fighter QA candidates:
@@ -58,7 +77,8 @@ Approved runtime assets:
 
 ```text
 public/assets/generated/fighters/<fighter-id>/<animation-id>.png
-public/assets/generated/stages/marrakesh-rooftop/<layer-id>.png
+public/assets/generated/stages/meowtal-courtyard/<layer-id>.png
+public/assets/generated/ui/meowtal/<ui-surface-id>.png
 ```
 
 ## QA Checks
@@ -85,7 +105,7 @@ node scripts/normalize-fighter-rows.mjs --animation win
 node scripts/normalize-fighter-rows.mjs --animation lose
 ```
 
-Before marking any replacement source as approved in `src/assets/catalog.ts`, inspect for:
+Before marking any replacement fighter or stage source as approved in `src/assets/catalog.ts`, inspect for:
 
 - Consistent fighter identity across frames.
 - No text, logos, watermarks, frame numbers, or trademarks.
@@ -93,6 +113,14 @@ Before marking any replacement source as approved in `src/assets/catalog.ts`, in
 - Correct animation row frame count and 256x256 runtime cells.
 - No detached fragments, severe holes, or baked detached effects in fighter rows.
 - Stage layers that stack cleanly and keep the fighting lane readable.
+
+Before marking any replacement UI surface as approved in `src/assets/meowtalProductionManifest.ts`, inspect for:
+
+- Original view preserved: same Meowtal arcade direction, visual hierarchy, focal scale, and safe margins.
+- Crop-compatible layout for the runtime specs in `src/game/gameConfig.ts`.
+- 1024x576 PNG source sheet dimensions.
+- No text drift, copied fighting-game branding, watermarks, real brand marks, or UI elements that cover the gameplay center.
+- Runtime smoke still reports no missing runtime UI and the expected visible slots for title, fight, K.O., victory, rematch, and mobile states.
 
 ## Regeneration Notes
 
@@ -105,3 +133,5 @@ npm run imagegen:preflight
 ```
 
 Then regenerate only the target source asset, normalize it, inspect it over a contrasting background, update `src/assets/catalog.ts` only after approval, and run the QA/verify commands above.
+
+For owner-requested fresh Meowtal UI regeneration, use the UI surface jobs from `src/assets/imagegenJobs.ts`. Those jobs intentionally preserve the original view, crop-compatible layout, focal scale, and 1024x576 runtime contract. Promote UI candidates only after updating or confirming the matching crop specs in `src/game/gameConfig.ts` and passing `npm run verify` plus production-preview smoke.

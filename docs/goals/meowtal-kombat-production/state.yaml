@@ -86,7 +86,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T153
+active_task: T154
 
 tasks:
   - id: T000
@@ -8124,7 +8124,7 @@ tasks:
   - id: T153
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: low
     objective: "Refresh the imagegen handoff docs so the runbook describes Meowtal UI surface regeneration, original-view/crop compatibility, and the current manifest/config files used for approval."
     inputs:
@@ -8146,17 +8146,61 @@ tasks:
       - "Runbook and/or README accurately describe UI surface regeneration and approval constraints."
       - "Docs keep OPENAI_API_KEY as a local environment variable requirement without asking for secrets."
       - "Verification passes."
+    receipt:
+      result: done
+      summary: "Updated the imagegen handoff docs to match the current Meowtal game instead of the older Atlas/Marrakesh state, including 36 fighter/stage jobs, 9 UI surface jobs, six Meowtal Courtyard layers, Gray Rabbit/Ginger Tabby rows, UI source/runtime paths, original-view and crop-compatible UI approval checks, and the manifest/config files used to promote UI candidates."
+      changed_files:
+        - "docs/imagegen-runbook.md"
+        - "README.md"
+      commands:
+        - cmd: "rg -n \"UI surface jobs|crop-compatible|original view|src/assets/imagegenJobs.ts|src/game/gameConfig.ts\" docs/imagegen-runbook.md README.md"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+      next_task: T154
+  - id: T154
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: medium
+    objective: "Run the credential-backed Meowtal UI regeneration pass once OPENAI_API_KEY is set locally, then approve/promote only candidates that preserve original-view consistency, crop-compatible layout, 1024x576 contracts, production build, and browser smoke."
+    inputs:
+      - "T152 hardened UI imagegen prompts and preflight output."
+      - "T153 refreshed the UI regeneration runbook and README handoff."
+      - "The owner still requires all UI elements to be regenerated and consistent with the original view."
+    allowed_files:
+      - "assets/source/imagegen/ui/meowtal/**"
+      - "public/assets/generated/ui/meowtal/**"
+      - "output/imagegen/**"
+      - "src/assets/meowtalProductionManifest.ts"
+      - "src/assets/imagegenJobs.ts"
+      - "src/game/gameConfig.ts"
+      - "test/asset-runtime.test.ts"
+      - "test/imagegen-jobs.test.ts"
+      - "test/meowtal-production-manifest.test.ts"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+      - "progress.md"
+    verify:
+      - "npm run imagegen:preflight"
+      - "npm test -- --run test/asset-runtime.test.ts test/imagegen-jobs.test.ts test/meowtal-production-manifest.test.ts"
+      - "npm run verify"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-ui-regen"
+      - "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+    stop_if:
+      - "OPENAI_API_KEY is still missing."
+      - "Generated UI candidates fail visual QA, original-view consistency, 1024x576 contract, crop-bound tests, or browser smoke after one targeted retry."
+    expected_output:
+      - "Fresh regenerated UI source/runtime candidates or a blocked receipt if credentials remain unavailable."
+      - "Approved UI manifest/config/test updates only for candidates that preserve original visual identity and pass verification."
+      - "Production-preview browser proof for the promoted UI surfaces."
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T152
+    task: T153
     commands:
-      - cmd: "npm run imagegen:preflight"
-        status: pass
-        notes: "OPENAI_API_KEY=missing; output now mentions UI surface jobs"
-      - cmd: "npm test -- --run test/imagegen-jobs.test.ts test/imagegen-preflight.test.ts"
+      - cmd: "rg -n \"UI surface jobs|crop-compatible|original view|src/assets/imagegenJobs.ts|src/game/gameConfig.ts\" docs/imagegen-runbook.md README.md"
         status: pass
       - cmd: "npm run verify"
         status: pass
