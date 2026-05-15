@@ -55,13 +55,13 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T001
+active_task: T005
 
 tasks:
   - id: T001
     type: scout
     assignee: Scout
-    status: active
+    status: done
     reasoning_hint: default
     objective: "Map the current character animation, rendering, and asset pipeline for size changes and blocky-looking frames."
     inputs:
@@ -79,11 +79,33 @@ tasks:
       - "Likely causes of blocky-looking character appearance"
       - "Verification commands and visual demo path"
       - "Candidate Worker tasks with allowed_files, verify commands, and stop_if conditions"
-    receipt: null
+    receipt:
+      result: done
+      summary: "Mapped the Phaser/Vite runtime and asset pipeline. Character sprites render through src/game/MeowtalArenaScene.ts using 256px spritesheet cells, src/game/spriteFrame.ts chooses frames and applies runtime scale/pose motion, and public generated fighter rows already exist for jump and blockstun. Jump rows are dimensionally valid but visually inconsistent: alpha bboxes are much shorter than idle and vary frame-to-frame, so jump appears to resize. Several non-jump motions also deliberately apply scaleX/scaleY changes. Blockstun public rows are not placeholder blocks, but they do vary in silhouette height."
+      evidence:
+        - "src/game/spriteFrame.ts: FRAME_PLANS and applyMotion define pose scaling; jump currently has no motion branch, while idle/walk/attack/kick/special/down/present alter scale."
+        - "src/game/MeowtalArenaScene.ts: renderFighterSprite renders runtime sprites with setScale(1.15 * pose.scaleX, 1.15 * pose.scaleY)."
+        - "src/assets/animationMap.ts and src/assets/runtime.ts route combat states to approved public generated sprites or procedural fallback."
+        - "public/assets/generated/fighters/gray-rabbit/jump.png is 1536x256 and ginger-tabby-cat/jump.png is 1536x256; both satisfy the 6x256x256 runtime contract."
+        - "Alpha bbox analysis: gray-rabbit jump height ranges 138-174px vs idle 234-236px; ginger-tabby-cat jump height ranges 134-179px vs idle 230-232px."
+        - "Alpha bbox analysis: gray-rabbit blockstun height ranges 190-238px; ginger-tabby-cat blockstun height ranges 211-238px."
+      commands:
+        - cmd: "npm test -- --run test/sprite-frame.test.ts test/asset-runtime.test.ts test/animation-map.test.ts"
+          status: pass
+        - cmd: "npm run imagegen:qa -- --json"
+          status: pass
+        - cmd: "sips -g pixelWidth -g pixelHeight public/assets/generated/fighters/gray-rabbit/idle.png public/assets/generated/fighters/gray-rabbit/jump.png public/assets/generated/fighters/gray-rabbit/blockstun.png public/assets/generated/fighters/ginger-tabby-cat/idle.png public/assets/generated/fighters/ginger-tabby-cat/jump.png public/assets/generated/fighters/ginger-tabby-cat/blockstun.png"
+          status: pass
+        - cmd: "Dependency-free PNG alpha bbox analysis for idle/jump/blockstun rows"
+          status: pass
+      candidate_next_tasks:
+        - "Add runtime pose normalization so jump and other active animations keep a stable perceived character height without regenerating assets; cover with sprite-frame tests."
+        - "Expose current pose scale in render_game_to_text or visual proof if needed for browser verification."
+        - "Only generate replacement imagegen rows if runtime normalization cannot make the existing project-bound imagegen assets acceptable."
   - id: T002
     type: judge
     assignee: Judge
-    status: queued
+    status: done
     reasoning_hint: high
     objective: "Choose the first safe implementation slice to stabilize character animation scale or unblock asset generation."
     inputs:
@@ -100,21 +122,56 @@ tasks:
       - "verify"
       - "stop_if"
       - "Deferred tasks, including any imagegen asset task if it is not first"
-    receipt: null
+    receipt:
+      result: done
+      decision: "Do runtime pose normalization first. The jump sheets are already project-bound imagegen assets with valid 256px runtime cells, but their drawn silhouettes are inconsistent and much shorter than idle. Regenerating rows first is higher risk because exact spritesheet consistency is hard to guarantee, while src/game/spriteFrame.ts already owns the runtime scale/pose adjustments that can stabilize perceived size across actions."
+      next_allowed_task: T003
+      worker_objective: "Normalize runtime sprite pose scale so jump and other active combat animations keep a stable perceived character size, while preserving animation frame selection and existing project-bound imagegen assets."
+      allowed_files:
+        - "src/game/spriteFrame.ts"
+        - "test/sprite-frame.test.ts"
+      verify:
+        - "npm test -- --run test/sprite-frame.test.ts"
+        - "npm test -- --run test/sprite-frame.test.ts test/asset-runtime.test.ts test/animation-map.test.ts"
+        - "npm run typecheck"
+      stop_if:
+        - "Need to edit asset files or generated PNGs."
+        - "Need to change Phaser scene rendering outside spriteFrame pose outputs."
+        - "Tests suggest pose normalization would break expected frame selection."
+        - "Verification fails twice."
+      deferred_tasks:
+        - "Use imagegen to create replacement animation rows only if runtime normalization and visual verification still show unacceptable jump/block appearance."
   - id: T003
     type: worker
     assignee: Worker
-    status: queued
+    status: done
     reasoning_hint: default
-    objective: "Execute the first safe implementation task selected by Judge."
-    allowed_files: []
-    verify: []
+    objective: "Normalize runtime sprite pose scale so jump and other active combat animations keep a stable perceived character size, while preserving animation frame selection and existing project-bound imagegen assets."
+    allowed_files:
+      - "src/game/spriteFrame.ts"
+      - "test/sprite-frame.test.ts"
+    verify:
+      - "npm test -- --run test/sprite-frame.test.ts"
+      - "npm test -- --run test/sprite-frame.test.ts test/asset-runtime.test.ts test/animation-map.test.ts"
+      - "npm run typecheck"
     stop_if:
       - "Need files outside allowed_files."
       - "Character rendering behavior is ambiguous after Scout/Judge evidence."
       - "Need owner approval to replace a recognizable character style."
       - "Verification fails twice."
-    receipt: null
+    receipt:
+      result: done
+      changed_files:
+        - "src/game/spriteFrame.ts"
+        - "test/sprite-frame.test.ts"
+      commands:
+        - cmd: "npm test -- --run test/sprite-frame.test.ts"
+          status: pass
+        - cmd: "npm test -- --run test/sprite-frame.test.ts test/asset-runtime.test.ts test/animation-map.test.ts"
+          status: pass
+        - cmd: "npm run typecheck"
+          status: pass
+      summary: "Removed nonuniform squash/stretch scaling from runtime pose motion, preserved offsets/rotation/frame selection, and added uniform stable frame-scale compensation for compact jump and blockstun frames. Added tests that enforce uniform pose scale, jump frame compensation without frame-selection changes, and stable attack scale while preserving attack motion."
   - id: T004
     type: worker
     assignee: Worker
@@ -132,11 +189,17 @@ tasks:
   - id: T005
     type: worker
     assignee: Worker
-    status: queued
+    status: active
     reasoning_hint: default
     objective: "Run visual verification and polish any remaining character animation size or blockiness issues."
-    allowed_files: []
-    verify: []
+    allowed_files:
+      - "src/game/spriteFrame.ts"
+      - "test/sprite-frame.test.ts"
+      - "docs/goals/character-animation-asset-fix/state.yaml"
+    verify:
+      - "npm run build"
+      - "Browser/in-app or Playwright visual check of ?demo=jump and ?demo=blockstun"
+      - "npm test -- --run test/sprite-frame.test.ts test/asset-runtime.test.ts test/animation-map.test.ts"
     stop_if:
       - "No runnable local demo or visual verification route is available."
       - "Need files outside allowed_files."
@@ -170,6 +233,9 @@ tasks:
 checks:
   dirty_fingerprint: unknown
   last_verification:
-    result: unknown
-    task: null
-    commands: []
+    result: pass
+    task: T003
+    commands:
+      - "npm test -- --run test/sprite-frame.test.ts"
+      - "npm test -- --run test/sprite-frame.test.ts test/asset-runtime.test.ts test/animation-map.test.ts"
+      - "npm run typecheck"

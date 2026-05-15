@@ -34,6 +34,10 @@ export interface SpritePose {
 export type SpriteStanceConvention = "upright-two-legged" | "grounded-prone-reaction";
 
 const GROUNDED_OR_PRONE_ANIMATIONS = new Set<FighterAnimationId>(["knockdown", "lose"]);
+const STABLE_FRAME_SCALE: Partial<Record<FighterAnimationId, readonly number[]>> = {
+  jump: [1.38, 1.14, 1.2, 1.34, 1.16, 1.38],
+  blockstun: [1, 1.08, 1.12, 1.05, 1],
+};
 
 const FRAME_PLANS: Readonly<Record<FighterAnimationId, FramePlan>> = {
   idle: { mode: "loop", cadence: 12, sequence: [0, 1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2, 1], motion: "breathe" },
@@ -109,95 +113,91 @@ function applyMotion(
 ): SpritePose {
   if (motion === "breathe") {
     const wave = Math.sin((stateFrame / 54) * Math.PI * 2);
-    return {
+    return stabilizePose(animationId, {
       ...pose,
       offsetY: -1.5 - wave * 1.5,
-      scaleX: 1 - wave * 0.006,
-      scaleY: 1 + wave * 0.012,
-    };
+    });
   }
 
   if (motion === "walk") {
     const step = Math.sin((stateFrame / 24) * Math.PI * 2);
-    return {
+    return stabilizePose(animationId, {
       ...pose,
       offsetY: -Math.abs(step) * 2.5,
-      scaleX: 1 + Math.abs(step) * 0.006,
-      scaleY: 1 - Math.abs(step) * 0.008,
       rotation: step * (animationId === "walk-back" ? -0.35 : 0.35),
-    };
+    });
   }
 
   if (motion === "attack") {
     const duration = attackDuration(animationId);
     const progress = Math.min(1, stateFrame / duration);
     const strike = Math.sin(progress * Math.PI);
-    return {
+    return stabilizePose(animationId, {
       ...pose,
       offsetX: strike * attackReach(animationId),
       offsetY: -strike * 1,
-      scaleX: 1 + strike * 0.018,
-      scaleY: 1 - strike * 0.008,
       rotation: strike * attackTilt(animationId),
-    };
+    });
   }
 
   if (motion === "kick") {
     const progress = Math.min(1, stateFrame / attackDuration(animationId));
     const strike = Math.sin(progress * Math.PI);
-    return {
+    return stabilizePose(animationId, {
       ...pose,
       offsetX: strike * 5,
       offsetY: -strike * 1.5,
-      scaleX: 1 + strike * 0.014,
-      scaleY: 1 - strike * 0.006,
       rotation: -strike * 0.5,
-    };
+    });
   }
 
   if (motion === "special") {
     const progress = Math.min(1, stateFrame / attackDuration(animationId));
     const strike = Math.sin(progress * Math.PI);
-    return {
+    return stabilizePose(animationId, {
       ...pose,
       offsetX: strike * 7,
       offsetY: -strike * 2,
-      scaleX: 1 + strike * 0.018,
-      scaleY: 1 - strike * 0.006,
       rotation: Math.sin(progress * Math.PI * 2) * 0.8,
-    };
+    });
   }
 
   if (motion === "recoil") {
     const recoil = Math.max(0, 1 - stateFrame / 18);
-    return {
+    return stabilizePose(animationId, {
       ...pose,
       offsetX: -recoil * 10,
       offsetY: -recoil * 2,
       rotation: -recoil * 3,
-    };
+    });
   }
 
   if (motion === "down") {
-    return {
+    return stabilizePose(animationId, {
       ...pose,
       offsetY: 2,
-      scaleX: 1.01,
-      scaleY: 0.99,
-    };
+    });
   }
 
   if (motion === "present") {
     const wave = Math.sin((stateFrame / 72) * Math.PI * 2);
-    return {
+    return stabilizePose(animationId, {
       ...pose,
       offsetY: -1 + wave * 1,
-      scaleX: 1 - wave * 0.004,
-      scaleY: 1 + wave * 0.008,
-    };
+    });
   }
 
-  return pose;
+  return stabilizePose(animationId, pose);
+}
+
+function stabilizePose(animationId: FighterAnimationId, pose: SpritePose): SpritePose {
+  const frameScales = STABLE_FRAME_SCALE[animationId];
+  const scale = frameScales?.[pose.frame] ?? 1;
+  return {
+    ...pose,
+    scaleX: scale,
+    scaleY: scale,
+  };
 }
 
 function attackDuration(animationId: FighterAnimationId): number {
