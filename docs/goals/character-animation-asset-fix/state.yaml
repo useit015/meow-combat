@@ -8,7 +8,7 @@ goal:
   slug: "character-animation-asset-fix"
   kind: specific
   tranche: "Stabilize character animation scale and replace blocky-looking project-bound character assets as needed, then verify visually in the running game."
-  status: active
+  status: done
   intake:
     original_request: "some animations changes the charcter size like jump and others changes the character looks like block, use imagegen for assets"
     interpreted_outcome: "Character animations keep a consistent visual size across actions such as jump, and blocky-looking character animation/assets are replaced or corrected with imagegen-backed project assets where needed."
@@ -55,7 +55,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T005
+active_task: null
 
 tasks:
   - id: T001
@@ -175,7 +175,7 @@ tasks:
   - id: T004
     type: worker
     assignee: Worker
-    status: queued
+    status: blocked
     reasoning_hint: default
     objective: "Generate and integrate imagegen-backed character assets if Scout/Judge determine asset replacement is required."
     allowed_files: []
@@ -185,11 +185,17 @@ tasks:
       - "Generated assets do not match the required character style or animation frame consistency."
       - "Need files outside allowed_files."
       - "Verification fails twice."
-    receipt: null
+    receipt:
+      result: blocked
+      summary: "No new raster asset generation is required for this tranche. Existing project-bound imagegen fighter rows are present, approved, and wired into the runtime; the observed jump-size issue was corrected through runtime pose normalization. Imagegen replacement remains deferred only if a future visual review rejects the current generated rows."
+      reason: "Conditional asset-generation task is not needed after verified runtime normalization."
+      commands:
+        - cmd: "Visual check of existing imagegen-backed ?demo=jump and ?demo=blockstun runtime assets in the in-app browser"
+          status: pass
   - id: T005
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: default
     objective: "Run visual verification and polish any remaining character animation size or blockiness issues."
     allowed_files:
@@ -204,11 +210,24 @@ tasks:
       - "No runnable local demo or visual verification route is available."
       - "Need files outside allowed_files."
       - "Verification fails twice."
-    receipt: null
+    receipt:
+      result: done
+      changed_files:
+        - "docs/goals/character-animation-asset-fix/state.yaml"
+      commands:
+        - cmd: "npm run build"
+          status: pass
+        - cmd: "In-app browser visual check at http://127.0.0.1:5175/?demo=jump"
+          status: pass
+        - cmd: "In-app browser visual check at http://127.0.0.1:5175/?demo=blockstun"
+          status: pass
+        - cmd: "npm test -- --run test/sprite-frame.test.ts test/asset-runtime.test.ts test/animation-map.test.ts"
+          status: pass
+      summary: "Built the app and visually verified the live canvas demo routes. The jump demo renders the rabbit at a comparable readable size instead of shrinking severely, and blockstun renders the generated fighter art rather than a block/procedural placeholder. No further polish or asset replacement was required for this tranche."
   - id: T999
     type: judge
     assignee: Judge
-    status: queued
+    status: done
     reasoning_hint: high
     objective: "Audit whether the full original character animation and asset outcome is complete."
     inputs:
@@ -228,14 +247,29 @@ tasks:
       - "Evidence mapped to original request"
       - "Missing evidence"
       - "Next task if not complete"
-    receipt: null
+    receipt:
+      result: done
+      decision: complete
+      full_outcome_complete: true
+      summary: "The original outcome is satisfied: runtime pose scaling no longer squashes or stretches characters across active motions, compact jump frames receive uniform scale compensation, existing project-bound imagegen fighter rows remain wired into the app, blockstun renders generated fighter art rather than a block/procedural placeholder, and visual plus automated verification passed."
+      evidence:
+        - "T001 found jump PNGs were valid project-bound imagegen runtime sheets but had compact/inconsistent silhouettes, while runtime pose code also applied per-animation squash/stretch scaling."
+        - "T002 selected runtime pose normalization before asset regeneration because the assets were already present and the smallest safe fix lived in src/game/spriteFrame.ts."
+        - "T003 changed src/game/spriteFrame.ts and test/sprite-frame.test.ts to use uniform pose scale, compensate compact jump/blockstun frames, and preserve frame selection plus offsets/rotation."
+        - "T004 closed imagegen replacement as not required for this tranche because existing imagegen assets are present, approved, and verified in runtime."
+        - "T005 passed npm run build and in-app browser visual checks for http://127.0.0.1:5175/?demo=jump and http://127.0.0.1:5175/?demo=blockstun."
+        - "Final verification passed: npm run verify completed typecheck, 26 Vitest files / 175 tests, and production build."
+      missing_evidence: []
+      spawned_tasks: []
 
 checks:
-  dirty_fingerprint: unknown
+  dirty_fingerprint: "Before final board commit, git status --short showed only this goal state file modified and unrelated untracked .codex/."
   last_verification:
     result: pass
-    task: T003
+    task: T999
     commands:
-      - "npm test -- --run test/sprite-frame.test.ts"
+      - "npm run build"
+      - "In-app browser visual check at http://127.0.0.1:5175/?demo=jump"
+      - "In-app browser visual check at http://127.0.0.1:5175/?demo=blockstun"
       - "npm test -- --run test/sprite-frame.test.ts test/asset-runtime.test.ts test/animation-map.test.ts"
-      - "npm run typecheck"
+      - "npm run verify"
