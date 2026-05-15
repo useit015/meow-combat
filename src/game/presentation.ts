@@ -15,9 +15,28 @@ export interface FighterVisualSeparationState {
   state: FighterState;
 }
 
+export interface FighterRollMotionState {
+  x: number;
+  y: number;
+  facing: Facing;
+  state: FighterState;
+  stateFrame: number;
+}
+
+export interface FighterRollMotionCue {
+  direction: Facing;
+  progress: number;
+  alpha: number;
+  trailX: number;
+  leadX: number;
+  y: number;
+  spriteScale: 1;
+}
+
 const VISUAL_SEPARATION_DISTANCE = 112;
 const VISUAL_SEPARATION_MAX = 18;
 const VISUAL_SEPARATION_SCALE = 0.25;
+const ROLL_CUE_FRAMES = 25;
 
 export function impactFeedbackCue(events: readonly CombatEvent[]): ImpactFeedbackCue | null {
   if (events.some((event) => event.type === "hit")) {
@@ -70,6 +89,24 @@ export function fighterVisualSeparationOffset(
   if (closeOverlap === 0) return 0;
 
   return Math.round(-fighter.facing * Math.min(VISUAL_SEPARATION_MAX, closeOverlap * VISUAL_SEPARATION_SCALE));
+}
+
+export function fighterRollMotionCue(fighter: FighterRollMotionState): FighterRollMotionCue | null {
+  if (fighter.state !== "rollForward" && fighter.state !== "rollBack") return null;
+
+  const progress = Math.min(1, Math.max(0, fighter.stateFrame / ROLL_CUE_FRAMES));
+  const direction = (fighter.state === "rollForward" ? fighter.facing : -fighter.facing) as Facing;
+  const alpha = Math.max(0, 0.68 - Math.abs(progress - 0.5) * 0.74);
+
+  return {
+    direction,
+    progress,
+    alpha,
+    trailX: fighter.x - direction * (32 + progress * 24),
+    leadX: fighter.x + direction * (22 + progress * 18),
+    y: fighter.y - 38 + Math.sin(progress * Math.PI) * 4,
+    spriteScale: 1,
+  };
 }
 
 function isVisualPassThroughState(fighter: FighterVisualSeparationState): boolean {

@@ -141,6 +141,12 @@ function missingRuntimeUi(state) {
   return state.runtimeUi?.missing?.map((asset) => asset.id ?? asset.key ?? String(asset)) ?? [];
 }
 
+function urlWithDemo(url, demo) {
+  const next = new URL(url);
+  next.searchParams.set("demo", demo);
+  return next.toString();
+}
+
 async function checkTouchReadability(page, state, scenario, failures) {
   const box = await canvasBox(page);
   const zones = state.touchControls?.zones ?? [];
@@ -316,6 +322,39 @@ async function runMobile(browser, url, outDir, name, viewport, expectedLayout) {
   };
 }
 
+async function runRollDemo(browser, url, outDir) {
+  const failures = [];
+  const screenshots = [];
+  const states = {};
+
+  for (const [demo, expectedState] of [
+    ["roll-forward", "rollForward"],
+    ["roll-back", "rollBack"],
+  ]) {
+    const { context, page, errors } = await openScenario(browser, urlWithDemo(url, demo), {
+      viewport: { width: 1024, height: 576 },
+    });
+    const state = await readState(page);
+    const shot = await screenshot(page, outDir, demo);
+    screenshots.push(shot);
+    states[demo] = state;
+
+    assert(state.shellPhase === "fighting", failures, `${demo} expected fighting phase, got ${state.shellPhase}`);
+    assert(state.fighters?.p1?.state === expectedState, failures, `${demo} expected ${expectedState}, got ${state.fighters?.p1?.state}`);
+    assert(state.fighters?.p1?.guarding === false, failures, `${demo} should not overlap guard with roll`);
+    assert(
+      state.runtimeVisuals?.p1?.animationId === "crouch",
+      failures,
+      `${demo} should reuse approved crouch row for character-consistent roll readability`,
+    );
+    assert(missingRuntimeUi(state).length === 0, failures, `${demo} missing runtime UI: ${missingRuntimeUi(state).join(", ")}`);
+    assert(errors.length === 0, failures, `${demo} console/page errors: ${JSON.stringify(errors)}`);
+    await context.close();
+  }
+
+  return { name: "roll-demo", failures, errors: [], screenshots, states };
+}
+
 async function main() {
   const args = parseArgs(process.argv);
   await fs.mkdir(args.outDir, { recursive: true });
@@ -326,6 +365,7 @@ async function main() {
 
   try {
     results.push(await runDesktop(browser, args.url, args.outDir));
+    results.push(await runRollDemo(browser, args.url, args.outDir));
     results.push(await runMobile(browser, args.url, args.outDir, "portrait", { width: 390, height: 844 }, "phone-portrait"));
     results.push(await runMobile(browser, args.url, args.outDir, "landscape", { width: 844, height: 390 }, "phone-landscape"));
   } finally {

@@ -178,6 +178,73 @@ describe("FightingSimulation", () => {
     expect(hop.p1.grounded).toBe(false);
   });
 
+  it("prioritizes the light plus kick chord as a forward roll instead of a light-kick attack", () => {
+    const simulation = new FightingSimulation();
+
+    const roll = simulation.step({
+      p1: createInput(1, {
+        buttons: { light: true, kick: true },
+      }),
+    });
+
+    expect(roll.p1.state).toBe("rollForward");
+  });
+
+  it("lets forward rolls pass through, recover, and face back toward the opponent", () => {
+    const simulation = new FightingSimulation();
+    let snapshot = simulation.snapshot();
+
+    for (let frame = 1; frame <= 86; frame += 1) {
+      snapshot = simulation.step({ p1: createInput(frame, { horizontal: 1 }) });
+    }
+
+    expect(snapshot.p1.x).toBeLessThan(snapshot.p2.x);
+    expect(snapshot.p2.x - snapshot.p1.x).toBeLessThanOrEqual(90);
+
+    snapshot = simulation.step({
+      p1: createInput(87, {
+        buttons: { light: true, kick: true },
+      }),
+    });
+    expect(snapshot.p1.state).toBe("rollForward");
+
+    for (let frame = 88; frame <= 124; frame += 1) {
+      snapshot = simulation.step({ p1: createInput(frame) });
+    }
+
+    expect(snapshot.p1.x).toBeGreaterThan(snapshot.p2.x);
+    expect(snapshot.p1.state).toBe("idle");
+    expect(snapshot.p1.facing).toBe(-1);
+    expect(snapshot.p2.facing).toBe(1);
+  });
+
+  it("keeps rolls strike-invulnerable during the pass-through window", () => {
+    const simulation = new FightingSimulation();
+    let snapshot = simulation.snapshot();
+    let sawP1Hit = false;
+
+    for (let frame = 1; frame <= 86; frame += 1) {
+      snapshot = simulation.step({ p1: createInput(frame, { horizontal: 1 }) });
+    }
+
+    expect(snapshot.p2.x - snapshot.p1.x).toBeLessThanOrEqual(90);
+
+    for (let frame = 87; frame <= 112; frame += 1) {
+      snapshot = simulation.step({
+        p1: createInput(frame, {
+          buttons: { light: frame === 87, kick: frame === 87 },
+        }),
+        p2: createInput(frame, {
+          buttons: { light: frame === 87 },
+        }),
+      });
+      sawP1Hit ||= snapshot.events.some((event) => event.type === "hit" && event.defender === "p1");
+    }
+
+    expect(sawP1Hit).toBe(false);
+    expect(snapshot.p1.health).toBe(1000);
+  });
+
   it("does not keep retriggering run from a stale double tap after returning neutral", () => {
     const simulation = new FightingSimulation();
     simulation.step({ p1: createInput(1, { horizontal: 1 }) });

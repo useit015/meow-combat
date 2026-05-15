@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { audioCueForCombatEvents, audioCuesForCombatEvents, audioCueForMatchTransition } from "../src/game/audio";
-import { fighterVisualSeparationOffset, impactFeedbackCue, selectReadinessLines } from "../src/game/presentation";
+import {
+  fighterRollMotionCue,
+  fighterVisualSeparationOffset,
+  impactFeedbackCue,
+  selectReadinessLines,
+} from "../src/game/presentation";
 
 describe("presentation helpers", () => {
   it("prioritizes hit feedback over block feedback", () => {
@@ -39,6 +44,34 @@ describe("presentation helpers", () => {
 
     expect(fighterVisualSeparationOffset({ x: 500, facing: 1, grounded: false, state: "hop" }, grounded)).toBe(0);
     expect(fighterVisualSeparationOffset({ x: 500, facing: 1, grounded: true, state: "rollForward" }, grounded)).toBe(0);
+  });
+
+  it("describes roll motion as a low directional cue without scaling the fighter sprite", () => {
+    const cue = fighterRollMotionCue({
+      x: 500,
+      y: 462,
+      facing: 1,
+      state: "rollForward",
+      stateFrame: 10,
+    });
+
+    expect(cue).toMatchObject({
+      direction: 1,
+      spriteScale: 1,
+    });
+    expect(cue?.leadX).toBeGreaterThan(500);
+    expect(cue?.trailX).toBeLessThan(500);
+    expect(cue?.y).toBeLessThan(462);
+    expect(cue?.alpha).toBeGreaterThan(0.3);
+    expect(
+      fighterRollMotionCue({
+        x: 500,
+        y: 462,
+        facing: -1,
+        state: "rollBack",
+        stateFrame: 10,
+      })?.direction,
+    ).toBe(1);
   });
 
   it("stops separating fighters once silhouettes have readable space", () => {

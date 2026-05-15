@@ -122,8 +122,12 @@ export class FightingSimulation {
   }
 
   private faceOpponents(): void {
-    this.match.p1.facing = this.match.p1.x <= this.match.p2.x ? 1 : -1;
-    this.match.p2.facing = this.match.p2.x < this.match.p1.x ? 1 : -1;
+    if (!isRollState(this.match.p1.state)) {
+      this.match.p1.facing = this.match.p1.x <= this.match.p2.x ? 1 : -1;
+    }
+    if (!isRollState(this.match.p2.state)) {
+      this.match.p2.facing = this.match.p2.x < this.match.p1.x ? 1 : -1;
+    }
   }
 
   private tickFighter(
@@ -170,6 +174,17 @@ export class FightingSimulation {
       return;
     }
 
+    if (applyMobilityState(fighter, buffer, opponent, frame, events, this.match.groundY)) {
+      return;
+    }
+
+    const mobilityCommand = fighter.grounded ? buffer.consumeMobilityCommand(fighter.facing) : null;
+    if (mobilityCommand && isRollCommand(mobilityCommand)) {
+      executeMobilityCommand(fighter, mobilityCommand, frame, events);
+      applyMobilityState(fighter, buffer, opponent, frame, events, this.match.groundY);
+      return;
+    }
+
     const command = buffer.consumeCommand(fighter.facing, { canSuper: fighter.meter >= POWER_METER_STOCK });
     if (command) {
       executeAttackCommand(fighter, command, frame, events);
@@ -177,16 +192,11 @@ export class FightingSimulation {
     }
 
     if (fighter.grounded) {
-      const mobilityCommand = buffer.consumeMobilityCommand(fighter.facing);
       if (mobilityCommand) {
         executeMobilityCommand(fighter, mobilityCommand, frame, events);
         applyMobilityState(fighter, buffer, opponent, frame, events, this.match.groundY);
         return;
       }
-    }
-
-    if (applyMobilityState(fighter, buffer, opponent, frame, events, this.match.groundY)) {
-      return;
     }
 
     const latest = buffer.latest();
@@ -525,6 +535,14 @@ function canPassThroughOpponent(fighter: FighterRuntime, groundY: number): boole
   const airborneCrossUp = (fighter.state === "jump" || fighter.state === "hop") && !fighter.grounded && fighter.y < groundY - 18;
   const evasiveRoll = fighter.state === "rollForward" || fighter.state === "rollBack";
   return airborneCrossUp || evasiveRoll;
+}
+
+function isRollCommand(command: MobilityCommandId): boolean {
+  return command === "rollForward" || command === "rollBack";
+}
+
+function isRollState(state: FighterState): boolean {
+  return state === "rollForward" || state === "rollBack";
 }
 
 function push(defender: FighterRuntime, amount: number, attacker: FighterRuntime): void {

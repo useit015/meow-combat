@@ -46,7 +46,7 @@ import {
   selectedFighterFromConfig,
   versionedAssetFromConfig,
 } from "./gameConfig";
-import { fighterVisualSeparationOffset, impactFeedbackCue } from "./presentation";
+import { fighterRollMotionCue, fighterVisualSeparationOffset, impactFeedbackCue } from "./presentation";
 import { initialShellState, reduceShellState, type ShellState } from "./shellFlow";
 import { selectSpritePose, spriteStanceConventionForAnimation } from "./spriteFrame";
 import {
@@ -97,6 +97,8 @@ export class MeowtalArenaScene extends Phaser.Scene {
     this.demoMode === "hop" ||
     this.demoMode === "run-forward" ||
     this.demoMode === "backdash" ||
+    this.demoMode === "roll-forward" ||
+    this.demoMode === "roll-back" ||
     this.demoMode === "knockdown";
   private effects: readonly CombatEffect[] = [];
   private damageNumbers: readonly DamageNumberPopup[] = [];
@@ -1186,6 +1188,8 @@ export class MeowtalArenaScene extends Phaser.Scene {
       this.demoMode !== "hop" &&
       this.demoMode !== "run-forward" &&
       this.demoMode !== "backdash" &&
+      this.demoMode !== "roll-forward" &&
+      this.demoMode !== "roll-back" &&
       this.demoMode !== "hitstun" &&
       this.demoMode !== "blockstun" &&
       this.demoMode !== "knockdown" &&
@@ -1220,6 +1224,10 @@ export class MeowtalArenaScene extends Phaser.Scene {
       this.primeRunForwardDemo();
     } else if (this.demoMode === "backdash") {
       this.primeBackdashDemo();
+    } else if (this.demoMode === "roll-forward") {
+      this.primeRollDemo("rollForward");
+    } else if (this.demoMode === "roll-back") {
+      this.primeRollDemo("rollBack");
     } else if (this.demoMode === "knockdown") {
       this.primeKnockdownDemo();
     } else if (this.demoMode === "ko") {
@@ -1386,6 +1394,26 @@ export class MeowtalArenaScene extends Phaser.Scene {
         state: "backdash",
         stateFrame: 8,
         hitstop: 0,
+      },
+      p2: {
+        ...this.snapshot.p2,
+        x: 724,
+        state: "idle",
+        stateFrame: 0,
+      },
+    };
+  }
+
+  private primeRollDemo(state: "rollForward" | "rollBack"): void {
+    this.snapshot = {
+      ...this.snapshot,
+      p1: {
+        ...this.snapshot.p1,
+        x: state === "rollForward" ? 612 : 604,
+        state,
+        stateFrame: 12,
+        hitstop: 0,
+        guarding: false,
       },
       p2: {
         ...this.snapshot.p2,
@@ -2068,6 +2096,23 @@ function drawFighterActionEffect(
   color: number,
   visualOffsetX: number,
 ): void {
+  const rollCue = fighterRollMotionCue(fighter);
+  if (rollCue) {
+    const alpha = rollCue.alpha;
+    if (alpha <= 0.02) return;
+
+    const leadX = rollCue.leadX + visualOffsetX;
+    const trailX = rollCue.trailX + visualOffsetX;
+    const y = rollCue.y;
+    const dustY = fighter.y - 9;
+    g.fillStyle(0xf8f5e9, alpha * 0.18).fillEllipse(trailX, dustY, 66, 18);
+    g.fillStyle(0xfff1a8, alpha * 0.12).fillEllipse(leadX, dustY - 4, 42, 12);
+    g.lineStyle(7, 0xf8f5e9, alpha * 0.52).lineBetween(trailX, y + 6, leadX, y - 4);
+    g.lineStyle(4, color, alpha * 0.74).lineBetween(trailX + rollCue.direction * 12, y + 16, leadX, y + 4);
+    g.lineStyle(2, 0xff9f1c, alpha * 0.68).strokeCircle(leadX - rollCue.direction * 8, y + 10, 18 + rollCue.progress * 10);
+    return;
+  }
+
   const plan = actionEffectPlan(fighter.state);
   if (!plan) return;
 

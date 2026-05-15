@@ -86,7 +86,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T134
+active_task: T135
 
 tasks:
   - id: T000
@@ -7217,7 +7217,7 @@ tasks:
   - id: T134
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: medium
     objective: "Add a roll-feel verification and polish slice: prove light+kick roll input, roll pass-through side switching, invulnerability, recovery/facing, and readable runtime presentation without generating new binary art."
     inputs:
@@ -7249,14 +7249,69 @@ tasks:
       - "Roll presentation is more readable using existing approved character assets"
       - "Browser smoke captures roll behavior without console/runtime failures"
       - "Task receipt and small coherent commit"
+    receipt:
+      result: done
+      summary: "Fixed roll as a true KOF-style mobility command by prioritizing the light+kick chord over light-kick attacks, applying active mobility before buffered attacks, and preserving facing while rollForward/rollBack are active so pass-through movement does not reverse mid-cross. Added deterministic coverage for roll priority, side-switch recovery/facing, and strike invulnerability, plus a low directional motion cue that reuses the approved crouch row without scaling or regenerating character art. Browser smoke now captures roll-forward and roll-back demo states."
+      changed_files:
+        - "src/core/simulation.ts"
+        - "src/game/presentation.ts"
+        - "src/game/MeowtalArenaScene.ts"
+        - "test/combat-core.test.ts"
+        - "test/presentation.test.ts"
+        - "scripts/smoke-meowtal-browser.mjs"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+        - "progress.md"
+      commands:
+        - cmd: "npm test -- --run test/combat-core.test.ts test/presentation.test.ts test/animation-map.test.ts"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-roll-feel"
+          status: pass
+      evidence:
+        - "output/web-game/postfinal-roll-feel/roll-forward.png"
+        - "output/web-game/postfinal-roll-feel/roll-back.png"
+        - "output/web-game/postfinal-roll-feel/report.json"
+      next_task: T135
+  - id: T135
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: medium
+    objective: "Add production-preview smoke coverage for K.O., victory, and rematch/reset UI flow so late-round overlays, end-state animations, and match transitions are proven after the recent gameplay and UI polish."
+    inputs:
+      - "T133 audit found current smoke strongly covers early fight/mobile controls but not the late-round K.O./victory/rematch flow."
+      - "Runtime UI has generated fight/K.O./victory overlays and win/lose rows that should remain functional after polish."
+      - "Owner wants production-ready UI that functions well across the whole arcade loop."
+    allowed_files:
+      - "scripts/smoke-meowtal-browser.mjs"
+      - "src/game/MeowtalArenaScene.ts"
+      - "src/game/shellFlow.ts"
+      - "test/shell-flow.test.ts"
+      - "test/match-flow.test.ts"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+      - "progress.md"
+    verify:
+      - "npm test -- --run test/shell-flow.test.ts test/match-flow.test.ts"
+      - "npm run verify"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-ko-rematch"
+    stop_if:
+      - "Requires regenerating K.O./victory UI art or changing approved UI sheet dimensions."
+      - "Late-round smoke reveals a rematch or overlay bug that needs a separate larger implementation slice."
+    expected_output:
+      - "Browser smoke proves K.O. overlay, victory overlay, and rematch/reset flow"
+      - "No console/runtime failures in late-round states"
+      - "Task receipt and small coherent commit"
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T133
+    task: T134
     commands:
-      - cmd: "npm run imagegen:preflight"
+      - cmd: "npm test -- --run test/combat-core.test.ts test/presentation.test.ts test/animation-map.test.ts"
         status: pass
-      - cmd: "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+      - cmd: "npm run verify"
+        status: pass
+      - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-roll-feel"
         status: pass
