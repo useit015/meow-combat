@@ -42,6 +42,11 @@ describe("touch controls", () => {
       },
     });
 
+    expect(touchInputFromControls(["guard"])).toMatchObject({
+      horizontal: 0,
+      vertical: 0,
+      buttons: { guard: true },
+    });
     expect(touchInputFromControls(["left"]).buttons.guard).toBe(true);
     expect(touchInputFromControls(["left", "right"]).horizontal).toBe(0);
     expect(touchInputFromControls(["up", "down"]).vertical).toBe(0);

@@ -97,6 +97,7 @@ export interface FighterRuntime {
   stunRemaining: number;
   lastHitFrame: number | null;
   grounded: boolean;
+  guarding: boolean;
 }
 
 export interface ComboState {
@@ -168,4 +169,5 @@ export interface FighterSnapshot {
   hitstop: number;
   stunRemaining: number;
   grounded: boolean;
+  guarding: boolean;
 }

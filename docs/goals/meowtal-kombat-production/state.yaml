@@ -86,7 +86,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T127
+active_task: T128
 
 tasks:
   - id: T000
@@ -6904,7 +6904,7 @@ tasks:
   - id: T127
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: medium
     objective: "Make dedicated guard input behave like real defense across keyboard/touch controls instead of relying only on walking backward or crouching."
     inputs:
@@ -6929,6 +6929,54 @@ tasks:
       - "Dedicated guard input is represented in deterministic combat state"
       - "Guard button can block without forcing horizontal movement"
       - "Existing hold-back and crouch blocking still work"
+      - "Task receipt and small coherent commit"
+    receipt:
+      result: done
+      summary: "Added deterministic dedicated guarding to the combat runtime. Fighter snapshots now expose a grounded guarding flag, the guard button blocks incoming strikes without forcing horizontal movement, guard clears during attacks/airborne/reaction states, and existing back/crouch blocking behavior is preserved. Touch guard input now verifies as neutral movement plus guard instead of relying only on hold-left/back."
+      changed_files:
+        - "src/core/types.ts"
+        - "src/core/simulation.ts"
+        - "test/combat-core.test.ts"
+        - "test/touch-controls.test.ts"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+        - "progress.md"
+      commands:
+        - cmd: "npm test -- --run test/combat-core.test.ts"
+          status: pass
+        - cmd: "npm test -- --run test/combat-core.test.ts test/touch-controls.test.ts"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-guard"
+          status: pass
+      next_task: T128
+  - id: T128
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: medium
+    objective: "Make close-range pressure feel smoother by letting grounded attacks preserve clean spacing/facing after side switches without clipping, repeated hits, or control lockout."
+    inputs:
+      - "T122/T124 allowed airborne and roll side-switching and reduced render-only separation."
+      - "T127 added a real dedicated guard state for pressure defense."
+      - "Owner wants less glitchy, less restricted, King of Fighters-style gameplay feel."
+    allowed_files:
+      - "src/core/simulation.ts"
+      - "src/core/types.ts"
+      - "test/combat-core.test.ts"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+      - "progress.md"
+    verify:
+      - "npm test -- --run test/combat-core.test.ts"
+      - "npm run verify"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-pressure"
+    stop_if:
+      - "Requires new animation assets, generated UI art, broad scene rewrite, or changing fighter asset dimensions."
+      - "Fixing close-range pressure would require replacing the input system wholesale instead of a narrow combat-core slice."
+    expected_output:
+      - "Regression coverage for close-range side-switch pressure"
+      - "No repeated same-activation hits"
+      - "Readable spacing/facing after point-blank guarded or hit pressure"
       - "Task receipt and small coherent commit"
 
 checks:

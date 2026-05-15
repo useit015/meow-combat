@@ -142,6 +142,7 @@ export class FightingSimulation {
     fighter.stateFrame += 1;
 
     if (fighter.state === "hitstun" || fighter.state === "blockstun" || fighter.state === "knockdown") {
+      fighter.guarding = false;
       fighter.stunRemaining = Math.max(0, fighter.stunRemaining - 1);
       if (fighter.stunRemaining <= 0) {
         setState(fighter, "idle", frame, events);
@@ -152,6 +153,7 @@ export class FightingSimulation {
 
     const move = activeMove(fighter);
     if (move) {
+      fighter.guarding = false;
       const cancelCommand = buffer.consumeCommand(fighter.facing, {
         allowNormals: false,
         canSuper: fighter.meter >= POWER_METER_STOCK,
@@ -188,12 +190,16 @@ export class FightingSimulation {
     }
 
     const latest = buffer.latest();
+    fighter.guarding = latest.buttons.guard && fighter.grounded;
+
     if (!fighter.grounded) {
+      fighter.guarding = false;
       applyAirMovement(fighter, latest, opponent, this.match.groundY);
       return;
     }
 
     if (latest.buttons.jump) {
+      fighter.guarding = false;
       const isHop = latest.horizontal !== 0;
       setState(fighter, isHop ? "hop" : "jump", frame, events);
       fighter.velocityY = isHop ? fighter.definition.jumpVelocity * 0.68 : fighter.definition.jumpVelocity;
@@ -382,6 +388,7 @@ function createFighter(id: PlayerId, definition: FighterDefinition, x: number, f
     stunRemaining: 0,
     lastHitFrame: null,
     grounded: true,
+    guarding: false,
   };
 }
 
@@ -503,7 +510,7 @@ function activeMove(fighter: FighterRuntime): MoveDefinition | null {
 
 function isBlocking(defender: FighterRuntime, attacker: FighterRuntime): boolean {
   const facingAttacker = defender.facing === -attacker.facing;
-  return facingAttacker && (defender.state === "walkBack" || defender.state === "crouch");
+  return facingAttacker && (defender.guarding || defender.state === "walkBack" || defender.state === "crouch");
 }
 
 function isStrikeInvulnerable(defender: FighterRuntime): boolean {
@@ -557,5 +564,6 @@ function fighterSnapshot(fighter: FighterRuntime): FighterSnapshot {
     hitstop: fighter.hitstop,
     stunRemaining: fighter.stunRemaining,
     grounded: fighter.grounded,
+    guarding: fighter.guarding,
   };
 }

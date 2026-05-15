@@ -102,6 +102,32 @@ describe("FightingSimulation", () => {
     expect(snapshot.p2.health).toBe(955);
   });
 
+  it("blocks with the dedicated guard button without requiring backward movement", () => {
+    const simulation = new FightingSimulation();
+    let sawBlock = false;
+    let sawHit = false;
+
+    for (let frame = 1; frame <= 150; frame += 1) {
+      const snapshot = simulation.step({
+        p1: createInput(frame, {
+          horizontal: frame < 108 ? 1 : 0,
+          buttons: { light: frame === 114 },
+        }),
+        p2: createInput(frame, {
+          buttons: { guard: frame >= 100 },
+        }),
+      });
+      sawBlock ||= snapshot.events.some((event) => event.type === "block");
+      sawHit ||= snapshot.events.some((event) => event.type === "hit");
+    }
+
+    const snapshot = simulation.snapshot();
+    expect(sawBlock).toBe(true);
+    expect(sawHit).toBe(false);
+    expect(snapshot.p2.health).toBe(1000);
+    expect(snapshot.p2.guarding).toBe(true);
+  });
+
   it("applies light-kick as a distinct playable attack state", () => {
     const simulation = new FightingSimulation();
 
