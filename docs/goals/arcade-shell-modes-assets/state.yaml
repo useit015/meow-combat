@@ -1,0 +1,220 @@
+# GoalBuddy v2 state.yaml
+# Board truth lives here. goal.md is the editable charter; notes/ holds long receipts only.
+
+version: 2
+
+goal:
+  title: "Arcade shell, modes, gameplay depth, and generated assets"
+  slug: "arcade-shell-modes-assets"
+  kind: specific
+  tranche: "Build a full arcade shell with character selection, training and 1 vs CPU modes, meaningful gameplay depth, generated raster assets, and browser-demo proof."
+  status: active
+  intake:
+    original_request: "We need multiple playing modes: training, 1 vs CPU, a proper menu character selection, and use imagegen for assets."
+    interpreted_outcome: "Build a polished arcade-style game shell with character selection, training mode, 1 vs CPU mode, gameplay depth, and project-integrated generated assets."
+    input_shape: specific
+    audience: "The player using the local game app."
+    authority: requested
+    proof_type: demo
+    completion_proof: "A browser demo can navigate menu -> character select -> training and menu -> character select -> 1 vs CPU, showing generated assets integrated and gameplay depth such as CPU behavior, moves, scoring, or training affordances."
+    likely_misfire: "Ship attractive menus or standalone generated assets without a coherent playable arcade flow across both requested modes."
+    blind_spots_considered:
+      - "Generated assets can create review noise, so asset generation and integration should be kept in coherent batches."
+      - "The current game structure is unknown; the first task should map the repo before implementation."
+      - "Gameplay depth needs proof in motion, not just static screenshots."
+      - "CPU behavior, scoring, move tuning, and training affordances should be meaningful but not expand into a forever balancing project."
+    existing_plan_facts:
+      - "Add multiple playing modes."
+      - "Include training mode."
+      - "Include 1 vs CPU mode."
+      - "Add a proper menu and character selection."
+      - "Use imagegen for project assets."
+      - "Prioritize a full arcade shell over a minimal vertical slice."
+      - "Include gameplay depth such as CPU behavior, move tuning, scoring, or training tools."
+      - "Use browser/demo verification as completion proof."
+
+rules:
+  pm_owns_state: true
+  one_active_task: true
+  max_write_workers: 1
+  no_implementation_without_worker_or_pm_task: true
+  no_completion_without_judge_or_pm_audit: true
+  planning_is_not_completion: true
+  queued_required_worker_blocks_completion: true
+  continuous_until_full_outcome: true
+  missing_input_or_credentials_do_not_stop_goal: true
+  preserve_and_validate_existing_plan: true
+  intake_misfire_must_be_audited: true
+
+agents:
+  scout: installed
+  worker: installed
+  judge: installed
+
+visual_board:
+  selected: local
+  local:
+    status: live
+    url: "http://goalbuddy.localhost:41737/arcade-shell-modes-assets/"
+    command: "npx goalbuddy board \"/Users/oussmustaine/Documents/New project/docs/goals/arcade-shell-modes-assets\""
+  github_projects:
+    status: not_requested
+    url: null
+    command: "npx goalbuddy extend github-projects"
+    missing: []
+
+active_task: T001
+
+tasks:
+  - id: T001
+    type: scout
+    assignee: Scout
+    status: active
+    reasoning_hint: default
+    objective: "Map the current game architecture, playable state, verification commands, existing asset pipeline, and implementation entry points for menu, character selection, training, and 1 vs CPU work."
+    inputs:
+      - "Repository root"
+      - "Package manifests and scripts"
+      - "Existing game source, styles, assets, tests, and docs"
+      - "User requirement to use imagegen for assets"
+    constraints:
+      - "Read-only."
+      - "Do not generate assets or edit implementation files."
+      - "Prefer concrete file-path evidence over generic advice."
+      - "Identify likely files for later Worker allowed_files, but do not modify them."
+    expected_output:
+      - "Repo map and current gameplay/menu state"
+      - "Verification commands for build, lint, tests, and browser demo"
+      - "Existing asset pipeline and where imagegen outputs should be stored"
+      - "Candidate implementation slices with risks and likely allowed_files"
+      - "Any blockers or ambiguous product decisions"
+    receipt: null
+  - id: T002
+    type: judge
+    assignee: Judge
+    status: queued
+    reasoning_hint: high
+    objective: "Choose the implementation sequence for the full arcade shell and define the first safe Worker task."
+    inputs:
+      - "T001 receipt"
+      - "Original user outcome"
+      - "AGENTS.md commit guidance"
+    constraints:
+      - "Do not implement."
+      - "Preserve the requested modes, character selection, imagegen asset requirement, and gameplay depth."
+      - "Prefer small coherent slices that can be committed separately."
+      - "Reject a plan that only makes static screens without playable flows."
+    expected_output:
+      - "Decision"
+      - "Implementation sequence"
+      - "Exact first Worker objective"
+      - "allowed_files"
+      - "verify"
+      - "stop_if"
+      - "Deferred or blocked tasks"
+    receipt: null
+  - id: T003
+    type: worker
+    assignee: Worker
+    status: queued
+    reasoning_hint: default
+    objective: "Execute the first safe implementation task selected by Judge for the arcade shell."
+    allowed_files: []
+    verify: []
+    stop_if:
+      - "Need files outside allowed_files."
+      - "Behavior is ambiguous after checking Scout/Judge receipts."
+      - "Verification fails twice for the same cause."
+      - "The task would bundle unrelated generated assets, dependency changes, and gameplay changes into one commit-sized slice."
+    receipt: null
+  - id: T004
+    type: judge
+    assignee: Judge
+    status: queued
+    reasoning_hint: high
+    objective: "After the first implementation slice, decide the next highest-leverage slice across generated assets, character selection, training, 1 vs CPU, CPU behavior, scoring, move tuning, and UX polish."
+    inputs:
+      - "Done Worker receipts"
+      - "Latest verification results"
+      - "Current dirty diff"
+      - "Original user outcome"
+    constraints:
+      - "Do not implement."
+      - "Do not mark the tranche complete unless both requested flows are playable and demo-verified."
+      - "If image assets are still missing, define an imagegen-backed asset task with workspace save paths."
+    expected_output:
+      - "Decision"
+      - "Next Worker objective"
+      - "allowed_files"
+      - "verify"
+      - "stop_if"
+      - "Whether imagegen is required for the next slice"
+    receipt: null
+  - id: T005
+    type: worker
+    assignee: Worker
+    status: queued
+    reasoning_hint: default
+    objective: "Execute the next safe Worker task selected by Judge, expected to cover one coherent slice such as imagegen assets, character selection, training depth, 1 vs CPU behavior, scoring, or polish."
+    allowed_files: []
+    verify: []
+    stop_if:
+      - "Need files outside allowed_files."
+      - "Need user approval for generated asset direction that cannot be inferred from the game."
+      - "Imagegen output cannot be saved into the workspace."
+      - "Verification fails twice for the same cause."
+    receipt: null
+  - id: T006
+    type: pm
+    assignee: PM
+    status: queued
+    reasoning_hint: default
+    objective: "Prepare coherent commit batches after verified slices, following AGENTS.md staging guidance."
+    inputs:
+      - "Done Worker receipts"
+      - "Current git status"
+      - "AGENTS.md instructions"
+    constraints:
+      - "Before each commit, check the staged diff."
+      - "Keep unrelated user or generated changes out of each commit unless explicitly requested."
+      - "Group commits by reviewable units such as goal-board prep, asset pipeline setup, gameplay foundation, audio integration, verification, or polish."
+      - "Do not commit if verification for the staged slice is unknown or failing unless the receipt explains why."
+    expected_output:
+      - "Staged diff summary"
+      - "Commit command(s) or blocker receipt"
+      - "Commit hashes if commits are created"
+    receipt: null
+  - id: T999
+    type: judge
+    assignee: Judge
+    status: queued
+    reasoning_hint: high
+    objective: "Audit whether the arcade shell tranche fully satisfies the original user outcome."
+    inputs:
+      - "All done task receipts"
+      - "Last verification"
+      - "Current dirty diff"
+      - "Browser/demo evidence"
+      - "Generated asset paths"
+    constraints:
+      - "Do not implement."
+      - "Reject completion if menu -> character select -> training is not browser-demo verified."
+      - "Reject completion if menu -> character select -> 1 vs CPU is not browser-demo verified."
+      - "Reject completion if generated assets are not integrated into the workspace."
+      - "Reject completion if gameplay depth is only cosmetic or static."
+      - "Reject completion if required Worker work is still queued or active."
+    expected_output:
+      - "complete | not_complete"
+      - "full_outcome_complete: true | false"
+      - "Mapping from original request to implemented evidence"
+      - "Verification commands and browser/demo result"
+      - "Missing evidence"
+      - "Next task if not complete"
+    receipt: null
+
+checks:
+  dirty_fingerprint: unknown
+  last_verification:
+    result: unknown
+    task: null
+    commands: []
