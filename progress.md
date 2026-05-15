@@ -145,6 +145,7 @@ Original prompt: create a KOF-style Moroccan-themed production-ready game, first
 - Completion audit checklist: mapped KOF gameplay, animation consistency, UI function, browser proof, production build, small commits, and UI regeneration to concrete evidence; the audit rejects completion only because live UI regeneration remains credential-blocked.
 - Runtime UI smoke hardening: fixed the stale missing-UI browser helper so it derives failures from `runtimeUi.assets`, asserted expected visible UI slots across ready/select/fight/roll/K.O./victory/rematch/reset/mobile states, and added CDP-backed right+special multi-touch proof. Verification passed: `npm run verify` and production-preview smoke at `output/web-game/postfinal-ui-visible-slots`.
 - Gamepad support pass: added a tested standard Gamepad API mapper, wired connected gamepads into P1 shell controls and combat movement/actions, and added production-preview smoke with a mocked connected gamepad that starts the game, moves P1, and triggers a special. Verification passed: focused gamepad/control/shell tests, `npm run verify`, and smoke at `output/web-game/postfinal-gamepad`.
+- Gamepad confirm polish pass: separated South face confirm from Start/Pause, limited South confirm to shell phases, suppressed held South after shell-to-fight transitions until release, and proved confirm-held vs fresh light attack behavior in production-preview smoke. Verification passed: focused gamepad/control/shell tests, `npm run verify`, and smoke at `output/web-game/postfinal-gamepad-confirm`.
 
 ## Next Suggestions
 

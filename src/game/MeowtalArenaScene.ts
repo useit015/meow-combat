@@ -138,6 +138,7 @@ export class MeowtalArenaScene extends Phaser.Scene {
   private activeTouchControls = new Set<TouchControlId>();
   private previousTouchControls = new Set<TouchControlId>();
   private previousGamepadInput: GamepadInputState = EMPTY_GAMEPAD_INPUT;
+  private suppressGamepadLightUntilReleased = false;
   private touchControlLabels!: Record<TouchControlId, Phaser.GameObjects.Text>;
 
   constructor() {
@@ -478,8 +479,15 @@ export class MeowtalArenaScene extends Phaser.Scene {
     const touchPressed = (id: TouchControlId) =>
       touchControlJustPressed(touchControlsThisFrame, this.previousTouchControls, id);
     const gamepadInputThisFrame = this.readGamepadInput();
-    const gamepadPressed = (id: "start" | "pause" | "reset") =>
+    const gamepadPressed = (id: "confirm" | "start" | "pause" | "reset") =>
       gamepadControlJustPressed(gamepadInputThisFrame, this.previousGamepadInput, id);
+    const gamepadConfirmPressed = gamepadPressed("confirm");
+    const gamepadStartPressed = gamepadPressed("start");
+    const shellAcceptsGamepadConfirm =
+      this.shell.phase === "ready" ||
+      this.shell.phase === "select" ||
+      this.shell.phase === "round-over" ||
+      this.shell.phase === "match-over";
 
     try {
       const resetPressed = Phaser.Input.Keyboard.JustDown(this.keys.reset) || touchPressed("reset") || gamepadPressed("reset");
@@ -487,7 +495,8 @@ export class MeowtalArenaScene extends Phaser.Scene {
         Phaser.Input.Keyboard.JustDown(this.keys.start) ||
         Phaser.Input.Keyboard.JustDown(this.keys.startAlt) ||
         touchPressed("start") ||
-        gamepadPressed("start");
+        gamepadStartPressed ||
+        (shellAcceptsGamepadConfirm && gamepadConfirmPressed);
       const pausePressed =
         Phaser.Input.Keyboard.JustDown(this.keys.pause) ||
         Phaser.Input.Keyboard.JustDown(this.keys.pauseAlt) ||
@@ -542,6 +551,15 @@ export class MeowtalArenaScene extends Phaser.Scene {
 
       this.shell = nextShell;
       this.shellPhaseFrame = previousPhase === this.shell.phase ? this.shellPhaseFrame + 1 : 0;
+      if (
+        previousPhase !== "fighting" &&
+        this.shell.phase === "fighting" &&
+        shellAcceptsGamepadConfirm &&
+        gamepadConfirmPressed &&
+        gamepadInputThisFrame.buttons.light
+      ) {
+        this.suppressGamepadLightUntilReleased = true;
+      }
 
       if (previousPhase === "select" && this.shell.phase === "fighting") {
         this.startSelectedMatch();
@@ -1170,6 +1188,10 @@ export class MeowtalArenaScene extends Phaser.Scene {
 
     const touchInput = touchInputFromControls(this.activeTouchControls);
     const gamepadInput = this.readGamepadInput();
+    if (this.suppressGamepadLightUntilReleased && !gamepadInput.buttons.light) {
+      this.suppressGamepadLightUntilReleased = false;
+    }
+    const gamepadLight = this.suppressGamepadLightUntilReleased ? false : gamepadInput.buttons.light;
     const keyboardHorizontal = keyDown(this.keys.p1Left) ? -1 : keyDown(this.keys.p1Right) || keyDown(this.keys.p1RightAlt) ? 1 : 0;
     const keyboardVertical = keyDown(this.keys.p1Down) ? 1 : keyDown(this.keys.p1Jump) ? -1 : 0;
     const horizontal = touchInput.horizontal !== 0 ? touchInput.horizontal : gamepadInput.horizontal !== 0 ? gamepadInput.horizontal : keyboardHorizontal;
@@ -1181,7 +1203,7 @@ export class MeowtalArenaScene extends Phaser.Scene {
       buttons: buttonsFromKeys({
         jump: keyDown(this.keys.p1Jump) || touchInput.buttons.jump || gamepadInput.buttons.jump,
         crouch: keyDown(this.keys.p1Down) || touchInput.buttons.crouch || gamepadInput.buttons.crouch,
-        light: keyDown(this.keys.p1Light) || keyDown(this.keys.p1LightAlt) || touchInput.buttons.light || gamepadInput.buttons.light,
+        light: keyDown(this.keys.p1Light) || keyDown(this.keys.p1LightAlt) || touchInput.buttons.light || gamepadLight,
         kick: keyDown(this.keys.p1Kick) || touchInput.buttons.kick || gamepadInput.buttons.kick,
         heavy: keyDown(this.keys.p1Heavy) || touchInput.buttons.heavy || gamepadInput.buttons.heavy,
         special: keyDown(this.keys.p1Special) || keyDown(this.keys.p1SpecialAlt) || touchInput.buttons.special || gamepadInput.buttons.special,

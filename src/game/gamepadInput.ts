@@ -1,6 +1,6 @@
 import { buttonsFromKeys, type Button, type HorizontalIntent, type VerticalIntent } from "../core";
 
-export type GamepadControlId = "start" | "pause" | "reset";
+export type GamepadControlId = "confirm" | "start" | "pause" | "reset";
 
 export type GamepadButtonLike = {
   readonly pressed?: boolean;
@@ -18,6 +18,7 @@ export interface GamepadInputState {
   readonly horizontal: HorizontalIntent;
   readonly vertical: VerticalIntent;
   readonly buttons: Readonly<Record<Button, boolean>>;
+  readonly confirm: boolean;
   readonly start: boolean;
   readonly pause: boolean;
   readonly reset: boolean;
@@ -48,6 +49,7 @@ export const EMPTY_GAMEPAD_INPUT: GamepadInputState = {
   horizontal: 0,
   vertical: 0,
   buttons: buttonsFromKeys({}),
+  confirm: false,
   start: false,
   pause: false,
   reset: false,
@@ -79,7 +81,8 @@ export function gamepadInputFromGamepads(gamepads: readonly (GamepadLike | null 
         buttonPressed(gamepad, StandardButton.LeftTrigger) ||
         buttonPressed(gamepad, StandardButton.RightTrigger),
     }),
-    start: buttonPressed(gamepad, StandardButton.South) || buttonPressed(gamepad, StandardButton.Start),
+    confirm: buttonPressed(gamepad, StandardButton.South) || buttonPressed(gamepad, StandardButton.Start),
+    start: buttonPressed(gamepad, StandardButton.Start),
     pause: buttonPressed(gamepad, StandardButton.Start),
     reset: buttonPressed(gamepad, StandardButton.Back),
   };

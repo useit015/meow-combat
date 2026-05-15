@@ -36,6 +36,9 @@ describe("gamepad input", () => {
       special: true,
       guard: true,
     });
+    expect(input.confirm).toBe(true);
+    expect(input.start).toBe(false);
+    expect(input.pause).toBe(false);
   });
 
   it("uses d-pad input over analog axes for clean arcade direction reads", () => {
@@ -55,6 +58,23 @@ describe("gamepad input", () => {
     expect(input.buttons.crouch).toBe(false);
   });
 
+  it("keeps south face confirm separate from start and pause controls", () => {
+    const previous = gamepadInputFromGamepads([gamepad()]);
+    const current = gamepadInputFromGamepads([
+      gamepad({
+        buttons: {
+          0: true,
+        },
+      }),
+    ]);
+
+    expect(current.buttons.light).toBe(true);
+    expect(gamepadControlJustPressed(current, previous, "confirm")).toBe(true);
+    expect(gamepadControlJustPressed(current, previous, "start")).toBe(false);
+    expect(gamepadControlJustPressed(current, previous, "pause")).toBe(false);
+    expect(gamepadControlJustPressed(current, current, "confirm")).toBe(false);
+  });
+
   it("maps start, pause, and reset shell controls with just-pressed edges", () => {
     const previous = gamepadInputFromGamepads([gamepad()]);
     const current = gamepadInputFromGamepads([
@@ -66,6 +86,7 @@ describe("gamepad input", () => {
       }),
     ]);
 
+    expect(gamepadControlJustPressed(current, previous, "confirm")).toBe(true);
     expect(gamepadControlJustPressed(current, previous, "start")).toBe(true);
     expect(gamepadControlJustPressed(current, previous, "pause")).toBe(true);
     expect(gamepadControlJustPressed(current, previous, "reset")).toBe(true);

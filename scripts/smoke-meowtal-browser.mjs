@@ -8,6 +8,7 @@ const PAUSE_PANEL = { x: 326, y: 132, width: 372, height: 314 };
 const GAMEPAD_BUTTON = {
   Back: 8,
   North: 3,
+  South: 0,
   Start: 9,
 };
 const TITLE_UI_SLOTS = ["title-logo"];
@@ -397,16 +398,27 @@ async function runGamepad(browser, url, outDir) {
   checkRuntimeUiLoaded(state, "gamepad ready", failures);
   checkOnlyRuntimeUiSlots(state, "gamepad ready", TITLE_UI_SLOTS, failures);
 
-  await pressGamepadButton(page, GAMEPAD_BUTTON.Start);
+  await pressGamepadButton(page, GAMEPAD_BUTTON.South);
   state = await readState(page);
   screenshots.push(await screenshot(page, outDir, "gamepad-select"));
-  assert(state.shellPhase === "select", failures, `gamepad start expected select phase, got ${state.shellPhase}`);
+  assert(state.shellPhase === "select", failures, `gamepad south confirm expected select phase, got ${state.shellPhase}`);
   checkRuntimeUiLoaded(state, "gamepad select", failures);
   checkOnlyRuntimeUiSlots(state, "gamepad select", TITLE_UI_SLOTS, failures);
 
-  await pressGamepadButton(page, GAMEPAD_BUTTON.Start);
   await pressKey(page, "KeyC");
-  await waitFrames(page, 52);
+  state = await holdGamepadInput(page, { buttons: { [GAMEPAD_BUTTON.South]: true } }, 10);
+  screenshots.push(await screenshot(page, outDir, "gamepad-confirm-held"));
+  assert(state.shellPhase === "fighting", failures, `gamepad held south confirm expected fighting phase, got ${state.shellPhase}`);
+  assert(state.fighters?.p1?.state === "idle", failures, `gamepad held south confirm should not buffer lightAttack, got ${state.fighters?.p1?.state}`);
+  assert(state.p2Mode === "manual", failures, `gamepad expected P2 manual after CPU toggle, got ${state.p2Mode}`);
+  await waitFrames(page, 8);
+
+  state = await holdGamepadInput(page, { buttons: { [GAMEPAD_BUTTON.South]: true } }, 10);
+  screenshots.push(await screenshot(page, outDir, "gamepad-light"));
+  assert(state.shellPhase === "fighting", failures, `gamepad south light should stay fighting, got ${state.shellPhase}`);
+  assert(state.fighters?.p1?.state === "lightAttack", failures, `gamepad south expected lightAttack, got ${state.fighters?.p1?.state}`);
+  await waitFrames(page, 24);
+
   state = await holdGamepadInput(page, { axes: [1, 0] }, 10);
   screenshots.push(await screenshot(page, outDir, "gamepad-move-right"));
   assert(state.shellPhase === "fighting", failures, `gamepad expected fighting phase, got ${state.shellPhase}`);
@@ -417,7 +429,6 @@ async function runGamepad(browser, url, outDir) {
   screenshots.push(await screenshot(page, outDir, "gamepad-special"));
   assert(state.shellPhase === "fighting", failures, `gamepad expected fighting phase, got ${state.shellPhase}`);
   assert(state.fighters?.p1?.state === "specialAttack", failures, `gamepad special expected specialAttack, got ${state.fighters?.p1?.state}`);
-  assert(state.p2Mode === "manual", failures, `gamepad expected P2 manual after CPU toggle, got ${state.p2Mode}`);
   assert(state.controls?.connectedGamepads === 1, failures, "gamepad should remain connected during fight");
   checkRuntimeUiLoaded(state, "gamepad fight", failures);
   checkVisibleRuntimeUiSlots(state, "gamepad fight", FIGHT_UI_SLOTS, failures);

@@ -86,7 +86,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T143
+active_task: T145
 
 tasks:
   - id: T000
@@ -7650,7 +7650,7 @@ tasks:
   - id: T143
     type: worker
     assignee: Worker
-    status: active
+    status: blocked
     reasoning_hint: medium
     objective: "Resume credential-backed regeneration of all Meowtal UI elements after OPENAI_API_KEY is set locally, then approve/promote only candidates that pass visual QA and runtime verification."
     inputs:
@@ -7682,22 +7682,110 @@ tasks:
       - "Promoted runtime assets only when all QA gates pass."
       - "Browser smoke proof of regenerated UI."
       - "Task receipt and small coherent commit."
+    receipt:
+      result: blocked
+      summary: "A fresh preflight still reports OPENAI_API_KEY=missing, so live UI regeneration remains unavailable. The next local production slice will separate gamepad shell confirm from combat light attack to avoid accidental UI-confirm behavior during fights."
+      commands:
+        - cmd: "npm run imagegen:preflight"
+          status: blocked
+          notes: "OPENAI_API_KEY=missing"
+      blocker: "Set OPENAI_API_KEY locally to run live OpenAI Image API UI regeneration. Do not paste the key in chat."
+      next_task: T144
+  - id: T144
+    type: worker
+    assignee: Worker
+    status: done
+    reasoning_hint: medium
+    objective: "Separate gamepad shell confirm from combat attack input so the south face button can confirm shell screens but does not behave like Start/Pause during active fights."
+    inputs:
+      - "T142 maps gamepad south to light attack and also to start/confirm."
+      - "During active fighting, a light attack should not also count as shell start/pause/confirm."
+      - "Keep the existing Gamepad API mapper and browser smoke structure."
+    allowed_files:
+      - "src/game/gamepadInput.ts"
+      - "src/game/MeowtalArenaScene.ts"
+      - "scripts/smoke-meowtal-browser.mjs"
+      - "test/gamepad-input.test.ts"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+      - "progress.md"
+    verify:
+      - "npm test -- --run test/gamepad-input.test.ts test/control-fallback.test.ts test/shell-flow.test.ts"
+      - "npm run verify"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-gamepad-confirm"
+      - "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+    stop_if:
+      - "The fix requires broad shell-flow or combat-engine rewrites."
+      - "Browser smoke cannot distinguish gamepad light attack from shell pause/reset behavior."
+    expected_output:
+      - "Gamepad confirm/start semantics separated in tests and scene input."
+      - "Browser smoke proves gamepad south starts from shell, attacks during fighting, and Start/Back still pause/reset."
+      - "Task receipt and small coherent commit."
+    receipt:
+      result: done
+      summary: "Separated gamepad South confirm from Start/Pause, limited South-confirm consumption to shell phases, and suppressed held South after shell-to-fight transitions until release so confirm cannot buffer an immediate light attack. Browser smoke now proves South confirms ready/select, held South entering fight leaves P1 idle, a fresh South press triggers lightAttack, and Start/Back still pause/reset."
+      changed_files:
+        - "src/game/gamepadInput.ts"
+        - "src/game/MeowtalArenaScene.ts"
+        - "test/gamepad-input.test.ts"
+        - "scripts/smoke-meowtal-browser.mjs"
+      commands:
+        - cmd: "npm test -- --run test/gamepad-input.test.ts test/control-fallback.test.ts test/shell-flow.test.ts"
+          status: pass
+        - cmd: "node --check scripts/smoke-meowtal-browser.mjs"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-gamepad-confirm"
+          status: pass
+      proof:
+        - "output/web-game/postfinal-gamepad-confirm/gamepad-confirm-held.png"
+        - "output/web-game/postfinal-gamepad-confirm/gamepad-light.png"
+        - "output/web-game/postfinal-gamepad-confirm/gamepad-pause.png"
+        - "output/web-game/postfinal-gamepad-confirm/gamepad-reset.png"
+      next_task: T145
+  - id: T145
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: medium
+    objective: "Separate keyboard Space shell confirm from combat light input so Space confirms shell screens but does not behave like shell start or play UI-confirm feedback during active fights."
+    inputs:
+      - "The keyboard map currently uses SPACE for p1LightAlt and startAlt."
+      - "Fighting-phase Space should remain a light attack input."
+      - "Shell phases should still accept Space/Enter to advance ready, select, round-over, and match-over."
+      - "This should mirror the T144 confirm-vs-combat separation without changing visual assets."
+    allowed_files:
+      - "src/game/MeowtalArenaScene.ts"
+      - "scripts/smoke-meowtal-browser.mjs"
+      - "test/shell-flow.test.ts"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+      - "progress.md"
+    verify:
+      - "npm test -- --run test/shell-flow.test.ts test/gamepad-input.test.ts test/control-fallback.test.ts"
+      - "npm run verify"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-keyboard-confirm"
+      - "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+    stop_if:
+      - "The fix requires broad key remapping or player-facing control changes."
+      - "Keyboard smoke cannot prove Space remains a light attack during fighting."
+    expected_output:
+      - "Space/Enter shell confirm is phase-gated consistently with gamepad confirm."
+      - "Space remains a fighting light input without shell confirm feedback."
+      - "Task receipt and small coherent commit."
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T142
+    task: T144
     commands:
       - cmd: "npm test -- --run test/gamepad-input.test.ts test/control-fallback.test.ts test/shell-flow.test.ts"
         status: pass
       - cmd: "node --check scripts/smoke-meowtal-browser.mjs"
         status: pass
-      - cmd: "npm run typecheck"
-        status: pass
       - cmd: "npm run verify"
         status: pass
-      - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-gamepad"
+      - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-gamepad-confirm"
         status: pass
       - cmd: "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
         status: pass
