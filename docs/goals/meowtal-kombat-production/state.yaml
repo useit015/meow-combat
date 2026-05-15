@@ -86,7 +86,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T154
+active_task: T155
 
 tasks:
   - id: T000
@@ -8161,7 +8161,7 @@ tasks:
   - id: T154
     type: worker
     assignee: Worker
-    status: active
+    status: blocked
     reasoning_hint: medium
     objective: "Run the credential-backed Meowtal UI regeneration pass once OPENAI_API_KEY is set locally, then approve/promote only candidates that preserve original-view consistency, crop-compatible layout, 1024x576 contracts, production build, and browser smoke."
     inputs:
@@ -8193,6 +8193,47 @@ tasks:
       - "Fresh regenerated UI source/runtime candidates or a blocked receipt if credentials remain unavailable."
       - "Approved UI manifest/config/test updates only for candidates that preserve original visual identity and pass verification."
       - "Production-preview browser proof for the promoted UI surfaces."
+    receipt:
+      result: blocked
+      summary: "Shell preflight still reports OPENAI_API_KEY=missing, so the CLI credential-backed UI regeneration task remains blocked. The owner explicitly redirected to the Codex built-in imagegen skill, which does not require OPENAI_API_KEY, so the next task switches to a built-in imagegen candidate batch for presentation UI surfaces."
+      commands:
+        - cmd: "npm run imagegen:preflight"
+          status: pass
+          notes: "OPENAI_API_KEY=missing; built-in Codex imagegen path requested by owner"
+      blocker: "Credential-backed CLI imagegen remains blocked until OPENAI_API_KEY is set locally."
+      next_task: T155
+  - id: T155
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: medium
+    objective: "Use the Codex built-in imagegen skill to regenerate a first coherent Meowtal presentation UI candidate batch for logo/title mark and FIGHT/K.O./victory overlays, preserving original-view crop compatibility before any runtime promotion."
+    inputs:
+      - "Owner requested Codex built-in imagegen skill path."
+      - "T152/T153 hardened the UI generation prompt and handoff constraints."
+      - "Current runtime UI source sheets are 1024x576 and crop-routed through src/game/gameConfig.ts."
+    allowed_files:
+      - "output/imagegen/**"
+      - "assets/source/imagegen/ui/meowtal/**"
+      - "public/assets/generated/ui/meowtal/**"
+      - "src/assets/meowtalProductionManifest.ts"
+      - "src/game/gameConfig.ts"
+      - "test/asset-runtime.test.ts"
+      - "test/meowtal-production-manifest.test.ts"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+      - "progress.md"
+    verify:
+      - "sips -g pixelWidth -g pixelHeight output/imagegen/meowtal-ui-logo-title-mark-codex-*.png output/imagegen/meowtal-ui-fight-ko-victory-overlays-codex-*.png"
+      - "npm test -- --run test/asset-runtime.test.ts test/meowtal-production-manifest.test.ts"
+      - "npm run verify"
+      - "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+    stop_if:
+      - "Built-in imagegen output cannot be located or copied into the workspace."
+      - "Generated candidates visibly fail original-view/crop compatibility or require runtime promotion before QA."
+    expected_output:
+      - "Workspace-saved Codex built-in imagegen candidates for the first presentation UI batch."
+      - "No runtime promotion unless visual QA and contract checks pass."
+      - "Task receipt and small coherent commit."
 
 checks:
   dirty_fingerprint: unknown
