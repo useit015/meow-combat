@@ -775,16 +775,26 @@ export class MeowtalArenaScene extends Phaser.Scene {
       const active = this.activeTouchControls.has(zone.id);
       const fill = zone.group === "movement" ? 0x123b36 : zone.group === "action" ? 0x14263a : 0x342814;
       const stroke = active ? 0xfff1a8 : zone.group === "action" ? 0x8bd9ff : 0xf2cf7d;
-      const alpha = active ? 0.66 : zone.group === "system" ? 0.34 : 0.28;
+      const alpha = active ? 0.72 : zone.group === "system" ? 0.42 : 0.38;
       const radius = zone.group === "system" ? 7 : 8;
+      const inset = zone.group === "system" ? 5 : 6;
+      const shineHeight = Math.max(7, Math.round(zone.height * 0.2));
 
       g.fillStyle(fill, alpha).fillRoundedRect(zone.x, zone.y, zone.width, zone.height, radius);
+      g.fillStyle(0xfff7df, active ? 0.18 : 0.09).fillRoundedRect(
+        zone.x + inset,
+        zone.y + inset,
+        zone.width - inset * 2,
+        shineHeight,
+        Math.max(3, radius - 3),
+      );
       g.lineStyle(active ? 3 : 2, stroke, active ? 0.92 : 0.46).strokeRoundedRect(zone.x, zone.y, zone.width, zone.height, radius);
 
       this.touchControlLabels[zone.id]
         .setText(zone.label)
+        .setFontSize(zone.id === "start" ? 19 : Math.min(zone.width, zone.height) >= 70 ? 14 : 12)
         .setPosition(zone.x + zone.width / 2, zone.y + zone.height / 2)
-        .setAlpha(active ? 1 : 0.64)
+        .setAlpha(active ? 1 : 0.78)
         .setVisible(true);
     }
   }

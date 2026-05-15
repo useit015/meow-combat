@@ -68,7 +68,7 @@ const FIGHT_ZONES: readonly TouchControlZone[] = [
   { id: "left", label: "L", x: 44, y: 438, width: 74, height: 74, group: "movement" },
   { id: "right", label: "R", x: 148, y: 438, width: 74, height: 74, group: "movement" },
   { id: "up", label: "UP", x: 96, y: 356, width: 74, height: 66, group: "movement" },
-  { id: "down", label: "DN", x: 96, y: 520, width: 74, height: 46, group: "movement" },
+  { id: "down", label: "DN", x: 96, y: 514, width: 74, height: 52, group: "movement" },
   { id: "guard", label: "G", x: 766, y: 460, width: 66, height: 66, group: "action" },
   { id: "light", label: "LP", x: 844, y: 396, width: 66, height: 66, group: "action" },
   { id: "kick", label: "K", x: 922, y: 354, width: 66, height: 66, group: "action" },
@@ -79,9 +79,9 @@ const FIGHT_ZONES: readonly TouchControlZone[] = [
 ];
 
 const PORTRAIT_FIGHT_ZONES: readonly TouchControlZone[] = [
-  { id: "left", label: "L", x: 36, y: 414, width: 112, height: 84, group: "movement" },
-  { id: "right", label: "R", x: 174, y: 414, width: 112, height: 84, group: "movement" },
-  { id: "up", label: "UP", x: 105, y: 324, width: 112, height: 80, group: "movement" },
+  { id: "left", label: "L", x: 36, y: 386, width: 112, height: 80, group: "movement" },
+  { id: "right", label: "R", x: 174, y: 386, width: 112, height: 80, group: "movement" },
+  { id: "up", label: "UP", x: 105, y: 296, width: 112, height: 80, group: "movement" },
   { id: "down", label: "DN", x: 105, y: 474, width: 112, height: 80, group: "movement" },
   { id: "guard", label: "G", x: 706, y: 420, width: 98, height: 84, group: "action" },
   { id: "light", label: "LP", x: 812, y: 342, width: 98, height: 84, group: "action" },
@@ -93,9 +93,9 @@ const PORTRAIT_FIGHT_ZONES: readonly TouchControlZone[] = [
 ];
 
 const LANDSCAPE_FIGHT_ZONES: readonly TouchControlZone[] = [
-  { id: "left", label: "L", x: 38, y: 424, width: 82, height: 78, group: "movement" },
-  { id: "right", label: "R", x: 150, y: 424, width: 82, height: 78, group: "movement" },
-  { id: "up", label: "UP", x: 94, y: 338, width: 82, height: 72, group: "movement" },
+  { id: "left", label: "L", x: 38, y: 414, width: 82, height: 66, group: "movement" },
+  { id: "right", label: "R", x: 150, y: 414, width: 82, height: 66, group: "movement" },
+  { id: "up", label: "UP", x: 94, y: 334, width: 82, height: 72, group: "movement" },
   { id: "down", label: "DN", x: 94, y: 488, width: 82, height: 64, group: "movement" },
   { id: "guard", label: "G", x: 746, y: 430, width: 72, height: 72, group: "action" },
   { id: "light", label: "LP", x: 832, y: 362, width: 72, height: 72, group: "action" },

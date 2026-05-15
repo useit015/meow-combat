@@ -86,7 +86,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T129
+active_task: T130
 
 tasks:
   - id: T000
@@ -7003,7 +7003,7 @@ tasks:
   - id: T129
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: medium
     objective: "Polish the procedural touch-control UI so mobile controls look consistent, stay within playable bounds, and expose the same guard/attack/mobility affordances cleanly across portrait and landscape."
     inputs:
@@ -7027,6 +7027,50 @@ tasks:
       - "Touch-control layout bounds covered by tests"
       - "Guard/attack/mobility controls remain accessible without overlap"
       - "Mobile smoke screenshots show consistent portrait and landscape controls"
+      - "Task receipt and small coherent commit"
+    receipt:
+      result: done
+      summary: "Polished the procedural touch-control UI without generated assets. Added layout tests that keep all fight controls inside the 1024x576 game canvas, enforce minimum combat target sizes, and prevent same-group overlaps. Re-spaced portrait and landscape D-pads so down/left/right/up no longer overlap, enlarged scaled mobile targets enough to satisfy browser smoke, and strengthened button surface/active styling for readability."
+      changed_files:
+        - "src/game/touchControls.ts"
+        - "src/game/MeowtalArenaScene.ts"
+        - "test/touch-controls.test.ts"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+        - "progress.md"
+      commands:
+        - cmd: "npm test -- --run test/touch-controls.test.ts"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-touch-ui"
+          status: pass
+      next_task: T130
+  - id: T130
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: medium
+    objective: "Smooth CPU sparring behavior so the opponent does not accidentally oscillate between run/backdash/guard movement while reacting to close-range pressure."
+    inputs:
+      - "T128 fixed stale double-tap mobility for player inputs."
+      - "T129 browser smoke still shows CPU state traces toggling between runForward/backdash while reacting to pressure."
+      - "Owner wants gameplay to feel less glitchy and more like a production-ready KOF-style fighter."
+    allowed_files:
+      - "src/core/cpu.ts"
+      - "test/cpu-controller.test.ts"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+      - "progress.md"
+    verify:
+      - "npm test -- --run test/cpu-controller.test.ts"
+      - "npm run verify"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-cpu-sparring"
+    stop_if:
+      - "Requires replacing the CPU architecture or adding nondeterministic behavior."
+      - "Requires gameplay asset changes, generated UI art, or broad scene changes."
+    expected_output:
+      - "Deterministic CPU reaction tests cover pressure movement without accidental dash oscillation"
+      - "CPU keeps guarding/spacing readable under attack pressure"
+      - "Browser smoke remains clean"
       - "Task receipt and small coherent commit"
 
 checks:

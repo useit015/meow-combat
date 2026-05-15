@@ -85,6 +85,31 @@ describe("touch controls", () => {
     );
   });
 
+  it("keeps fighting touch controls inside the game canvas without same-group overlap", () => {
+    for (const layout of ["standard", "phone-portrait", "phone-landscape"] as const) {
+      const zones = touchControlZonesForPhase("fighting", layout);
+
+      for (const zone of zones) {
+        expect(zone.x).toBeGreaterThanOrEqual(0);
+        expect(zone.y).toBeGreaterThanOrEqual(0);
+        expect(zone.x + zone.width).toBeLessThanOrEqual(1024);
+        expect(zone.y + zone.height).toBeLessThanOrEqual(576);
+        if (zone.group !== "system") {
+          expect(Math.min(zone.width, zone.height), `${layout} ${zone.id} target size`).toBeGreaterThanOrEqual(52);
+        }
+      }
+
+      for (let a = 0; a < zones.length; a += 1) {
+        for (let b = a + 1; b < zones.length; b += 1) {
+          const first = zones[a];
+          const second = zones[b];
+          if (first.group === "system" || first.group !== second.group) continue;
+          expect(zonesOverlap(first, second), `${layout} ${first.id} overlaps ${second.id}`).toBe(false);
+        }
+      }
+    }
+  });
+
   it("keeps paused controls out of the pause menu panel", () => {
     const pausePanel = { x: 326, y: 132, width: 372, height: 314 };
     for (const layout of ["standard", "phone-portrait", "phone-landscape"] as const) {
