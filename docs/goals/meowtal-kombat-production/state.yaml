@@ -86,7 +86,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T146
+active_task: T147
 
 tasks:
   - id: T000
@@ -7795,7 +7795,7 @@ tasks:
   - id: T146
     type: pm
     assignee: PM
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Re-run the post-input production readiness audit and identify whether any local gameplay, animation, UI, or verification blocker remains besides credential-backed UI regeneration."
     inputs:
@@ -7815,22 +7815,71 @@ tasks:
     expected_output:
       - "Fresh readiness receipt listing remaining blockers and next executable task."
       - "No completion unless the UI regeneration blocker is genuinely resolved."
+    receipt:
+      result: done
+      summary: "Fresh readiness audit found no new local gameplay, animation, UI-function, build, or browser-smoke blocker after the gamepad and keyboard confirm polish. Production code/tests/browser proof are green; completion remains blocked only because live UI regeneration still cannot run without OPENAI_API_KEY."
+      commands:
+        - cmd: "npm run imagegen:preflight"
+          status: blocked
+          notes: "OPENAI_API_KEY=missing"
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-readiness-audit"
+          status: pass
+      proof:
+        - "output/web-game/postfinal-readiness-audit/desktop-keyboard-fight.png"
+        - "output/web-game/postfinal-readiness-audit/gamepad-confirm-held.png"
+        - "output/web-game/postfinal-readiness-audit/gamepad-light.png"
+        - "output/web-game/postfinal-readiness-audit/portrait-hold-right-special.png"
+        - "output/web-game/postfinal-readiness-audit/ko-overlay.png"
+        - "output/web-game/postfinal-readiness-audit/match-victory-overlay.png"
+      remaining_blocker: "Set OPENAI_API_KEY locally so the queued credential-backed UI regeneration task can run. Do not paste the key in chat."
+      next_task: T147
+  - id: T147
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: medium
+    objective: "Run credential-backed regeneration of all Meowtal UI elements, then approve/promote only candidates that pass visual QA, crop contracts, production build, and browser smoke."
+    inputs:
+      - "T146 audit found code, gameplay, animation, and browser verification green after input polish."
+      - "The only remaining completion blocker is live UI regeneration requested by the owner."
+      - "npm run imagegen:preflight currently reports OPENAI_API_KEY=missing."
+    allowed_files:
+      - "assets/source/imagegen/ui/meowtal/**"
+      - "public/assets/generated/ui/meowtal/**"
+      - "output/imagegen/**"
+      - "src/assets/productionManifest.ts"
+      - "src/game/gameConfig.ts"
+      - "test/asset-runtime.test.ts"
+      - "test/meowtal-production-manifest.test.ts"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+      - "progress.md"
+    verify:
+      - "npm run imagegen:preflight"
+      - "npm test -- --run test/asset-runtime.test.ts test/meowtal-production-manifest.test.ts"
+      - "npm run verify"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-ui-regen"
+      - "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+    stop_if:
+      - "OPENAI_API_KEY is still missing."
+      - "Generated UI candidates fail visual QA, 1024x576 contract, or crop-bound tests after one targeted retry."
+    expected_output:
+      - "Fresh regenerated UI assets or a blocked receipt if credentials remain unavailable."
+      - "Task receipt and small coherent commit."
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
-    result: pass
-    task: T145
+    result: blocked
+    task: T146
     commands:
-      - cmd: "npm test -- --run test/shell-flow.test.ts test/gamepad-input.test.ts test/control-fallback.test.ts"
-        status: pass
-      - cmd: "node --check scripts/smoke-meowtal-browser.mjs"
-        status: pass
-      - cmd: "npm run typecheck"
-        status: pass
+      - cmd: "npm run imagegen:preflight"
+        status: blocked
+        notes: "OPENAI_API_KEY=missing"
       - cmd: "npm run verify"
         status: pass
-      - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-keyboard-confirm"
+      - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-readiness-audit"
         status: pass
       - cmd: "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
         status: pass
