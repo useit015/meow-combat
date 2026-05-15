@@ -86,7 +86,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T136
+active_task: T137
 
 tasks:
   - id: T000
@@ -7328,7 +7328,7 @@ tasks:
   - id: T136
     type: pm
     assignee: PM
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Run a post-roll/endgame production-readiness audit and decide whether any remaining owner blocker is executable without live imagegen credentials, especially the requested UI regeneration pass."
     inputs:
@@ -7348,16 +7348,64 @@ tasks:
       - "Clear readiness verdict after roll/endgame proof"
       - "Next executable task if one exists"
       - "No completion claim unless every owner objective is proven or explicitly blocked"
+    receipt:
+      result: done
+      summary: "Post-roll/endgame audit found no additional local gameplay, animation, mobile, or arcade-flow blocker after T134 and T135. The remaining owner objective that is not fully satisfied is the explicit credential-backed UI regeneration pass. The imagegen skill and repo preflight both require OPENAI_API_KEY; current preflight still reports it missing, so live UI regeneration is not executable in this environment without the owner setting the key locally."
+      commands:
+        - cmd: "npm run imagegen:preflight"
+          status: pass
+        - cmd: "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+          status: pass
+      evidence:
+        - "T134 roll-feel tests and smoke passed."
+        - "T135 K.O./victory/rematch smoke passed."
+        - "imagegen skill requires OPENAI_API_KEY for live OpenAI Image API calls."
+        - "npm run imagegen:preflight reported OPENAI_API_KEY=missing."
+      next_task: T137
+  - id: T137
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: medium
+    objective: "Run the credential-backed UI regeneration pass for all Meowtal UI elements once OPENAI_API_KEY is set locally, then approve/promote the regenerated 1024x576 sheets or reject them with visual QA notes."
+    inputs:
+      - "Owner explicitly requested regenerating all UI elements."
+      - "T136 found this is the only remaining unsatisfied owner blocker after local gameplay, animation, mobile, and arcade-flow proof."
+      - "Imagegen skill requires OPENAI_API_KEY for live generation; the key must be set locally, not pasted in chat."
+    allowed_files:
+      - "assets/source/imagegen/ui/meowtal/*"
+      - "public/assets/generated/ui/meowtal/*"
+      - "src/assets/meowtalProductionManifest.ts"
+      - "src/game/gameConfig.ts"
+      - "test/asset-runtime.test.ts"
+      - "test/meowtal-production-manifest.test.ts"
+      - "docs/assets/meowtal-kombat-provenance.md"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+      - "progress.md"
+      - "output/imagegen/**"
+      - "tmp/imagegen/**"
+    verify:
+      - "npm run imagegen:preflight"
+      - "npm test -- --run test/asset-runtime.test.ts test/meowtal-production-manifest.test.ts"
+      - "npm run verify"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-ui-regen"
+    stop_if:
+      - "OPENAI_API_KEY is still missing."
+      - "Generated UI candidates fail 1024x576 contract, crop-bound tests, or visual consistency review after one targeted retry."
+      - "The pass would require gameplay changes or fighter/stage asset regeneration."
+    expected_output:
+      - "Regenerated UI source sheets or clear credential-blocked receipt"
+      - "Approved/promoted runtime UI assets only if visual QA passes"
+      - "Browser smoke proof of regenerated UI"
+      - "Task receipt and small coherent commit"
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T135
+    task: T136
     commands:
-      - cmd: "npm test -- --run test/shell-flow.test.ts test/match-flow.test.ts"
+      - cmd: "npm run imagegen:preflight"
         status: pass
-      - cmd: "npm run verify"
-        status: pass
-      - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-ko-rematch"
+      - cmd: "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
         status: pass

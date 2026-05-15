@@ -140,6 +140,7 @@ Original prompt: create a KOF-style Moroccan-themed production-ready game, first
 - Production-readiness audit pass: rejected completion because live UI regeneration is still blocked by missing `OPENAI_API_KEY` and roll behavior is the highest-risk unproven KOF-style movement/readability gap. Next executable slice is roll-feel verification and polish without new binary art.
 - Roll-feel pass: made light+kick roll take priority over kick attacks, kept active rolls from being interrupted by buffered attack inputs, preserved roll facing through pass-through side switches, and added existing-art motion cues plus browser roll-forward/roll-back proof. Verification passed: focused roll/presentation/animation tests, `npm run verify`, and production-preview smoke at `output/web-game/postfinal-roll-feel`.
 - Endgame UI smoke pass: added production-preview coverage for K.O., delayed round victory, rabbit/cat match victory, win/lose runtime rows, Enter rematch reset, and R reset-to-ready. Verification passed: focused shell/match-flow tests, `npm run verify`, and production-preview smoke at `output/web-game/postfinal-ko-rematch`.
+- Post-roll/endgame readiness audit: no further local gameplay, animation, mobile, or arcade-flow blocker was found after the roll and endgame smoke passes. The remaining unsatisfied owner blocker is credential-backed regeneration of all UI elements; `npm run imagegen:preflight` still reports `OPENAI_API_KEY=missing`, so the next task is ready once the key is set locally.
 
 ## Next Suggestions
 
