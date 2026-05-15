@@ -64,8 +64,8 @@ const SHELL_ZONES: readonly TouchControlZone[] = [
 ];
 
 const MODE_SELECT_ZONES: readonly TouchControlZone[] = [
-  { id: "left", label: "<", x: 300, y: 404, width: 74, height: 72, group: "system" },
-  { id: "right", label: ">", x: 650, y: 404, width: 74, height: 72, group: "system" },
+  { id: "left", label: "<", x: 304, y: 286, width: 86, height: 72, group: "system" },
+  { id: "right", label: ">", x: 634, y: 286, width: 86, height: 72, group: "system" },
   { id: "start", label: "GO", x: 402, y: 416, width: 220, height: 72, group: "system" },
   { id: "reset", label: "RST", x: 42, y: 88, width: 86, height: 46, group: "system" },
 ];
@@ -76,8 +76,8 @@ const PORTRAIT_SHELL_ZONES: readonly TouchControlZone[] = [
 ];
 
 const PORTRAIT_MODE_SELECT_ZONES: readonly TouchControlZone[] = [
-  { id: "left", label: "<", x: 220, y: 396, width: 104, height: 88, group: "system" },
-  { id: "right", label: ">", x: 700, y: 396, width: 104, height: 88, group: "system" },
+  { id: "left", label: "<", x: 296, y: 278, width: 104, height: 88, group: "system" },
+  { id: "right", label: ">", x: 624, y: 278, width: 104, height: 88, group: "system" },
   { id: "start", label: "GO", x: 350, y: 386, width: 324, height: 104, group: "system" },
   { id: "reset", label: "RST", x: 34, y: 82, width: 112, height: 52, group: "system" },
 ];

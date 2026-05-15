@@ -73,6 +73,7 @@ import {
   type TouchControlLayout,
   type TouchControlId,
 } from "./touchControls";
+import { meterFillPlan, touchControlChrome, type TouchControlChrome } from "./uiChrome";
 
 type KeyMap = Record<string, Phaser.Input.Keyboard.Key>;
 type ImpactFlash = { color: number; alpha: number; remainingFrames: number; totalFrames: number };
@@ -726,16 +727,46 @@ export class MeowtalArenaScene extends Phaser.Scene {
     this.renderDamageNumbers(showFightLayer);
     this.statusText.setText(hudCenterLabel(this.snapshot, this.matchSet));
     this.roundText.setText(roundLabel(this.matchSet));
-    this.modeText.setText(
-      selectedPlayMode(this.shell) === "training"
-        ? "TRAINING MODE"
-        : this.p2CpuEnabled
-          ? `1 VS CPU ${this.cpuDifficulty.toUpperCase()}`
-          : "P2 MANUAL",
-    );
+    if (this.shell.phase === "mode-select") {
+      this.modeText
+        .setText(
+          selectedPlayMode(this.shell) === "training"
+            ? "TRAINING\nENDLESS SPARRING"
+            : `1 VS CPU\n${this.cpuDifficulty.toUpperCase()}`,
+        )
+        .setStyle({
+          align: "center",
+          color: "#f8f5e9",
+          fontFamily: "Inter, Arial, sans-serif",
+          fontSize: "20px",
+          fontStyle: "900",
+          lineSpacing: 6,
+        })
+        .setOrigin(0.5, 0.5)
+        .setPosition(512, 322)
+        .setVisible(true);
+    } else {
+      this.modeText
+        .setText(
+          selectedPlayMode(this.shell) === "training"
+            ? "TRAINING MODE"
+            : this.p2CpuEnabled
+              ? `1 VS CPU ${this.cpuDifficulty.toUpperCase()}`
+              : "P2 MANUAL",
+        )
+        .setStyle({
+          align: "left",
+          color: "#f8f5e9",
+          fontFamily: "Inter, Arial, sans-serif",
+          fontSize: "12px",
+          fontStyle: "700",
+        })
+        .setOrigin(0.5, 0)
+        .setPosition(882, 82)
+        .setVisible(showFightLayer);
+    }
     this.statusText.setVisible(showFightLayer);
     this.roundText.setVisible(showFightLayer);
-    this.modeText.setVisible(showFightLayer);
     this.p1NameText
       .setText(`${selectedFighter(this.selectedFighterIndex.p1).displayName.toUpperCase()}  POW ${powerStockLabel(this.snapshot.p1.meter)}`)
       .setVisible(showFightLayer);
@@ -873,28 +904,20 @@ export class MeowtalArenaScene extends Phaser.Scene {
 
     for (const zone of this.touchControlZones()) {
       const active = this.activeTouchControls.has(zone.id);
-      const fill = zone.group === "movement" ? 0x123b36 : zone.group === "action" ? 0x14263a : 0x342814;
-      const stroke = active ? 0xfff1a8 : zone.group === "action" ? 0x8bd9ff : 0xf2cf7d;
-      const alpha = active ? 0.72 : zone.group === "system" ? 0.42 : 0.38;
-      const radius = zone.group === "system" ? 7 : 8;
-      const inset = zone.group === "system" ? 5 : 6;
-      const shineHeight = Math.max(7, Math.round(zone.height * 0.2));
-
-      g.fillStyle(fill, alpha).fillRoundedRect(zone.x, zone.y, zone.width, zone.height, radius);
-      g.fillStyle(0xfff7df, active ? 0.18 : 0.09).fillRoundedRect(
-        zone.x + inset,
-        zone.y + inset,
-        zone.width - inset * 2,
-        shineHeight,
-        Math.max(3, radius - 3),
-      );
-      g.lineStyle(active ? 3 : 2, stroke, active ? 0.92 : 0.46).strokeRoundedRect(zone.x, zone.y, zone.width, zone.height, radius);
+      const chrome = touchControlChrome({
+        id: zone.id,
+        group: zone.group,
+        active,
+        width: zone.width,
+        height: zone.height,
+      });
+      drawTouchControlSurface(g, zone, chrome);
 
       this.touchControlLabels[zone.id]
-        .setText(zone.label)
-        .setFontSize(zone.id === "start" ? 19 : Math.min(zone.width, zone.height) >= 70 ? 14 : 12)
+        .setText(chrome.glyph)
+        .setFontSize(zone.id === "start" ? 20 : zone.group === "system" ? 13 : Math.min(zone.width, zone.height) >= 70 ? 12 : 10)
         .setPosition(zone.x + zone.width / 2, zone.y + zone.height / 2)
-        .setAlpha(active ? 1 : 0.78)
+        .setAlpha(active ? 1 : 0.84)
         .setVisible(true);
     }
   }
@@ -2065,7 +2088,7 @@ function shellHelp(shell: ShellState, selectionLabel: string, controlFallbackLin
     return `${GAME_SUBTITLE}\nPRESS ENTER\n${controlFallbackLine}`;
   }
   if (shell.phase === "mode-select") {
-    return `${shellModeLabel(shell)}\nA/D or arrows: mode  |  Enter: character select  |  R: reset\n${controlFallbackLine}`;
+    return `A/D or arrows: mode  |  Enter: character select  |  R: reset\n${controlFallbackLine}`;
   }
   if (shell.phase === "select") {
     return `${selectionLabel}\n${shellModeLabel(shell)}\nA/D or B: P1 fighter  |  Arrow keys: P2 fighter\nEnter: fight  |  R: reset`;
@@ -2189,6 +2212,115 @@ function frameVisualBoundsFromPixels(
   };
 }
 
+function drawNotchedPanel(
+  g: Phaser.GameObjects.Graphics,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  options: {
+    fill: number;
+    accent: number;
+    fillAlpha: number;
+    strokeAlpha: number;
+    strokeWidth?: number;
+    cut?: number;
+  },
+): void {
+  const cut = Math.min(options.cut ?? 12, width / 4, height / 3);
+  traceNotchedRect(g, x, y, width, height, cut);
+  g.fillStyle(options.fill, options.fillAlpha).fillPath();
+  traceNotchedRect(g, x, y, width, height, cut);
+  g.lineStyle(options.strokeWidth ?? 2, options.accent, options.strokeAlpha).strokePath();
+  if (width > 42 && height > 22) {
+    g.lineStyle(1, 0xf8f5e9, Math.min(0.26, options.strokeAlpha * 0.34));
+    traceNotchedRect(g, x + 7, y + 7, width - 14, height - 14, Math.max(3, cut - 7));
+    g.strokePath();
+  }
+}
+
+function traceNotchedRect(
+  g: Phaser.GameObjects.Graphics,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  cut: number,
+): void {
+  g.beginPath();
+  g.moveTo(x + cut, y);
+  g.lineTo(x + width - cut, y);
+  g.lineTo(x + width, y + cut);
+  g.lineTo(x + width, y + height - cut);
+  g.lineTo(x + width - cut, y + height);
+  g.lineTo(x + cut, y + height);
+  g.lineTo(x, y + height - cut);
+  g.lineTo(x, y + cut);
+  g.closePath();
+}
+
+function drawTouchControlSurface(
+  g: Phaser.GameObjects.Graphics,
+  zone: { id: TouchControlId; x: number; y: number; width: number; height: number },
+  chrome: TouchControlChrome,
+): void {
+  const centerX = zone.x + zone.width / 2;
+  const centerY = zone.y + zone.height / 2;
+  const pressedLift = chrome.strokeWidth > 2 ? 0 : 3;
+  g.fillStyle(0x071312, 0.28).fillEllipse(centerX, centerY + zone.height * 0.34, zone.width * 0.86, 12);
+
+  if (chrome.shape === "diamond") {
+    g.fillStyle(chrome.glow, chrome.fillAlpha * 0.18).fillCircle(centerX, centerY, Math.max(zone.width, zone.height) * 0.46);
+    g.fillStyle(chrome.fill, chrome.fillAlpha);
+    g.beginPath();
+    g.moveTo(centerX, zone.y + pressedLift);
+    g.lineTo(zone.x + zone.width, centerY);
+    g.lineTo(centerX, zone.y + zone.height - pressedLift);
+    g.lineTo(zone.x, centerY);
+    g.closePath();
+    g.fillPath();
+    g.lineStyle(chrome.strokeWidth, chrome.stroke, chrome.strokeAlpha);
+    g.strokePath();
+    drawTouchArrow(g, zone.id, centerX, centerY, Math.min(zone.width, zone.height) * 0.24, chrome.stroke);
+    return;
+  }
+
+  drawNotchedPanel(g, zone.x, zone.y + pressedLift, zone.width, zone.height - pressedLift, {
+    fill: chrome.fill,
+    accent: chrome.stroke,
+    fillAlpha: chrome.fillAlpha,
+    strokeAlpha: chrome.strokeAlpha,
+    strokeWidth: chrome.strokeWidth,
+    cut: chrome.shape === "octagon" ? Math.max(8, Math.round(Math.min(zone.width, zone.height) * 0.18)) : 8,
+  });
+  g.fillStyle(0xf8f5e9, chrome.strokeWidth > 2 ? 0.2 : 0.1).fillRect(
+    zone.x + 12,
+    zone.y + 8 + pressedLift,
+    Math.max(0, zone.width - 24),
+    3,
+  );
+}
+
+function drawTouchArrow(
+  g: Phaser.GameObjects.Graphics,
+  id: TouchControlId,
+  centerX: number,
+  centerY: number,
+  size: number,
+  color: number,
+): void {
+  g.fillStyle(color, 0.92);
+  if (id === "left") {
+    g.fillTriangle(centerX - size, centerY, centerX + size * 0.52, centerY - size, centerX + size * 0.52, centerY + size);
+  } else if (id === "right") {
+    g.fillTriangle(centerX + size, centerY, centerX - size * 0.52, centerY - size, centerX - size * 0.52, centerY + size);
+  } else if (id === "up") {
+    g.fillTriangle(centerX, centerY - size, centerX - size, centerY + size * 0.52, centerX + size, centerY + size * 0.52);
+  } else if (id === "down") {
+    g.fillTriangle(centerX, centerY + size, centerX - size, centerY - size * 0.52, centerX + size, centerY - size * 0.52);
+  }
+}
+
 function drawShellBackdrop(
   g: Phaser.GameObjects.Graphics,
   shell: ShellState,
@@ -2197,7 +2329,13 @@ function drawShellBackdrop(
 ): void {
   if (shell.phase === "fighting") {
     if (!runtimeUiVisible) {
-      g.fillStyle(0x0b1817, 0.52).fillRoundedRect(158, 512, 708, 36, 6);
+      drawNotchedPanel(g, 158, 512, 708, 36, {
+        fill: 0x0b1817,
+        accent: 0xf2cf7d,
+        fillAlpha: 0.62,
+        strokeAlpha: 0.5,
+        cut: 10,
+      });
     }
     return;
   }
@@ -2210,8 +2348,15 @@ function drawShellBackdrop(
     return;
   }
   if (shell.phase === "select") {
-    g.fillStyle(0x071312, 0.72).fillRoundedRect(70, 74, 884, 468, 6);
-    g.lineStyle(2, 0xf2cf7d, 0.9).strokeRoundedRect(70, 74, 884, 468, 6);
+    drawNotchedPanel(g, 70, 74, 884, 468, {
+      fill: 0x071312,
+      accent: 0xf2cf7d,
+      fillAlpha: 0.75,
+      strokeAlpha: 0.9,
+      cut: 20,
+    });
+    drawZelligeRail(g, 74, 0.64);
+    drawZelligeRail(g, 518, 0.54);
     drawSelectionCard(g, 166, 228, 298, 264, 0x2ec4b6, "left");
     drawSelectionCard(g, 560, 228, 298, 264, 0xff9f1c, "right");
     drawVsMedallion(g, 512, 360);
@@ -2220,12 +2365,22 @@ function drawShellBackdrop(
   if (shell.phase === "mode-select") {
     drawTitlePortraitFrame(g, 42, 120, 244, 410, 0x2ec4b6);
     drawTitlePortraitFrame(g, 738, 120, 244, 410, 0xff9f1c);
-    g.fillStyle(0x071312, 0.72).fillRoundedRect(300, 252, 424, 138, 8);
-    g.lineStyle(2, 0xf2cf7d, 0.9).strokeRoundedRect(300, 252, 424, 138, 8);
+    drawNotchedPanel(g, 300, 252, 424, 138, {
+      fill: 0x071312,
+      accent: 0xf2cf7d,
+      fillAlpha: 0.78,
+      strokeAlpha: 0.9,
+      cut: 18,
+    });
     g.fillStyle(0xf2cf7d, 0.9).fillTriangle(332, 322, 364, 296, 364, 348);
     g.fillStyle(0xf2cf7d, 0.9).fillTriangle(692, 322, 660, 296, 660, 348);
-    g.fillStyle(selectedPlayMode(shell) === "training" ? 0x2ec4b6 : 0xff9f1c, 0.22).fillRoundedRect(386, 278, 252, 86, 6);
-    g.lineStyle(2, selectedPlayMode(shell) === "training" ? 0x2ec4b6 : 0xff9f1c, 0.86).strokeRoundedRect(386, 278, 252, 86, 6);
+    drawNotchedPanel(g, 386, 278, 252, 86, {
+      fill: selectedPlayMode(shell) === "training" ? 0x0d2f2b : 0x2d1d0a,
+      accent: selectedPlayMode(shell) === "training" ? 0x2ec4b6 : 0xff9f1c,
+      fillAlpha: 0.76,
+      strokeAlpha: 0.86,
+      cut: 12,
+    });
     return;
   }
   if ((shell.phase === "round-over" || shell.phase === "match-over") && runtimeUiVisible) {
@@ -2234,8 +2389,13 @@ function drawShellBackdrop(
   }
   drawTitlePortraitFrame(g, 42, 120, 244, 410, 0x2ec4b6);
   drawTitlePortraitFrame(g, 738, 120, 244, 410, 0xff9f1c);
-  g.fillStyle(0x071312, 0.68).fillRoundedRect(262, 92, 500, 242, 8);
-  g.lineStyle(2, 0xf2cf7d, 0.9).strokeRoundedRect(262, 92, 500, 242, 8);
+  drawNotchedPanel(g, 262, 92, 500, 242, {
+    fill: 0x071312,
+    accent: 0xf2cf7d,
+    fillAlpha: 0.68,
+    strokeAlpha: 0.9,
+    cut: 22,
+  });
   g.fillStyle(0x2ec4b6, 0.86).fillRect(282, 106, 156, 4);
   g.fillStyle(0xff9f1c, 0.86).fillRect(586, 106, 156, 4);
   g.lineStyle(1, 0xf8f5e9, 0.2);
@@ -2253,9 +2413,20 @@ function drawZelligeRail(g: Phaser.GameObjects.Graphics, y: number, alpha: numbe
 
 function drawPauseOptionsPanel(g: Phaser.GameObjects.Graphics): void {
   g.fillStyle(0x071312, 0.66).fillRect(0, 0, 1024, 576);
-  g.fillStyle(0x0b1817, 0.98).fillRoundedRect(326, 132, 372, 314, 8);
-  g.lineStyle(2, 0xf2cf7d, 0.92).strokeRoundedRect(326, 132, 372, 314, 8);
-  g.lineStyle(1, 0xf8f5e9, 0.24).strokeRoundedRect(338, 144, 348, 290, 5);
+  drawNotchedPanel(g, 326, 132, 372, 314, {
+    fill: 0x0b1817,
+    accent: 0xf2cf7d,
+    fillAlpha: 0.98,
+    strokeAlpha: 0.92,
+    cut: 20,
+  });
+  drawNotchedPanel(g, 338, 144, 348, 290, {
+    fill: 0x071312,
+    accent: 0xf8f5e9,
+    fillAlpha: 0.12,
+    strokeAlpha: 0.24,
+    cut: 12,
+  });
   g.fillStyle(0xff3434, 0.9).fillRect(370, 160, 100, 4);
   g.fillStyle(0x338dff, 0.9).fillRect(554, 160, 100, 4);
   g.fillStyle(0xfff1a8, 0.95).fillTriangle(488, 184, 512, 154, 536, 184);
@@ -2267,9 +2438,13 @@ function drawPauseOptionsPanel(g: Phaser.GameObjects.Graphics): void {
   for (let index = 0; index < 4; index += 1) {
     const y = 234 + index * 28;
     const accent = index % 2 === 0 ? 0x2ec4b6 : 0xff9f1c;
-    g.fillStyle(0xf8f5e9, index === 0 ? 0.16 : 0.1).fillRoundedRect(rowX, y, 260, 27, 4);
-    g.fillStyle(accent, 0.95).fillRect(rowX, y, 5, 27);
-    g.lineStyle(1, 0xf2cf7d, index === 0 ? 0.56 : 0.28).strokeRoundedRect(rowX, y, 260, 27, 4);
+    drawNotchedPanel(g, rowX, y, 260, 27, {
+      fill: 0xf8f5e9,
+      accent,
+      fillAlpha: index === 0 ? 0.16 : 0.1,
+      strokeAlpha: index === 0 ? 0.64 : 0.36,
+      cut: 5,
+    });
   }
 }
 
@@ -2281,9 +2456,23 @@ function drawTitlePortraitFrame(
   height: number,
   accent: number,
 ): void {
-  g.fillStyle(0x071312, 0.5).fillRoundedRect(x, y, width, height, 5);
-  g.lineStyle(3, accent, 0.92).strokeRoundedRect(x, y, width, height, 5);
-  g.lineStyle(1, 0xf2cf7d, 0.68).strokeRoundedRect(x + 8, y + 8, width - 16, height - 16, 3);
+  drawNotchedPanel(g, x, y, width, height, {
+    fill: 0x071312,
+    accent,
+    fillAlpha: 0.52,
+    strokeAlpha: 0.92,
+    strokeWidth: 3,
+    cut: 18,
+  });
+  drawNotchedPanel(g, x + 10, y + 10, width - 20, height - 20, {
+    fill: 0x071312,
+    accent: 0xf2cf7d,
+    fillAlpha: 0.08,
+    strokeAlpha: 0.62,
+    cut: 10,
+  });
+  g.fillStyle(accent, 0.7).fillTriangle(x + 18, y + 20, x + 52, y + 20, x + 18, y + 54);
+  g.fillStyle(accent, 0.7).fillTriangle(x + width - 18, y + height - 20, x + width - 52, y + height - 20, x + width - 18, y + height - 54);
 }
 
 function drawSelectionCard(
@@ -2295,10 +2484,22 @@ function drawSelectionCard(
   accent: number,
   side: "left" | "right",
 ): void {
-  g.fillStyle(0x0b1817, 0.62).fillRoundedRect(x, y, width, height, 6);
-  g.fillStyle(0xf8f5e9, 0.06).fillRoundedRect(x + 10, y + 10, width - 20, height - 20, 4);
-  g.fillStyle(accent, 0.95).fillRect(side === "left" ? x : x + width - 7, y, 7, height);
-  g.lineStyle(1, 0xf2cf7d, 0.42).strokeRoundedRect(x, y, width, height, 6);
+  drawNotchedPanel(g, x, y, width, height, {
+    fill: 0x0b1817,
+    accent,
+    fillAlpha: 0.66,
+    strokeAlpha: 0.72,
+    cut: 14,
+  });
+  drawNotchedPanel(g, x + 12, y + 12, width - 24, height - 24, {
+    fill: 0xf8f5e9,
+    accent: 0xf2cf7d,
+    fillAlpha: 0.06,
+    strokeAlpha: 0.32,
+    cut: 8,
+  });
+  g.fillStyle(accent, 0.8).fillTriangle(side === "left" ? x + 18 : x + width - 18, y + 20, x + width / 2, y + 20, side === "left" ? x + 18 : x + width - 18, y + 54);
+  g.fillStyle(accent, 0.55).fillRect(x + 26, y + height - 20, width - 52, 3);
 }
 
 function drawVsMedallion(g: Phaser.GameObjects.Graphics, x: number, y: number): void {
@@ -2491,19 +2692,12 @@ function drawRuntimeHudMeters(g: Phaser.GameObjects.Graphics, snapshot: MatchSna
   const p1PowerRatio = Phaser.Math.Clamp(snapshot.p1.meter / POWER_METER_MAX, 0, 1);
   const p2PowerRatio = Phaser.Math.Clamp(snapshot.p2.meter / POWER_METER_MAX, 0, 1);
 
-  g.fillStyle(0x071312, 0.86).fillCircle(512, 56, 24);
-  g.fillStyle(0x31090b, 0.82).fillRoundedRect(112, 53, 326, 15, 2);
-  g.fillStyle(0xff3434, 0.98).fillRoundedRect(112, 53, 326 * p1Ratio, 15, 2);
-  g.fillStyle(0xfff1a8, 0.44).fillRect(116, 55, Math.max(0, 318 * p1Ratio), 3);
-
-  g.fillStyle(0x071a38, 0.82).fillRoundedRect(586, 53, 326, 15, 2);
-  g.fillStyle(0x338dff, 0.98).fillRoundedRect(912 - 326 * p2Ratio, 53, 326 * p2Ratio, 15, 2);
-  g.fillStyle(0xe2f1ff, 0.44).fillRect(908 - 318 * p2Ratio, 55, Math.max(0, 318 * p2Ratio), 3);
-
-  g.fillStyle(0x122617, 0.78).fillRoundedRect(250, 523, 224, 11, 2);
-  g.fillStyle(0xb7ff2d, 0.92).fillRoundedRect(250, 523, 224 * p1PowerRatio, 11, 2);
-  g.fillStyle(0x10243b, 0.78).fillRoundedRect(550, 523, 224, 11, 2);
-  g.fillStyle(0x4bdcff, 0.92).fillRoundedRect(774 - 224 * p2PowerRatio, 523, 224 * p2PowerRatio, 11, 2);
+  g.fillStyle(0x071312, 0.9).fillCircle(512, 56, 24);
+  g.lineStyle(2, 0xf2cf7d, 0.8).strokeCircle(512, 56, 24);
+  drawMeterBar(g, { x: 112, y: 52, width: 326, height: 17, ratio: p1Ratio, direction: 1 }, 0x31090b, 0xff3434, 0xfff1a8);
+  drawMeterBar(g, { x: 586, y: 52, width: 326, height: 17, ratio: p2Ratio, direction: -1 }, 0x071a38, 0x338dff, 0xe2f1ff);
+  drawMeterBar(g, { x: 250, y: 522, width: 224, height: 12, ratio: p1PowerRatio, direction: 1 }, 0x122617, 0xb7ff2d, 0xfff1a8);
+  drawMeterBar(g, { x: 550, y: 522, width: 224, height: 12, ratio: p2PowerRatio, direction: -1 }, 0x10243b, 0x4bdcff, 0xe2f1ff);
 
   drawPowerStocks(g, 274, 542, snapshot.p1.meter, 1);
   drawPowerStocks(g, 750, 542, snapshot.p2.meter, -1);
@@ -2516,22 +2710,45 @@ function drawHud(g: Phaser.GameObjects.Graphics, snapshot: MatchSnapshot, matchS
   const p2Ratio = snapshot.p2.health / 1000;
   const p1PowerRatio = snapshot.p1.meter / POWER_METER_MAX;
   const p2PowerRatio = snapshot.p2.meter / POWER_METER_MAX;
-  g.fillStyle(0x071312, 0.86).fillRoundedRect(56, 18, 912, 76, 6);
-  g.lineStyle(1, 0xf2cf7d, 0.48).strokeRoundedRect(56, 18, 912, 76, 6);
-  g.fillStyle(0x142522, 1).fillRoundedRect(100, 44, 338, 18, 2);
-  g.fillStyle(0x142522, 1).fillRoundedRect(586, 44, 338, 18, 2);
-  g.fillStyle(0xff3434, 1).fillRoundedRect(100, 44, 338 * p1Ratio, 18, 2);
-  g.fillStyle(0x338dff, 1).fillRoundedRect(924 - 338 * p2Ratio, 44, 338 * p2Ratio, 18, 2);
-  g.fillStyle(0x0b1817, 1).fillRoundedRect(100, 64, 338, 7, 1);
-  g.fillStyle(0x0b1817, 1).fillRoundedRect(586, 64, 338, 7, 1);
-  g.fillStyle(0xfff1a8, 1).fillRoundedRect(100, 64, 338 * p1PowerRatio, 7, 1);
-  g.fillStyle(0xfff1a8, 1).fillRoundedRect(924 - 338 * p2PowerRatio, 64, 338 * p2PowerRatio, 7, 1);
+  drawNotchedPanel(g, 56, 18, 912, 76, {
+    fill: 0x071312,
+    accent: 0xf2cf7d,
+    fillAlpha: 0.88,
+    strokeAlpha: 0.48,
+    cut: 10,
+  });
+  drawMeterBar(g, { x: 100, y: 44, width: 338, height: 18, ratio: p1Ratio, direction: 1 }, 0x142522, 0xff3434, 0xfff1a8);
+  drawMeterBar(g, { x: 586, y: 44, width: 338, height: 18, ratio: p2Ratio, direction: -1 }, 0x142522, 0x338dff, 0xe2f1ff);
+  drawMeterBar(g, { x: 100, y: 66, width: 338, height: 8, ratio: p1PowerRatio, direction: 1 }, 0x0b1817, 0xfff1a8, 0xf8f5e9);
+  drawMeterBar(g, { x: 586, y: 66, width: 338, height: 8, ratio: p2PowerRatio, direction: -1 }, 0x0b1817, 0xfff1a8, 0xf8f5e9);
   drawPowerStocks(g, 444, 67, snapshot.p1.meter, 1);
   drawPowerStocks(g, 580, 67, snapshot.p2.meter, -1);
   g.fillStyle(0xf2cf7d, 1).fillCircle(512, 54, 28);
   g.fillStyle(0x0b1817, 1).fillCircle(512, 54, 22);
   drawScorePips(g, 104, 74, matchSet.wins.p1, matchSet.targetWins, 0xff3434);
   drawScorePips(g, 902, 74, matchSet.wins.p2, matchSet.targetWins, 0x338dff, -1);
+}
+
+function drawMeterBar(
+  g: Phaser.GameObjects.Graphics,
+  input: { x: number; y: number; width: number; height: number; ratio: number; direction: 1 | -1 },
+  track: number,
+  fill: number,
+  shine: number,
+): void {
+  const plan = meterFillPlan(input);
+  g.fillStyle(0x071312, 0.54).fillRoundedRect(input.x - 2, input.y - 2, input.width + 4, input.height + 4, 3);
+  g.fillStyle(track, 0.88).fillRoundedRect(input.x, input.y, input.width, input.height, 2);
+  g.lineStyle(1, 0xf8f5e9, 0.18).strokeRoundedRect(input.x, input.y, input.width, input.height, 2);
+  if (plan.width > 0) {
+    g.fillStyle(fill, 0.98).fillRoundedRect(plan.x, plan.y, plan.width, plan.height, 2);
+    g.fillStyle(shine, 0.38).fillRect(plan.x + 4, plan.y + 2, Math.max(0, plan.width - 8), Math.max(2, Math.round(plan.height * 0.24)));
+  }
+  g.lineStyle(1, 0x071312, 0.32);
+  for (let tick = 1; tick < 4; tick += 1) {
+    const x = input.x + (input.width / 4) * tick;
+    g.lineBetween(x, input.y + 2, x - input.direction * 4, input.y + input.height - 2);
+  }
 }
 
 function drawPowerStocks(g: Phaser.GameObjects.Graphics, x: number, y: number, meter: number, direction: 1 | -1): void {
