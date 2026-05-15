@@ -146,6 +146,17 @@ describe("Meowtal production manifest", () => {
         expect(provenance?.approvalNotes).toContain("crop-compatible");
         expect(provenance?.approvalNotes).toContain(`assets/source/imagegen/ui/meowtal/candidates/${surfaceId}-codex-01.png`);
         expect(provenance?.approvalNotes).toContain("Approved by T155 visual QA, promoted by T156");
+      } else if (
+        surfaceId === "hud-frame" ||
+        surfaceId === "health-bar-rabbit" ||
+        surfaceId === "health-bar-cat" ||
+        surfaceId === "super-meter" ||
+        surfaceId === "timer-frame"
+      ) {
+        expect(provenance?.approvalNotes).toContain("Codex built-in imagegen regenerated");
+        expect(provenance?.approvalNotes).toContain("crop-compatible");
+        expect(provenance?.approvalNotes).toContain(`assets/source/imagegen/ui/meowtal/candidates/${surfaceId}-codex-01.png`);
+        expect(provenance?.approvalNotes).toContain("Approved by T157 visual QA, promoted by T158");
       } else {
         expect(provenance?.approvalNotes).toContain(`output/imagegen/meowtal-ui-${surfaceId}.png`);
         expect(provenance?.approvalNotes).toMatch(/Approved by T09[58] visual QA, promoted by T09[69]/);

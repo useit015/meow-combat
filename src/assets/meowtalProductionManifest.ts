@@ -206,13 +206,13 @@ const generatedUiSurfaceRuntimePaths: Readonly<Partial<Record<MeowtalVisualSurfa
 
 const generatedUiSurfaceOutputCandidatePaths: Readonly<Partial<Record<MeowtalVisualSurfaceId, string>>> = {
   "logo-title-mark": "assets/source/imagegen/ui/meowtal/candidates/logo-title-mark-codex-01.png",
-  "hud-frame": "output/imagegen/meowtal-ui-hud-frame.png",
+  "hud-frame": "assets/source/imagegen/ui/meowtal/candidates/hud-frame-codex-01.png",
   "rabbit-portrait": "output/imagegen/meowtal-ui-rabbit-portrait.png",
   "cat-portrait": "output/imagegen/meowtal-ui-cat-portrait.png",
-  "health-bar-rabbit": "output/imagegen/meowtal-ui-health-bar-rabbit.png",
-  "health-bar-cat": "output/imagegen/meowtal-ui-health-bar-cat.png",
-  "super-meter": "output/imagegen/meowtal-ui-super-meter.png",
-  "timer-frame": "output/imagegen/meowtal-ui-timer-frame.png",
+  "health-bar-rabbit": "assets/source/imagegen/ui/meowtal/candidates/health-bar-rabbit-codex-01.png",
+  "health-bar-cat": "assets/source/imagegen/ui/meowtal/candidates/health-bar-cat-codex-01.png",
+  "super-meter": "assets/source/imagegen/ui/meowtal/candidates/super-meter-codex-01.png",
+  "timer-frame": "assets/source/imagegen/ui/meowtal/candidates/timer-frame-codex-01.png",
   "fight-ko-victory-overlays": "assets/source/imagegen/ui/meowtal/candidates/fight-ko-victory-overlays-codex-01.png",
 };
 
@@ -220,19 +220,19 @@ const generatedUiSurfaceQaNotes: Readonly<Partial<Record<MeowtalVisualSurfaceId,
   "logo-title-mark":
     "Approved runtime UI asset: Codex built-in imagegen regenerated readable MEOWTAL KOMBAT title mark with rabbit-ear and cat-tail motifs, transparent alpha, original-view crop-compatible layout, no copied branding, watermark, or brand marks. Approved by T155 visual QA, promoted by T156, and routed into scene rendering by T100.",
   "hud-frame":
-    "Approved runtime UI asset: top HUD frame with left/right health housings and center timer medallion, transparent alpha, no text, portraits, copied branding, watermark, or brand marks. Approved by T095 visual QA, promoted by T096, and routed into scene rendering by T100.",
+    "Approved runtime UI asset: Codex built-in imagegen regenerated top HUD frame with left/right health housings and center timer medallion, transparent alpha, original-view crop-compatible layout, no text, portraits, copied branding, watermark, or brand marks. Approved by T157 visual QA, promoted by T158, and routed into scene rendering by T100.",
   "rabbit-portrait":
     "Approved runtime UI asset: Gray Rabbit HUD portrait medallion derived from approved transparent idle sprite to preserve upright two-legged identity and proportions, transparent alpha, no text, copied branding, watermark, or brand marks. Approved by T098 visual QA, promoted by T099, and routed into scene rendering by T100.",
   "cat-portrait":
     "Approved runtime UI asset: Ginger Tabby Cat HUD portrait medallion derived from approved transparent idle sprite to preserve upright two-legged identity and proportions, transparent alpha, no text, copied branding, watermark, or brand marks. Approved by T098 visual QA, promoted by T099, and routed into scene rendering by T100.",
   "health-bar-rabbit":
-    "Approved runtime UI asset: red rabbit-side health bar treatment with transparent alpha, no text, portraits, copied branding, watermark, or brand marks. Approved by T095 visual QA, promoted by T096, and routed into scene rendering by T100.",
+    "Approved runtime UI asset: Codex built-in imagegen regenerated red rabbit-side health bar treatment with transparent alpha, original-view crop-compatible layout, no text, portraits, copied branding, watermark, or brand marks. Approved by T157 visual QA, promoted by T158, and routed into scene rendering by T100.",
   "health-bar-cat":
-    "Approved runtime UI asset: blue cat-side health bar treatment with transparent alpha, no text, portraits, copied branding, watermark, or brand marks. Approved by T095 visual QA, promoted by T096, and routed into scene rendering by T100.",
+    "Approved runtime UI asset: Codex built-in imagegen regenerated blue cat-side health bar treatment with transparent alpha, original-view crop-compatible layout, no text, portraits, copied branding, watermark, or brand marks. Approved by T157 visual QA, promoted by T158, and routed into scene rendering by T100.",
   "super-meter":
-    "Approved runtime UI asset: bottom special/super meter bar with gold/obsidian trim and green/yellow segmented energy fill, transparent alpha, no text, copied branding, watermark, or brand marks. Approved by T098 visual QA, promoted by T099, and routed into scene rendering by T100.",
+    "Approved runtime UI asset: Codex built-in imagegen regenerated bottom special/super meter bar with gold/obsidian trim and green/yellow segmented energy fill, transparent alpha, original-view crop-compatible layout, no text, copied branding, watermark, or brand marks. Approved by T157 visual QA, promoted by T158, and routed into scene rendering by T100.",
   "timer-frame":
-    "Approved runtime UI asset: circular center timer frame with transparent alpha, no numbers, copied branding, watermark, or brand marks. Approved by T095 visual QA, promoted by T096, and routed into scene rendering by T100.",
+    "Approved runtime UI asset: Codex built-in imagegen regenerated circular center timer frame with transparent alpha, original-view crop-compatible layout, no numbers, copied branding, watermark, or brand marks. Approved by T157 visual QA, promoted by T158, and routed into scene rendering by T100.",
   "fight-ko-victory-overlays":
     "Approved runtime UI asset: Codex built-in imagegen regenerated FIGHT, K.O., Rabbit Wins, and Tabby Wins overlay sheet with crisp lettering, transparent alpha, original-view four-quadrant crop-compatible layout, no copied branding, watermark, or brand marks. Approved by T155 visual QA, promoted by T156, and routed into scene rendering by T100.",
 };
@@ -244,8 +244,9 @@ const generatedUiSurfaceTransformNotes: Readonly<Partial<Record<MeowtalVisualSur
     "Promoted T155 candidate assets/source/imagegen/ui/meowtal/candidates/logo-title-mark-codex-01.png to source and runtime paths in T156.",
   ],
   "hud-frame": [
-    "Generated with Codex built-in imagegen on magenta chroma-key background.",
-    "Removed chroma-key background to alpha and resized to 1024x576 as a source-only UI candidate.",
+    "Regenerated complete HUD frame sheet with Codex built-in imagegen on magenta chroma-key background.",
+    "Removed chroma-key background to alpha, resized to 1024x576, and preserved the original crop-compatible top HUD placement.",
+    "Promoted T157 candidate assets/source/imagegen/ui/meowtal/candidates/hud-frame-codex-01.png to source and runtime paths in T158.",
   ],
   "rabbit-portrait": [
     "Derived portrait medallion from approved Codex imagegen gray-rabbit idle runtime sprite to avoid character drift.",
@@ -256,20 +257,24 @@ const generatedUiSurfaceTransformNotes: Readonly<Partial<Record<MeowtalVisualSur
     "Composited into a transparent 1024x576 HUD portrait source candidate with local frame, glow, and side markers.",
   ],
   "health-bar-rabbit": [
-    "Generated with Codex built-in imagegen on magenta chroma-key background.",
-    "Removed chroma-key background to alpha and resized to 1024x576 as a source-only UI candidate.",
+    "Regenerated complete rabbit health-bar sheet with Codex built-in imagegen on magenta chroma-key background.",
+    "Removed chroma-key background to alpha, resized to 1024x576, and preserved the original crop-compatible left-bar placement.",
+    "Promoted T157 candidate assets/source/imagegen/ui/meowtal/candidates/health-bar-rabbit-codex-01.png to source and runtime paths in T158.",
   ],
   "health-bar-cat": [
-    "Generated with Codex built-in imagegen on magenta chroma-key background.",
-    "Removed chroma-key background to alpha and resized to 1024x576 as a source-only UI candidate.",
+    "Regenerated complete cat health-bar sheet with Codex built-in imagegen on magenta chroma-key background.",
+    "Removed chroma-key background to alpha, resized to 1024x576, and preserved the original crop-compatible right-bar placement.",
+    "Promoted T157 candidate assets/source/imagegen/ui/meowtal/candidates/health-bar-cat-codex-01.png to source and runtime paths in T158.",
   ],
   "super-meter": [
-    "Generated with Codex built-in imagegen on magenta chroma-key background.",
-    "Removed chroma-key background to alpha and resized to 1024x576 as a source-only UI candidate.",
+    "Regenerated complete super-meter sheet with Codex built-in imagegen on magenta chroma-key background.",
+    "Removed chroma-key background to alpha, resized to 1024x576, and preserved the original crop-compatible bottom meter placement.",
+    "Promoted T157 candidate assets/source/imagegen/ui/meowtal/candidates/super-meter-codex-01.png to source and runtime paths in T158.",
   ],
   "timer-frame": [
-    "Generated with Codex built-in imagegen on magenta chroma-key background.",
-    "Removed chroma-key background to alpha and resized to 1024x576 as a source-only UI candidate.",
+    "Regenerated complete timer-frame sheet with Codex built-in imagegen on magenta chroma-key background.",
+    "Removed chroma-key background to alpha, resized to 1024x576, and preserved the original crop-compatible center timer placement.",
+    "Promoted T157 candidate assets/source/imagegen/ui/meowtal/candidates/timer-frame-codex-01.png to source and runtime paths in T158.",
   ],
   "fight-ko-victory-overlays": [
     "Regenerated complete FIGHT/K.O./victory overlay sheet with Codex built-in imagegen on magenta chroma-key background.",

@@ -86,7 +86,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T158
+active_task: T159
 
 tasks:
   - id: T000
@@ -8363,7 +8363,7 @@ tasks:
   - id: T158
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: medium
     objective: "Approve and promote the Codex-regenerated HUD UI candidates to runtime HUD frame, health bars, super meter, and timer frame, then verify browser smoke."
     inputs:
@@ -8399,18 +8399,90 @@ tasks:
       - "Manifest provenance and tests updated for T157/T158."
       - "Browser smoke evidence for ready/fight/K.O./victory/rematch states."
       - "Small coherent promotion commit."
+    receipt:
+      result: done
+      summary: "Promoted the Codex-regenerated HUD UI candidates into source and public runtime paths for HUD frame, rabbit/cat health bars, super meter, and timer frame. Updated manifest provenance to identify the T157/T158 built-in imagegen batch, kept all promoted sheets 1024x576 with alpha, and verified ready/fight/K.O./mobile/gamepad smoke with zero browser failures."
+      changed_files:
+        - "assets/source/imagegen/ui/meowtal/hud-frame.png"
+        - "assets/source/imagegen/ui/meowtal/health-bar-rabbit.png"
+        - "assets/source/imagegen/ui/meowtal/health-bar-cat.png"
+        - "assets/source/imagegen/ui/meowtal/super-meter.png"
+        - "assets/source/imagegen/ui/meowtal/timer-frame.png"
+        - "public/assets/generated/ui/meowtal/hud-frame.png"
+        - "public/assets/generated/ui/meowtal/health-bar-rabbit.png"
+        - "public/assets/generated/ui/meowtal/health-bar-cat.png"
+        - "public/assets/generated/ui/meowtal/super-meter.png"
+        - "public/assets/generated/ui/meowtal/timer-frame.png"
+        - "src/assets/meowtalProductionManifest.ts"
+        - "test/meowtal-production-manifest.test.ts"
+      commands:
+        - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha assets/source/imagegen/ui/meowtal/hud-frame.png assets/source/imagegen/ui/meowtal/health-bar-rabbit.png assets/source/imagegen/ui/meowtal/health-bar-cat.png assets/source/imagegen/ui/meowtal/super-meter.png assets/source/imagegen/ui/meowtal/timer-frame.png public/assets/generated/ui/meowtal/hud-frame.png public/assets/generated/ui/meowtal/health-bar-rabbit.png public/assets/generated/ui/meowtal/health-bar-cat.png public/assets/generated/ui/meowtal/super-meter.png public/assets/generated/ui/meowtal/timer-frame.png"
+          status: pass
+        - cmd: "npm test -- --run test/asset-runtime.test.ts test/meowtal-production-manifest.test.ts"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-ui-hud-promotion"
+          status: pass
+        - cmd: "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+          status: pass
+      proof:
+        - "output/web-game/postfinal-ui-hud-promotion/desktop-keyboard-fight.png"
+        - "output/web-game/postfinal-ui-hud-promotion/gamepad-ready.png"
+        - "output/web-game/postfinal-ui-hud-promotion/portrait-fight.png"
+        - "output/web-game/postfinal-ui-hud-promotion/ko-overlay.png"
+      next_task: T159
+  - id: T159
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: medium
+    objective: "Refresh the remaining HUD portrait UI surfaces while preserving the exact approved fighter identity, proportions, and runtime crop compatibility."
+    inputs:
+      - "T156 promoted presentation UI assets."
+      - "T158 promoted HUD frame, health bar, super meter, and timer frame assets."
+      - "Rabbit and cat portraits remain the last generated HUD image surfaces not touched by the post-final UI regeneration tranche."
+      - "Owner requires no character visual drift or meaningful size changes across regenerated UI/animation work."
+    allowed_files:
+      - "assets/source/imagegen/ui/meowtal/candidates/**"
+      - "assets/source/imagegen/ui/meowtal/rabbit-portrait.png"
+      - "assets/source/imagegen/ui/meowtal/cat-portrait.png"
+      - "public/assets/generated/ui/meowtal/rabbit-portrait.png"
+      - "public/assets/generated/ui/meowtal/cat-portrait.png"
+      - "src/assets/meowtalProductionManifest.ts"
+      - "test/asset-runtime.test.ts"
+      - "test/meowtal-production-manifest.test.ts"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+      - "progress.md"
+      - "output/web-game/**"
+    verify:
+      - "sips -g pixelWidth -g pixelHeight -g hasAlpha assets/source/imagegen/ui/meowtal/rabbit-portrait.png assets/source/imagegen/ui/meowtal/cat-portrait.png public/assets/generated/ui/meowtal/rabbit-portrait.png public/assets/generated/ui/meowtal/cat-portrait.png"
+      - "npm test -- --run test/asset-runtime.test.ts test/meowtal-production-manifest.test.ts"
+      - "npm run verify"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-ui-portraits"
+      - "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+    stop_if:
+      - "Any portrait candidate changes the approved fighter identity, stance convention, proportions, or readable crop."
+      - "Browser smoke reports missing UI assets, console errors, or layout failures."
+    expected_output:
+      - "Portrait UI surfaces refreshed or explicitly retained with evidence when retention is safer for identity consistency."
+      - "Manifest provenance and tests updated for the portrait decision."
+      - "Browser smoke evidence for the refreshed/retained portraits."
+      - "Small coherent commit."
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T157
+    task: T158
     commands:
-      - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha assets/source/imagegen/ui/meowtal/candidates/hud-frame-codex-01.png assets/source/imagegen/ui/meowtal/candidates/health-bar-rabbit-codex-01.png assets/source/imagegen/ui/meowtal/candidates/health-bar-cat-codex-01.png assets/source/imagegen/ui/meowtal/candidates/super-meter-codex-01.png assets/source/imagegen/ui/meowtal/candidates/timer-frame-codex-01.png"
+      - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha assets/source/imagegen/ui/meowtal/hud-frame.png assets/source/imagegen/ui/meowtal/health-bar-rabbit.png assets/source/imagegen/ui/meowtal/health-bar-cat.png assets/source/imagegen/ui/meowtal/super-meter.png assets/source/imagegen/ui/meowtal/timer-frame.png public/assets/generated/ui/meowtal/hud-frame.png public/assets/generated/ui/meowtal/health-bar-rabbit.png public/assets/generated/ui/meowtal/health-bar-cat.png public/assets/generated/ui/meowtal/super-meter.png public/assets/generated/ui/meowtal/timer-frame.png"
         status: pass
-      - cmd: "npm test -- --run test/asset-runtime.test.ts"
+      - cmd: "npm test -- --run test/asset-runtime.test.ts test/meowtal-production-manifest.test.ts"
         status: pass
       - cmd: "npm run verify"
+        status: pass
+      - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-ui-hud-promotion"
         status: pass
       - cmd: "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
         status: pass
