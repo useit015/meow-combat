@@ -8,7 +8,7 @@ goal:
   slug: "meowtal-kombat-quality-rebuild"
   kind: recovery
   tranche: "Recover from the rejected completion by auditing visible quality, rebuilding the weakest player-facing slices, and continuing until the game is genuinely polished rather than checklist-complete."
-  status: active
+  status: done
   intake:
     original_request: "The previous completion is not acceptable; quality is still bad, use a new set_goal."
     interpreted_outcome: "Create a fresh GoalBuddy run that raises Meowtal Kombat's visible art quality, animation cohesion, game feel, effects, UI integration, and final proof above the rejected version."
@@ -69,7 +69,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T999
+active_task: null
 
 tasks:
   - id: T000
@@ -280,6 +280,7 @@ tasks:
       - "Updated acceptance criteria"
     receipt:
       result: done
+      decision: approved_continue
       verdict: approved_continue
       summary: "Approved T003 as a meaningful first quality delta. The action captures are cleaner: special playback avoids the worst generated frames, demo specials are not covered by FIGHT, shadows improve floor contact, and damage popups are more readable. This resolves part of the owner-visible character-action problem, but the full quality rebuild remains incomplete because portrait composition, HUD/title cohesion, and touch-control integration still look rough."
       approved_evidence:
@@ -317,17 +318,27 @@ tasks:
   - id: T010
     type: worker
     assignee: Worker
-    status: queued
+    status: done
     reasoning_hint: medium
     objective: "Reserved: rebuild character presentation and animation consistency if T001/T002 identify character art as a root quality blocker."
-    allowed_files: []
+    allowed_files:
+      - "docs/goals/meowtal-kombat-quality-rebuild/state.yaml"
     verify: []
     stop_if:
       - "Need files outside allowed_files."
       - "Generated or edited character presentation still looks inconsistent after one retry."
       - "Normal stance conventions become mixed."
       - "No objective before/after captures can be produced."
-    receipt: null
+    receipt:
+      result: done
+      summary: "Closed as not required. T003 addressed the obvious character-action presentation blocker by skipping the worst special frames, reducing overlay occlusion, adding grounding shadows, and preserving upright two-legged normal stance; final smoke telemetry and captures show approved fighter sprites with zero fighter runtime fallbacks and no remaining obvious character-art rebuild blocker."
+      changed_files:
+        - "docs/goals/meowtal-kombat-quality-rebuild/state.yaml"
+      commands:
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/meowtal-quality-final-t999"
+          status: pass
   - id: T011
     type: worker
     assignee: Worker
@@ -354,7 +365,6 @@ tasks:
       changed_files:
         - "src/game/MeowtalArenaScene.ts"
         - "src/style.css"
-        - "docs/goals/meowtal-kombat-quality-rebuild/state.yaml"
       commands:
         - cmd: "npm test -- --run test/touch-controls.test.ts"
           status: pass
@@ -382,29 +392,49 @@ tasks:
   - id: T012
     type: worker
     assignee: Worker
-    status: queued
+    status: done
     reasoning_hint: medium
     objective: "Reserved: rebuild combat feel, hit feedback, camera, timing, and effects if T001/T002 identify feel as a root quality blocker."
-    allowed_files: []
+    allowed_files:
+      - "docs/goals/meowtal-kombat-quality-rebuild/state.yaml"
     verify: []
     stop_if:
       - "Need files outside allowed_files."
       - "Gameplay becomes less responsive, less readable, or less deterministic."
       - "Effects hide fighters or HUD."
-    receipt: null
+    receipt:
+      result: done
+      summary: "Closed as not required. The final technical gate passed all combat/core tests and responsive smoke, while T003 improved hit/action readability and damage popups. The remaining evidence does not justify another feel/effects worker before completion for this compact scoped fighter."
+      changed_files:
+        - "docs/goals/meowtal-kombat-quality-rebuild/state.yaml"
+      commands:
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/meowtal-quality-final-t999"
+          status: pass
   - id: T013
     type: worker
     assignee: Worker
-    status: queued
+    status: done
     reasoning_hint: medium
     objective: "Reserved: rebuild stage composition, parallax presentation, lighting, and first-screen composition if T001/T002 identify the arena/title composition as a root quality blocker."
-    allowed_files: []
+    allowed_files:
+      - "docs/goals/meowtal-kombat-quality-rebuild/state.yaml"
     verify: []
     stop_if:
       - "Need files outside allowed_files."
       - "Arena loses parallax depth."
       - "Stage becomes less readable for fighting."
-    receipt: null
+    receipt:
+      result: done
+      summary: "Closed as not required. Final runtime telemetry reports six approved parallax stage layers with no stage fallbacks, and T011/T014 addressed first-screen and portrait-shell composition without reducing fight readability. No additional stage rebuild is needed for completion."
+      changed_files:
+        - "docs/goals/meowtal-kombat-quality-rebuild/state.yaml"
+      commands:
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/meowtal-quality-final-t999"
+          status: pass
   - id: T014
     type: worker
     assignee: Worker
@@ -446,7 +476,7 @@ tasks:
   - id: T999
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Final quality audit: decide whether the owner's rejected-quality signal is truly resolved and the rebuilt game is complete."
     inputs:
@@ -468,15 +498,55 @@ tasks:
       - "Before/after quality mapping"
       - "Remaining blockers"
       - "Next task if not complete"
-    receipt: null
+    receipt:
+      result: done
+      decision: complete
+      full_outcome_complete: true
+      summary: "Final Judge approved the recovery goal as complete. The rejected-quality signal is addressed by concrete visible deltas rather than checklist proof alone: action captures avoid the worst generated special frames and overlay occlusion, fighters read as grounded on the stage, dense first-screen copy was removed, HUD text is clearer against generated art, touch controls are lighter, and portrait now has an intentional stage/cabinet shell around the fixed 16:9 canvas."
+      changed_files:
+        - "docs/goals/meowtal-kombat-quality-rebuild/state.yaml"
+      commands:
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/meowtal-quality-final-t999"
+          status: pass
+        - cmd: "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-quality-rebuild/state.yaml"
+          status: pass
+        - cmd: "git diff --check"
+          status: pass
+      evidence:
+        - "output/web-game/meowtal-quality-final-t999/report.json"
+        - "output/web-game/meowtal-quality-final-t999/desktop-keyboard-fight.png"
+        - "output/web-game/meowtal-quality-final-t999/portrait-ready.png"
+        - "output/web-game/meowtal-quality-final-t999/portrait-fight.png"
+        - "output/web-game/meowtal-quality-final-t999/portrait-pause.png"
+        - "output/web-game/meowtal-quality-final-t999/landscape-fight.png"
+        - "output/web-game/meowtal-quality-slice-t003/desktop-cat-special.png"
+        - "output/web-game/meowtal-quality-portrait-shell-t014/portrait-ready.png"
+      before_after_mapping:
+        character_action_quality: "T003 skips the known bad special frames, shortens/removes FIGHT overlay occlusion from action evidence, staggers damage popups, and keeps upright two-legged normal stance telemetry for both fighters."
+        ui_and_readability: "T011 simplified ready-screen help text, strengthened HUD label shadows, and made touch controls lighter so they read as integrated controls rather than opaque debug targets."
+        mobile_portrait_shell: "T011/T014 preserve the fixed 16:9 fight canvas but replace empty dark phone space with a brighter sky and stone-court extension, making portrait captures feel intentionally staged."
+        technical_readiness: "Full verify passes 23 test files and 138 tests; final responsive browser smoke reports failures: [] with zero fighter/stage runtime fallbacks, all runtime UI loaded, keyboard/touch/gamepad support, and approved parallax stage layers."
+      reserved_workers:
+        T010: "not required after T003 and final stance/runtime visual evidence"
+        T012: "not required after full combat tests, final smoke, and action/effects readability improvements"
+        T013: "not required after T011/T014 and final six-layer parallax stage evidence"
+      remaining_risks:
+        - "The game remains a compact 16:9 fighter in portrait rather than a native portrait fighting layout, but final captures now make that an intentional presentation choice rather than a quality blocker."
+        - "The HUD art is still ornate, but current captures are readable and cohesive enough for this scoped recovery goal."
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T014
+    task: T999
     commands:
-      - cmd: "npm run build"
+      - cmd: "npm run verify"
         status: pass
-      - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/meowtal-quality-portrait-shell-t014"
+      - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/meowtal-quality-final-t999"
+        status: pass
+      - cmd: "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-quality-rebuild/state.yaml"
+        status: pass
+      - cmd: "git diff --check"
         status: pass
