@@ -86,7 +86,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T124
+active_task: T125
 
 tasks:
   - id: T000
@@ -6757,7 +6757,7 @@ tasks:
   - id: T124
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: medium
     objective: "Tune render-only close-range fighter separation so visuals follow the improved cross-up simulation instead of exaggerating a magnetic pushback effect."
     inputs:
@@ -6783,16 +6783,77 @@ tasks:
       - "Reduced close-range render-only separation that does not fight cross-up movement"
       - "Browser evidence that close combat/UI still renders cleanly"
       - "Task receipt and small coherent commit"
+    receipt:
+      result: done
+      summary: "Tuned render-only close-range fighter separation without changing combat rules or assets. The old private scene rule pushed sprites apart at a 152px threshold up to 34px per fighter; the new tested helper uses a subtler 112px threshold, caps at 18px, and disables render-only separation during airborne cross-ups and rolls so visuals stop fighting the improved side-switch simulation."
+      changed_files:
+        - "src/game/presentation.ts"
+        - "src/game/MeowtalArenaScene.ts"
+        - "test/presentation.test.ts"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+        - "progress.md"
+      commands:
+        - cmd: "npm test -- --run test/presentation.test.ts"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-visual-separation"
+          status: pass
+        - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules node --input-type=module <inline visual cross-up capture>"
+          status: pass
+      evidence:
+        - "output/web-game/postfinal-visual-separation/report.json"
+        - "output/web-game/postfinal-visual-separation/desktop-keyboard-fight.png"
+        - "output/web-game/postfinal-visual-crossup/report.json"
+        - "output/web-game/postfinal-visual-crossup/visual-crossup-after.png"
+      next_task: T125
+  - id: T125
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: medium
+    objective: "Begin the requested UI regeneration pass: run imagegen preflight, inventory the current generated Meowtal UI surfaces against the runtime contract, and regenerate or prepare the first coherent UI asset batch if live image generation is available."
+    inputs:
+      - "Owner request: regenerate all UI elements so they function well, look good, and stay consistent with the original view."
+      - "Imagegen skill requirements: use the bundled CLI and require OPENAI_API_KEY for live OpenAI Image API calls."
+      - "T123 asset-contract guards for UI sheet dimensions and crop bounds."
+    allowed_files:
+      - "assets/source/imagegen/ui/meowtal/*"
+      - "public/assets/generated/ui/meowtal/*"
+      - "src/assets/catalog.ts"
+      - "src/assets/meowtalProductionManifest.ts"
+      - "src/assets/provenance.ts"
+      - "src/game/gameConfig.ts"
+      - "test/asset-runtime.test.ts"
+      - "test/meowtal-production-manifest.test.ts"
+      - "docs/assets/meowtal-kombat-provenance.md"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+      - "progress.md"
+      - "output/imagegen/**"
+      - "tmp/imagegen/**"
+    verify:
+      - "npm run imagegen:preflight"
+      - "npm test -- --run test/asset-runtime.test.ts test/meowtal-production-manifest.test.ts"
+      - "npm run verify"
+      - "npm run smoke:meowtal -- --url <local preview url> --out-dir output/web-game/postfinal-ui-regen"
+    stop_if:
+      - "OPENAI_API_KEY is missing and no existing regenerated UI candidates are available to integrate."
+      - "Generated UI candidates fail the 1024x576 runtime contract, crop-bound tests, or visual consistency review after one targeted retry."
+      - "The slice would require broad scene redesign, gameplay changes, or fighter/stage asset regeneration."
+    expected_output:
+      - "Imagegen credential/preflight result recorded"
+      - "Current UI asset inventory compared to runtime slots and crop contracts"
+      - "First regenerated UI batch integrated if credentials and candidates are available, otherwise a precise blocked receipt and next safe local task"
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T123
+    task: T124
     commands:
       - cmd: "npm run typecheck"
         status: pass
-      - cmd: "npm test -- --run test/asset-runtime.test.ts test/asset-qa.test.ts"
+      - cmd: "npm test -- --run test/presentation.test.ts"
         status: pass
       - cmd: "npm run verify"
         status: pass

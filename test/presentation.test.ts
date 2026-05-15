@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { audioCueForCombatEvents, audioCuesForCombatEvents, audioCueForMatchTransition } from "../src/game/audio";
-import { impactFeedbackCue, selectReadinessLines } from "../src/game/presentation";
+import { fighterVisualSeparationOffset, impactFeedbackCue, selectReadinessLines } from "../src/game/presentation";
 
 describe("presentation helpers", () => {
   it("prioritizes hit feedback over block feedback", () => {
@@ -24,6 +24,29 @@ describe("presentation helpers", () => {
     expect(lines.join("\n")).toContain("32 approved runtime art assets");
     expect(lines.join("\n")).toContain("No blocked runtime assets");
     expect(lines.join("\n")).not.toContain("undefined");
+  });
+
+  it("keeps close-range fighter visual separation subtle and symmetric", () => {
+    const p1 = { x: 500, facing: 1, grounded: true, state: "idle" } as const;
+    const p2 = { x: 556, facing: -1, grounded: true, state: "idle" } as const;
+
+    expect(fighterVisualSeparationOffset(p1, p2)).toBe(-14);
+    expect(fighterVisualSeparationOffset(p2, p1)).toBe(14);
+  });
+
+  it("does not add render-only separation during airborne cross-ups or rolls", () => {
+    const grounded = { x: 556, facing: -1, grounded: true, state: "idle" } as const;
+
+    expect(fighterVisualSeparationOffset({ x: 500, facing: 1, grounded: false, state: "hop" }, grounded)).toBe(0);
+    expect(fighterVisualSeparationOffset({ x: 500, facing: 1, grounded: true, state: "rollForward" }, grounded)).toBe(0);
+  });
+
+  it("stops separating fighters once silhouettes have readable space", () => {
+    const p1 = { x: 500, facing: 1, grounded: true, state: "idle" } as const;
+    const p2 = { x: 624, facing: -1, grounded: true, state: "idle" } as const;
+
+    expect(fighterVisualSeparationOffset(p1, p2)).toBe(0);
+    expect(fighterVisualSeparationOffset(p2, p1)).toBe(0);
   });
 
   it("maps combat and match transitions to audio cues", () => {

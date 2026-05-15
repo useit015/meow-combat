@@ -45,7 +45,7 @@ import {
   selectedFighterFromConfig,
   versionedAssetFromConfig,
 } from "./gameConfig";
-import { impactFeedbackCue } from "./presentation";
+import { fighterVisualSeparationOffset, impactFeedbackCue } from "./presentation";
 import { initialShellState, reduceShellState, type ShellState } from "./shellFlow";
 import { selectSpritePose, spriteStanceConventionForAnimation } from "./spriteFrame";
 import {
@@ -1059,9 +1059,7 @@ export class MeowtalArenaScene extends Phaser.Scene {
   private visualSeparationOffset(player: "p1" | "p2"): number {
     const fighter = this.snapshot[player];
     const opponent = this.snapshot[player === "p1" ? "p2" : "p1"];
-    const distance = Math.abs(opponent.x - fighter.x);
-    const closeOverlap = Math.max(0, 152 - distance);
-    return -fighter.facing * Math.min(34, closeOverlap * 0.48);
+    return fighterVisualSeparationOffset(fighter, opponent);
   }
 
   private handleCharacterSelectInput(): void {
