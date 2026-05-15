@@ -16,7 +16,7 @@ export type TouchControlId =
   | "cpu"
   | "difficulty";
 
-export type TouchShellPhase = "ready" | "select" | "fighting" | "paused" | "round-over" | "match-over";
+export type TouchShellPhase = "ready" | "mode-select" | "select" | "fighting" | "paused" | "round-over" | "match-over";
 export type TouchControlLayout = "standard" | "phone-portrait" | "phone-landscape";
 
 export interface TouchControlZone {

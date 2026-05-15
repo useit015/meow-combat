@@ -63,13 +63,13 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T001
+active_task: T004
 
 tasks:
   - id: T001
     type: scout
     assignee: Scout
-    status: active
+    status: done
     reasoning_hint: default
     objective: "Map the current game architecture, playable state, verification commands, existing asset pipeline, and implementation entry points for menu, character selection, training, and 1 vs CPU work."
     inputs:
@@ -88,11 +88,41 @@ tasks:
       - "Existing asset pipeline and where imagegen outputs should be stored"
       - "Candidate implementation slices with risks and likely allowed_files"
       - "Any blockers or ambiguous product decisions"
-    receipt: null
+    receipt:
+      result: done
+      summary: "Repo is a mature Vite/TypeScript Phaser fighting game with generated Meowtal assets, title/select/fight shell, CPU sparring, match flow, touch/gamepad/keyboard controls, and browser smoke hooks. Missing for this goal: explicit play-mode menu and training mode flow; 1 vs CPU exists as default/toggle but not as a menu-selected mode."
+      evidence:
+        - package.json
+        - README.md
+        - src/game/shellFlow.ts
+        - src/game/MeowtalArenaScene.ts
+        - src/game/touchControls.ts
+        - src/core/cpu.ts
+        - src/assets/imagegenJobs.ts
+        - docs/imagegen-runbook.md
+        - test/shell-flow.test.ts
+        - test/character-select.test.ts
+        - test/cpu-controller.test.ts
+        - scripts/smoke-meowtal-browser.mjs
+      verification:
+        - cmd: "npm test -- --run test/shell-flow.test.ts test/character-select.test.ts test/cpu-controller.test.ts test/touch-controls.test.ts"
+          status: pass
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm run imagegen:qa"
+          status: pass
+        - cmd: "npm run build"
+          status: pass
+      candidate_slices:
+        - "Add tested arcade play-mode state/helpers for training and 1 vs CPU selection."
+        - "Wire menu -> mode select -> character select -> fighting/training in Phaser shell and touch controls."
+        - "Add training-mode behavior/readouts such as infinite timer or resettable dummy, plus demo state exposure."
+        - "Refresh smoke script to demo menu -> character select -> training and menu -> character select -> 1 vs CPU."
+      blockers: []
   - id: T002
     type: judge
     assignee: Judge
-    status: queued
+    status: done
     reasoning_hint: high
     objective: "Choose the implementation sequence for the full arcade shell and define the first safe Worker task."
     inputs:
@@ -112,25 +142,58 @@ tasks:
       - "verify"
       - "stop_if"
       - "Deferred or blocked tasks"
-    receipt: null
+    receipt:
+      result: done
+      decision: "Start with a pure shell-flow/game-mode model so training and 1 vs CPU become explicit, testable states before Phaser rendering and input are rewired."
+      implementation_sequence:
+        - "Add tested play-mode selection state/helpers for menu -> character select -> fighting."
+        - "Wire the Phaser shell UI/input/touch controls to the mode menu and expose selected mode in render_game_to_text."
+        - "Implement training behavior/readouts and ensure 1 vs CPU is menu-selected rather than only a toggle."
+        - "Refresh smoke/browser demo coverage for both requested flows."
+        - "Use imagegen only if Scout/Judge find a missing project-bound raster asset; current generated fighter/stage/UI assets are already integrated."
+      next_allowed_task: T003
+      blocked_tasks: []
+      required_board_updates:
+        - "Set T003 allowed_files and verification for shell-flow model slice."
   - id: T003
     type: worker
     assignee: Worker
-    status: queued
+    status: done
     reasoning_hint: default
-    objective: "Execute the first safe implementation task selected by Judge for the arcade shell."
-    allowed_files: []
-    verify: []
+    objective: "Add a tested pure shell-flow model for explicit arcade play modes, covering menu -> mode select -> character select -> training/1 vs CPU fighting."
+    allowed_files:
+      - "src/game/shellFlow.ts"
+      - "test/shell-flow.test.ts"
+      - "src/game/touchControls.ts"
+      - "test/touch-controls.test.ts"
+    verify:
+      - "npm test -- --run test/shell-flow.test.ts"
+      - "npm run typecheck"
     stop_if:
       - "Need files outside allowed_files."
       - "Behavior is ambiguous after checking Scout/Judge receipts."
       - "Verification fails twice for the same cause."
       - "The task would bundle unrelated generated assets, dependency changes, and gameplay changes into one commit-sized slice."
-    receipt: null
+    receipt:
+      result: done
+      changed_files:
+        - src/game/shellFlow.ts
+        - src/game/touchControls.ts
+        - test/shell-flow.test.ts
+        - test/touch-controls.test.ts
+      commands:
+        - cmd: "npm test -- --run test/shell-flow.test.ts"
+          status: pass
+        - cmd: "npm test -- --run test/shell-flow.test.ts test/touch-controls.test.ts"
+          status: pass
+        - cmd: "npm run typecheck"
+          status: pass
+      summary: "Added a pure shell-flow model for explicit arcade play modes. The shell now opens a mode-select phase before fighter select, tracks training vs 1 vs CPU, preserves mode through pause/round states, and keeps training in fighting state when the sparring core ends."
+      remaining_blockers: []
   - id: T004
     type: judge
     assignee: Judge
-    status: queued
+    status: active
     reasoning_hint: high
     objective: "After the first implementation slice, decide the next highest-leverage slice across generated assets, character selection, training, 1 vs CPU, CPU behavior, scoring, move tuning, and UX polish."
     inputs:
@@ -167,7 +230,7 @@ tasks:
   - id: T006
     type: pm
     assignee: PM
-    status: queued
+    status: done
     reasoning_hint: default
     objective: "Prepare coherent commit batches after verified slices, following AGENTS.md staging guidance."
     inputs:
@@ -183,7 +246,20 @@ tasks:
       - "Staged diff summary"
       - "Commit command(s) or blocker receipt"
       - "Commit hashes if commits are created"
-    receipt: null
+    receipt:
+      result: done
+      staged_files:
+        - docs/goals/arcade-shell-modes-assets/state.yaml
+        - src/game/shellFlow.ts
+        - src/game/touchControls.ts
+        - test/shell-flow.test.ts
+        - test/touch-controls.test.ts
+      commands:
+        - cmd: "git diff --stat"
+          status: pass
+        - cmd: "git diff --cached --stat"
+          status: pass
+      summary: "Prepared a coherent gameplay-foundation commit for the explicit play-mode shell model and its focused tests. Left unrelated untracked .codex/ files out of the staged set."
   - id: T999
     type: judge
     assignee: Judge
@@ -215,6 +291,9 @@ tasks:
 checks:
   dirty_fingerprint: unknown
   last_verification:
-    result: unknown
-    task: null
-    commands: []
+    result: pass
+    task: T003
+    commands:
+      - "npm test -- --run test/shell-flow.test.ts"
+      - "npm test -- --run test/shell-flow.test.ts test/touch-controls.test.ts"
+      - "npm run typecheck"

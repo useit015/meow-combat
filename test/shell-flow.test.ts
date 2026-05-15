@@ -1,111 +1,158 @@
 import { describe, expect, it } from "vitest";
-import { initialShellState, reduceShellState } from "../src/game/shellFlow";
+import { initialShellState, reduceShellState, selectedPlayMode, shellModeLabel } from "../src/game/shellFlow";
 
 describe("shell flow", () => {
-  it("waits in ready until start opens fighter select", () => {
+  it("waits in ready until start opens play mode select", () => {
     expect(reduceShellState(initialShellState, { matchStatus: "fighting" })).toEqual({
       phase: "ready",
+      selectedMode: "versus-cpu",
     });
     expect(
       reduceShellState(initialShellState, {
         startPressed: true,
         matchStatus: "fighting",
       }),
-    ).toEqual({ phase: "select" });
+    ).toEqual({ phase: "mode-select", selectedMode: "versus-cpu" });
   });
 
-  it("starts fighting from fighter select", () => {
+  it("selects training or 1 vs CPU before fighter select", () => {
+    const modeSelect = reduceShellState(initialShellState, {
+      startPressed: true,
+      matchStatus: "fighting",
+    });
+
+    const training = reduceShellState(modeSelect, {
+      modeNextPressed: true,
+      matchStatus: "fighting",
+    });
+    expect(training).toEqual({ phase: "mode-select", selectedMode: "training" });
+    expect(shellModeLabel(training)).toBe("TRAINING");
+
+    expect(
+      reduceShellState(training, {
+        modePreviousPressed: true,
+        matchStatus: "fighting",
+      }),
+    ).toEqual({ phase: "mode-select", selectedMode: "versus-cpu" });
+    expect(shellModeLabel(modeSelect)).toBe("1 VS CPU");
+    expect(selectedPlayMode(training)).toBe("training");
+  });
+
+  it("starts fighting through fighter select with the selected mode", () => {
     expect(
       reduceShellState(
-        { phase: "select" },
+        { phase: "mode-select", selectedMode: "training" },
         {
           startPressed: true,
           matchStatus: "fighting",
         },
       ),
-    ).toEqual({ phase: "fighting" });
-  });
+    ).toEqual({ phase: "select", selectedMode: "training" });
 
-  it("moves to round-over when the match core ends", () => {
     expect(
       reduceShellState(
-        { phase: "fighting" },
+        { phase: "select", selectedMode: "training" },
+        {
+          startPressed: true,
+          matchStatus: "fighting",
+        },
+      ),
+    ).toEqual({ phase: "fighting", selectedMode: "training" });
+  });
+
+  it("moves to round-over when the 1 vs CPU match core ends", () => {
+    expect(
+      reduceShellState(
+        { phase: "fighting", selectedMode: "versus-cpu" },
         {
           matchStatus: "round-over",
           matchSetStatus: "in-progress",
         },
       ),
-    ).toEqual({ phase: "round-over" });
+    ).toEqual({ phase: "round-over", selectedMode: "versus-cpu" });
   });
 
-  it("moves to match-over when the set is complete", () => {
+  it("moves to match-over when the 1 vs CPU set is complete", () => {
     expect(
       reduceShellState(
-        { phase: "fighting" },
+        { phase: "fighting", selectedMode: "versus-cpu" },
         {
           matchStatus: "round-over",
           matchSetStatus: "complete",
         },
       ),
-    ).toEqual({ phase: "match-over" });
+    ).toEqual({ phase: "match-over", selectedMode: "versus-cpu" });
+  });
+
+  it("keeps training mode fighting even if the sparring core reaches round-over", () => {
+    expect(
+      reduceShellState(
+        { phase: "fighting", selectedMode: "training" },
+        {
+          matchStatus: "round-over",
+          matchSetStatus: "complete",
+        },
+      ),
+    ).toEqual({ phase: "fighting", selectedMode: "training" });
   });
 
   it("pauses and resumes fighting without affecting round-over states", () => {
     expect(
       reduceShellState(
-        { phase: "fighting" },
+        { phase: "fighting", selectedMode: "versus-cpu" },
         {
           pausePressed: true,
           matchStatus: "fighting",
         },
       ),
-    ).toEqual({ phase: "paused" });
+    ).toEqual({ phase: "paused", selectedMode: "versus-cpu" });
 
     expect(
       reduceShellState(
-        { phase: "paused" },
+        { phase: "paused", selectedMode: "versus-cpu" },
         {
           pausePressed: true,
           matchStatus: "fighting",
         },
       ),
-    ).toEqual({ phase: "fighting" });
+    ).toEqual({ phase: "fighting", selectedMode: "versus-cpu" });
 
     expect(
       reduceShellState(
-        { phase: "round-over" },
+        { phase: "round-over", selectedMode: "versus-cpu" },
         {
           pausePressed: true,
           matchStatus: "round-over",
         },
       ),
-    ).toEqual({ phase: "round-over" });
+    ).toEqual({ phase: "round-over", selectedMode: "versus-cpu" });
   });
 
   it("can restart from round-over and reset from any phase", () => {
     expect(
       reduceShellState(
-        { phase: "round-over" },
+        { phase: "round-over", selectedMode: "versus-cpu" },
         {
           startPressed: true,
           matchStatus: "round-over",
         },
       ),
-    ).toEqual({ phase: "fighting" });
+    ).toEqual({ phase: "fighting", selectedMode: "versus-cpu" });
 
     expect(
       reduceShellState(
-        { phase: "match-over" },
+        { phase: "match-over", selectedMode: "versus-cpu" },
         {
           startPressed: true,
           matchStatus: "round-over",
+          matchSetStatus: "complete",
         },
       ),
-    ).toEqual({ phase: "fighting" });
+    ).toEqual({ phase: "fighting", selectedMode: "versus-cpu" });
 
     expect(
       reduceShellState(
-        { phase: "fighting" },
+        { phase: "fighting", selectedMode: "training" },
         {
           resetPressed: true,
           matchStatus: "fighting",
@@ -115,7 +162,7 @@ describe("shell flow", () => {
 
     expect(
       reduceShellState(
-        { phase: "paused" },
+        { phase: "paused", selectedMode: "versus-cpu" },
         {
           resetPressed: true,
           matchStatus: "fighting",
@@ -125,7 +172,7 @@ describe("shell flow", () => {
 
     expect(
       reduceShellState(
-        { phase: "select" },
+        { phase: "select", selectedMode: "versus-cpu" },
         {
           resetPressed: true,
           matchStatus: "fighting",
@@ -135,7 +182,7 @@ describe("shell flow", () => {
 
     expect(
       reduceShellState(
-        { phase: "match-over" },
+        { phase: "match-over", selectedMode: "versus-cpu" },
         {
           resetPressed: true,
           matchStatus: "round-over",
@@ -148,12 +195,12 @@ describe("shell flow", () => {
   it("does not start or rematch accidentally while paused", () => {
     expect(
       reduceShellState(
-        { phase: "paused" },
+        { phase: "paused", selectedMode: "versus-cpu" },
         {
           startPressed: true,
           matchStatus: "fighting",
         },
       ),
-    ).toEqual({ phase: "paused" });
+    ).toEqual({ phase: "paused", selectedMode: "versus-cpu" });
   });
 });

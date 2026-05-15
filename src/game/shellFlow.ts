@@ -1,56 +1,94 @@
 import type { MatchSnapshot } from "../core";
 import type { MatchSetStatus } from "../core";
 
-export type ShellPhase = "ready" | "select" | "fighting" | "paused" | "round-over" | "match-over";
+export type ShellPhase = "ready" | "mode-select" | "select" | "fighting" | "paused" | "round-over" | "match-over";
+export type ArcadePlayMode = "versus-cpu" | "training";
 
 export interface ShellState {
   phase: ShellPhase;
+  selectedMode?: ArcadePlayMode;
 }
 
 export interface ShellInput {
   startPressed?: boolean;
   pausePressed?: boolean;
   resetPressed?: boolean;
+  modeNextPressed?: boolean;
+  modePreviousPressed?: boolean;
   matchStatus: MatchSnapshot["status"];
   matchSetStatus?: MatchSetStatus;
 }
 
+const PLAY_MODES = ["versus-cpu", "training"] as const satisfies readonly ArcadePlayMode[];
+const DEFAULT_PLAY_MODE: ArcadePlayMode = "versus-cpu";
+
 export const initialShellState: ShellState = {
   phase: "ready",
+  selectedMode: DEFAULT_PLAY_MODE,
 };
 
 export function reduceShellState(state: ShellState, input: ShellInput): ShellState {
+  const selectedMode = selectedPlayMode(state);
+
   if (input.resetPressed) {
     return initialShellState;
   }
 
   if (state.phase === "paused") {
-    return input.pausePressed ? { phase: "fighting" } : state;
+    return input.pausePressed ? { phase: "fighting", selectedMode } : withSelectedMode(state);
   }
 
   if (state.phase === "ready") {
-    return input.startPressed ? { phase: "select" } : state;
+    return input.startPressed ? { phase: "mode-select", selectedMode } : withSelectedMode(state);
+  }
+
+  if (state.phase === "mode-select") {
+    const nextMode =
+      input.modeNextPressed || input.modePreviousPressed
+        ? cyclePlayMode(selectedMode, input.modeNextPressed ? 1 : -1)
+        : selectedMode;
+    return input.startPressed ? { phase: "select", selectedMode: nextMode } : { phase: "mode-select", selectedMode: nextMode };
   }
 
   if (state.phase === "select") {
-    return input.startPressed ? { phase: "fighting" } : state;
+    return input.startPressed ? { phase: "fighting", selectedMode } : withSelectedMode(state);
   }
 
   if (state.phase === "fighting" && input.matchStatus === "round-over") {
-    return input.matchSetStatus === "complete" ? { phase: "match-over" } : { phase: "round-over" };
+    if (selectedMode === "training") return { phase: "fighting", selectedMode };
+    return input.matchSetStatus === "complete"
+      ? { phase: "match-over", selectedMode }
+      : { phase: "round-over", selectedMode };
   }
 
   if (state.phase === "fighting" && input.pausePressed) {
-    return { phase: "paused" };
+    return { phase: "paused", selectedMode };
   }
 
   if (state.phase === "round-over" && input.startPressed) {
-    return { phase: "fighting" };
+    return { phase: "fighting", selectedMode };
   }
 
   if (state.phase === "match-over" && input.startPressed) {
-    return { phase: "fighting" };
+    return { phase: "fighting", selectedMode };
   }
 
-  return state;
+  return withSelectedMode(state);
+}
+
+export function selectedPlayMode(state: Pick<ShellState, "selectedMode">): ArcadePlayMode {
+  return state.selectedMode ?? DEFAULT_PLAY_MODE;
+}
+
+export function shellModeLabel(state: Pick<ShellState, "selectedMode">): string {
+  return selectedPlayMode(state) === "training" ? "TRAINING" : "1 VS CPU";
+}
+
+function withSelectedMode(state: ShellState): ShellState {
+  return { ...state, selectedMode: selectedPlayMode(state) };
+}
+
+function cyclePlayMode(current: ArcadePlayMode, direction: -1 | 1): ArcadePlayMode {
+  const index = PLAY_MODES.indexOf(current);
+  return PLAY_MODES[(index + direction + PLAY_MODES.length) % PLAY_MODES.length];
 }
