@@ -178,6 +178,44 @@ describe("FightingSimulation", () => {
     expect(hop.p1.grounded).toBe(false);
   });
 
+  it("does not keep retriggering run from a stale double tap after returning neutral", () => {
+    const simulation = new FightingSimulation();
+    simulation.step({ p1: createInput(1, { horizontal: 1 }) });
+    simulation.step({ p1: createInput(2) });
+
+    const run = simulation.step({ p1: createInput(3, { horizontal: 1 }) });
+    expect(run.p1.state).toBe("runForward");
+
+    const stop = simulation.step({ p1: createInput(4) });
+    expect(stop.p1.state).toBe("idle");
+    const stoppedX = stop.p1.x;
+
+    for (let frame = 5; frame <= 18; frame += 1) {
+      const snapshot = simulation.step({ p1: createInput(frame) });
+      const staleRunEvents = snapshot.events.filter(
+        (event) => event.type === "state" && event.to === "runForward",
+      );
+      expect(staleRunEvents).toHaveLength(0);
+      expect(snapshot.p1.x).toBe(stoppedX);
+    }
+  });
+
+  it("clears dedicated guard when committing to forward run mobility", () => {
+    const simulation = new FightingSimulation();
+    simulation.step({ p1: createInput(1, { horizontal: 1 }) });
+    simulation.step({ p1: createInput(2, { buttons: { guard: true } }) });
+
+    const run = simulation.step({
+      p1: createInput(3, {
+        horizontal: 1,
+        buttons: { guard: true },
+      }),
+    });
+
+    expect(run.p1.state).toBe("runForward");
+    expect(run.p1.guarding).toBe(false);
+  });
+
   it("allows airborne cross-ups to switch sides instead of being pushed back forever", () => {
     const simulation = new FightingSimulation();
     let snapshot = simulation.snapshot();

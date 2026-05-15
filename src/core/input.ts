@@ -88,10 +88,10 @@ export class InputBuffer {
       return latest.horizontal === -facing ? "rollBack" : "rollForward";
     }
 
-    if (this.doubleTapped(facing, 18)) {
+    if (latest.horizontal === facing && this.doubleTapped(facing, 18)) {
       return "runForward";
     }
-    if (this.doubleTapped(-facing as Facing, 18)) {
+    if (latest.horizontal === -facing && this.doubleTapped(-facing as Facing, 18)) {
       return "backdash";
     }
     return null;

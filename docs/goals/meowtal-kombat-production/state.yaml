@@ -86,7 +86,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T128
+active_task: T129
 
 tasks:
   - id: T000
@@ -6953,7 +6953,7 @@ tasks:
   - id: T128
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: medium
     objective: "Make close-range pressure feel smoother by letting grounded attacks preserve clean spacing/facing after side switches without clipping, repeated hits, or control lockout."
     inputs:
@@ -6961,6 +6961,7 @@ tasks:
       - "T127 added a real dedicated guard state for pressure defense."
       - "Owner wants less glitchy, less restricted, King of Fighters-style gameplay feel."
     allowed_files:
+      - "src/core/input.ts"
       - "src/core/simulation.ts"
       - "src/core/types.ts"
       - "test/combat-core.test.ts"
@@ -6977,6 +6978,55 @@ tasks:
       - "Regression coverage for close-range side-switch pressure"
       - "No repeated same-activation hits"
       - "Readable spacing/facing after point-blank guarded or hit pressure"
+      - "Task receipt and small coherent commit"
+    receipt:
+      result: done
+      summary: "Fixed two close-range mobility/pressure glitches. Double-tap run/backdash commands now require the live second-tap direction, so stale history cannot keep retriggering run after the player returns to neutral. Mobility states now clear dedicated guard on entry and while active, preventing run/backdash/roll from overlapping with defensive guard. Browser smoke confirmed the desktop runtime no longer reports a running fighter as guarding."
+      changed_files:
+        - "src/core/input.ts"
+        - "src/core/simulation.ts"
+        - "test/combat-core.test.ts"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+        - "progress.md"
+      commands:
+        - cmd: "npm test -- --run test/combat-core.test.ts -t \"stale double tap\""
+          status: pass
+        - cmd: "npm test -- --run test/combat-core.test.ts -t \"clears dedicated guard\""
+          status: pass
+        - cmd: "npm test -- --run test/combat-core.test.ts"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-pressure"
+          status: pass
+      next_task: T129
+  - id: T129
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: medium
+    objective: "Polish the procedural touch-control UI so mobile controls look consistent, stay within playable bounds, and expose the same guard/attack/mobility affordances cleanly across portrait and landscape."
+    inputs:
+      - "Live UI image regeneration remains blocked by missing OPENAI_API_KEY."
+      - "Existing smoke artifacts exercise portrait and landscape touch controls using procedural canvas/UI."
+      - "Owner wants all UI elements to function well, look good, and stay consistent with the original view."
+    allowed_files:
+      - "src/game/touchControls.ts"
+      - "src/game/MeowtalArenaScene.ts"
+      - "test/touch-controls.test.ts"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+      - "progress.md"
+    verify:
+      - "npm test -- --run test/touch-controls.test.ts"
+      - "npm run verify"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-touch-ui"
+    stop_if:
+      - "Requires generated PNG UI replacement or OPENAI_API_KEY."
+      - "Requires broad scene redesign outside touch-control layout/rendering."
+    expected_output:
+      - "Touch-control layout bounds covered by tests"
+      - "Guard/attack/mobility controls remain accessible without overlap"
+      - "Mobile smoke screenshots show consistent portrait and landscape controls"
       - "Task receipt and small coherent commit"
 
 checks:

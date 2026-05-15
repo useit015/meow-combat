@@ -415,6 +415,7 @@ function executeMobilityCommand(
   frame: number,
   events: CombatEvent[],
 ): void {
+  fighter.guarding = false;
   setState(fighter, command, frame, events);
   fighter.lastHitFrame = null;
 }
@@ -428,6 +429,7 @@ function applyMobilityState(
   groundY: number,
 ): boolean {
   if (fighter.state === "runForward") {
+    fighter.guarding = false;
     fighter.x += fighter.definition.walkSpeed * 1.95 * fighter.facing;
     if (fighter.stateFrame > RUN_MAX_FRAMES || buffer.directionForLatest(fighter.facing) !== "forward") {
       setState(fighter, "idle", frame, events);
@@ -437,6 +439,7 @@ function applyMobilityState(
   }
 
   if (fighter.state === "backdash") {
+    fighter.guarding = false;
     fighter.x -= fighter.definition.walkSpeed * 2.25 * fighter.facing;
     if (fighter.stateFrame > BACKDASH_FRAMES) {
       setState(fighter, "idle", frame, events);
@@ -446,6 +449,7 @@ function applyMobilityState(
   }
 
   if (fighter.state === "rollForward" || fighter.state === "rollBack") {
+    fighter.guarding = false;
     const direction = fighter.state === "rollForward" ? fighter.facing : -fighter.facing;
     fighter.x += fighter.definition.walkSpeed * 1.7 * direction;
     if (fighter.stateFrame > ROLL_FRAMES) {
