@@ -53,8 +53,9 @@ npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/
 
 ## Controls
 
-- `Enter`: move from title to fighter select; start from fighter select; continue after round over.
-- `A/D` or `B`: P1 movement, and P1 fighter choice on the select screen.
+- `Enter`: move from title to mode select, confirm mode, start from fighter select, and continue after round over.
+- `A/D`, `B`, or arrow keys: choose Training or 1 VS CPU on mode select.
+- `A/D` or `B`: P1 movement, and P1 fighter choice on the fighter select screen.
 - `Arrow Left/Right`: P2 fighter choice on the select screen when manual controls are relevant.
 - `Space` or `J`: light punch.
 - `I`: light kick.
@@ -74,6 +75,7 @@ Implemented locally:
 
 - Deterministic TypeScript combat core with fixed-step snapshots.
 - Phaser shell with title, fighter select, pause, round flow, match flow, HUD, and browser verification hooks.
+- Explicit arcade mode flow with title, mode select, fighter select, 1 VS CPU, and endless Training sparring.
 - Product-branded `MEOWTAL KOMBAT` title/select presentation using approved generated stage art, transparent fighter showcases, arcade frames, and VS card composition instead of debug fallback geometry.
 - Runtime-sprite fighter select cards using approved transparent idle sprites, with concept-sheet art retained only as a fallback.
 - Gray Rabbit and Ginger Tabby Cat fighter definitions with a shared upright two-legged normal stance convention.

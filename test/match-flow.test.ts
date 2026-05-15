@@ -29,4 +29,17 @@ describe("match flow", () => {
 
     expect(afterExtraStep).toEqual(ended);
   });
+
+  it("keeps training rounds active after the timer would expire", () => {
+    const simulation = new FightingSimulation({ roundSeconds: 1, trainingMode: true });
+    let snapshot = simulation.snapshot();
+
+    for (let frame = 1; frame <= 90; frame += 1) {
+      snapshot = simulation.step();
+    }
+
+    expect(snapshot.status).toBe("fighting");
+    expect(snapshot.winner).toBeNull();
+    expect(snapshot.roundTimer).toBe(0);
+  });
 });

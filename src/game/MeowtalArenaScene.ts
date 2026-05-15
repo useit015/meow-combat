@@ -83,11 +83,11 @@ const RUNTIME_UI_ASSETS = GAME_CONFIG.runtimeUiAssets;
 
 export class MeowtalArenaScene extends Phaser.Scene {
   private selectedFighterIndex: Record<"p1" | "p2", number> = { ...GAME_CONFIG.defaultSelections };
+  private shell: ShellState = initialShellState;
   private simulation = this.createSimulation();
   private framePacing = createFramePacingState();
   private snapshot: MatchSnapshot = this.simulation.snapshot();
   private matchSet: MatchSetState = createMatchSet();
-  private shell: ShellState = initialShellState;
   private p2CpuEnabled = true;
   private cpuDifficulty: CpuDifficulty = "normal";
   private readonly assetReadiness = buildAssetReadinessSummary(FIGHTER_ASSET_MANIFESTS, [GAME_CONFIG.stage]);
@@ -388,6 +388,11 @@ export class MeowtalArenaScene extends Phaser.Scene {
       p2Mode: this.p2CpuEnabled ? "cpu" : "manual",
       playMode: selectedPlayMode(this.shell),
       playModeLabel: shellModeLabel(this.shell),
+      training: {
+        enabled: selectedPlayMode(this.shell) === "training",
+        endlessRound: selectedPlayMode(this.shell) === "training",
+        dummy: selectedPlayMode(this.shell) === "training" ? "manual idle sparring dummy" : null,
+      },
       cpuDifficulty: this.cpuDifficulty,
       selectedFighters: {
         p1: selectedFighter(this.selectedFighterIndex.p1).displayName,
@@ -1081,9 +1086,11 @@ export class MeowtalArenaScene extends Phaser.Scene {
   }
 
   private createSimulation(): FightingSimulation {
+    const playMode = selectedPlayMode(this.shell);
     return new FightingSimulation({
       p1Definition: selectedFighter(this.selectedFighterIndex.p1),
       p2Definition: selectedFighter(this.selectedFighterIndex.p2),
+      trainingMode: playMode === "training",
     });
   }
 
@@ -1992,6 +1999,9 @@ function shellHelp(shell: ShellState, selectionLabel: string, controlFallbackLin
   }
   if (shell.phase === "paused") {
     return "RESUME FIGHT\nRESET TO READY\nFULLSCREEN\nCPU SETTINGS";
+  }
+  if (selectedPlayMode(shell) === "training") {
+    return "Training: endless timer and dummy sparring  |  Space/J light  |  I kick  |  K heavy  |  L special  |  P pause  |  R reset";
   }
   return "Double-tap D/B run  |  W+dir hop  |  Space/J light  |  I kick  |  K heavy  |  L special  |  S,D,L super  |  C CPU  |  V level  |  P pause  |  F full";
 }

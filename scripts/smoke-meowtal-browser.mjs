@@ -426,6 +426,49 @@ async function runDesktop(browser, url, outDir) {
   return { name: "desktop", failures, errors, screenshot: shot, state };
 }
 
+async function runTrainingDemo(browser, url, outDir) {
+  const failures = [];
+  const screenshots = [];
+  const { context, page, errors } = await openScenario(browser, url, {
+    viewport: { width: 1024, height: 576 },
+  });
+
+  await pressKey(page, "Space");
+  let state = await readState(page);
+  screenshots.push(await screenshot(page, outDir, "training-mode-select-default"));
+  assert(state.shellPhase === "mode-select", failures, `training path expected mode-select phase, got ${state.shellPhase}`);
+  assert(state.playMode === "versus-cpu", failures, `training path default expected versus-cpu, got ${state.playMode}`);
+
+  await pressKey(page, "KeyD");
+  state = await readState(page);
+  screenshots.push(await screenshot(page, outDir, "training-mode-selected"));
+  assert(state.shellPhase === "mode-select", failures, `training mode cycle should stay mode-select, got ${state.shellPhase}`);
+  assert(state.playMode === "training", failures, `training mode cycle expected training, got ${state.playMode}`);
+  assert(state.playModeLabel === "TRAINING", failures, `training mode label expected TRAINING, got ${state.playModeLabel}`);
+
+  await pressKey(page, "Space");
+  state = await readState(page);
+  screenshots.push(await screenshot(page, outDir, "training-character-select"));
+  assert(state.shellPhase === "select", failures, `training confirm expected select phase, got ${state.shellPhase}`);
+  assert(state.playMode === "training", failures, `training select expected training mode, got ${state.playMode}`);
+
+  await pressKey(page, "Space");
+  await waitFrames(page, 30);
+  state = await readState(page);
+  screenshots.push(await screenshot(page, outDir, "training-fight"));
+  assert(state.shellPhase === "fighting", failures, `training fight expected fighting phase, got ${state.shellPhase}`);
+  assert(state.playMode === "training", failures, `training fight expected training mode, got ${state.playMode}`);
+  assert(state.training?.enabled === true, failures, "training fight should expose training.enabled=true");
+  assert(state.training?.endlessRound === true, failures, "training fight should expose endlessRound=true");
+  assert(state.p2Mode === "manual", failures, `training fight expected manual dummy, got ${state.p2Mode}`);
+  checkRuntimeUiLoaded(state, "training fight", failures);
+  checkVisibleRuntimeUiSlots(state, "training fight", FIGHT_UI_SLOTS, failures);
+  assert(errors.length === 0, failures, `training console/page errors: ${JSON.stringify(errors)}`);
+
+  await context.close();
+  return { name: "training-demo", failures, errors, screenshots, state };
+}
+
 async function runGamepad(browser, url, outDir) {
   const failures = [];
   const screenshots = [];
@@ -765,6 +808,7 @@ async function main() {
 
   try {
     results.push(await runDesktop(browser, args.url, args.outDir));
+    results.push(await runTrainingDemo(browser, args.url, args.outDir));
     results.push(await runGamepad(browser, args.url, args.outDir));
     results.push(await runRollDemo(browser, args.url, args.outDir));
     results.push(await runEndgameDemo(browser, args.url, args.outDir));

@@ -37,11 +37,15 @@ export class FightingSimulation {
   private match: MatchRuntime;
   private readonly internals: RuntimeInternals;
   private readonly roundSeconds: number;
+  private readonly trainingMode: boolean;
   private readonly p1Definition: FighterDefinition;
   private readonly p2Definition: FighterDefinition;
 
-  constructor(options: { roundSeconds?: number; p1Definition?: FighterDefinition; p2Definition?: FighterDefinition } = {}) {
+  constructor(
+    options: { roundSeconds?: number; trainingMode?: boolean; p1Definition?: FighterDefinition; p2Definition?: FighterDefinition } = {},
+  ) {
     this.roundSeconds = options.roundSeconds ?? DEFAULT_ROUND_SECONDS;
+    this.trainingMode = options.trainingMode ?? false;
     this.p1Definition = options.p1Definition ?? ATLAS_LION;
     this.p2Definition = options.p2Definition ?? SAHARA_VIPER;
     this.match = createInitialMatch(this.roundSeconds, this.p1Definition, this.p2Definition);
@@ -76,12 +80,18 @@ export class FightingSimulation {
     this.tickFighter("p2", this.match.p2, this.match.p1, this.internals.buffers.p2, frame, events);
     this.resolveAttacks(this.match.p1, this.match.p2, frame, events);
     this.resolveAttacks(this.match.p2, this.match.p1, frame, events);
+    if (this.trainingMode) {
+      this.match.p1.health = Math.max(1, this.match.p1.health);
+      this.match.p2.health = Math.max(1, this.match.p2.health);
+    }
     this.separateFighters();
     this.faceOpponents();
     this.match.combo = expireCombo(this.match.combo, frame);
 
     const roundTimer = Math.max(0, this.roundSeconds - Math.floor(frame / 60));
-    const outcome = resolveOutcome(this.match.p1, this.match.p2, roundTimer);
+    const outcome = this.trainingMode
+      ? { status: "fighting" as const, winner: null }
+      : resolveOutcome(this.match.p1, this.match.p2, roundTimer);
 
     this.match = {
       ...this.match,

@@ -63,7 +63,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T008
+active_task: T011
 
 tasks:
   - id: T001
@@ -334,7 +334,7 @@ tasks:
   - id: T008
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Choose the next safe slice for training-specific gameplay depth and final two-mode demo proof."
     inputs:
@@ -352,6 +352,117 @@ tasks:
       - "verify"
       - "stop_if"
       - "Whether imagegen is required"
+    receipt:
+      result: done
+      decision: "Training needs core behavior now: endless timer/round handling and browser-visible training state. Existing generated assets are sufficient for this slice."
+      full_outcome_complete: false
+      evidence:
+        - "T005 receipt"
+        - "output/web-game/arcade-mode-select-smoke/report.json"
+        - "src/core/simulation.ts"
+        - "src/game/MeowtalArenaScene.ts"
+      next_allowed_task: T009
+      imagegen_required_for_next_slice: false
+      blocked_tasks: []
+      required_board_updates:
+        - "Add a Worker task for training-mode core behavior, scene wiring, and smoke proof."
+  - id: T009
+    type: worker
+    assignee: Worker
+    status: done
+    reasoning_hint: default
+    objective: "Implement meaningful training-mode behavior with endless sparring rules, visible browser state, and smoke coverage for menu -> mode-select -> training."
+    allowed_files:
+      - "src/core/simulation.ts"
+      - "test/match-flow.test.ts"
+      - "src/game/MeowtalArenaScene.ts"
+      - "scripts/smoke-meowtal-browser.mjs"
+      - "README.md"
+    verify:
+      - "npm test -- --run test/match-flow.test.ts"
+      - "npm run typecheck"
+      - "npm run build"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/arcade-training-smoke"
+    stop_if:
+      - "Need files outside allowed_files."
+      - "Training behavior requires a product decision not inferable from arcade practice mode norms."
+      - "Verification fails twice for the same cause."
+    receipt:
+      result: done
+      changed_files:
+        - src/core/simulation.ts
+        - test/match-flow.test.ts
+        - src/game/MeowtalArenaScene.ts
+        - scripts/smoke-meowtal-browser.mjs
+        - README.md
+      commands:
+        - cmd: "npm test -- --run test/match-flow.test.ts"
+          status: pass
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "node --check scripts/smoke-meowtal-browser.mjs"
+          status: pass
+        - cmd: "npm run build"
+          status: pass
+        - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/arcade-training-smoke"
+          status: pass
+      summary: "Implemented training as an endless sparring mode: the core keeps training rounds active past timer expiry, scene-created simulations use trainingMode for Training, browser state exposes training.enabled/endlessRound, and smoke covers 1 VS CPU plus Training menu flows."
+      remaining_blockers:
+        - "Run final full verification and audit before marking the tranche complete."
+  - id: T010
+    type: pm
+    assignee: PM
+    status: done
+    reasoning_hint: default
+    objective: "Prepare a coherent commit for the training-mode gameplay slice."
+    inputs:
+      - "T009 receipt"
+      - "Current git status"
+      - "AGENTS.md instructions"
+    constraints:
+      - "Before the commit, check the staged diff."
+      - "Keep unrelated untracked .codex/ files out of the commit."
+    expected_output:
+      - "Staged diff summary"
+      - "Commit command"
+    receipt:
+      result: done
+      staged_files:
+        - README.md
+        - docs/goals/arcade-shell-modes-assets/state.yaml
+        - scripts/smoke-meowtal-browser.mjs
+        - src/core/simulation.ts
+        - src/game/MeowtalArenaScene.ts
+        - test/match-flow.test.ts
+      commands:
+        - cmd: "git diff --stat"
+          status: pass
+        - cmd: "git diff --cached --stat"
+          status: pass
+      summary: "Prepared a coherent training gameplay commit covering endless core rules, scene wiring, smoke proof, and README controls."
+  - id: T011
+    type: judge
+    assignee: Judge
+    status: active
+    reasoning_hint: high
+    objective: "Final audit: verify the arcade shell tranche satisfies menu, character selection, Training, 1 vs CPU, gameplay depth, and generated asset integration."
+    inputs:
+      - "All done task receipts"
+      - "Latest verification"
+      - "Current dirty diff"
+      - "Browser smoke reports"
+      - "Generated asset manifests"
+    constraints:
+      - "Do not implement."
+      - "Reject completion if full verification is not fresh."
+      - "Reject completion if either Training or 1 VS CPU lacks browser-demo evidence."
+      - "Reject completion if generated assets are not integrated into workspace runtime paths."
+    expected_output:
+      - "complete | not_complete"
+      - "full_outcome_complete: true | false"
+      - "Mapping from original request to evidence"
+      - "Verification commands"
+      - "Missing evidence or next task"
     receipt: null
   - id: T999
     type: judge
@@ -385,8 +496,10 @@ checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T003
+    task: T009
     commands:
-      - "npm test -- --run test/shell-flow.test.ts"
-      - "npm test -- --run test/shell-flow.test.ts test/touch-controls.test.ts"
+      - "npm test -- --run test/match-flow.test.ts"
       - "npm run typecheck"
+      - "node --check scripts/smoke-meowtal-browser.mjs"
+      - "npm run build"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/arcade-training-smoke"
