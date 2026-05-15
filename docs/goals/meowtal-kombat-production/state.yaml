@@ -8,7 +8,7 @@ goal:
   slug: "meowtal-kombat-production"
   kind: specific
   tranche: "Continuous execution: complete successive safe verified slices until the full original outcome is complete."
-  status: active
+  status: done
   intake:
     original_request: "Make the Meowtal Kombat concept into a real production-ready and smooth game with proper assets, architecture, effects, and gameplay."
     interpreted_outcome: "A polished, production-ready scoped fighting game where a gray rabbit and ginger/orange tabby cat fight through a complete arcade flow with smooth controls, animations, effects, audio, HUD, and verified game feel."
@@ -86,7 +86,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T162
+active_task: null
 
 tasks:
   - id: T000
@@ -8601,7 +8601,7 @@ tasks:
   - id: T162
     type: pm
     assignee: PM
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Run the final production-ready v1 audit after motion cue polish and either mark the goal complete or identify the next concrete blocker."
     inputs:
@@ -8624,18 +8624,42 @@ tasks:
       - "Final pass/fail verdict for production-ready v1."
       - "If passed, goal status complete with proof paths."
       - "If failed, next concrete blocker task."
+    receipt:
+      result: done
+      summary: "Final production-ready v1 audit passed after the UI regeneration/retention tranche and KOF motion-cue polish. The audit found no missing runtime assets, no fighter/stage fallbacks, no console/runtime errors, no responsive layout failures, no portrait drift, no unreadable HUD crop, and no unacceptable KOF motion or side-switch visual issue. Production-ready v1 is complete for the defined Meowtal Kombat scope."
+      commands:
+        - cmd: "npm run verify"
+          status: pass
+          notes: "Typecheck, 26 test files, 169 tests, and production build passed."
+        - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-v1-audit"
+          status: pass
+          notes: "Zero browser smoke failures."
+        - cmd: "Review motion/side-switch/UI evidence from output/web-game/postfinal-motion-cues and output/web-game/postfinal-visual-crossup."
+          status: pass
+        - cmd: "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+          status: pass
+      proof:
+        - "output/web-game/postfinal-v1-audit/desktop-keyboard-fight.png"
+        - "output/web-game/postfinal-v1-audit/portrait-fight.png"
+        - "output/web-game/postfinal-v1-audit/landscape-fight.png"
+        - "output/web-game/postfinal-v1-audit/ko-overlay.png"
+        - "output/web-game/postfinal-v1-audit/match-victory-overlay.png"
+        - "output/web-game/postfinal-motion-cues/run-forward.png"
+        - "output/web-game/postfinal-motion-cues/backdash.png"
+        - "output/web-game/postfinal-motion-cues/hop.png"
+        - "output/web-game/postfinal-motion-cues/roll-forward.png"
+        - "output/web-game/postfinal-motion-cues/roll-back.png"
+        - "output/web-game/postfinal-visual-crossup/visual-crossup-after.png"
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T161
+    task: T162
     commands:
-      - cmd: "npm test -- --run test/presentation.test.ts"
-        status: pass
       - cmd: "npm run verify"
         status: pass
-      - cmd: "Node/Playwright demo capture for run-forward, backdash, hop, roll-forward, roll-back, K.O., rabbit victory, and cat victory to output/web-game/postfinal-motion-cues"
+      - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-v1-audit"
         status: pass
-      - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-motion-cues"
+      - cmd: "Review motion/side-switch/UI evidence from output/web-game/postfinal-motion-cues and output/web-game/postfinal-visual-crossup."
         status: pass
