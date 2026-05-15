@@ -155,6 +155,7 @@ Original prompt: create a KOF-style Moroccan-themed production-ready game, first
 - Imagegen docs handoff refresh: updated the runbook from the older Atlas/Marrakesh state to the current Meowtal fighter/stage/UI asset state, including UI source/runtime paths, crop-compatible approval checks, and the relevant manifest/config files. Verification passed: required-docs `rg` guard and `npm run verify`.
 - Codex imagegen presentation UI candidates: generated and alpha-converted 1024x576 built-in imagegen candidates for `logo-title-mark` and `fight-ko-victory-overlays`, saved under `assets/source/imagegen/ui/meowtal/candidates/`, and added candidate dimension/alpha contract coverage. Verification passed: `sips`, focused asset/manifest tests, and `npm run verify`.
 - Codex imagegen presentation UI promotion: promoted the regenerated `logo-title-mark` and `fight-ko-victory-overlays` sheets into source/public runtime assets, updated provenance for the T155/T156 built-in imagegen batch, and verified title, K.O., and victory overlays in production-preview smoke at `output/web-game/postfinal-ui-presentation-promotion`.
+- Codex imagegen HUD UI candidates: generated and alpha-converted 1024x576 built-in imagegen candidates for `hud-frame`, `health-bar-rabbit`, `health-bar-cat`, `super-meter`, and `timer-frame`, saved under `assets/source/imagegen/ui/meowtal/candidates/`, and expanded the candidate dimension/alpha contract coverage. Verification passed: `sips`, focused asset-runtime tests, and `npm run verify`.
 
 ## Next Suggestions
 

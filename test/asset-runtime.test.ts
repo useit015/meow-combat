@@ -26,6 +26,11 @@ const UI_CANDIDATE_ROOT = join(process.cwd(), "assets/source/imagegen/ui/meowtal
 const codexUiCandidatePaths = [
   "logo-title-mark-codex-01.png",
   "fight-ko-victory-overlays-codex-01.png",
+  "hud-frame-codex-01.png",
+  "health-bar-rabbit-codex-01.png",
+  "health-bar-cat-codex-01.png",
+  "super-meter-codex-01.png",
+  "timer-frame-codex-01.png",
 ] as const;
 const rabbitManifest = manifestById("gray-rabbit");
 const catManifest = manifestById("ginger-tabby-cat");
