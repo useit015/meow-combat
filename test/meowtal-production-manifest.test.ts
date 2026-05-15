@@ -141,8 +141,15 @@ describe("Meowtal production manifest", () => {
       expect(provenance?.license.kind).toBe("owned-generated");
       expect(provenance?.createdOrDownloadedOn).toBe("2026-05-14");
       expect(provenance?.approvalNotes).toContain("Approved runtime UI asset");
-      expect(provenance?.approvalNotes).toContain(`output/imagegen/meowtal-ui-${surfaceId}.png`);
-      expect(provenance?.approvalNotes).toMatch(/Approved by T09[58] visual QA, promoted by T09[69]/);
+      if (surfaceId === "logo-title-mark" || surfaceId === "fight-ko-victory-overlays") {
+        expect(provenance?.approvalNotes).toContain("Codex built-in imagegen regenerated");
+        expect(provenance?.approvalNotes).toContain("crop-compatible");
+        expect(provenance?.approvalNotes).toContain(`assets/source/imagegen/ui/meowtal/candidates/${surfaceId}-codex-01.png`);
+        expect(provenance?.approvalNotes).toContain("Approved by T155 visual QA, promoted by T156");
+      } else {
+        expect(provenance?.approvalNotes).toContain(`output/imagegen/meowtal-ui-${surfaceId}.png`);
+        expect(provenance?.approvalNotes).toMatch(/Approved by T09[58] visual QA, promoted by T09[69]/);
+      }
       expect(provenance?.approvalNotes).toContain("routed into scene rendering by T100");
       expect(provenance?.blocker).toBeNull();
       expect(existsSync(join(process.cwd(), provenance?.sourcePath ?? ""))).toBe(true);

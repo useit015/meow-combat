@@ -205,7 +205,7 @@ const generatedUiSurfaceRuntimePaths: Readonly<Partial<Record<MeowtalVisualSurfa
 };
 
 const generatedUiSurfaceOutputCandidatePaths: Readonly<Partial<Record<MeowtalVisualSurfaceId, string>>> = {
-  "logo-title-mark": "output/imagegen/meowtal-ui-logo-title-mark.png",
+  "logo-title-mark": "assets/source/imagegen/ui/meowtal/candidates/logo-title-mark-codex-01.png",
   "hud-frame": "output/imagegen/meowtal-ui-hud-frame.png",
   "rabbit-portrait": "output/imagegen/meowtal-ui-rabbit-portrait.png",
   "cat-portrait": "output/imagegen/meowtal-ui-cat-portrait.png",
@@ -213,12 +213,12 @@ const generatedUiSurfaceOutputCandidatePaths: Readonly<Partial<Record<MeowtalVis
   "health-bar-cat": "output/imagegen/meowtal-ui-health-bar-cat.png",
   "super-meter": "output/imagegen/meowtal-ui-super-meter.png",
   "timer-frame": "output/imagegen/meowtal-ui-timer-frame.png",
-  "fight-ko-victory-overlays": "output/imagegen/meowtal-ui-fight-ko-victory-overlays.png",
+  "fight-ko-victory-overlays": "assets/source/imagegen/ui/meowtal/candidates/fight-ko-victory-overlays-codex-01.png",
 };
 
 const generatedUiSurfaceQaNotes: Readonly<Partial<Record<MeowtalVisualSurfaceId, string>>> = {
   "logo-title-mark":
-    "Approved runtime UI asset: readable original MEOWTAL KOMBAT title mark with rabbit-ear and cat-tail motifs, transparent alpha, no copied branding, watermark, or brand marks. Approved by T095 visual QA, promoted by T096, and routed into scene rendering by T100.",
+    "Approved runtime UI asset: Codex built-in imagegen regenerated readable MEOWTAL KOMBAT title mark with rabbit-ear and cat-tail motifs, transparent alpha, original-view crop-compatible layout, no copied branding, watermark, or brand marks. Approved by T155 visual QA, promoted by T156, and routed into scene rendering by T100.",
   "hud-frame":
     "Approved runtime UI asset: top HUD frame with left/right health housings and center timer medallion, transparent alpha, no text, portraits, copied branding, watermark, or brand marks. Approved by T095 visual QA, promoted by T096, and routed into scene rendering by T100.",
   "rabbit-portrait":
@@ -234,13 +234,14 @@ const generatedUiSurfaceQaNotes: Readonly<Partial<Record<MeowtalVisualSurfaceId,
   "timer-frame":
     "Approved runtime UI asset: circular center timer frame with transparent alpha, no numbers, copied branding, watermark, or brand marks. Approved by T095 visual QA, promoted by T096, and routed into scene rendering by T100.",
   "fight-ko-victory-overlays":
-    "Approved runtime UI asset: FIGHT, K.O., Rabbit Wins, and Tabby Wins overlay sheet with crisp local lettering, transparent alpha, no copied branding, watermark, or brand marks. Approved by T095 visual QA, promoted by T096, and routed into scene rendering by T100.",
+    "Approved runtime UI asset: Codex built-in imagegen regenerated FIGHT, K.O., Rabbit Wins, and Tabby Wins overlay sheet with crisp lettering, transparent alpha, original-view four-quadrant crop-compatible layout, no copied branding, watermark, or brand marks. Approved by T155 visual QA, promoted by T156, and routed into scene rendering by T100.",
 };
 
 const generatedUiSurfaceTransformNotes: Readonly<Partial<Record<MeowtalVisualSurfaceId, readonly string[]>>> = {
   "logo-title-mark": [
-    "Generated a blank title-mark plate with Codex built-in imagegen on magenta chroma-key background.",
-    "Removed chroma-key background to alpha, resized to 1024x576, and added crisp local title lettering for readability.",
+    "Regenerated complete title-mark sheet with Codex built-in imagegen on magenta chroma-key background.",
+    "Removed chroma-key background to alpha, resized to 1024x576, and preserved the original crop-compatible title placement.",
+    "Promoted T155 candidate assets/source/imagegen/ui/meowtal/candidates/logo-title-mark-codex-01.png to source and runtime paths in T156.",
   ],
   "hud-frame": [
     "Generated with Codex built-in imagegen on magenta chroma-key background.",
@@ -271,8 +272,9 @@ const generatedUiSurfaceTransformNotes: Readonly<Partial<Record<MeowtalVisualSur
     "Removed chroma-key background to alpha and resized to 1024x576 as a source-only UI candidate.",
   ],
   "fight-ko-victory-overlays": [
-    "Generated blank overlay panels with Codex built-in imagegen on magenta chroma-key background.",
-    "Removed chroma-key background to alpha, resized to 1024x576, and added crisp local FIGHT/K.O./victory lettering for readability.",
+    "Regenerated complete FIGHT/K.O./victory overlay sheet with Codex built-in imagegen on magenta chroma-key background.",
+    "Removed chroma-key background to alpha, resized to 1024x576, and preserved the original four-quadrant crop-compatible overlay placement.",
+    "Promoted T155 candidate assets/source/imagegen/ui/meowtal/candidates/fight-ko-victory-overlays-codex-01.png to source and runtime paths in T156.",
   ],
 };
 
