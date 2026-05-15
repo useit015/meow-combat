@@ -86,7 +86,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T125
+active_task: T126
 
 tasks:
   - id: T000
@@ -6810,7 +6810,7 @@ tasks:
   - id: T125
     type: worker
     assignee: Worker
-    status: active
+    status: blocked
     reasoning_hint: medium
     objective: "Begin the requested UI regeneration pass: run imagegen preflight, inventory the current generated Meowtal UI surfaces against the runtime contract, and regenerate or prepare the first coherent UI asset batch if live image generation is available."
     inputs:
@@ -6844,6 +6844,49 @@ tasks:
       - "Imagegen credential/preflight result recorded"
       - "Current UI asset inventory compared to runtime slots and crop contracts"
       - "First regenerated UI batch integrated if credentials and candidates are available, otherwise a precise blocked receipt and next safe local task"
+    receipt:
+      result: blocked
+      summary: "Live UI regeneration is blocked because OPENAI_API_KEY is missing in the shell. The bundled imagegen CLI is present and a dry-run HUD refresh prompt succeeded with python3. Current routed public UI assets were inventoried and all nine runtime UI PNGs are 1024x576, matching the T123 runtime contract. No binary UI assets were regenerated or changed."
+      changed_files:
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+        - "progress.md"
+      commands:
+        - cmd: "npm run imagegen:preflight"
+          status: blocked
+          notes: "OPENAI_API_KEY=missing"
+        - cmd: "if [ -n \"$OPENAI_API_KEY\" ]; then echo OPENAI_API_KEY:present; else echo OPENAI_API_KEY:missing; fi; test -f /Users/oussmustaine/.codex/skills/imagegen/scripts/image_gen.py && echo imagegen_cli:present || echo imagegen_cli:missing"
+          status: pass
+        - cmd: "python3 /Users/oussmustaine/.codex/skills/imagegen/scripts/image_gen.py generate --dry-run --size 1536x1024 --quality high --out output/imagegen/meowtal-ui-hud-refresh-candidate.png --prompt <structured HUD refresh prompt>"
+          status: pass
+        - cmd: "sips -g pixelWidth -g pixelHeight public/assets/generated/ui/meowtal/*.png"
+          status: pass
+      blocker: "Set OPENAI_API_KEY locally to run live OpenAI Image API UI regeneration. Do not paste the key in chat."
+      next_task: T126
+  - id: T126
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: low
+    objective: "Add deterministic UI imagegen jobs to the asset pipeline so all generated Meowtal UI surfaces can be regenerated reproducibly once OPENAI_API_KEY is available."
+    inputs:
+      - "T125 imagegen preflight: OPENAI_API_KEY is missing, but the bundled CLI dry-run works."
+      - "src/assets/meowtalProductionManifest.ts already contains UI visual surface provenance, prompts, source paths, runtime paths, and blockers."
+      - "test/imagegen-jobs.test.ts currently covers fighter and stage jobs but not UI jobs."
+    allowed_files:
+      - "src/assets/imagegenJobs.ts"
+      - "test/imagegen-jobs.test.ts"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+      - "progress.md"
+    verify:
+      - "npm test -- --run test/imagegen-jobs.test.ts"
+      - "npm run verify"
+    stop_if:
+      - "Requires live image generation, OPENAI_API_KEY, binary PNG changes, or generated UI candidate approval."
+      - "Requires changing runtime scene rendering, gameplay, fighter assets, or stage assets."
+    expected_output:
+      - "Imagegen job builder includes UI visual surface jobs with deterministic ids, prompt slugs, output paths, statuses, and prompt constraints"
+      - "Tests cover generated/approved/planned UI job status and do not require credentials"
+      - "Task receipt and small coherent commit"
 
 checks:
   dirty_fingerprint: unknown
