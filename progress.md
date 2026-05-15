@@ -137,6 +137,7 @@ Original prompt: create a KOF-style Moroccan-themed production-ready game, first
 - CPU sparring smoothing pass: changed CPU attack reactions to hold dedicated guard in place instead of feeding backward movement into the dash detector, with repeated-pressure coverage to prevent accidental run/backdash oscillation. Verification passed: focused CPU tests, `npm run verify`, and production-preview smoke at `output/web-game/postfinal-cpu-sparring`.
 - Held-guard visual pass: routed idle+guarding snapshots to the approved walk-back defensive row and froze the pose for a stable guard silhouette while preserving deterministic combat state. Verification passed: focused asset-runtime tests, `npm run verify`, and production-preview smoke at `output/web-game/postfinal-guard-visual`.
 - Mobile framing pass: removed the forced portrait canvas top margin so the 16:9 fight window centers naturally on tall phones, and added browser smoke assertions for portrait canvas balance plus landscape vertical fill. Verification passed: `npm run verify` and production-preview smoke at `output/web-game/postfinal-mobile-framing`.
+- Production-readiness audit pass: rejected completion because live UI regeneration is still blocked by missing `OPENAI_API_KEY` and roll behavior is the highest-risk unproven KOF-style movement/readability gap. Next executable slice is roll-feel verification and polish without new binary art.
 
 ## Next Suggestions
 

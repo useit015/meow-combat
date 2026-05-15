@@ -86,7 +86,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T133
+active_task: T134
 
 tasks:
   - id: T000
@@ -7182,7 +7182,7 @@ tasks:
   - id: T133
     type: pm
     assignee: PM
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Run a production-readiness audit against the post-final KOF gameplay, animation, UI, and mobile slices, then identify the next highest-risk blocker without marking the goal complete unless every owner objective has source-backed and browser-backed evidence."
     inputs:
@@ -7201,14 +7201,62 @@ tasks:
       - "Clear readiness verdict"
       - "Next highest-risk task selected if production readiness is still blocked"
       - "No completion claim without full evidence"
+    receipt:
+      result: done
+      summary: "Readiness audit rejected immediate completion. Gameplay/KOF feel is broadly covered by recent movement, guard, side-switching, CPU, and smoke slices, but roll behavior remains under-proven and visually weak because rollForward/rollBack currently route through crouch. Visual/UI readiness is functional and smoke-tested, but the requested credential-backed UI regeneration remains blocked by missing OPENAI_API_KEY, so the next executable blocker is roll-feel verification and polish."
+      commands:
+        - cmd: "npm run imagegen:preflight"
+          status: pass
+        - cmd: "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+          status: pass
+      evidence:
+        - "Subagent gameplay audit: roll input/pass-through/recovery/browser proof is the highest-risk gameplay gap."
+        - "Subagent visual audit: animation/UI/mobile smoke evidence is strong, while live UI regeneration remains blocked until OPENAI_API_KEY is available."
+        - "npm run imagegen:preflight reported OPENAI_API_KEY=missing."
+      next_task: T134
+  - id: T134
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: medium
+    objective: "Add a roll-feel verification and polish slice: prove light+kick roll input, roll pass-through side switching, invulnerability, recovery/facing, and readable runtime presentation without generating new binary art."
+    inputs:
+      - "T133 gameplay audit found roll is mechanically present but under-proven and visually weak."
+      - "Current rollForward/rollBack states are KOF-style mobility states and pass through opponents, but they route to existing crouch art."
+      - "Owner wants less restricted King of Fighters-style gameplay with smooth side switching."
+    allowed_files:
+      - "src/core/input.ts"
+      - "src/core/simulation.ts"
+      - "src/assets/animationMap.ts"
+      - "src/game/MeowtalArenaScene.ts"
+      - "src/game/presentation.ts"
+      - "test/combat-core.test.ts"
+      - "test/presentation.test.ts"
+      - "test/animation-map.test.ts"
+      - "scripts/smoke-meowtal-browser.mjs"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+      - "progress.md"
+    verify:
+      - "npm test -- --run test/combat-core.test.ts test/presentation.test.ts test/animation-map.test.ts"
+      - "npm run verify"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-roll-feel"
+    stop_if:
+      - "Requires new roll-specific generated animation art or changes to approved PNG dimensions."
+      - "Roll polish makes normal crouch/guard visuals inconsistent with the original character identity."
+      - "Roll pass-through breaks existing airborne side-switch or guard behavior."
+    expected_output:
+      - "Roll input and side-switch behavior are covered by deterministic tests"
+      - "Roll presentation is more readable using existing approved character assets"
+      - "Browser smoke captures roll behavior without console/runtime failures"
+      - "Task receipt and small coherent commit"
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T132
+    task: T133
     commands:
-      - cmd: "npm run verify"
+      - cmd: "npm run imagegen:preflight"
         status: pass
-      - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-mobile-framing"
+      - cmd: "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
         status: pass
