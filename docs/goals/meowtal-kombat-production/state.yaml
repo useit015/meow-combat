@@ -86,7 +86,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T160
+active_task: T161
 
 tasks:
   - id: T000
@@ -8496,7 +8496,7 @@ tasks:
   - id: T160
     type: pm
     assignee: PM
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Run a final post-UI-regeneration production readiness audit focused on KOF-style motion, side switching, reused movement animations, mirrored fighter details, responsive UI, and full production-preview evidence."
     inputs:
@@ -8520,22 +8520,67 @@ tasks:
       - "Explicit pass/fail readiness verdict."
       - "Evidence paths for final browser smoke and motion/side-switch review."
       - "If passed, mark the goal complete; if failed, open the next concrete blocker task."
+    receipt:
+      result: done
+      summary: "Final readiness audit kept tests/build/smoke green and found no missing assets, runtime fallbacks, console errors, responsive layout failures, portrait drift, or unacceptable side-switch/cross-up breakage. It rejected production-ready v1 signoff because fresh run-forward and backdash screenshots still read too static when they reuse walk rows without strong dash/run motion language. Roll-through, hop, K.O., victory, desktop, gamepad, portrait, and landscape evidence passed."
+      commands:
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-readiness-v1"
+          status: pass
+        - cmd: "Node/Playwright demo capture for run-forward, backdash, hop, roll-forward, roll-back, K.O., rabbit victory, and cat victory to output/web-game/postfinal-readiness-v1-motion"
+          status: pass
+      proof:
+        - "output/web-game/postfinal-readiness-v1/desktop-keyboard-fight.png"
+        - "output/web-game/postfinal-readiness-v1/portrait-fight.png"
+        - "output/web-game/postfinal-readiness-v1/landscape-fight.png"
+        - "output/web-game/postfinal-readiness-v1-motion/run-forward.png"
+        - "output/web-game/postfinal-readiness-v1-motion/backdash.png"
+        - "output/web-game/postfinal-readiness-v1-motion/hop.png"
+        - "output/web-game/postfinal-readiness-v1-motion/roll-forward.png"
+        - "output/web-game/postfinal-readiness-v1-motion/roll-back.png"
+        - "output/web-game/postfinal-visual-crossup/visual-crossup-after.png"
+      next_task: T161
+  - id: T161
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: medium
+    objective: "Add KOF-style motion readability cues for run-forward, backdash, and hop without changing approved fighter sprite proportions or regenerated UI assets."
+    inputs:
+      - "T160 failed final readiness because run-forward/backdash screenshots read too static."
+      - "Roll-forward and roll-back already have tested low directional cue effects."
+      - "Run-forward uses the approved walk-forward row; backdash uses the approved walk-back row; hop uses the approved jump row."
+      - "Owner requires smooth KOF-style gameplay and no character-size/identity drift."
+    allowed_files:
+      - "src/game/presentation.ts"
+      - "src/game/MeowtalArenaScene.ts"
+      - "test/presentation.test.ts"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+      - "progress.md"
+      - "output/web-game/**"
+    verify:
+      - "npm test -- --run test/presentation.test.ts"
+      - "npm run verify"
+      - "Capture run-forward/backdash/hop/roll/cross-up production-preview screenshots after the polish."
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-motion-cues"
+      - "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+    stop_if:
+      - "The motion cues scale the fighter sprites, obscure combat readability, break side switching, or introduce UI/layout/browser failures."
+    expected_output:
+      - "Tested procedural motion cues for run-forward, backdash, and hop."
+      - "Browser screenshots showing clearer KOF-style movement readability while preserving sprite identity and size."
+      - "Small coherent motion-polish commit."
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T159
+    task: T160
     commands:
-      - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha assets/source/imagegen/ui/meowtal/rabbit-portrait.png assets/source/imagegen/ui/meowtal/cat-portrait.png public/assets/generated/ui/meowtal/rabbit-portrait.png public/assets/generated/ui/meowtal/cat-portrait.png"
-        status: pass
-      - cmd: "cmp -s assets/source/imagegen/ui/meowtal/rabbit-portrait.png public/assets/generated/ui/meowtal/rabbit-portrait.png && cmp -s assets/source/imagegen/ui/meowtal/cat-portrait.png public/assets/generated/ui/meowtal/cat-portrait.png"
-        status: pass
-      - cmd: "npm test -- --run test/asset-runtime.test.ts test/meowtal-production-manifest.test.ts"
-        status: pass
       - cmd: "npm run verify"
         status: pass
-      - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-ui-portraits"
+      - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-readiness-v1"
         status: pass
-      - cmd: "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+      - cmd: "Node/Playwright demo capture for run-forward, backdash, hop, roll-forward, roll-back, K.O., rabbit victory, and cat victory to output/web-game/postfinal-readiness-v1-motion"
         status: pass
