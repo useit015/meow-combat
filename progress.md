@@ -136,6 +136,7 @@ Original prompt: create a KOF-style Moroccan-themed production-ready game, first
 - Touch UI polish pass: added canvas-bound/no-overlap/min-size tests for fight controls, re-spaced phone portrait/landscape D-pads so direction zones are unambiguous, enlarged scaled mobile down targets enough for browser smoke, and strengthened procedural button readability/active feedback. Verification passed: focused touch tests, `npm run verify`, and production-preview smoke at `output/web-game/postfinal-touch-ui`.
 - CPU sparring smoothing pass: changed CPU attack reactions to hold dedicated guard in place instead of feeding backward movement into the dash detector, with repeated-pressure coverage to prevent accidental run/backdash oscillation. Verification passed: focused CPU tests, `npm run verify`, and production-preview smoke at `output/web-game/postfinal-cpu-sparring`.
 - Held-guard visual pass: routed idle+guarding snapshots to the approved walk-back defensive row and froze the pose for a stable guard silhouette while preserving deterministic combat state. Verification passed: focused asset-runtime tests, `npm run verify`, and production-preview smoke at `output/web-game/postfinal-guard-visual`.
+- Mobile framing pass: removed the forced portrait canvas top margin so the 16:9 fight window centers naturally on tall phones, and added browser smoke assertions for portrait canvas balance plus landscape vertical fill. Verification passed: `npm run verify` and production-preview smoke at `output/web-game/postfinal-mobile-framing`.
 
 ## Next Suggestions
 

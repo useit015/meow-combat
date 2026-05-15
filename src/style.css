@@ -102,6 +102,5 @@ canvas {
       0 0 0 1px rgba(248, 245, 233, 0.08),
       0 18px 60px rgba(0, 0, 0, 0.42),
       0 0 44px rgba(46, 196, 182, 0.14);
-    margin-top: clamp(80px, 12svh, 122px) !important;
   }
 }

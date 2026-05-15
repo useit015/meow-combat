@@ -159,6 +159,32 @@ async function checkTouchReadability(page, state, scenario, failures) {
   }
 }
 
+async function checkCanvasFraming(page, scenario, failures) {
+  const box = await canvasBox(page);
+  const viewport = page.viewportSize();
+  if (!viewport) return;
+
+  if (scenario === "portrait") {
+    const topGap = box.y;
+    const bottomGap = viewport.height - box.y - box.height;
+    const centerDelta = Math.abs(box.y + box.height / 2 - viewport.height / 2);
+    assert(
+      centerDelta <= viewport.height * 0.12,
+      failures,
+      `${scenario} canvas is vertically off-center by ${centerDelta.toFixed(1)} CSS px`,
+    );
+    assert(
+      Math.abs(topGap - bottomGap) <= viewport.height * 0.2,
+      failures,
+      `${scenario} canvas gaps are unbalanced (${topGap.toFixed(1)} top vs ${bottomGap.toFixed(1)} bottom CSS px)`,
+    );
+  }
+
+  if (scenario === "landscape") {
+    assert(box.height >= viewport.height * 0.96, failures, `${scenario} canvas should fill the vertical play area`);
+  }
+}
+
 function checkPauseReadability(state, scenario, failures) {
   const overlapping = state.touchControls?.zones?.filter((zone) => zonesOverlap(zone, PAUSE_PANEL)) ?? [];
   assert(
@@ -252,6 +278,7 @@ async function runMobile(browser, url, outDir, name, viewport, expectedLayout) {
   assert(state.touchControls?.layout === expectedLayout, failures, `${name} expected ${expectedLayout}, got ${state.touchControls?.layout}`);
   checkControlFallback(state, name, failures);
   await checkTouchReadability(page, state, name, failures);
+  await checkCanvasFraming(page, name, failures);
 
   state = await holdControl(page, "right", 10);
   const rightShot = await screenshot(page, outDir, `${name}-hold-right`);

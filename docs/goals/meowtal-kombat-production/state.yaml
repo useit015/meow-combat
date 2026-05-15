@@ -86,7 +86,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T132
+active_task: T133
 
 tasks:
   - id: T000
@@ -7138,7 +7138,7 @@ tasks:
   - id: T132
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: medium
     objective: "Improve portrait/mobile presentation framing so the playable arena, touch controls, and decorative background feel intentionally composed instead of visually top-heavy on tall screens."
     inputs:
@@ -7162,16 +7162,53 @@ tasks:
       - "Portrait and landscape presentation remain playable and visually intentional"
       - "Touch smoke remains clean"
       - "Task receipt and small coherent commit"
+    receipt:
+      result: done
+      summary: "Removed the forced portrait top margin so Phaser's production scale manager centers the 16:9 playfield on tall screens, then strengthened mobile smoke coverage with canvas-framing assertions for portrait centering/top-bottom balance and landscape vertical fill."
+      changed_files:
+        - "src/style.css"
+        - "scripts/smoke-meowtal-browser.mjs"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+        - "progress.md"
+      commands:
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-mobile-framing"
+          status: pass
+      evidence:
+        - "output/web-game/postfinal-mobile-framing/portrait-fight.png"
+        - "output/web-game/postfinal-mobile-framing/landscape-fight.png"
+      next_task: T133
+  - id: T133
+    type: pm
+    assignee: PM
+    status: active
+    reasoning_hint: high
+    objective: "Run a production-readiness audit against the post-final KOF gameplay, animation, UI, and mobile slices, then identify the next highest-risk blocker without marking the goal complete unless every owner objective has source-backed and browser-backed evidence."
+    inputs:
+      - "Owner requested continued work until KOF-style gameplay, smooth/consistent animations, regenerated/consistent UI, and production-ready feel."
+      - "Recent post-final receipts from T127 through T132."
+      - "Current tests, smoke scripts, screenshots, and runtime debug snapshots."
+    allowed_files:
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+      - "progress.md"
+    verify:
+      - "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+    stop_if:
+      - "Audit finds an implementation blocker that requires a new Worker task before completion can be considered."
+      - "Audit evidence is not enough to prove all owner objectives."
+    expected_output:
+      - "Clear readiness verdict"
+      - "Next highest-risk task selected if production readiness is still blocked"
+      - "No completion claim without full evidence"
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T126
+    task: T132
     commands:
-      - cmd: "npm run typecheck"
-        status: pass
-      - cmd: "npm test -- --run test/imagegen-jobs.test.ts"
-        status: pass
       - cmd: "npm run verify"
+        status: pass
+      - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-mobile-framing"
         status: pass
