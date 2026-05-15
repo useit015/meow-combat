@@ -157,6 +157,10 @@ describe("Meowtal production manifest", () => {
         expect(provenance?.approvalNotes).toContain("crop-compatible");
         expect(provenance?.approvalNotes).toContain(`assets/source/imagegen/ui/meowtal/candidates/${surfaceId}-codex-01.png`);
         expect(provenance?.approvalNotes).toContain("Approved by T157 visual QA, promoted by T158");
+      } else if (surfaceId === "rabbit-portrait" || surfaceId === "cat-portrait") {
+        expect(provenance?.approvalNotes).toContain("derived from approved transparent idle sprite");
+        expect(provenance?.approvalNotes).toContain("retained by T159 portrait audit");
+        expect(provenance?.approvalNotes).toContain("replacement imagegen would risk character drift");
       } else {
         expect(provenance?.approvalNotes).toContain(`output/imagegen/meowtal-ui-${surfaceId}.png`);
         expect(provenance?.approvalNotes).toMatch(/Approved by T09[58] visual QA, promoted by T09[69]/);

@@ -222,9 +222,9 @@ const generatedUiSurfaceQaNotes: Readonly<Partial<Record<MeowtalVisualSurfaceId,
   "hud-frame":
     "Approved runtime UI asset: Codex built-in imagegen regenerated top HUD frame with left/right health housings and center timer medallion, transparent alpha, original-view crop-compatible layout, no text, portraits, copied branding, watermark, or brand marks. Approved by T157 visual QA, promoted by T158, and routed into scene rendering by T100.",
   "rabbit-portrait":
-    "Approved runtime UI asset: Gray Rabbit HUD portrait medallion derived from approved transparent idle sprite to preserve upright two-legged identity and proportions, transparent alpha, no text, copied branding, watermark, or brand marks. Approved by T098 visual QA, promoted by T099, and routed into scene rendering by T100.",
+    "Approved runtime UI asset: Gray Rabbit HUD portrait medallion derived from approved transparent idle sprite to preserve upright two-legged identity and proportions, transparent alpha, no text, copied branding, watermark, or brand marks. Approved by T098 visual QA, promoted by T099, routed into scene rendering by T100, and retained by T159 portrait audit because source/public assets are byte-identical and replacement imagegen would risk character drift.",
   "cat-portrait":
-    "Approved runtime UI asset: Ginger Tabby Cat HUD portrait medallion derived from approved transparent idle sprite to preserve upright two-legged identity and proportions, transparent alpha, no text, copied branding, watermark, or brand marks. Approved by T098 visual QA, promoted by T099, and routed into scene rendering by T100.",
+    "Approved runtime UI asset: Ginger Tabby Cat HUD portrait medallion derived from approved transparent idle sprite to preserve upright two-legged identity and proportions, transparent alpha, no text, copied branding, watermark, or brand marks. Approved by T098 visual QA, promoted by T099, routed into scene rendering by T100, and retained by T159 portrait audit because source/public assets are byte-identical and replacement imagegen would risk character drift.",
   "health-bar-rabbit":
     "Approved runtime UI asset: Codex built-in imagegen regenerated red rabbit-side health bar treatment with transparent alpha, original-view crop-compatible layout, no text, portraits, copied branding, watermark, or brand marks. Approved by T157 visual QA, promoted by T158, and routed into scene rendering by T100.",
   "health-bar-cat":
@@ -251,10 +251,12 @@ const generatedUiSurfaceTransformNotes: Readonly<Partial<Record<MeowtalVisualSur
   "rabbit-portrait": [
     "Derived portrait medallion from approved Codex imagegen gray-rabbit idle runtime sprite to avoid character drift.",
     "Composited into a transparent 1024x576 HUD portrait source candidate with local frame, glow, and side markers.",
+    "Retained unchanged in T159 after alpha/dimension/source-public identity checks and browser smoke confirmed the portrait remains the safest no-drift runtime asset.",
   ],
   "cat-portrait": [
     "Derived portrait medallion from approved Codex imagegen ginger-tabby-cat idle runtime sprite to avoid character drift.",
     "Composited into a transparent 1024x576 HUD portrait source candidate with local frame, glow, and side markers.",
+    "Retained unchanged in T159 after alpha/dimension/source-public identity checks and browser smoke confirmed the portrait remains the safest no-drift runtime asset.",
   ],
   "health-bar-rabbit": [
     "Regenerated complete rabbit health-bar sheet with Codex built-in imagegen on magenta chroma-key background.",

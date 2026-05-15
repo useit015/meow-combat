@@ -86,7 +86,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T159
+active_task: T160
 
 tasks:
   - id: T000
@@ -8435,7 +8435,7 @@ tasks:
   - id: T159
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: medium
     objective: "Refresh the remaining HUD portrait UI surfaces while preserving the exact approved fighter identity, proportions, and runtime crop compatibility."
     inputs:
@@ -8469,20 +8469,73 @@ tasks:
       - "Manifest provenance and tests updated for the portrait decision."
       - "Browser smoke evidence for the refreshed/retained portraits."
       - "Small coherent commit."
+    receipt:
+      result: done
+      summary: "Audited the remaining rabbit/cat portrait UI surfaces and retained the current source/runtime sheets because they are alpha-backed 1024x576 files, source/public byte-identical, derived from the approved runtime idle sprites, and therefore safer for character consistency than a fresh imagegen redraw. Updated manifest provenance and tests to record the no-drift retention decision, then verified portrait loading and HUD placement in production-preview smoke."
+      changed_files:
+        - "src/assets/meowtalProductionManifest.ts"
+        - "test/meowtal-production-manifest.test.ts"
+      commands:
+        - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha assets/source/imagegen/ui/meowtal/rabbit-portrait.png assets/source/imagegen/ui/meowtal/cat-portrait.png public/assets/generated/ui/meowtal/rabbit-portrait.png public/assets/generated/ui/meowtal/cat-portrait.png"
+          status: pass
+        - cmd: "cmp -s assets/source/imagegen/ui/meowtal/rabbit-portrait.png public/assets/generated/ui/meowtal/rabbit-portrait.png && cmp -s assets/source/imagegen/ui/meowtal/cat-portrait.png public/assets/generated/ui/meowtal/cat-portrait.png"
+          status: pass
+        - cmd: "npm test -- --run test/asset-runtime.test.ts test/meowtal-production-manifest.test.ts"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-ui-portraits"
+          status: pass
+        - cmd: "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+          status: pass
+      proof:
+        - "output/web-game/postfinal-ui-portraits/desktop-keyboard-fight.png"
+        - "output/web-game/postfinal-ui-portraits/gamepad-ready.png"
+        - "output/web-game/postfinal-ui-portraits/ko-overlay.png"
+      next_task: T160
+  - id: T160
+    type: pm
+    assignee: PM
+    status: active
+    reasoning_hint: high
+    objective: "Run a final post-UI-regeneration production readiness audit focused on KOF-style motion, side switching, reused movement animations, mirrored fighter details, responsive UI, and full production-preview evidence."
+    inputs:
+      - "T156/T158 promoted regenerated presentation and HUD UI surfaces."
+      - "T159 retained portrait UI surfaces to avoid character drift."
+      - "Subagent audit identified reused run/backdash/roll visual rows and mirrored side-switching as the remaining production risks to judge."
+      - "Owner requires seamless character-consistent animations, regenerated/consistent UI, KOF-style smooth side-switching gameplay, and production-ready browser verification."
+    allowed_files:
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+      - "progress.md"
+      - "output/web-game/**"
+    verify:
+      - "npm run verify"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-readiness-v1"
+      - "Review existing or freshly captured browser evidence for run, backdash, roll-through, airborne cross-up, K.O., victory, desktop, gamepad, portrait touch, and landscape touch."
+      - "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+    stop_if:
+      - "Any missing runtime asset/fallback, console/runtime error, layout break, portrait drift, unreadable HUD crop, or unacceptable KOF motion/side-switch visual issue remains."
+      - "The audit cannot make an explicit production-ready v1 verdict from current evidence."
+    expected_output:
+      - "Explicit pass/fail readiness verdict."
+      - "Evidence paths for final browser smoke and motion/side-switch review."
+      - "If passed, mark the goal complete; if failed, open the next concrete blocker task."
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T158
+    task: T159
     commands:
-      - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha assets/source/imagegen/ui/meowtal/hud-frame.png assets/source/imagegen/ui/meowtal/health-bar-rabbit.png assets/source/imagegen/ui/meowtal/health-bar-cat.png assets/source/imagegen/ui/meowtal/super-meter.png assets/source/imagegen/ui/meowtal/timer-frame.png public/assets/generated/ui/meowtal/hud-frame.png public/assets/generated/ui/meowtal/health-bar-rabbit.png public/assets/generated/ui/meowtal/health-bar-cat.png public/assets/generated/ui/meowtal/super-meter.png public/assets/generated/ui/meowtal/timer-frame.png"
+      - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha assets/source/imagegen/ui/meowtal/rabbit-portrait.png assets/source/imagegen/ui/meowtal/cat-portrait.png public/assets/generated/ui/meowtal/rabbit-portrait.png public/assets/generated/ui/meowtal/cat-portrait.png"
+        status: pass
+      - cmd: "cmp -s assets/source/imagegen/ui/meowtal/rabbit-portrait.png public/assets/generated/ui/meowtal/rabbit-portrait.png && cmp -s assets/source/imagegen/ui/meowtal/cat-portrait.png public/assets/generated/ui/meowtal/cat-portrait.png"
         status: pass
       - cmd: "npm test -- --run test/asset-runtime.test.ts test/meowtal-production-manifest.test.ts"
         status: pass
       - cmd: "npm run verify"
         status: pass
-      - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-ui-hud-promotion"
+      - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-ui-portraits"
         status: pass
       - cmd: "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
         status: pass
