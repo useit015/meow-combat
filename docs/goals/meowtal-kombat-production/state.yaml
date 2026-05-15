@@ -86,7 +86,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T126
+active_task: T127
 
 tasks:
   - id: T000
@@ -6865,7 +6865,7 @@ tasks:
   - id: T126
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: low
     objective: "Add deterministic UI imagegen jobs to the asset pipeline so all generated Meowtal UI surfaces can be regenerated reproducibly once OPENAI_API_KEY is available."
     inputs:
@@ -6887,16 +6887,59 @@ tasks:
       - "Imagegen job builder includes UI visual surface jobs with deterministic ids, prompt slugs, output paths, statuses, and prompt constraints"
       - "Tests cover generated/approved/planned UI job status and do not require credentials"
       - "Task receipt and small coherent commit"
+    receipt:
+      result: done
+      summary: "Added deterministic, credential-free UI imagegen job construction. buildUiImagegenJobs() now accepts the Meowtal production manifest explicitly, emits the nine generated UI surface jobs with stable ids, source output paths, approved statuses, prompt slugs, and 1024x576 constraints, and avoids importing the prompt-heavy production manifest into the default fighter/stage runtime job path."
+      changed_files:
+        - "src/assets/imagegenJobs.ts"
+        - "test/imagegen-jobs.test.ts"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+        - "progress.md"
+      commands:
+        - cmd: "npm test -- --run test/imagegen-jobs.test.ts"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+      next_task: T127
+  - id: T127
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: medium
+    objective: "Make dedicated guard input behave like real defense across keyboard/touch controls instead of relying only on walking backward or crouching."
+    inputs:
+      - "Touch controls expose a guard button, but the combat core currently blocks only when the defender is in walkBack or crouch."
+      - "Keyboard P1 also maps A/left to guard, but guard button state is not represented in FighterRuntime."
+      - "Owner wants less glitchy, smoother, production-grade fighting-game controls."
+    allowed_files:
+      - "src/core/types.ts"
+      - "src/core/simulation.ts"
+      - "src/game/touchControls.ts"
+      - "test/combat-core.test.ts"
+      - "test/touch-controls.test.ts"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+      - "progress.md"
+    verify:
+      - "npm test -- --run test/combat-core.test.ts test/touch-controls.test.ts"
+      - "npm run verify"
+    stop_if:
+      - "Requires new animation assets, generated UI art, or broad input-system replacement."
+      - "Changing guard semantics breaks existing back-to-block or crouch-block behavior."
+    expected_output:
+      - "Dedicated guard input is represented in deterministic combat state"
+      - "Guard button can block without forcing horizontal movement"
+      - "Existing hold-back and crouch blocking still work"
+      - "Task receipt and small coherent commit"
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T124
+    task: T126
     commands:
       - cmd: "npm run typecheck"
         status: pass
-      - cmd: "npm test -- --run test/presentation.test.ts"
+      - cmd: "npm test -- --run test/imagegen-jobs.test.ts"
         status: pass
       - cmd: "npm run verify"
         status: pass

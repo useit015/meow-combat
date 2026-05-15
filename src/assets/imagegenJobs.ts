@@ -1,4 +1,5 @@
 import { meowtalFighterAssetManifests, meowtalStageAssetManifests } from "./catalog";
+import type { MeowtalProductionManifest } from "./meowtalProductionManifest";
 import type {
   AssetGenerationStatus,
   FighterAnimationSpec,
@@ -7,7 +8,7 @@ import type {
   StageAssetManifest,
 } from "./types";
 
-export type ImagegenJobKind = "fighter-canonical" | "fighter-animation-row" | "stage-layer";
+export type ImagegenJobKind = "fighter-canonical" | "fighter-animation-row" | "stage-layer" | "ui-surface";
 
 export interface ImagegenJob {
   id: string;
@@ -26,6 +27,31 @@ export function buildImagegenJobs(
   stages: readonly StageAssetManifest[] = meowtalStageAssetManifests,
 ): readonly ImagegenJob[] {
   return [...fighters.flatMap(fighterJobs), ...stages.flatMap(stageJobs)];
+}
+
+export function buildUiImagegenJobs(
+  manifest: Pick<MeowtalProductionManifest, "visualSurfaces">,
+): readonly ImagegenJob[] {
+  return manifest.visualSurfaces
+    .filter((surface) => surface.provenance.medium === "image" && surface.provenance.sourceKind === "codex-imagegen")
+    .map((surface) => {
+      const provenance = surface.provenance;
+      return {
+        id: provenance.assetId,
+        kind: "ui-surface",
+        subjectId: "meowtal-ui",
+        promptSlug: provenance.promptSlug,
+        outputPath: provenance.sourcePath ?? `assets/source/imagegen/ui/meowtal/${surface.id}.png`,
+        status: provenance.status,
+        blocker: provenance.blocker ?? undefined,
+        requiredInputs: [],
+        prompt: [
+          provenance.prompt,
+          `Runtime contract: produce a 1024x576 PNG source sheet for ${surface.id}.`,
+          "Constraints: preserve the current Meowtal Kombat arcade UI direction, keep gameplay center readable, no copied fighting-game branding, no watermark, no real brand marks.",
+        ].join("\n"),
+      } satisfies ImagegenJob;
+    });
 }
 
 function fighterJobs(manifest: FighterAssetManifest): readonly ImagegenJob[] {

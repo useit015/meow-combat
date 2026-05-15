@@ -2,11 +2,13 @@ import { describe, expect, it } from "vitest";
 import {
   REQUIRED_FIGHTER_ANIMATIONS,
   buildImagegenJobs,
+  buildUiImagegenJobs,
   fighterAssetManifests,
   meowtalFighterAssetManifests,
   meowtalStageAssetManifests,
   stageAssetManifests,
 } from "../src/assets";
+import { meowtalProductionManifest } from "../src/assets/meowtalProductionManifest";
 
 describe("imagegen jobs", () => {
   it("creates deterministic jobs for every fighter reference, animation row, and stage layer", () => {
@@ -84,5 +86,34 @@ describe("imagegen jobs", () => {
     expect(jobs.map((job) => job.id)).toContain("sahara-viper:canonical-reference");
     expect(jobs.map((job) => job.id)).toContain("marrakesh-rooftop:sky");
     expect(jobs.some((job) => job.subjectId === "gray-rabbit")).toBe(false);
+  });
+
+  it("creates deterministic UI surface jobs from the Meowtal production manifest", () => {
+    const jobs = buildUiImagegenJobs(meowtalProductionManifest);
+
+    expect(jobs.map((job) => job.id).sort()).toEqual([
+      "ui:cat-portrait",
+      "ui:fight-ko-victory-overlays",
+      "ui:health-bar-cat",
+      "ui:health-bar-rabbit",
+      "ui:hud-frame",
+      "ui:logo-title-mark",
+      "ui:rabbit-portrait",
+      "ui:super-meter",
+      "ui:timer-frame",
+    ]);
+    expect(new Set(jobs.map((job) => job.kind))).toEqual(new Set(["ui-surface"]));
+    expect(new Set(jobs.map((job) => job.subjectId))).toEqual(new Set(["meowtal-ui"]));
+    expect(new Set(jobs.map((job) => job.promptSlug)).size).toBe(jobs.length);
+
+    for (const job of jobs) {
+      expect(job.outputPath).toBe(`assets/source/imagegen/ui/meowtal/${job.id.replace("ui:", "")}.png`);
+      expect(job.requiredInputs).toEqual([]);
+      expect(job.status).toBe("approved");
+      expect(job.blocker).toBeUndefined();
+      expect(job.prompt).toContain("Meowtal Kombat");
+      expect(job.prompt).toContain("free of copied fighting-game branding");
+      expect(job.prompt).toContain("1024x576");
+    }
   });
 });
