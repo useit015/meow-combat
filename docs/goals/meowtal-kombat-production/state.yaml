@@ -86,7 +86,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T139
+active_task: T141
 
 tasks:
   - id: T000
@@ -7454,7 +7454,7 @@ tasks:
   - id: T139
     type: worker
     assignee: Worker
-    status: active
+    status: blocked
     reasoning_hint: medium
     objective: "Resume credential-backed regeneration of all Meowtal UI elements after OPENAI_API_KEY is set locally, then approve/promote only candidates that pass visual QA and runtime verification."
     inputs:
@@ -7486,12 +7486,108 @@ tasks:
       - "Promoted runtime assets only when all QA gates pass"
       - "Browser smoke proof of regenerated UI"
       - "Task receipt and small coherent commit"
+    receipt:
+      result: blocked
+      summary: "A fresh continuation preflight still reports OPENAI_API_KEY=missing, so credential-backed UI regeneration cannot run. To keep improving the game without pretending the blocker is solved, the next local slice will harden browser UI verification."
+      commands:
+        - cmd: "npm run imagegen:preflight"
+          status: blocked
+          notes: "OPENAI_API_KEY=missing"
+      blocker: "Set OPENAI_API_KEY locally to run live OpenAI Image API UI regeneration. Do not paste the key in chat."
+      next_task: T140
+  - id: T140
+    type: worker
+    assignee: Worker
+    status: done
+    reasoning_hint: medium
+    objective: "Harden production-preview browser smoke coverage so runtime UI assets must be loaded and the expected UI slots must be visible across ready, select, fight, roll, K.O., victory, rematch, reset, and mobile states."
+    inputs:
+      - "T139 is blocked by missing OPENAI_API_KEY."
+      - "scripts/smoke-meowtal-browser.mjs checks runtime UI missing assets through a stale missingRuntimeUi helper that does not inspect runtimeUi.assets."
+      - "render_game_to_text reports runtimeUi.assets and runtimeUi.visibleSlots."
+    allowed_files:
+      - "scripts/smoke-meowtal-browser.mjs"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+      - "progress.md"
+    verify:
+      - "npm run verify"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-ui-visible-slots"
+      - "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+    stop_if:
+      - "The smoke hardening requires regenerated binary UI art."
+      - "The production preview server is unavailable and cannot be restarted."
+    expected_output:
+      - "Browser smoke fails closed on unloaded runtime UI assets."
+      - "Browser smoke proves expected visible UI slots for shell, fight, and endgame states."
+      - "Task receipt and small coherent commit."
+    receipt:
+      result: done
+      summary: "Hardened the Playwright smoke so missing runtime UI is derived from runtimeUi.assets loaded flags instead of a stale missing property, then asserted expected visible UI slots for ready, select, fight, roll, K.O., victory, rematch, reset, pause, and mobile states. Added a Chromium CDP-backed simultaneous touch hold for right+special so browser verification now covers multi-pointer touch state and the expected special attack."
+      changed_files:
+        - "scripts/smoke-meowtal-browser.mjs"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+        - "progress.md"
+      evidence:
+        - "output/web-game/postfinal-ui-visible-slots/report.json"
+        - "output/web-game/postfinal-ui-visible-slots/portrait-hold-right-special.png"
+        - "output/web-game/postfinal-ui-visible-slots/landscape-hold-right-special.png"
+      commands:
+        - cmd: "node --check scripts/smoke-meowtal-browser.mjs"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-ui-visible-slots"
+          status: pass
+        - cmd: "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+          status: pass
+      next_task: T141
+  - id: T141
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: medium
+    objective: "Resume credential-backed regeneration of all Meowtal UI elements after OPENAI_API_KEY is set locally, then approve/promote only candidates that pass visual QA and runtime verification."
+    inputs:
+      - "T139 and T137 confirmed no unpromoted local UI candidates exist."
+      - "T140 hardened browser UI verification while credential-backed regeneration remained blocked."
+      - "The imagegen skill requires OPENAI_API_KEY for live OpenAI Image API calls."
+    allowed_files:
+      - "assets/source/imagegen/ui/meowtal/*"
+      - "public/assets/generated/ui/meowtal/*"
+      - "src/assets/meowtalProductionManifest.ts"
+      - "src/game/gameConfig.ts"
+      - "test/asset-runtime.test.ts"
+      - "test/meowtal-production-manifest.test.ts"
+      - "docs/assets/meowtal-kombat-provenance.md"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+      - "progress.md"
+      - "output/imagegen/**"
+      - "tmp/imagegen/**"
+    verify:
+      - "npm run imagegen:preflight"
+      - "npm test -- --run test/asset-runtime.test.ts test/meowtal-production-manifest.test.ts"
+      - "npm run verify"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-ui-regen"
+    stop_if:
+      - "OPENAI_API_KEY is still missing."
+      - "Generated UI candidates fail visual QA, 1024x576 contract, or crop-bound tests after one targeted retry."
+    expected_output:
+      - "Live regenerated UI sheets or a fresh credential-blocked receipt."
+      - "Promoted runtime assets only when all QA gates pass."
+      - "Browser smoke proof of regenerated UI."
+      - "Task receipt and small coherent commit."
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T138
+    task: T140
     commands:
+      - cmd: "node --check scripts/smoke-meowtal-browser.mjs"
+        status: pass
+      - cmd: "npm run verify"
+        status: pass
+      - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-ui-visible-slots"
+        status: pass
       - cmd: "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
         status: pass

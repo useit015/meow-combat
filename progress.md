@@ -143,6 +143,7 @@ Original prompt: create a KOF-style Moroccan-themed production-ready game, first
 - Post-roll/endgame readiness audit: no further local gameplay, animation, mobile, or arcade-flow blocker was found after the roll and endgame smoke passes. The remaining unsatisfied owner blocker is credential-backed regeneration of all UI elements; `npm run imagegen:preflight` still reports `OPENAI_API_KEY=missing`, so the next task is ready once the key is set locally.
 - UI regeneration credential check: `OPENAI_API_KEY` is still missing, and the UI PNGs in `output/imagegen`, `assets/source/imagegen/ui/meowtal`, and `public/assets/generated/ui/meowtal` are byte-identical 1024x576 files, so there are no unpromoted regenerated UI candidates to approve without live image generation.
 - Completion audit checklist: mapped KOF gameplay, animation consistency, UI function, browser proof, production build, small commits, and UI regeneration to concrete evidence; the audit rejects completion only because live UI regeneration remains credential-blocked.
+- Runtime UI smoke hardening: fixed the stale missing-UI browser helper so it derives failures from `runtimeUi.assets`, asserted expected visible UI slots across ready/select/fight/roll/K.O./victory/rematch/reset/mobile states, and added CDP-backed right+special multi-touch proof. Verification passed: `npm run verify` and production-preview smoke at `output/web-game/postfinal-ui-visible-slots`.
 
 ## Next Suggestions
 

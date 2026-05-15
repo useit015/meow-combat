@@ -5,6 +5,16 @@ import { createRequire } from "node:module";
 const GAME_WIDTH = 1024;
 const GAME_HEIGHT = 576;
 const PAUSE_PANEL = { x: 326, y: 132, width: 372, height: 314 };
+const TITLE_UI_SLOTS = ["title-logo"];
+const FIGHT_UI_SLOTS = [
+  "hud-frame",
+  "rabbit-portrait",
+  "cat-portrait",
+  "health-bar-rabbit",
+  "health-bar-cat",
+  "super-meter",
+  "timer-frame",
+];
 
 function parseArgs(argv) {
   const args = {
@@ -122,6 +132,29 @@ async function holdControl(page, controlId, frames) {
   return state;
 }
 
+async function holdControlsTogether(context, page, controlIds, frames) {
+  const state = await readState(page);
+  const zones = state.touchControls?.zones ?? [];
+  const box = await canvasBox(page);
+  const touchPoints = controlIds.map((controlId, index) => {
+    const zone = zones.find((candidate) => candidate.id === controlId);
+    if (!zone) throw new Error(`touch zone ${controlId} is not visible in ${state.shellPhase ?? "unknown"}`);
+    const point = pointForZone(box, zone);
+    return { id: index + 1, x: point.x, y: point.y, radiusX: 10, radiusY: 10, force: 1 };
+  });
+
+  const cdp = await context.newCDPSession(page);
+  try {
+    await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints });
+    await waitFrames(page, frames);
+    return await readState(page);
+  } finally {
+    await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+    await cdp.detach();
+    await waitFrames(page, 4);
+  }
+}
+
 async function pressKey(page, key, frames = 2) {
   await page.keyboard.down(key);
   await waitFrames(page, frames);
@@ -138,7 +171,39 @@ function zonesOverlap(a, b) {
 }
 
 function missingRuntimeUi(state) {
-  return state.runtimeUi?.missing?.map((asset) => asset.id ?? asset.key ?? String(asset)) ?? [];
+  const assets = state.runtimeUi?.assets;
+  if (!Array.isArray(assets)) return ["runtime-ui-state"];
+  return assets.filter((asset) => asset.loaded !== true).map((asset) => asset.id ?? asset.key ?? String(asset));
+}
+
+function visibleRuntimeUiSlots(state) {
+  return Array.isArray(state.runtimeUi?.visibleSlots) ? state.runtimeUi.visibleSlots : [];
+}
+
+function checkRuntimeUiLoaded(state, scenario, failures) {
+  const missing = missingRuntimeUi(state);
+  assert(state.runtimeUi?.allLoaded === true, failures, `${scenario} runtime UI should report allLoaded=true`);
+  assert(missing.length === 0, failures, `${scenario} missing runtime UI: ${missing.join(", ")}`);
+}
+
+function checkVisibleRuntimeUiSlots(state, scenario, expectedSlots, failures) {
+  const visibleSlots = visibleRuntimeUiSlots(state);
+  const missing = expectedSlots.filter((slot) => !visibleSlots.includes(slot));
+  assert(missing.length === 0, failures, `${scenario} hidden runtime UI slots: ${missing.join(", ")}`);
+  if (state.runtimeUi?.overlaySlot) {
+    assert(
+      visibleSlots.includes(state.runtimeUi.overlaySlot),
+      failures,
+      `${scenario} overlay ${state.runtimeUi.overlaySlot} is not visible`,
+    );
+  }
+}
+
+function checkOnlyRuntimeUiSlots(state, scenario, expectedSlots, failures) {
+  checkVisibleRuntimeUiSlots(state, scenario, expectedSlots, failures);
+  const expected = new Set(expectedSlots);
+  const unexpected = visibleRuntimeUiSlots(state).filter((slot) => !expected.has(slot));
+  assert(unexpected.length === 0, failures, `${scenario} unexpected runtime UI slots: ${unexpected.join(", ")}`);
 }
 
 function urlWithDemo(url, demo) {
@@ -257,7 +322,8 @@ async function runDesktop(browser, url, outDir) {
   checkControlFallback(state, "desktop", failures);
   assert(state.shellPhase === "fighting", failures, `desktop expected fighting phase, got ${state.shellPhase}`);
   assert(state.fighters?.p1?.state === "lightAttack", failures, `desktop J expected lightAttack, got ${state.fighters?.p1?.state}`);
-  assert(missingRuntimeUi(state).length === 0, failures, `desktop missing runtime UI: ${missingRuntimeUi(state).join(", ")}`);
+  checkRuntimeUiLoaded(state, "desktop", failures);
+  checkVisibleRuntimeUiSlots(state, "desktop", FIGHT_UI_SLOTS, failures);
   assert(errors.length === 0, failures, `desktop console/page errors: ${JSON.stringify(errors)}`);
 
   await context.close();
@@ -273,16 +339,29 @@ async function runMobile(browser, url, outDir, name, viewport, expectedLayout) {
     isMobile: true,
   });
 
-  const readyShot = await screenshot(page, outDir, `${name}-ready`);
-  await tapControl(page, "start");
-  await tapControl(page, "start");
   let state = await readState(page);
+  const readyShot = await screenshot(page, outDir, `${name}-ready`);
+  assert(state.shellPhase === "ready", failures, `${name} ready expected ready phase, got ${state.shellPhase}`);
+  checkRuntimeUiLoaded(state, `${name} ready`, failures);
+  checkOnlyRuntimeUiSlots(state, `${name} ready`, TITLE_UI_SLOTS, failures);
+
+  await tapControl(page, "start");
+  state = await readState(page);
+  const selectShot = await screenshot(page, outDir, `${name}-select`);
+  assert(state.shellPhase === "select", failures, `${name} select expected select phase, got ${state.shellPhase}`);
+  checkRuntimeUiLoaded(state, `${name} select`, failures);
+  checkOnlyRuntimeUiSlots(state, `${name} select`, TITLE_UI_SLOTS, failures);
+
+  await tapControl(page, "start");
+  state = await readState(page);
   const fightShot = await screenshot(page, outDir, `${name}-fight`);
 
   assert(state.shellPhase === "fighting", failures, `${name} expected fighting phase, got ${state.shellPhase}`);
   assert(state.touchControls?.visible === true, failures, `${name} should show touch controls`);
   assert(state.touchControls?.layout === expectedLayout, failures, `${name} expected ${expectedLayout}, got ${state.touchControls?.layout}`);
   checkControlFallback(state, name, failures);
+  checkRuntimeUiLoaded(state, name, failures);
+  checkVisibleRuntimeUiSlots(state, name, FIGHT_UI_SLOTS, failures);
   await checkTouchReadability(page, state, name, failures);
   await checkCanvasFraming(page, name, failures);
 
@@ -300,16 +379,25 @@ async function runMobile(browser, url, outDir, name, viewport, expectedLayout) {
   const guardShot = await screenshot(page, outDir, `${name}-hold-guard`);
   assert(state.touchControls?.activeIds?.includes("guard"), failures, `${name} guard hold did not report active guard`);
 
+  state = await holdControlsTogether(context, page, ["right", "special"], 10);
+  const multiTouchShot = await screenshot(page, outDir, `${name}-hold-right-special`);
+  assert(state.touchControls?.activeIds?.includes("right"), failures, `${name} multi-touch did not report active right`);
+  assert(state.touchControls?.activeIds?.includes("special"), failures, `${name} multi-touch did not report active special`);
+  assert(state.fighters?.p1?.state === "specialAttack", failures, `${name} multi-touch special expected specialAttack, got ${state.fighters?.p1?.state}`);
+
   await tapControl(page, "pause");
   state = await readState(page);
   const pauseShot = await screenshot(page, outDir, `${name}-pause`);
   assert(state.shellPhase === "paused", failures, `${name} pause expected paused phase, got ${state.shellPhase}`);
+  checkRuntimeUiLoaded(state, `${name} pause`, failures);
+  checkVisibleRuntimeUiSlots(state, `${name} pause`, FIGHT_UI_SLOTS, failures);
   checkPauseReadability(state, name, failures);
 
   await tapControl(page, "reset");
   state = await readState(page);
   assert(state.shellPhase === "ready", failures, `${name} reset expected ready phase, got ${state.shellPhase}`);
-  assert(missingRuntimeUi(state).length === 0, failures, `${name} missing runtime UI: ${missingRuntimeUi(state).join(", ")}`);
+  checkRuntimeUiLoaded(state, `${name} reset`, failures);
+  checkOnlyRuntimeUiSlots(state, `${name} reset`, TITLE_UI_SLOTS, failures);
   assert(errors.length === 0, failures, `${name} console/page errors: ${JSON.stringify(errors)}`);
 
   await context.close();
@@ -317,7 +405,7 @@ async function runMobile(browser, url, outDir, name, viewport, expectedLayout) {
     name,
     failures,
     errors,
-    screenshots: [readyShot, fightShot, rightShot, specialShot, guardShot, pauseShot],
+    screenshots: [readyShot, selectShot, fightShot, rightShot, specialShot, guardShot, multiTouchShot, pauseShot],
     state,
   };
 }
@@ -347,7 +435,8 @@ async function runRollDemo(browser, url, outDir) {
       failures,
       `${demo} should reuse approved crouch row for character-consistent roll readability`,
     );
-    assert(missingRuntimeUi(state).length === 0, failures, `${demo} missing runtime UI: ${missingRuntimeUi(state).join(", ")}`);
+    checkRuntimeUiLoaded(state, demo, failures);
+    checkVisibleRuntimeUiSlots(state, demo, FIGHT_UI_SLOTS, failures);
     assert(errors.length === 0, failures, `${demo} console/page errors: ${JSON.stringify(errors)}`);
     await context.close();
   }
@@ -370,7 +459,8 @@ async function runEndgameDemo(browser, url, outDir) {
     assert(state.shellPhase === "round-over", failures, `ko expected round-over phase, got ${state.shellPhase}`);
     assert(state.runtimeUi?.overlaySlot === "ko-overlay", failures, `ko expected ko-overlay, got ${state.runtimeUi?.overlaySlot}`);
     assert(state.fighters?.p2?.state === "knockdown", failures, `ko expected p2 knockdown, got ${state.fighters?.p2?.state}`);
-    assert(missingRuntimeUi(state).length === 0, failures, `ko missing runtime UI: ${missingRuntimeUi(state).join(", ")}`);
+    checkRuntimeUiLoaded(state, "ko", failures);
+    checkVisibleRuntimeUiSlots(state, "ko", [...FIGHT_UI_SLOTS, "ko-overlay"], failures);
 
     await waitFrames(page, 42);
     state = await readState(page);
@@ -381,6 +471,8 @@ async function runEndgameDemo(browser, url, outDir) {
       failures,
       `round victory expected rabbit-win-overlay, got ${state.runtimeUi?.overlaySlot}`,
     );
+    checkRuntimeUiLoaded(state, "round victory", failures);
+    checkVisibleRuntimeUiSlots(state, "round victory", [...FIGHT_UI_SLOTS, "rabbit-win-overlay"], failures);
     assert(errors.length === 0, failures, `ko console/page errors: ${JSON.stringify(errors)}`);
     await context.close();
   }
@@ -401,6 +493,8 @@ async function runEndgameDemo(browser, url, outDir) {
     );
     assert(state.runtimeVisuals?.p1?.animationId === "win", failures, `win expected p1 win row, got ${state.runtimeVisuals?.p1?.animationId}`);
     assert(state.runtimeVisuals?.p2?.animationId === "lose", failures, `win expected p2 lose row, got ${state.runtimeVisuals?.p2?.animationId}`);
+    checkRuntimeUiLoaded(state, "win", failures);
+    checkVisibleRuntimeUiSlots(state, "win", [...FIGHT_UI_SLOTS, "rabbit-win-overlay"], failures);
 
     await pressKey(page, "Enter");
     state = await readState(page);
@@ -410,12 +504,16 @@ async function runEndgameDemo(browser, url, outDir) {
     assert(state.matchSet?.status === "in-progress", failures, `rematch expected in-progress set, got ${state.matchSet?.status}`);
     assert(state.matchSet?.wins?.p1 === 0 && state.matchSet?.wins?.p2 === 0, failures, "rematch should clear match wins");
     assert(state.fighters?.p1?.health === 1000 && state.fighters?.p2?.health === 1000, failures, "rematch should reset fighter health");
+    checkRuntimeUiLoaded(state, "rematch", failures);
+    checkVisibleRuntimeUiSlots(state, "rematch", FIGHT_UI_SLOTS, failures);
 
     await pressKey(page, "KeyR");
     state = await readState(page);
     screenshots.push(await screenshot(page, outDir, "reset-ready"));
     states["reset-ready"] = state;
     assert(state.shellPhase === "ready", failures, `reset expected ready phase, got ${state.shellPhase}`);
+    checkRuntimeUiLoaded(state, "reset", failures);
+    checkOnlyRuntimeUiSlots(state, "reset", TITLE_UI_SLOTS, failures);
     assert(errors.length === 0, failures, `win/rematch console/page errors: ${JSON.stringify(errors)}`);
     await context.close();
   }
@@ -435,7 +533,8 @@ async function runEndgameDemo(browser, url, outDir) {
     );
     assert(state.runtimeVisuals?.p1?.animationId === "lose", failures, `cat-win expected p1 lose row, got ${state.runtimeVisuals?.p1?.animationId}`);
     assert(state.runtimeVisuals?.p2?.animationId === "win", failures, `cat-win expected p2 win row, got ${state.runtimeVisuals?.p2?.animationId}`);
-    assert(missingRuntimeUi(state).length === 0, failures, `cat-win missing runtime UI: ${missingRuntimeUi(state).join(", ")}`);
+    checkRuntimeUiLoaded(state, "cat-win", failures);
+    checkVisibleRuntimeUiSlots(state, "cat-win", [...FIGHT_UI_SLOTS, "cat-win-overlay"], failures);
     assert(errors.length === 0, failures, `cat-win console/page errors: ${JSON.stringify(errors)}`);
     await context.close();
   }
