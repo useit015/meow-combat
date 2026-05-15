@@ -1,0 +1,175 @@
+# GoalBuddy v2 state.yaml
+# Board truth lives here. goal.md is the editable charter; notes/ holds long receipts only.
+
+version: 2
+
+goal:
+  title: "Character Animation Asset Fix"
+  slug: "character-animation-asset-fix"
+  kind: specific
+  tranche: "Stabilize character animation scale and replace blocky-looking project-bound character assets as needed, then verify visually in the running game."
+  status: active
+  intake:
+    original_request: "some animations changes the charcter size like jump and others changes the character looks like block, use imagegen for assets"
+    interpreted_outcome: "Character animations keep a consistent visual size across actions such as jump, and blocky-looking character animation/assets are replaced or corrected with imagegen-backed project assets where needed."
+    input_shape: specific
+    audience: "game player / project owner"
+    authority: requested
+    proof_type: demo
+    completion_proof: "A verified local run or browser demo shows stable character scale across idle/move/jump/other affected animations, no blocky fallback-looking character frames, and any new imagegen assets saved in the workspace and wired into the app."
+    likely_misfire: "Generating nicer assets while leaving runtime animation transforms, sprite frame sizing, or state-specific scaling bugs unfixed."
+    blind_spots_considered:
+      - "Animation size changes may come from transforms, frame dimensions, canvas scaling, CSS, or sprite metadata rather than asset appearance alone."
+      - "Blocky character appearance may be placeholder art, low-resolution generated assets, browser image smoothing, fallback rendering, or mismatched asset paths."
+      - "Imagegen output must be persisted into the project before code references it."
+    existing_plan_facts:
+      - "Use the imagegen skill for assets."
+
+rules:
+  pm_owns_state: true
+  one_active_task: true
+  max_write_workers: 1
+  no_implementation_without_worker_or_pm_task: true
+  no_completion_without_judge_or_pm_audit: true
+  planning_is_not_completion: true
+  queued_required_worker_blocks_completion: true
+  continuous_until_full_outcome: true
+  missing_input_or_credentials_do_not_stop_goal: true
+  preserve_and_validate_existing_plan: true
+  intake_misfire_must_be_audited: true
+
+agents:
+  scout: installed
+  worker: installed
+  judge: installed
+
+visual_board:
+  selected: local
+  local:
+    status: live
+    url: "http://goalbuddy.localhost:41737/character-animation-asset-fix/"
+    command: "npx --yes goalbuddy board '/Users/oussmustaine/Documents/New project/docs/goals/character-animation-asset-fix'"
+  github_projects:
+    status: not_requested
+    url: null
+    command: "npx goalbuddy extend github-projects"
+    missing: []
+
+active_task: T001
+
+tasks:
+  - id: T001
+    type: scout
+    assignee: Scout
+    status: active
+    reasoning_hint: default
+    objective: "Map the current character animation, rendering, and asset pipeline for size changes and blocky-looking frames."
+    inputs:
+      - "Project files relevant to character rendering, animation state changes, sprite assets, and verification commands"
+      - "Original request from goal intake"
+    constraints:
+      - "Read-only."
+      - "Do not generate images."
+      - "Do not edit implementation files."
+      - "Identify exact files, asset paths, and commands needed for a bounded fix."
+    expected_output:
+      - "Relevant rendering and animation files"
+      - "Current character asset locations and dimensions if discoverable"
+      - "Likely causes of jump/other animation size changes"
+      - "Likely causes of blocky-looking character appearance"
+      - "Verification commands and visual demo path"
+      - "Candidate Worker tasks with allowed_files, verify commands, and stop_if conditions"
+    receipt: null
+  - id: T002
+    type: judge
+    assignee: Judge
+    status: queued
+    reasoning_hint: high
+    objective: "Choose the first safe implementation slice to stabilize character animation scale or unblock asset generation."
+    inputs:
+      - "T001 receipt"
+      - "Goal intake and constraints"
+    constraints:
+      - "Do not implement."
+      - "Prioritize the smallest slice that directly prevents character resizing across animations."
+      - "Require project-bound imagegen asset generation only after asset destinations and style constraints are known."
+    expected_output:
+      - "Decision"
+      - "Exact Worker objective"
+      - "allowed_files"
+      - "verify"
+      - "stop_if"
+      - "Deferred tasks, including any imagegen asset task if it is not first"
+    receipt: null
+  - id: T003
+    type: worker
+    assignee: Worker
+    status: queued
+    reasoning_hint: default
+    objective: "Execute the first safe implementation task selected by Judge."
+    allowed_files: []
+    verify: []
+    stop_if:
+      - "Need files outside allowed_files."
+      - "Character rendering behavior is ambiguous after Scout/Judge evidence."
+      - "Need owner approval to replace a recognizable character style."
+      - "Verification fails twice."
+    receipt: null
+  - id: T004
+    type: worker
+    assignee: Worker
+    status: queued
+    reasoning_hint: default
+    objective: "Generate and integrate imagegen-backed character assets if Scout/Judge determine asset replacement is required."
+    allowed_files: []
+    verify: []
+    stop_if:
+      - "Need to use imagegen before exact destination paths, style constraints, and consuming code are known."
+      - "Generated assets do not match the required character style or animation frame consistency."
+      - "Need files outside allowed_files."
+      - "Verification fails twice."
+    receipt: null
+  - id: T005
+    type: worker
+    assignee: Worker
+    status: queued
+    reasoning_hint: default
+    objective: "Run visual verification and polish any remaining character animation size or blockiness issues."
+    allowed_files: []
+    verify: []
+    stop_if:
+      - "No runnable local demo or visual verification route is available."
+      - "Need files outside allowed_files."
+      - "Verification fails twice."
+    receipt: null
+  - id: T999
+    type: judge
+    assignee: Judge
+    status: queued
+    reasoning_hint: high
+    objective: "Audit whether the full original character animation and asset outcome is complete."
+    inputs:
+      - "All done task receipts"
+      - "Last verification"
+      - "Current dirty diff"
+      - "Visual demo evidence"
+    constraints:
+      - "Do not implement."
+      - "Reject completion if jump or any known affected animation still changes character size."
+      - "Reject completion if character still appears as blocky fallback art."
+      - "Reject completion if required imagegen assets are not saved inside the workspace and wired into the app."
+      - "Reject completion if required Worker work is still queued or active."
+    expected_output:
+      - "complete | not_complete"
+      - "full_outcome_complete: true | false"
+      - "Evidence mapped to original request"
+      - "Missing evidence"
+      - "Next task if not complete"
+    receipt: null
+
+checks:
+  dirty_fingerprint: unknown
+  last_verification:
+    result: unknown
+    task: null
+    commands: []
