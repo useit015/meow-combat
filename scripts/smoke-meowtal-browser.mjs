@@ -531,6 +531,18 @@ async function runMobile(browser, url, outDir, name, viewport, expectedLayout) {
   checkVisibleRuntimeUiSlots(state, `${name} pause`, FIGHT_UI_SLOTS, failures);
   checkPauseReadability(state, name, failures);
 
+  await tapControl(page, "cpu");
+  state = await readState(page);
+  const pauseCpuShot = await screenshot(page, outDir, `${name}-pause-cpu`);
+  assert(state.shellPhase === "paused", failures, `${name} CPU touch should stay paused, got ${state.shellPhase}`);
+  assert(state.p2Mode === "cpu", failures, `${name} CPU touch expected P2 CPU, got ${state.p2Mode}`);
+
+  await tapControl(page, "difficulty");
+  state = await readState(page);
+  const pauseDifficultyShot = await screenshot(page, outDir, `${name}-pause-difficulty`);
+  assert(state.shellPhase === "paused", failures, `${name} difficulty touch should stay paused, got ${state.shellPhase}`);
+  assert(state.cpuDifficulty === "hard", failures, `${name} difficulty touch expected hard, got ${state.cpuDifficulty}`);
+
   await tapControl(page, "reset");
   state = await readState(page);
   assert(state.shellPhase === "ready", failures, `${name} reset expected ready phase, got ${state.shellPhase}`);
@@ -543,7 +555,18 @@ async function runMobile(browser, url, outDir, name, viewport, expectedLayout) {
     name,
     failures,
     errors,
-    screenshots: [readyShot, selectShot, fightShot, rightShot, specialShot, guardShot, multiTouchShot, pauseShot],
+    screenshots: [
+      readyShot,
+      selectShot,
+      fightShot,
+      rightShot,
+      specialShot,
+      guardShot,
+      multiTouchShot,
+      pauseShot,
+      pauseCpuShot,
+      pauseDifficultyShot,
+    ],
     state,
   };
 }

@@ -11,7 +11,7 @@ import {
 describe("touch controls", () => {
   it("uses shell zones for start/reset and fight zones for full combat input", () => {
     expect(touchControlZonesForPhase("ready").map((zone) => zone.id)).toEqual(["start", "reset"]);
-    expect(touchControlZonesForPhase("paused").map((zone) => zone.id)).toEqual(["pause", "reset"]);
+    expect(touchControlZonesForPhase("paused").map((zone) => zone.id)).toEqual(["reset", "cpu", "difficulty", "pause"]);
     expect(touchControlZonesForPhase("fighting").map((zone) => zone.id)).toEqual([
       "left",
       "right",
@@ -113,7 +113,16 @@ describe("touch controls", () => {
   it("keeps paused controls out of the pause menu panel", () => {
     const pausePanel = { x: 326, y: 132, width: 372, height: 314 };
     for (const layout of ["standard", "phone-portrait", "phone-landscape"] as const) {
-      expect(touchControlZonesForPhase("paused", layout).some((zone) => zonesOverlap(zone, pausePanel))).toBe(false);
+      const zones = touchControlZonesForPhase("paused", layout);
+      expect(zones.map((zone) => zone.id)).toEqual(["reset", "cpu", "difficulty", "pause"]);
+      expect(zones.some((zone) => zonesOverlap(zone, pausePanel))).toBe(false);
+      for (const zone of zones) {
+        expect(zone.x).toBeGreaterThanOrEqual(0);
+        expect(zone.y).toBeGreaterThanOrEqual(0);
+        expect(zone.x + zone.width).toBeLessThanOrEqual(1024);
+        expect(zone.y + zone.height).toBeLessThanOrEqual(576);
+        expect(Math.min(zone.width, zone.height), `${layout} ${zone.id} target size`).toBeGreaterThanOrEqual(44);
+      }
     }
   });
 });

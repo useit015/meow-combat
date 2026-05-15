@@ -86,7 +86,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T147
+active_task: T149
 
 tasks:
   - id: T000
@@ -7838,7 +7838,7 @@ tasks:
   - id: T147
     type: worker
     assignee: Worker
-    status: active
+    status: blocked
     reasoning_hint: medium
     objective: "Run credential-backed regeneration of all Meowtal UI elements, then approve/promote only candidates that pass visual QA, crop contracts, production build, and browser smoke."
     inputs:
@@ -7867,19 +7867,112 @@ tasks:
     expected_output:
       - "Fresh regenerated UI assets or a blocked receipt if credentials remain unavailable."
       - "Task receipt and small coherent commit."
+    receipt:
+      result: blocked
+      summary: "A fresh imagegen preflight still reports OPENAI_API_KEY=missing, so credential-backed UI regeneration cannot run in this environment. Continue with a local UI-function slice: make the paused touch menu's advertised CPU settings actually tappable."
+      commands:
+        - cmd: "npm run imagegen:preflight"
+          status: blocked
+          notes: "OPENAI_API_KEY=missing"
+      blocker: "Set OPENAI_API_KEY locally to run live OpenAI Image API UI regeneration. Do not paste the key in chat."
+      next_task: T148
+  - id: T148
+    type: worker
+    assignee: Worker
+    status: done
+    reasoning_hint: medium
+    objective: "Make paused touch UI CPU settings functional by adding tappable CPU toggle and difficulty controls that stay outside the pause panel and pass browser smoke."
+    inputs:
+      - "Paused help advertises CPU settings."
+      - "Paused touch zones currently expose only pause and reset."
+      - "Mobile/touch users should be able to toggle CPU mode and cycle CPU difficulty from the pause UI without keyboard fallback."
+    allowed_files:
+      - "src/game/touchControls.ts"
+      - "src/game/MeowtalArenaScene.ts"
+      - "test/touch-controls.test.ts"
+      - "scripts/smoke-meowtal-browser.mjs"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+      - "progress.md"
+    verify:
+      - "npm test -- --run test/touch-controls.test.ts test/shell-flow.test.ts"
+      - "node --check scripts/smoke-meowtal-browser.mjs"
+      - "npm run verify"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-paused-touch-settings"
+      - "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+    stop_if:
+      - "The fix requires a broad pause-menu rewrite or new binary UI art."
+    expected_output:
+      - "Paused touch controls include CPU and difficulty zones."
+      - "Scene input handles those touch controls consistently with keyboard C/V."
+      - "Browser smoke proves paused touch CPU toggle and difficulty cycle."
+      - "Task receipt and small coherent commit."
+    receipt:
+      result: done
+      summary: "Added paused touch CPU and difficulty controls, kept all paused system controls outside the pause panel across layouts, routed the new touch buttons through the same state changes as keyboard C/V, and proved portrait/landscape paused touch CPU toggle plus difficulty cycle in production-preview smoke."
+      changed_files:
+        - "src/game/touchControls.ts"
+        - "src/game/MeowtalArenaScene.ts"
+        - "test/touch-controls.test.ts"
+        - "scripts/smoke-meowtal-browser.mjs"
+      commands:
+        - cmd: "npm test -- --run test/touch-controls.test.ts test/shell-flow.test.ts"
+          status: pass
+        - cmd: "node --check scripts/smoke-meowtal-browser.mjs"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-paused-touch-settings"
+          status: pass
+      proof:
+        - "output/web-game/postfinal-paused-touch-settings/portrait-pause-cpu.png"
+        - "output/web-game/postfinal-paused-touch-settings/portrait-pause-difficulty.png"
+        - "output/web-game/postfinal-paused-touch-settings/landscape-pause-cpu.png"
+        - "output/web-game/postfinal-paused-touch-settings/landscape-pause-difficulty.png"
+      next_task: T149
+  - id: T149
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: medium
+    objective: "Add a frame-pacing catch-up guard and browser-verifiable timing telemetry so stalls cannot trigger unbounded simulation catch-up and smoke can prove stable production pacing."
+    inputs:
+      - "The goal requires stable frame pacing."
+      - "The current scene accumulates raw delta in update() and can run unbounded catch-up steps after a stall or tab resume."
+      - "Existing smoke primarily uses window.advanceTime and state assertions, not real frame timing metrics."
+    allowed_files:
+      - "src/game/MeowtalArenaScene.ts"
+      - "src/game/framePacing.ts"
+      - "test/frame-pacing.test.ts"
+      - "scripts/smoke-meowtal-browser.mjs"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+      - "progress.md"
+    verify:
+      - "npm test -- --run test/frame-pacing.test.ts"
+      - "node --check scripts/smoke-meowtal-browser.mjs"
+      - "npm run verify"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-frame-pacing"
+      - "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+    stop_if:
+      - "The fix requires replacing Phaser's game loop or changing deterministic simulation semantics."
+    expected_output:
+      - "Runtime update loop clamps catch-up work after large deltas."
+      - "Text-state telemetry exposes enough pacing data for smoke assertions."
+      - "Browser smoke includes real-time pacing evidence."
+      - "Task receipt and small coherent commit."
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
-    result: blocked
-    task: T146
+    result: pass
+    task: T148
     commands:
-      - cmd: "npm run imagegen:preflight"
-        status: blocked
-        notes: "OPENAI_API_KEY=missing"
+      - cmd: "npm test -- --run test/touch-controls.test.ts test/shell-flow.test.ts"
+        status: pass
+      - cmd: "node --check scripts/smoke-meowtal-browser.mjs"
+        status: pass
       - cmd: "npm run verify"
         status: pass
-      - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-readiness-audit"
+      - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-paused-touch-settings"
         status: pass
       - cmd: "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
         status: pass

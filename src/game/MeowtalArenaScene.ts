@@ -505,10 +505,10 @@ export class MeowtalArenaScene extends Phaser.Scene {
         touchPressed("pause") ||
         gamepadPressed("pause");
       const fullscreenPressed = Phaser.Input.Keyboard.JustDown(this.keys.fullscreen);
-      if (Phaser.Input.Keyboard.JustDown(this.keys.cpuToggle)) {
+      if (Phaser.Input.Keyboard.JustDown(this.keys.cpuToggle) || touchPressed("cpu")) {
         this.p2CpuEnabled = !this.p2CpuEnabled;
       }
-      if (Phaser.Input.Keyboard.JustDown(this.keys.cpuDifficulty)) {
+      if (Phaser.Input.Keyboard.JustDown(this.keys.cpuDifficulty) || touchPressed("difficulty")) {
         this.cpuDifficulty = nextCpuDifficulty(this.cpuDifficulty);
       }
       if (fullscreenPressed) {

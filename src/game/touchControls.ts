@@ -12,7 +12,9 @@ export type TouchControlId =
   | "special"
   | "start"
   | "pause"
-  | "reset";
+  | "reset"
+  | "cpu"
+  | "difficulty";
 
 export type TouchShellPhase = "ready" | "select" | "fighting" | "paused" | "round-over" | "match-over";
 export type TouchControlLayout = "standard" | "phone-portrait" | "phone-landscape";
@@ -52,6 +54,8 @@ export const TOUCH_CONTROL_IDS = [
   "start",
   "pause",
   "reset",
+  "cpu",
+  "difficulty",
 ] as const satisfies readonly TouchControlId[];
 
 const SHELL_ZONES: readonly TouchControlZone[] = [
@@ -107,13 +111,17 @@ const LANDSCAPE_FIGHT_ZONES: readonly TouchControlZone[] = [
 ];
 
 const PAUSED_ZONES: readonly TouchControlZone[] = [
-  { id: "pause", label: "II", x: 910, y: 82, width: 74, height: 44, group: "system" },
   { id: "reset", label: "RST", x: 42, y: 82, width: 86, height: 44, group: "system" },
+  { id: "cpu", label: "CPU", x: 154, y: 82, width: 92, height: 44, group: "system" },
+  { id: "difficulty", label: "LVL", x: 778, y: 82, width: 92, height: 44, group: "system" },
+  { id: "pause", label: "II", x: 910, y: 82, width: 74, height: 44, group: "system" },
 ];
 
 const PORTRAIT_PAUSED_ZONES: readonly TouchControlZone[] = [
-  { id: "pause", label: "II", x: 902, y: 82, width: 86, height: 46, group: "system" },
   { id: "reset", label: "RST", x: 34, y: 82, width: 112, height: 46, group: "system" },
+  { id: "cpu", label: "CPU", x: 170, y: 82, width: 112, height: 46, group: "system" },
+  { id: "difficulty", label: "LVL", x: 746, y: 82, width: 112, height: 46, group: "system" },
+  { id: "pause", label: "II", x: 902, y: 82, width: 86, height: 46, group: "system" },
 ];
 
 export function touchControlZonesForPhase(
