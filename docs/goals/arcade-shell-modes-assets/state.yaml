@@ -8,7 +8,7 @@ goal:
   slug: "arcade-shell-modes-assets"
   kind: specific
   tranche: "Build a full arcade shell with character selection, training and 1 vs CPU modes, meaningful gameplay depth, generated raster assets, and browser-demo proof."
-  status: active
+  status: done
   intake:
     original_request: "We need multiple playing modes: training, 1 vs CPU, a proper menu character selection, and use imagegen for assets."
     interpreted_outcome: "Build a polished arcade-style game shell with character selection, training mode, 1 vs CPU mode, gameplay depth, and project-integrated generated assets."
@@ -63,7 +63,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T011
+active_task: null
 
 tasks:
   - id: T001
@@ -443,7 +443,7 @@ tasks:
   - id: T011
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Final audit: verify the arcade shell tranche satisfies menu, character selection, Training, 1 vs CPU, gameplay depth, and generated asset integration."
     inputs:
@@ -463,11 +463,29 @@ tasks:
       - "Mapping from original request to evidence"
       - "Verification commands"
       - "Missing evidence or next task"
-    receipt: null
+    receipt:
+      result: done
+      decision: complete
+      full_outcome_complete: true
+      evidence:
+        - "Menu flow implemented: ready -> mode-select -> fighter select -> fighting."
+        - "1 VS CPU browser evidence: output/web-game/arcade-final-smoke/desktop-keyboard-fight.png and report.json show playMode=versus-cpu, p2Mode=cpu, runtime UI loaded, and generated fighter/stage/UI assets in use."
+        - "Training browser evidence: output/web-game/arcade-final-smoke/training-fight.png and report.json show playMode=training, p2Mode=manual, training.enabled=true, and training.endlessRound=true."
+        - "Character selection remains in the flow and is covered by smoke screenshots plus existing tests."
+        - "Generated assets are integrated from public/assets/generated/... with imagegen QA passing and runtime fallbacks at zero."
+      verification:
+        - cmd: "npm run imagegen:qa"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/arcade-final-smoke"
+          status: pass
+      missing_evidence: []
+      next_task: null
   - id: T999
     type: judge
     assignee: Judge
-    status: queued
+    status: done
     reasoning_hint: high
     objective: "Audit whether the arcade shell tranche fully satisfies the original user outcome."
     inputs:
@@ -490,16 +508,20 @@ tasks:
       - "Verification commands and browser/demo result"
       - "Missing evidence"
       - "Next task if not complete"
-    receipt: null
+    receipt:
+      result: done
+      decision: complete
+      full_outcome_complete: true
+      summary: "Superseded by T011 final audit; retained as the canonical terminal audit card."
+      evidence:
+        - "T011 receipt"
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T009
+    task: T011
     commands:
-      - "npm test -- --run test/match-flow.test.ts"
-      - "npm run typecheck"
-      - "node --check scripts/smoke-meowtal-browser.mjs"
-      - "npm run build"
-      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/arcade-training-smoke"
+      - "npm run imagegen:qa"
+      - "npm run verify"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/arcade-final-smoke"
