@@ -114,6 +114,9 @@ describe("imagegen jobs", () => {
       expect(job.prompt).toContain("Meowtal Kombat");
       expect(job.prompt).toContain("free of copied fighting-game branding");
       expect(job.prompt).toContain("1024x576");
+      expect(job.prompt).toContain("preserve the original view");
+      expect(job.prompt).toContain("crop-compatible layout");
+      expect(job.prompt).toContain("do not change source sheet dimensions");
     }
   });
 });

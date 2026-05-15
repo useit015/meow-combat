@@ -48,6 +48,8 @@ export function buildUiImagegenJobs(
         prompt: [
           provenance.prompt,
           `Runtime contract: produce a 1024x576 PNG source sheet for ${surface.id}.`,
+          "Original-view lock: preserve the original view, visual hierarchy, focal scale, and crop-compatible layout used by the current runtime UI.",
+          "do not change source sheet dimensions, safe margins, element scale, or primary placement unless the runtime crop specs are updated in the same review.",
           "Constraints: preserve the current Meowtal Kombat arcade UI direction, keep gameplay center readable, no copied fighting-game branding, no watermark, no real brand marks.",
         ].join("\n"),
       } satisfies ImagegenJob;

@@ -86,7 +86,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T152
+active_task: T153
 
 tasks:
   - id: T000
@@ -8077,7 +8077,7 @@ tasks:
   - id: T152
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: medium
     objective: "Harden the credential-free UI imagegen handoff so regenerated UI jobs and preflight output explicitly preserve the original view, crop-compatible layout, 1024x576 runtime contract, and no-branding constraints before live regeneration is retried."
     inputs:
@@ -8104,19 +8104,61 @@ tasks:
       - "Preflight output mentions prepared UI surface jobs, not only fighter/stage jobs."
       - "Focused and full verification pass."
       - "Task receipt and small coherent commit."
+    receipt:
+      result: done
+      summary: "Hardened the credential-free UI imagegen handoff: UI surface job prompts now explicitly preserve the original view, crop-compatible runtime layout, focal scale, safe margins, 1024x576 sheet dimensions, and no-branding constraints, while imagegen preflight now names UI surface jobs alongside fighter references, animation rows, and stage layers. No runtime UI crop geometry or binary generated assets changed."
+      changed_files:
+        - "src/assets/imagegenJobs.ts"
+        - "scripts/imagegen-preflight.mjs"
+        - "test/imagegen-jobs.test.ts"
+        - "test/imagegen-preflight.test.ts"
+      commands:
+        - cmd: "npm run imagegen:preflight"
+          status: pass
+          notes: "OPENAI_API_KEY=missing; output now mentions UI surface jobs"
+        - cmd: "npm test -- --run test/imagegen-jobs.test.ts test/imagegen-preflight.test.ts"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+      next_task: T153
+  - id: T153
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: low
+    objective: "Refresh the imagegen handoff docs so the runbook describes Meowtal UI surface regeneration, original-view/crop compatibility, and the current manifest/config files used for approval."
+    inputs:
+      - "T152 hardened UI imagegen job prompts and preflight output."
+      - "docs/imagegen-runbook.md still describes target asset regeneration mostly through fighter/stage manifest language."
+      - "The owner requires regenerated UI elements to look/function consistently with the original view."
+    allowed_files:
+      - "docs/imagegen-runbook.md"
+      - "README.md"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+      - "progress.md"
+    verify:
+      - "rg -n \"UI surface jobs|crop-compatible|original view|src/assets/imagegenJobs.ts|src/game/gameConfig.ts\" docs/imagegen-runbook.md README.md"
+      - "npm run verify"
+      - "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+    stop_if:
+      - "The docs change would need to claim live UI regeneration has already run."
+    expected_output:
+      - "Runbook and/or README accurately describe UI surface regeneration and approval constraints."
+      - "Docs keep OPENAI_API_KEY as a local environment variable requirement without asking for secrets."
+      - "Verification passes."
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T150
+    task: T152
     commands:
       - cmd: "npm run imagegen:preflight"
-        status: blocked
-        notes: "OPENAI_API_KEY=missing"
-      - cmd: "npm run verify"
         status: pass
-      - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-frame-readiness-audit"
+        notes: "OPENAI_API_KEY=missing; output now mentions UI surface jobs"
+      - cmd: "npm test -- --run test/imagegen-jobs.test.ts test/imagegen-preflight.test.ts"
+        status: pass
+      - cmd: "npm run verify"
         status: pass
       - cmd: "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
         status: pass
