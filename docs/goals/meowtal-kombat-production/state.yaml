@@ -86,7 +86,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T122
+active_task: T123
 
 tasks:
   - id: T000
@@ -6266,7 +6266,7 @@ tasks:
         - "output/web-game/meowtal-damage-popup-t119/state.json"
       notes:
         - "Custom damage-popup capture observed active damageNumbers count 1, value 45, kind light, and combo damage 45 while screenshot showed floating -45 over the struck cat."
-  - id: T121
+  - id: T120
     type: pm
     assignee: PM
     status: done
@@ -6609,7 +6609,7 @@ tasks:
         production_readiness: "npm run verify passed, dist build exists, explicit production preview on 127.0.0.1:4174 served final smoke and capture artifacts, and README/package scripts document local run paths."
       missing_evidence: []
       next_task: null
-  - id: T120
+  - id: T121
     type: pm
     assignee: PM
     status: done
@@ -6635,7 +6635,7 @@ tasks:
   - id: T122
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: medium
     objective: "Improve the first production-feel slice: make close-range movement/cross-up behavior smoother and less restrictive, preserve character-consistent animation sizing, and verify the UI/gameplay loop still renders cleanly."
     inputs:
@@ -6673,16 +6673,74 @@ tasks:
       - "Regression tests for the movement behavior"
       - "Browser evidence that existing UI/animations remain readable and stable"
       - "Task receipt and small coherent commit"
+    receipt:
+      result: done
+      summary: "Improved the first post-final gameplay-feel slice. The combat core now allows airborne hops and evasive rolls to pass through pushbox separation, refreshes facing after movement/collision, preserves jump/hop state while airborne instead of snapping into walk animation, and prevents one active attack from re-hitting repeatedly during hitstop. This directly addresses restricted side switching and a major source of glitchy repeated damage while preserving existing generated fighter/UI assets."
+      changed_files:
+        - "src/core/simulation.ts"
+        - "test/combat-core.test.ts"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+        - "progress.md"
+      commands:
+        - cmd: "npm test -- --run test/combat-core.test.ts"
+          status: pass
+        - cmd: "npm test -- --run test/combat-core.test.ts test/match-flow.test.ts test/presentation.test.ts test/touch-controls.test.ts"
+          status: pass
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-kof-feel"
+          status: pass
+        - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules node --input-type=module <inline cross-up capture>"
+          status: pass
+      evidence:
+        - "output/web-game/postfinal-kof-feel/report.json"
+        - "output/web-game/postfinal-kof-feel/desktop-keyboard-fight.png"
+        - "output/web-game/postfinal-kof-crossup/report.json"
+        - "output/web-game/postfinal-kof-crossup/crossup-after.png"
+      next_task: T123
+  - id: T123
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: low
+    objective: "Add runtime asset-contract guards for the approved fighter, stage, and UI PNGs so future animation/UI regeneration cannot silently change sizes, frame-cell contracts, or crop bounds."
+    inputs:
+      - "Animation/UI scout finding: public PNG dimensions and UI crop bounds are not directly asserted even though runtime loading assumes 256x256 fighter cells and 1024x576 UI/stage sheets."
+      - "Existing generated Meowtal fighter, stage, and UI assets."
+      - "Existing asset/runtime tests and PNG header utilities where available."
+    allowed_files:
+      - "test/asset-runtime.test.ts"
+      - "test/asset-qa.test.ts"
+      - "src/assets/catalog.ts"
+      - "src/assets/runtime.ts"
+      - "src/assets/stageRuntime.ts"
+      - "src/game/MeowtalArenaScene.ts"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+      - "progress.md"
+    verify:
+      - "npm test -- --run test/asset-runtime.test.ts test/asset-qa.test.ts"
+      - "npm run verify"
+    stop_if:
+      - "Requires regenerating or modifying binary PNG assets."
+      - "Requires changing runtime visuals, gameplay, audio, controls, or generated asset manifests beyond exposing existing contracts to tests."
+      - "A current approved asset violates the runtime contract and needs owner-visible visual remediation."
+    expected_output:
+      - "Tests assert public fighter spritesheet dimensions match manifest frame counts and 256x256 cells"
+      - "Tests assert public stage/UI sheets keep the 1024x576 runtime contract"
+      - "Tests assert UI crop specs remain in-bounds if those specs are exported safely"
+      - "Task receipt and small coherent commit"
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T109
+    task: T122
     commands:
       - cmd: "npm run typecheck"
         status: pass
-      - cmd: "npm test -- --run test/control-fallback.test.ts test/presentation.test.ts"
+      - cmd: "npm test -- --run test/combat-core.test.ts test/match-flow.test.ts test/presentation.test.ts test/touch-controls.test.ts"
         status: pass
       - cmd: "npm run verify"
         status: pass

@@ -83,6 +83,25 @@ describe("FightingSimulation", () => {
     expect(sawHit).toBe(true);
   });
 
+  it("lands one hit per attack activation even while hitstop holds active frames", () => {
+    const simulation = new FightingSimulation();
+    let hitCount = 0;
+
+    for (let frame = 1; frame <= 180; frame += 1) {
+      const snapshot = simulation.step({
+        p1: createInput(frame, {
+          horizontal: frame < 108 ? 1 : 0,
+          buttons: { light: frame === 114 },
+        }),
+      });
+      hitCount += snapshot.events.filter((event) => event.type === "hit" && event.move === "light").length;
+    }
+
+    const snapshot = simulation.snapshot();
+    expect(hitCount).toBe(1);
+    expect(snapshot.p2.health).toBe(955);
+  });
+
   it("applies light-kick as a distinct playable attack state", () => {
     const simulation = new FightingSimulation();
 
@@ -131,6 +150,32 @@ describe("FightingSimulation", () => {
     expect(backdash.p1.state).toBe("backdash");
     expect(hop.p1.state).toBe("hop");
     expect(hop.p1.grounded).toBe(false);
+  });
+
+  it("allows airborne cross-ups to switch sides instead of being pushed back forever", () => {
+    const simulation = new FightingSimulation();
+    let snapshot = simulation.snapshot();
+
+    for (let frame = 1; frame <= 108; frame += 1) {
+      snapshot = simulation.step({
+        p1: createInput(frame, { horizontal: 1 }),
+      });
+    }
+    expect(snapshot.p1.x).toBeLessThan(snapshot.p2.x);
+
+    for (let frame = 109; frame <= 170; frame += 1) {
+      snapshot = simulation.step({
+        p1: createInput(frame, {
+          horizontal: 1,
+          vertical: frame === 109 ? -1 : 0,
+          buttons: { jump: frame === 109 },
+        }),
+      });
+    }
+
+    expect(snapshot.p1.x).toBeGreaterThan(snapshot.p2.x);
+    expect(snapshot.p1.facing).toBe(-1);
+    expect(snapshot.p2.facing).toBe(1);
   });
 
   it("builds power meter when attacks connect", () => {

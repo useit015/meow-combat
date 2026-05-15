@@ -77,6 +77,7 @@ export class FightingSimulation {
     this.resolveAttacks(this.match.p1, this.match.p2, frame, events);
     this.resolveAttacks(this.match.p2, this.match.p1, frame, events);
     this.separateFighters();
+    this.faceOpponents();
     this.match.combo = expireCombo(this.match.combo, frame);
 
     const roundTimer = Math.max(0, this.roundSeconds - Math.floor(frame / 60));
@@ -187,11 +188,18 @@ export class FightingSimulation {
     }
 
     const latest = buffer.latest();
-    if (latest.buttons.jump && fighter.grounded) {
+    if (!fighter.grounded) {
+      applyAirMovement(fighter, latest, opponent, this.match.groundY);
+      return;
+    }
+
+    if (latest.buttons.jump) {
       const isHop = latest.horizontal !== 0;
       setState(fighter, isHop ? "hop" : "jump", frame, events);
       fighter.velocityY = isHop ? fighter.definition.jumpVelocity * 0.68 : fighter.definition.jumpVelocity;
       fighter.grounded = false;
+      applyAirMovement(fighter, latest, opponent, this.match.groundY);
+      return;
     } else if (latest.buttons.crouch || latest.vertical === 1) {
       setState(fighter, "crouch", frame, events);
     } else {
@@ -207,10 +215,6 @@ export class FightingSimulation {
       }
     }
 
-    if (fighter.state === "jump" || fighter.state === "hop") {
-      fighter.x += latest.horizontal * fighter.definition.walkSpeed * (fighter.state === "hop" ? 0.95 : 0.72);
-    }
-
     fighter.x = clamp(fighter.x, this.match.bounds.x, this.match.bounds.x + this.match.bounds.width);
     applyGravity(fighter, this.match.groundY);
     keepInCombatRange(fighter, opponent);
@@ -224,7 +228,7 @@ export class FightingSimulation {
     events: CombatEvent[],
   ): void {
     const move = activeMove(attacker);
-    if (!move || attacker.lastHitFrame === frame || isStrikeInvulnerable(defender)) return;
+    if (!move || attacker.lastHitFrame !== null || isStrikeInvulnerable(defender)) return;
 
     const activeVolumes = move.hitVolumes.filter(
       (volume) => attacker.stateFrame >= volume.frameStart && attacker.stateFrame <= volume.frameEnd,
@@ -276,6 +280,10 @@ export class FightingSimulation {
   }
 
   private separateFighters(): void {
+    if (canPassThroughOpponent(this.match.p1, this.match.groundY) || canPassThroughOpponent(this.match.p2, this.match.groundY)) {
+      return;
+    }
+
     const minDistance = 56;
     const distance = this.match.p2.x - this.match.p1.x;
     if (Math.abs(distance) >= minDistance) return;
@@ -449,6 +457,19 @@ function finalizeGroundMovement(fighter: FighterRuntime, opponent: FighterRuntim
   keepInCombatRange(fighter, opponent);
 }
 
+function applyAirMovement(
+  fighter: FighterRuntime,
+  latest: InputSnapshot,
+  opponent: FighterRuntime,
+  groundY: number,
+): void {
+  const driftScale = fighter.state === "hop" ? 0.95 : 0.72;
+  fighter.x += latest.horizontal * fighter.definition.walkSpeed * driftScale;
+  fighter.x = clamp(fighter.x, STAGE_BOUNDS.x, STAGE_BOUNDS.x + STAGE_BOUNDS.width);
+  applyGravity(fighter, groundY);
+  keepInCombatRange(fighter, opponent);
+}
+
 function canCancelInto(move: MoveDefinition, command: CommandId, stateFrame: number): boolean {
   if (command !== "special" && command !== "super") return false;
   if (move.id === "special" || move.id === "super") return false;
@@ -487,6 +508,12 @@ function isBlocking(defender: FighterRuntime, attacker: FighterRuntime): boolean
 
 function isStrikeInvulnerable(defender: FighterRuntime): boolean {
   return defender.state === "rollForward" || defender.state === "rollBack" || defender.state === "backdash";
+}
+
+function canPassThroughOpponent(fighter: FighterRuntime, groundY: number): boolean {
+  const airborneCrossUp = (fighter.state === "jump" || fighter.state === "hop") && !fighter.grounded && fighter.y < groundY - 18;
+  const evasiveRoll = fighter.state === "rollForward" || fighter.state === "rollBack";
+  return airborneCrossUp || evasiveRoll;
 }
 
 function push(defender: FighterRuntime, amount: number, attacker: FighterRuntime): void {
