@@ -8,7 +8,7 @@ goal:
   slug: "meowtal-kombat-production"
   kind: specific
   tranche: "Continuous execution: complete successive safe verified slices until the full original outcome is complete."
-  status: done
+  status: active
   intake:
     original_request: "Make the Meowtal Kombat concept into a real production-ready and smooth game with proper assets, architecture, effects, and gameplay."
     interpreted_outcome: "A polished, production-ready scoped fighting game where a gray rabbit and ginger/orange tabby cat fight through a complete arcade flow with smooth controls, animations, effects, audio, HUD, and verified game feel."
@@ -43,6 +43,7 @@ goal:
       - "Use canonical original-character sheet prompts before animation generation. Character sheets must include front/side/back/3-4 pose, action pose, relaxed idle, head close-up, expression sheet, detail callouts, size reference, and color swatches for each fighter."
       - "Use Tough Love Arena (https://toughlovearena.com/) as a feel and polish benchmark for smooth web fighting-game responsiveness, readable combat, beautiful presentation, input comfort, and round/rematch flow. Do not copy its characters, art, UI, code, brand, or exact mechanics."
       - "Owner clarified stance consistency: rabbit and cat must not mix two-legged and four-legged normal stance conventions. Current production direction chooses upright two-legged for ordinary stance/movement/attacks; prone or grounded frames are only allowed as clear hit reactions such as knockdown."
+      - "Post-completion owner escalation on 2026-05-15: continue beyond the prior final audit until animations feel seamless and character-consistent, UI elements look and function consistently with the original view, and gameplay movement feels less restricted with King of Fighters-style side switching and smoothness."
 
 rules:
   pm_owns_state: true
@@ -85,7 +86,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: null
+active_task: T122
 
 tasks:
   - id: T000
@@ -6265,7 +6266,7 @@ tasks:
         - "output/web-game/meowtal-damage-popup-t119/state.json"
       notes:
         - "Custom damage-popup capture observed active damageNumbers count 1, value 45, kind light, and combo damage 45 while screenshot showed floating -45 over the struck cat."
-  - id: T120
+  - id: T121
     type: pm
     assignee: PM
     status: done
@@ -6608,6 +6609,70 @@ tasks:
         production_readiness: "npm run verify passed, dist build exists, explicit production preview on 127.0.0.1:4174 served final smoke and capture artifacts, and README/package scripts document local run paths."
       missing_evidence: []
       next_task: null
+  - id: T120
+    type: pm
+    assignee: PM
+    status: done
+    reasoning_hint: medium
+    objective: "Reopen the completed production board for the owner's post-final quality escalation focused on animation consistency, UI consistency, and smoother KOF-style gameplay."
+    inputs:
+      - "Owner request on 2026-05-15 to continue until a solid production-ready v1 with improved animations, regenerated/consistent UI, and King of Fighters-style gameplay feel."
+      - "Prior final audit T999 marked the original scoped goal complete, but the owner now rejects the current feel as still too glitchy/restricted."
+    constraints:
+      - "Do not claim the prior final audit still satisfies the new owner bar."
+      - "Keep future implementation in small coherent commits."
+      - "Use imagegen for actual new generated image assets if required and Playwright/browser smoke for verification."
+    expected_output:
+      - "Board status reopened"
+      - "New active Worker slice selected"
+      - "Scope recorded without disturbing prior receipts"
+    receipt:
+      result: done
+      summary: "Reopened the board as an active post-final quality continuation. The new first implementation slice targets the concrete gameplay complaint about restricted side switching and glitchy feel while keeping animation/UI verification in scope."
+      changed_files:
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+      next_task: T122
+  - id: T122
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: medium
+    objective: "Improve the first production-feel slice: make close-range movement/cross-up behavior smoother and less restrictive, preserve character-consistent animation sizing, and verify the UI/gameplay loop still renders cleanly."
+    inputs:
+      - "Owner complaint: playing is hard because of glitchiness and restricted movement; characters cannot switch sides naturally."
+      - "Existing deterministic combat core and browser smoke harness."
+      - "Existing generated Meowtal fighter/UI assets."
+    allowed_files:
+      - "src/core/simulation.ts"
+      - "src/core/types.ts"
+      - "src/core/input.ts"
+      - "src/core/frameData.ts"
+      - "src/game/MeowtalArenaScene.ts"
+      - "src/game/presentation.ts"
+      - "src/game/touchControls.ts"
+      - "src/style.css"
+      - "test/combat-core.test.ts"
+      - "test/match-flow.test.ts"
+      - "test/presentation.test.ts"
+      - "test/touch-controls.test.ts"
+      - "scripts/smoke-meowtal-browser.mjs"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+      - "progress.md"
+    verify:
+      - "npm run typecheck"
+      - "npm test -- --run test/combat-core.test.ts test/match-flow.test.ts test/presentation.test.ts test/touch-controls.test.ts"
+      - "npm run verify"
+      - "npm run smoke:meowtal -- --url <local preview url> --out-dir output/web-game/postfinal-kof-feel"
+    stop_if:
+      - "Requires regenerating binary image/UI assets before core movement can be improved."
+      - "Requires changing generated fighter art identity, proportions, visual size, or approved source assets."
+      - "Requires broad architecture replacement rather than a bounded first feel slice."
+      - "Browser smoke shows missing runtime UI assets, console/page errors, unreadable HUD, or severe animation-size drift after one scoped fix attempt."
+    expected_output:
+      - "Less restrictive close-range movement with natural side switching or cross-up handling"
+      - "Regression tests for the movement behavior"
+      - "Browser evidence that existing UI/animations remain readable and stable"
+      - "Task receipt and small coherent commit"
 
 checks:
   dirty_fingerprint: unknown
