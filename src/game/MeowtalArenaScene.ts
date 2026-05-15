@@ -54,7 +54,7 @@ import {
   type GamepadInputState,
 } from "./gamepadInput";
 import { fighterMobilityMotionCue, fighterRollMotionCue, fighterVisualSeparationOffset, impactFeedbackCue } from "./presentation";
-import { initialShellState, reduceShellState, type ShellState } from "./shellFlow";
+import { initialShellState, reduceShellState, selectedPlayMode, shellModeLabel, type ShellState } from "./shellFlow";
 import { selectSpritePose, spriteStanceConventionForAnimation } from "./spriteFrame";
 import {
   TOUCH_CONTROL_IDS,
@@ -386,6 +386,8 @@ export class MeowtalArenaScene extends Phaser.Scene {
       winner: this.snapshot.winner,
       combo: this.snapshot.combo,
       p2Mode: this.p2CpuEnabled ? "cpu" : "manual",
+      playMode: selectedPlayMode(this.shell),
+      playModeLabel: shellModeLabel(this.shell),
       cpuDifficulty: this.cpuDifficulty,
       selectedFighters: {
         p1: selectedFighter(this.selectedFighterIndex.p1).displayName,
@@ -447,7 +449,9 @@ export class MeowtalArenaScene extends Phaser.Scene {
         })),
       },
       selectRuntimeSprites: {
-        visible: (this.shell.phase === "ready" || this.shell.phase === "select") && !this.canRenderConceptArt(),
+        visible:
+          (this.shell.phase === "ready" || this.shell.phase === "mode-select" || this.shell.phase === "select") &&
+          !this.canRenderConceptArt(),
         p1AssetKey: this.selectIdleAssetKey("p1"),
         p2AssetKey: this.selectIdleAssetKey("p2"),
       },
@@ -497,6 +501,7 @@ export class MeowtalArenaScene extends Phaser.Scene {
     const gamepadStartPressed = gamepadPressed("start");
     const shellAcceptsConfirm =
       this.shell.phase === "ready" ||
+      this.shell.phase === "mode-select" ||
       this.shell.phase === "select" ||
       this.shell.phase === "round-over" ||
       this.shell.phase === "match-over";
@@ -528,6 +533,19 @@ export class MeowtalArenaScene extends Phaser.Scene {
         this.audio.play("ui-confirm");
       }
       const previousPhase = this.shell.phase;
+      const modePreviousPressed =
+        previousPhase === "mode-select" &&
+        (Phaser.Input.Keyboard.JustDown(this.keys.p1Left) ||
+          Phaser.Input.Keyboard.JustDown(this.keys.p2Left) ||
+          touchPressed("left") ||
+          (gamepadInputThisFrame.horizontal === -1 && this.previousGamepadInput.horizontal !== -1));
+      const modeNextPressed =
+        previousPhase === "mode-select" &&
+        (Phaser.Input.Keyboard.JustDown(this.keys.p1Right) ||
+          Phaser.Input.Keyboard.JustDown(this.keys.p1RightAlt) ||
+          Phaser.Input.Keyboard.JustDown(this.keys.p2Right) ||
+          touchPressed("right") ||
+          (gamepadInputThisFrame.horizontal === 1 && this.previousGamepadInput.horizontal !== 1));
       if (previousPhase === "select") {
         this.handleCharacterSelectInput();
       }
@@ -542,6 +560,8 @@ export class MeowtalArenaScene extends Phaser.Scene {
         resetPressed,
         startPressed,
         pausePressed,
+        modeNextPressed,
+        modePreviousPressed,
         matchStatus: this.snapshot.status,
         matchSetStatus: this.matchSet.status,
       });
@@ -596,8 +616,9 @@ export class MeowtalArenaScene extends Phaser.Scene {
 
       if (
         resetPressed ||
-        (previousPhase === "ready" && this.shell.phase === "fighting") ||
         (previousPhase === "ready" && this.shell.phase === "select") ||
+        (previousPhase === "ready" && this.shell.phase === "mode-select") ||
+        (previousPhase === "mode-select" && this.shell.phase === "select") ||
         (previousPhase === "round-over" && this.shell.phase === "fighting") ||
         (previousPhase === "match-over" && this.shell.phase === "fighting") ||
         (previousPhase === "fighting" && this.shell.phase === "paused") ||
@@ -651,7 +672,8 @@ export class MeowtalArenaScene extends Phaser.Scene {
       g.setDepth(50);
     }
     g.clear();
-    const showFightLayer = this.shell.phase !== "ready" && this.shell.phase !== "select";
+    const showFightLayer =
+      this.shell.phase !== "ready" && this.shell.phase !== "mode-select" && this.shell.phase !== "select";
     const runtimeUiReady = this.canRenderRuntimeUi();
     const stageImagesRendered = this.renderStageLayers(this.canRenderStageArt());
     if (!stageImagesRendered) {
@@ -686,7 +708,13 @@ export class MeowtalArenaScene extends Phaser.Scene {
     this.renderDamageNumbers(showFightLayer);
     this.statusText.setText(hudCenterLabel(this.snapshot, this.matchSet));
     this.roundText.setText(roundLabel(this.matchSet));
-    this.modeText.setText(this.p2CpuEnabled ? `P2 CPU ${this.cpuDifficulty.toUpperCase()}` : "P2 MANUAL");
+    this.modeText.setText(
+      selectedPlayMode(this.shell) === "training"
+        ? "TRAINING MODE"
+        : this.p2CpuEnabled
+          ? `1 VS CPU ${this.cpuDifficulty.toUpperCase()}`
+          : "P2 MANUAL",
+    );
     this.statusText.setVisible(showFightLayer);
     this.roundText.setVisible(showFightLayer);
     this.modeText.setVisible(showFightLayer);
@@ -754,7 +782,7 @@ export class MeowtalArenaScene extends Phaser.Scene {
     const logo = this.runtimeUiImages["title-logo"];
     if (this.shell.phase === "ready") {
       logo.setPosition(512, 140).setDisplaySize(520, 210).setVisible(true);
-    } else if (this.shell.phase === "select") {
+    } else if (this.shell.phase === "mode-select" || this.shell.phase === "select") {
       logo.setPosition(512, 48).setDisplaySize(280, 113).setVisible(true);
     }
 
@@ -1059,7 +1087,10 @@ export class MeowtalArenaScene extends Phaser.Scene {
     });
   }
 
-  private startSelectedMatch(): void {
+  private startSelectedMatch(options: { syncCpuToMode?: boolean } = {}): void {
+    if (options.syncCpuToMode ?? true) {
+      this.p2CpuEnabled = selectedPlayMode(this.shell) === "versus-cpu";
+    }
     this.simulation = this.createSimulation();
     this.snapshot = this.simulation.snapshot();
     this.matchSet = createMatchSet();
@@ -1270,7 +1301,7 @@ export class MeowtalArenaScene extends Phaser.Scene {
 
     this.p2CpuEnabled = false;
     this.shell = { phase: "fighting" };
-    this.startSelectedMatch();
+    this.startSelectedMatch({ syncCpuToMode: false });
     if (this.demoMode === "hitstun") {
       this.primeHitstunDemo();
     } else if (this.demoMode === "blockstun") {
@@ -1720,6 +1751,12 @@ export class MeowtalArenaScene extends Phaser.Scene {
       this.helpText.setPosition(512, 194);
       this.helpText.setFontSize(15);
       this.helpText.setAlpha(1);
+    } else if (this.shell.phase === "mode-select") {
+      this.titleText.setPosition(512, 132);
+      this.titleText.setFontSize(30);
+      this.helpText.setPosition(512, 214);
+      this.helpText.setFontSize(16);
+      this.helpText.setAlpha(1);
     } else if (this.shell.phase === "ready") {
       if (this.canRenderRuntimeUi()) {
         this.titleText.setText("");
@@ -1780,7 +1817,7 @@ export class MeowtalArenaScene extends Phaser.Scene {
 
   private renderSelectSprites(): void {
     const shouldShow =
-      (this.shell.phase === "ready" || this.shell.phase === "select") &&
+      (this.shell.phase === "ready" || this.shell.phase === "mode-select" || this.shell.phase === "select") &&
       !this.canRenderConceptArt() &&
       this.canRenderSelectSprites();
     for (const player of ["p1", "p2"] as const) {
@@ -1812,7 +1849,10 @@ export class MeowtalArenaScene extends Phaser.Scene {
 
   private canRenderConceptArt(): boolean {
     return Boolean(
-      CONCEPT_SHEET && this.shell.phase === "ready" && !this.canRenderSelectSprites() && this.textures.exists(CONCEPT_SHEET.key),
+      CONCEPT_SHEET &&
+        (this.shell.phase === "ready" || this.shell.phase === "mode-select") &&
+        !this.canRenderSelectSprites() &&
+        this.textures.exists(CONCEPT_SHEET.key),
     );
   }
 
@@ -1926,6 +1966,7 @@ function drawEffects(g: Phaser.GameObjects.Graphics, effects: readonly CombatEff
 
 function shellTitle(shell: ShellState, snapshot: MatchSnapshot, matchSet: MatchSetState): string {
   if (shell.phase === "ready") return GAME_TITLE;
+  if (shell.phase === "mode-select") return "SELECT PLAY MODE";
   if (shell.phase === "select") return "SELECT YOUR FIGHTERS";
   if (shell.phase === "paused") return "PAUSED";
   if (shell.phase === "round-over") return roundResultLabel(snapshot);
@@ -1937,8 +1978,11 @@ function shellHelp(shell: ShellState, selectionLabel: string, controlFallbackLin
   if (shell.phase === "ready") {
     return `${GAME_SUBTITLE}\nPRESS ENTER\n${controlFallbackLine}`;
   }
+  if (shell.phase === "mode-select") {
+    return `${shellModeLabel(shell)}\nA/D or arrows: mode  |  Enter: character select  |  R: reset\n${controlFallbackLine}`;
+  }
   if (shell.phase === "select") {
-    return `${selectionLabel}\n${controlFallbackLine}\nA/D or B: P1 fighter  |  Arrow keys: P2 fighter\nEnter: fight  |  R: reset`;
+    return `${selectionLabel}\n${shellModeLabel(shell)}\nA/D or B: P1 fighter  |  Arrow keys: P2 fighter\nEnter: fight  |  R: reset`;
   }
   if (shell.phase === "round-over") {
     return "Enter: next round\nR: reset to ready";
@@ -1969,7 +2013,7 @@ function runtimeUiAssetConfig(id: RuntimeUiAssetId): RuntimeUiAssetConfig {
 }
 
 function selectSpritePlacement(shell: ShellState, player: "p1" | "p2"): { x: number; y: number; scale: number } {
-  if (shell.phase === "ready") {
+  if (shell.phase === "ready" || shell.phase === "mode-select") {
     return player === "p1"
       ? { x: 188, y: 512, scale: 1.36 }
       : { x: 836, y: 512, scale: 1.36 };
@@ -1988,6 +2032,12 @@ function conceptArtPlacement(
     return player === "p1"
       ? { x: 164, y: 330, width: 246, height: 404 }
       : { x: 860, y: 330, width: 246, height: 404 };
+  }
+
+  if (shell.phase === "mode-select") {
+    return player === "p1"
+      ? { x: 164, y: 352, width: 230, height: 378 }
+      : { x: 860, y: 352, width: 230, height: 378 };
   }
 
   return player === "p1"
@@ -2049,6 +2099,17 @@ function drawShellBackdrop(
     drawSelectionCard(g, 166, 228, 298, 264, 0x2ec4b6, "left");
     drawSelectionCard(g, 560, 228, 298, 264, 0xff9f1c, "right");
     drawVsMedallion(g, 512, 360);
+    return;
+  }
+  if (shell.phase === "mode-select") {
+    drawTitlePortraitFrame(g, 42, 120, 244, 410, 0x2ec4b6);
+    drawTitlePortraitFrame(g, 738, 120, 244, 410, 0xff9f1c);
+    g.fillStyle(0x071312, 0.72).fillRoundedRect(300, 252, 424, 138, 8);
+    g.lineStyle(2, 0xf2cf7d, 0.9).strokeRoundedRect(300, 252, 424, 138, 8);
+    g.fillStyle(0xf2cf7d, 0.9).fillTriangle(332, 322, 364, 296, 364, 348);
+    g.fillStyle(0xf2cf7d, 0.9).fillTriangle(692, 322, 660, 296, 660, 348);
+    g.fillStyle(selectedPlayMode(shell) === "training" ? 0x2ec4b6 : 0xff9f1c, 0.22).fillRoundedRect(386, 278, 252, 86, 6);
+    g.lineStyle(2, selectedPlayMode(shell) === "training" ? 0x2ec4b6 : 0xff9f1c, 0.86).strokeRoundedRect(386, 278, 252, 86, 6);
     return;
   }
   if ((shell.phase === "round-over" || shell.phase === "match-over") && runtimeUiVisible) {

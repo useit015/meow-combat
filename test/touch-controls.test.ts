@@ -11,7 +11,7 @@ import {
 describe("touch controls", () => {
   it("uses shell zones for start/reset and fight zones for full combat input", () => {
     expect(touchControlZonesForPhase("ready").map((zone) => zone.id)).toEqual(["start", "reset"]);
-    expect(touchControlZonesForPhase("mode-select").map((zone) => zone.id)).toEqual(["start", "reset"]);
+    expect(touchControlZonesForPhase("mode-select").map((zone) => zone.id)).toEqual(["left", "right", "start", "reset"]);
     expect(touchControlZonesForPhase("paused").map((zone) => zone.id)).toEqual(["reset", "cpu", "difficulty", "pause"]);
     expect(touchControlZonesForPhase("fighting").map((zone) => zone.id)).toEqual([
       "left",

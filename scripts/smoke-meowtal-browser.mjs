@@ -393,8 +393,15 @@ async function runDesktop(browser, url, outDir) {
   });
 
   await pressKey(page, "Space");
-  let state = await holdKey(page, "Space", 10);
+  let state = await readState(page);
+  assert(state.shellPhase === "mode-select", failures, `desktop Space confirm expected mode-select phase, got ${state.shellPhase}`);
+  assert(state.playMode === "versus-cpu", failures, `desktop default play mode expected versus-cpu, got ${state.playMode}`);
+  await pressKey(page, "Space");
+  state = await readState(page);
+  assert(state.shellPhase === "select", failures, `desktop second Space confirm expected select phase, got ${state.shellPhase}`);
+  state = await holdKey(page, "Space", 10);
   assert(state.shellPhase === "fighting", failures, `desktop held Space confirm expected fighting phase, got ${state.shellPhase}`);
+  assert(state.playMode === "versus-cpu", failures, `desktop fight expected versus-cpu mode, got ${state.playMode}`);
   assert(state.fighters?.p1?.state === "idle", failures, `desktop held Space confirm should not buffer lightAttack, got ${state.fighters?.p1?.state}`);
   await waitFrames(page, 8);
   state = await holdKey(page, "Space", 10);
@@ -438,16 +445,25 @@ async function runGamepad(browser, url, outDir) {
 
   await pressGamepadButton(page, GAMEPAD_BUTTON.South);
   state = await readState(page);
+  screenshots.push(await screenshot(page, outDir, "gamepad-mode-select"));
+  assert(state.shellPhase === "mode-select", failures, `gamepad south confirm expected mode-select phase, got ${state.shellPhase}`);
+  assert(state.playMode === "versus-cpu", failures, `gamepad default play mode expected versus-cpu, got ${state.playMode}`);
+  checkRuntimeUiLoaded(state, "gamepad mode-select", failures);
+  checkOnlyRuntimeUiSlots(state, "gamepad mode-select", TITLE_UI_SLOTS, failures);
+
+  await pressGamepadButton(page, GAMEPAD_BUTTON.South);
+  state = await readState(page);
   screenshots.push(await screenshot(page, outDir, "gamepad-select"));
-  assert(state.shellPhase === "select", failures, `gamepad south confirm expected select phase, got ${state.shellPhase}`);
+  assert(state.shellPhase === "select", failures, `gamepad second south confirm expected select phase, got ${state.shellPhase}`);
   checkRuntimeUiLoaded(state, "gamepad select", failures);
   checkOnlyRuntimeUiSlots(state, "gamepad select", TITLE_UI_SLOTS, failures);
 
-  await pressKey(page, "KeyC");
   state = await holdGamepadInput(page, { buttons: { [GAMEPAD_BUTTON.South]: true } }, 10);
   screenshots.push(await screenshot(page, outDir, "gamepad-confirm-held"));
   assert(state.shellPhase === "fighting", failures, `gamepad held south confirm expected fighting phase, got ${state.shellPhase}`);
   assert(state.fighters?.p1?.state === "idle", failures, `gamepad held south confirm should not buffer lightAttack, got ${state.fighters?.p1?.state}`);
+  await pressKey(page, "KeyC");
+  state = await readState(page);
   assert(state.p2Mode === "manual", failures, `gamepad expected P2 manual after CPU toggle, got ${state.p2Mode}`);
   await waitFrames(page, 8);
 
@@ -504,6 +520,14 @@ async function runMobile(browser, url, outDir, name, viewport, expectedLayout) {
   assert(state.shellPhase === "ready", failures, `${name} ready expected ready phase, got ${state.shellPhase}`);
   checkRuntimeUiLoaded(state, `${name} ready`, failures);
   checkOnlyRuntimeUiSlots(state, `${name} ready`, TITLE_UI_SLOTS, failures);
+
+  await tapControl(page, "start");
+  state = await readState(page);
+  const modeSelectShot = await screenshot(page, outDir, `${name}-mode-select`);
+  assert(state.shellPhase === "mode-select", failures, `${name} mode select expected mode-select phase, got ${state.shellPhase}`);
+  assert(state.playMode === "versus-cpu", failures, `${name} default play mode expected versus-cpu, got ${state.playMode}`);
+  checkRuntimeUiLoaded(state, `${name} mode select`, failures);
+  checkOnlyRuntimeUiSlots(state, `${name} mode select`, TITLE_UI_SLOTS, failures);
 
   await tapControl(page, "start");
   state = await readState(page);
@@ -584,6 +608,7 @@ async function runMobile(browser, url, outDir, name, viewport, expectedLayout) {
     errors,
     screenshots: [
       readyShot,
+      modeSelectShot,
       selectShot,
       fightShot,
       rightShot,
