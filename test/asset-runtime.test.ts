@@ -22,6 +22,11 @@ import { spriteStanceConventionForAnimation } from "../src/game/spriteFrame";
 const PUBLIC_ROOT = join(process.cwd(), "public");
 const GAME_WIDTH = 1024;
 const GAME_HEIGHT = 576;
+const UI_CANDIDATE_ROOT = join(process.cwd(), "assets/source/imagegen/ui/meowtal/candidates");
+const codexUiCandidatePaths = [
+  "logo-title-mark-codex-01.png",
+  "fight-ko-victory-overlays-codex-01.png",
+] as const;
 const rabbitManifest = manifestById("gray-rabbit");
 const catManifest = manifestById("ginger-tabby-cat");
 const uprightRuntimeStates = [
@@ -337,13 +342,33 @@ describe("asset runtime resolver", () => {
       expect(spec.y + spec.height / 2).toBeLessThanOrEqual(GAME_HEIGHT);
     }
   });
+
+  it("keeps Codex-regenerated presentation UI candidates on the source-sheet alpha contract", () => {
+    for (const candidatePath of codexUiCandidatePaths) {
+      const fullPath = join(UI_CANDIDATE_ROOT, candidatePath);
+      expect(existsSync(fullPath), `${candidatePath} should exist`).toBe(true);
+      expect(pngDimensions(fullPath, { publicPath: false })).toEqual({ width: GAME_WIDTH, height: GAME_HEIGHT });
+      expect(pngHasAlpha(fullPath, { publicPath: false })).toBe(true);
+    }
+  });
 });
 
-function pngDimensions(publicPath: string): { width: number; height: number } {
-  const buffer = readFileSync(join(PUBLIC_ROOT, publicPath));
-  expect(buffer.subarray(1, 4).toString("ascii")).toBe("PNG");
+function pngDimensions(path: string, options: { publicPath?: boolean } = {}): { width: number; height: number } {
+  const buffer = readPng(path, options);
   return {
     width: buffer.readUInt32BE(16),
     height: buffer.readUInt32BE(20),
   };
+}
+
+function pngHasAlpha(path: string, options: { publicPath?: boolean } = {}): boolean {
+  const buffer = readPng(path, options);
+  const colorType = buffer.readUInt8(25);
+  return colorType === 4 || colorType === 6;
+}
+
+function readPng(path: string, options: { publicPath?: boolean } = {}): Buffer {
+  const buffer = readFileSync(options.publicPath === false ? path : join(PUBLIC_ROOT, path));
+  expect(buffer.subarray(1, 4).toString("ascii")).toBe("PNG");
+  return buffer;
 }

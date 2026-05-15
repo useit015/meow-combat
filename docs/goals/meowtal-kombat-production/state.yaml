@@ -86,7 +86,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T155
+active_task: T156
 
 tasks:
   - id: T000
@@ -8205,7 +8205,7 @@ tasks:
   - id: T155
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: medium
     objective: "Use the Codex built-in imagegen skill to regenerate a first coherent Meowtal presentation UI candidate batch for logo/title mark and FIGHT/K.O./victory overlays, preserving original-view crop compatibility before any runtime promotion."
     inputs:
@@ -8234,14 +8234,66 @@ tasks:
       - "Workspace-saved Codex built-in imagegen candidates for the first presentation UI batch."
       - "No runtime promotion unless visual QA and contract checks pass."
       - "Task receipt and small coherent commit."
+    receipt:
+      result: done
+      summary: "Used the Codex built-in imagegen tool to regenerate the first presentation UI batch: logo/title mark and FIGHT/K.O./RABBIT WINS/TABBY WINS overlay sheet. Saved alpha-converted, 1024x576 candidates under assets/source/imagegen/ui/meowtal/candidates/ without changing runtime assets. Visual QA found the candidates preserve the original view, crop-compatible composition, readable Meowtal text, and four-quadrant overlay layout; focused tests now pin the candidate alpha/dimension contract."
+      changed_files:
+        - "assets/source/imagegen/ui/meowtal/candidates/logo-title-mark-codex-01.png"
+        - "assets/source/imagegen/ui/meowtal/candidates/fight-ko-victory-overlays-codex-01.png"
+        - "test/asset-runtime.test.ts"
+      commands:
+        - cmd: "sips -g pixelWidth -g pixelHeight output/imagegen/meowtal-ui-logo-title-mark-codex-01.png output/imagegen/meowtal-ui-fight-ko-victory-overlays-codex-01.png"
+          status: pass
+        - cmd: "npm test -- --run test/asset-runtime.test.ts test/meowtal-production-manifest.test.ts"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+      proof:
+        - "assets/source/imagegen/ui/meowtal/candidates/logo-title-mark-codex-01.png"
+        - "assets/source/imagegen/ui/meowtal/candidates/fight-ko-victory-overlays-codex-01.png"
+      next_task: T156
+  - id: T156
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: medium
+    objective: "Approve and promote the Codex-regenerated presentation UI candidates to the runtime logo/title mark and FIGHT/K.O./victory overlay assets, then verify crop contracts, production build, and browser smoke."
+    inputs:
+      - "T155 generated 1024x576 alpha candidates for logo-title-mark and fight-ko-victory-overlays."
+      - "Visual QA found candidates preserve original-view presentation and crop-compatible layout."
+      - "Runtime promotion must update source/runtime assets and provenance only for this coherent presentation UI batch."
+    allowed_files:
+      - "assets/source/imagegen/ui/meowtal/logo-title-mark.png"
+      - "assets/source/imagegen/ui/meowtal/fight-ko-victory-overlays.png"
+      - "public/assets/generated/ui/meowtal/logo-title-mark.png"
+      - "public/assets/generated/ui/meowtal/fight-ko-victory-overlays.png"
+      - "src/assets/meowtalProductionManifest.ts"
+      - "test/asset-runtime.test.ts"
+      - "test/meowtal-production-manifest.test.ts"
+      - "scripts/smoke-meowtal-browser.mjs"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+      - "progress.md"
+    verify:
+      - "npm test -- --run test/asset-runtime.test.ts test/meowtal-production-manifest.test.ts"
+      - "npm run verify"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-ui-presentation-promotion"
+      - "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/meowtal-kombat-production/state.yaml"
+    stop_if:
+      - "The promoted candidates fail runtime crop bounds, browser-visible slots, or visual QA in production-preview smoke."
+    expected_output:
+      - "Runtime presentation UI uses the Codex-regenerated logo and overlay sheets."
+      - "Provenance notes identify the Codex built-in imagegen regeneration batch."
+      - "Browser smoke proves title, fight, K.O., and victory UI remain visible."
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T153
+    task: T155
     commands:
-      - cmd: "rg -n \"UI surface jobs|crop-compatible|original view|src/assets/imagegenJobs.ts|src/game/gameConfig.ts\" docs/imagegen-runbook.md README.md"
+      - cmd: "sips -g pixelWidth -g pixelHeight output/imagegen/meowtal-ui-logo-title-mark-codex-01.png output/imagegen/meowtal-ui-fight-ko-victory-overlays-codex-01.png"
+        status: pass
+      - cmd: "npm test -- --run test/asset-runtime.test.ts test/meowtal-production-manifest.test.ts"
         status: pass
       - cmd: "npm run verify"
         status: pass
