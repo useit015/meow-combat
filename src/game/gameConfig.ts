@@ -44,6 +44,38 @@ export interface RuntimeUiAssetConfig {
   path: string;
 }
 
+export type RuntimeUiImageSlot =
+  | "title-logo"
+  | "hud-frame"
+  | "rabbit-portrait"
+  | "cat-portrait"
+  | "health-bar-rabbit"
+  | "health-bar-cat"
+  | "super-meter"
+  | "timer-frame"
+  | "fight-overlay"
+  | "ko-overlay"
+  | "rabbit-win-overlay"
+  | "cat-win-overlay";
+
+export interface UiCrop {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+export interface RuntimeUiImageSpec {
+  slot: RuntimeUiImageSlot;
+  assetId: RuntimeUiAssetId;
+  crop: UiCrop;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  depth: number;
+}
+
 export interface GameContentConfig {
   title: string;
   subtitle: string;
@@ -58,6 +90,129 @@ export interface GameContentConfig {
   assetVersion: string;
   stage: StageAssetManifest;
 }
+
+export const RUNTIME_UI_IMAGE_SPECS = [
+  {
+    slot: "title-logo",
+    assetId: "logo-title-mark",
+    crop: { x: 43, y: 106, width: 941, height: 381 },
+    x: 512,
+    y: 140,
+    width: 520,
+    height: 210,
+    depth: 96,
+  },
+  {
+    slot: "hud-frame",
+    assetId: "hud-frame",
+    crop: { x: 6, y: 24, width: 1010, height: 154 },
+    x: 512,
+    y: 80,
+    width: 1010,
+    height: 154,
+    depth: 82,
+  },
+  {
+    slot: "rabbit-portrait",
+    assetId: "rabbit-portrait",
+    crop: { x: 156, y: 0, width: 713, height: 576 },
+    x: 72,
+    y: 72,
+    width: 138,
+    height: 112,
+    depth: 85,
+  },
+  {
+    slot: "cat-portrait",
+    assetId: "cat-portrait",
+    crop: { x: 156, y: 0, width: 713, height: 576 },
+    x: 952,
+    y: 72,
+    width: 138,
+    height: 112,
+    depth: 85,
+  },
+  {
+    slot: "health-bar-rabbit",
+    assetId: "health-bar-rabbit",
+    crop: { x: 52, y: 189, width: 932, height: 156 },
+    x: 270,
+    y: 62,
+    width: 430,
+    height: 72,
+    depth: 84,
+  },
+  {
+    slot: "health-bar-cat",
+    assetId: "health-bar-cat",
+    crop: { x: 34, y: 219, width: 953, height: 131 },
+    x: 754,
+    y: 62,
+    width: 430,
+    height: 59,
+    depth: 84,
+  },
+  {
+    slot: "super-meter",
+    assetId: "super-meter",
+    crop: { x: 16, y: 222, width: 992, height: 137 },
+    x: 512,
+    y: 528,
+    width: 700,
+    height: 96,
+    depth: 82,
+  },
+  {
+    slot: "timer-frame",
+    assetId: "timer-frame",
+    crop: { x: 203, y: 23, width: 617, height: 531 },
+    x: 512,
+    y: 58,
+    width: 104,
+    height: 90,
+    depth: 86,
+  },
+  {
+    slot: "fight-overlay",
+    assetId: "fight-ko-victory-overlays",
+    crop: { x: 30, y: 17, width: 477, height: 271 },
+    x: 512,
+    y: 184,
+    width: 430,
+    height: 244,
+    depth: 96,
+  },
+  {
+    slot: "ko-overlay",
+    assetId: "fight-ko-victory-overlays",
+    crop: { x: 514, y: 24, width: 487, height: 264 },
+    x: 512,
+    y: 236,
+    width: 520,
+    height: 282,
+    depth: 96,
+  },
+  {
+    slot: "rabbit-win-overlay",
+    assetId: "fight-ko-victory-overlays",
+    crop: { x: 25, y: 288, width: 473, height: 231 },
+    x: 512,
+    y: 312,
+    width: 560,
+    height: 274,
+    depth: 96,
+  },
+  {
+    slot: "cat-win-overlay",
+    assetId: "fight-ko-victory-overlays",
+    crop: { x: 513, y: 288, width: 483, height: 230 },
+    x: 512,
+    y: 312,
+    width: 560,
+    height: 267,
+    depth: 96,
+  },
+] as const satisfies readonly RuntimeUiImageSpec[];
 
 export const meowtalKombatConfig: GameContentConfig = {
   title: "MEOWTAL KOMBAT",

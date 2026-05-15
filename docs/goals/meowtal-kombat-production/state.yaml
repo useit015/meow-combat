@@ -86,7 +86,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T123
+active_task: T124
 
 tasks:
   - id: T000
@@ -6703,7 +6703,7 @@ tasks:
   - id: T123
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: low
     objective: "Add runtime asset-contract guards for the approved fighter, stage, and UI PNGs so future animation/UI regeneration cannot silently change sizes, frame-cell contracts, or crop bounds."
     inputs:
@@ -6717,6 +6717,7 @@ tasks:
       - "src/assets/runtime.ts"
       - "src/assets/stageRuntime.ts"
       - "src/game/MeowtalArenaScene.ts"
+      - "src/game/gameConfig.ts"
       - "docs/goals/meowtal-kombat-production/state.yaml"
       - "progress.md"
     verify:
@@ -6731,16 +6732,67 @@ tasks:
       - "Tests assert public stage/UI sheets keep the 1024x576 runtime contract"
       - "Tests assert UI crop specs remain in-bounds if those specs are exported safely"
       - "Task receipt and small coherent commit"
+    receipt:
+      result: done
+      summary: "Added runtime asset-contract guards without changing binary assets or gameplay. Public approved Meowtal fighter spritesheets are now tested against manifest frame counts and 256x256 cell dimensions; approved stage and UI PNGs are tested against the 1024x576 runtime sheet contract; UI crop specs are exported from Phaser-free game config and tested for source-sheet and canvas bounds. Browser smoke confirmed routed UI still loads cleanly after the config extraction."
+      changed_files:
+        - "src/game/gameConfig.ts"
+        - "src/game/MeowtalArenaScene.ts"
+        - "test/asset-runtime.test.ts"
+        - "docs/goals/meowtal-kombat-production/state.yaml"
+        - "progress.md"
+      commands:
+        - cmd: "npm test -- --run test/asset-runtime.test.ts"
+          status: pass
+        - cmd: "npm test -- --run test/asset-runtime.test.ts test/asset-qa.test.ts"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4175/ --out-dir output/web-game/postfinal-asset-contract"
+          status: pass
+      evidence:
+        - "output/web-game/postfinal-asset-contract/report.json"
+        - "output/web-game/postfinal-asset-contract/desktop-keyboard-fight.png"
+      next_task: T124
+  - id: T124
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: medium
+    objective: "Tune render-only close-range fighter separation so visuals follow the improved cross-up simulation instead of exaggerating a magnetic pushback effect."
+    inputs:
+      - "Gameplay scout finding: MeowtalArenaScene visually offsets sprites apart when fighters are within 152px, up to 34px each, which can make close combat look more separated than the simulation."
+      - "T122 core movement now allows airborne/roll pass-through and correct facing after side switches."
+      - "Existing sprite-frame pose and presentation test structure."
+    allowed_files:
+      - "src/game/MeowtalArenaScene.ts"
+      - "src/game/presentation.ts"
+      - "test/presentation.test.ts"
+      - "docs/goals/meowtal-kombat-production/state.yaml"
+      - "progress.md"
+    verify:
+      - "npm test -- --run test/presentation.test.ts"
+      - "npm run verify"
+      - "npm run smoke:meowtal -- --url <local preview url> --out-dir output/web-game/postfinal-visual-separation"
+    stop_if:
+      - "Requires changing core combat rules, fighter assets, generated UI assets, animation rows, or binary PNGs."
+      - "Requires broad camera/rendering rearchitecture instead of extracting/tuning one render-only separation rule."
+      - "Browser smoke shows missing UI assets, console/page errors, or unreadable close-range fighter silhouettes after one scoped fix attempt."
+    expected_output:
+      - "Pure tested visual-separation helper or equivalent narrow coverage"
+      - "Reduced close-range render-only separation that does not fight cross-up movement"
+      - "Browser evidence that close combat/UI still renders cleanly"
+      - "Task receipt and small coherent commit"
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T122
+    task: T123
     commands:
       - cmd: "npm run typecheck"
         status: pass
-      - cmd: "npm test -- --run test/combat-core.test.ts test/match-flow.test.ts test/presentation.test.ts test/touch-controls.test.ts"
+      - cmd: "npm test -- --run test/asset-runtime.test.ts test/asset-qa.test.ts"
         status: pass
       - cmd: "npm run verify"
         status: pass

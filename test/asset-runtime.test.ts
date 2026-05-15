@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   meowtalFighterAssetManifests,
@@ -14,9 +14,12 @@ import {
   type FighterAssetManifest,
 } from "../src/assets";
 import type { FighterState } from "../src/core";
-import { meowtalKombatConfig } from "../src/game/gameConfig";
+import { RUNTIME_UI_IMAGE_SPECS, meowtalKombatConfig } from "../src/game/gameConfig";
 import { spriteStanceConventionForAnimation } from "../src/game/spriteFrame";
 
+const PUBLIC_ROOT = join(process.cwd(), "public");
+const GAME_WIDTH = 1024;
+const GAME_HEIGHT = 576;
 const rabbitManifest = manifestById("gray-rabbit");
 const catManifest = manifestById("ginger-tabby-cat");
 const uprightRuntimeStates = [
@@ -270,4 +273,62 @@ describe("asset runtime resolver", () => {
       expect(existsSync(join(process.cwd(), "public", asset.path))).toBe(true);
     }
   });
+
+  it("keeps approved public fighter spritesheets on the manifest frame-cell contract", () => {
+    for (const manifest of meowtalFighterAssetManifests) {
+      for (const animation of manifest.animations) {
+        const runtimeAsset = resolveFighterRuntimeAsset(renderAssetForAnimationId(manifest, animation.id));
+
+        expect(runtimeAsset.kind).toBe("sprite");
+        if (runtimeAsset.kind !== "sprite") continue;
+
+        expect(pngDimensions(runtimeAsset.path)).toEqual({
+          width: runtimeAsset.frameCount * runtimeAsset.frameWidth,
+          height: runtimeAsset.frameHeight,
+        });
+        expect(runtimeAsset.frameWidth).toBe(256);
+        expect(runtimeAsset.frameHeight).toBe(256);
+      }
+    }
+  });
+
+  it("keeps approved public stage and UI images on the 1024x576 runtime contract", () => {
+    for (const layer of resolveStageRuntimeLayers(meowtalKombatConfig.stage)) {
+      expect(layer.kind).toBe("image-layer");
+      expect(layer.outputPath).toBeTruthy();
+      expect(pngDimensions(layer.outputPath ?? "")).toEqual({ width: GAME_WIDTH, height: GAME_HEIGHT });
+    }
+
+    for (const asset of meowtalKombatConfig.runtimeUiAssets) {
+      expect(pngDimensions(asset.path)).toEqual({ width: GAME_WIDTH, height: GAME_HEIGHT });
+    }
+  });
+
+  it("keeps runtime UI crop specs inside their source sheets and canvas placements", () => {
+    const uiPathById = new Map(meowtalKombatConfig.runtimeUiAssets.map((asset) => [asset.id, asset.path]));
+
+    for (const spec of RUNTIME_UI_IMAGE_SPECS) {
+      const path = uiPathById.get(spec.assetId);
+      expect(path, `${spec.slot} should point at a configured runtime UI asset`).toBeTruthy();
+      const dimensions = pngDimensions(path ?? "");
+
+      expect(spec.crop.x).toBeGreaterThanOrEqual(0);
+      expect(spec.crop.y).toBeGreaterThanOrEqual(0);
+      expect(spec.crop.x + spec.crop.width).toBeLessThanOrEqual(dimensions.width);
+      expect(spec.crop.y + spec.crop.height).toBeLessThanOrEqual(dimensions.height);
+      expect(spec.x - spec.width / 2).toBeGreaterThanOrEqual(0);
+      expect(spec.y - spec.height / 2).toBeGreaterThanOrEqual(0);
+      expect(spec.x + spec.width / 2).toBeLessThanOrEqual(GAME_WIDTH);
+      expect(spec.y + spec.height / 2).toBeLessThanOrEqual(GAME_HEIGHT);
+    }
+  });
 });
+
+function pngDimensions(publicPath: string): { width: number; height: number } {
+  const buffer = readFileSync(join(PUBLIC_ROOT, publicPath));
+  expect(buffer.subarray(1, 4).toString("ascii")).toBe("PNG");
+  return {
+    width: buffer.readUInt32BE(16),
+    height: buffer.readUInt32BE(20),
+  };
+}
