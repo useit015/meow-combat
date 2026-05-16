@@ -117,7 +117,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T104
+active_task: T105
 
 tasks:
   - id: T001
@@ -7310,7 +7310,7 @@ tasks:
   - id: T104
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Review T103 Tofu locomotion rows and decide whether grounded movement is stable enough to approve crouch/jump mobility work, require locomotion repair, route to attacks/reactions/outcomes, or run a not-complete tranche audit."
     inputs:
@@ -7347,22 +7347,110 @@ tasks:
       - "Decision is explicit: approve next safe Worker, require repair, ask owner, route another lane, or run final not-complete audit."
       - "If more Tofu row production is approved, the next package must preserve the T101 idle and T103 locomotion scale references."
       - "The full AAA outcome remains active and incomplete unless directly proven otherwise."
+    receipt:
+      result: done
+      decision: approve_next_worker
+      full_outcome_complete: false
+      note: notes/T104-tofu-locomotion-review.md
+      summary: "Approved exactly two source-only Tofu mobility rows: crouch and jump. T103 locomotion is stable enough to test vertical compression/airborne silhouette next, while attacks/reactions/outcomes/runtime promotion remain blocked."
+      commands:
+        - cmd: "sed -n '1,220p' docs/goals/aaa-game-expansion/notes/T103-tofu-locomotion-row-production.md"
+          result: pass
+        - cmd: "node -e 'const fs=require(\"fs\"); const r=JSON.parse(fs.readFileSync(\"output/animation-preflight/tofu-tortoise-locomotion-row-qa.json\",\"utf8\")); console.log(JSON.stringify({fighterId:r.fighterId, result:r.result, rows:Object.fromEntries(Object.entries(r.rows).map(([id,row])=>[id,row.baselineComparison]))}, null, 2)); if(r.fighterId!==\"tortoise-tofu\" || r.result!==\"accepted\" || !r.rows[\"walk-forward\"] || !r.rows[\"walk-back\"] || Object.values(r.rows).some(row=>row.assets.acceptedSource.dimensions.width!==2048 || row.assets.acceptedSource.dimensions.height!==256 || !row.assets.acceptedSource.dimensions.hasAlpha || row.baselineComparison.maxGreenSpillPixels!==0)) process.exit(1);'"
+          result: pass
+          summary: "QA artifact reports accepted walk-forward and walk-back rows, exact 2048x256 alpha, and zero green spill."
+        - cmd: "npm test -- test/fighter-animation-preflight.test.ts test/asset-pipeline.test.ts test/asset-qa.test.ts"
+          result: pass
+          summary: "3 files / 35 tests passed."
+        - cmd: "test ! -e public/assets/generated/fighters/tortoise-tofu"
+          result: pass
+        - cmd: "git diff --name-only -- public/assets/generated/fighters/tortoise-tofu package.json package-lock.json src/game/audio.ts public/assets/audio assets/source/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts src/core/frameData.ts src/game/gameConfig.ts"
+          result: pass
+          summary: "No protected diffs."
+      spawned_tasks:
+        - T105
+  - id: T105
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: medium
+    objective: "Generate and QA exactly two source-only Tofu Tortoise / `tortoise-tofu` mobility rows using built-in imagegen only: `crouch` and `jump`. Normalize crouch to exact `1024x256` alpha and jump to exact `1536x256` alpha, compare both against the T101 idle and T103 locomotion scale references, update source/planned manifests and focused tests, and prove Tofu remains non-playable with no public/runtime assets."
+    inputs:
+      - "T101 Tofu idle row production receipt."
+      - "T103 Tofu locomotion row production receipt."
+      - "T104 Tofu locomotion review."
+      - "assets/source/imagegen/fighters/tortoise-tofu/canonical-character-sheet.png"
+      - "assets/source/imagegen/fighters/tortoise-tofu/idle.png"
+      - "assets/source/imagegen/fighters/tortoise-tofu/walk-forward.png"
+      - "assets/source/imagegen/fighters/tortoise-tofu/walk-back.png"
+    constraints:
+      - "Use built-in imagegen only."
+      - "Generate exactly two accepted rows: crouch and jump."
+      - "Do not generate attack, reaction, knockdown, win, lose, UI, stage, audio, or runtime assets."
+      - "Do not edit public/runtime fighter assets."
+      - "Do not promote Tofu to runtime roster/select/combat."
+      - "Do not edit dependencies, audio, sprite cell size, sprite visual sizing, combat frame data, or game config."
+      - "Do not mark the full AAA outcome complete."
+    allowed_files:
+      - "assets/source/imagegen/fighters/tortoise-tofu/candidates/crouch-codex-01.png"
+      - "assets/source/imagegen/fighters/tortoise-tofu/candidates/crouch-codex-02.png"
+      - "assets/source/imagegen/fighters/tortoise-tofu/candidates/crouch-codex-03.png"
+      - "assets/source/imagegen/fighters/tortoise-tofu/candidates/jump-codex-01.png"
+      - "assets/source/imagegen/fighters/tortoise-tofu/candidates/jump-codex-02.png"
+      - "assets/source/imagegen/fighters/tortoise-tofu/candidates/jump-codex-03.png"
+      - "assets/source/imagegen/fighters/tortoise-tofu/crouch.png"
+      - "assets/source/imagegen/fighters/tortoise-tofu/jump.png"
+      - "output/imagegen/tortoise-tofu-crouch.png"
+      - "output/imagegen/tortoise-tofu-crouch-normalized.png"
+      - "output/imagegen/tortoise-tofu-jump.png"
+      - "output/imagegen/tortoise-tofu-jump-normalized.png"
+      - "output/animation-preflight/tofu-tortoise-mobility-row-qa.json"
+      - "output/animation-preflight/tofu-tortoise-mobility-row-qa.html"
+      - "output/web-game/tofu-mobility-source-rows/"
+      - "src/assets/catalog.ts"
+      - "test/asset-pipeline.test.ts"
+      - "test/asset-qa.test.ts"
+      - "test/fighter-animation-preflight.test.ts"
+      - "docs/goals/aaa-game-expansion/notes/T105-tofu-mobility-row-production.md"
+      - "docs/goals/aaa-game-expansion/state.yaml"
+    verification:
+      - "node scripts/normalize-fighter-rows.mjs --animation crouch --fighters tortoise-tofu"
+      - "node scripts/normalize-fighter-rows.mjs --animation jump --fighters tortoise-tofu"
+      - "sips -g pixelWidth -g pixelHeight -g hasAlpha assets/source/imagegen/fighters/tortoise-tofu/crouch.png assets/source/imagegen/fighters/tortoise-tofu/jump.png output/imagegen/tortoise-tofu-crouch-normalized.png output/imagegen/tortoise-tofu-jump-normalized.png"
+      - "npm test -- test/fighter-animation-preflight.test.ts test/asset-pipeline.test.ts test/asset-qa.test.ts"
+      - "node scripts/asset-qa.mjs --json"
+      - "test ! -e public/assets/generated/fighters/tortoise-tofu"
+      - "npm run verify"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4174/ --out-dir output/web-game/tofu-mobility-source-rows"
+      - "git diff --name-only -- public/assets/generated/fighters/tortoise-tofu package.json package-lock.json src/game/audio.ts public/assets/audio assets/source/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts src/core/frameData.ts src/game/gameConfig.ts"
+    stop_conditions:
+      - "Built-in imagegen is unavailable or external image API/.env use is needed."
+      - "More than three candidates are needed for either row."
+      - "Either row drifts from the T101 idle or T103 locomotion shell mass, body height, face, gentle beak, shell plates, squat limbs, palette, or armored-grappler silhouette."
+      - "Either row has cropped body parts, bad alpha, baked effects/text/logos/UI, frame grids, visible watermarks, or adjacent-frame fragments."
+      - "Crouch cannot normalize to exact `1024x256` alpha PNG or jump cannot normalize to exact `1536x256` alpha PNG."
+      - "Any runtime roster/select/combat/public asset/playable promotion change is needed."
+    acceptance_criteria:
+      - "Exactly two accepted source-only rows: crouch and jump."
+      - "Crouch has four `256x256` frames, exact `1024x256` output dimensions, alpha, and stable compressed bounds."
+      - "Jump has six `256x256` frames, exact `1536x256` output dimensions, alpha, and stable airborne bounds."
+      - "The rows preserve Tofu shell-mass, face, palette, squat limbs, and readable vertical motion without size drift."
+      - "No public/runtime `tortoise-tofu` fighter folder exists."
+      - "Tofu remains non-playable."
+      - "QA JSON/HTML records candidate paths, hashes, dimensions, identity comparison, rejected candidates if any, baseline comparison, and verdict."
+      - "Focused tests, asset QA, full verify, browser smoke, and protected diff checks pass."
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T103
+    task: T104
     commands:
-      - "node scripts/normalize-fighter-rows.mjs --animation walk-forward --fighters tortoise-tofu"
-      - "node scripts/normalize-fighter-rows.mjs --animation walk-back --fighters tortoise-tofu"
-      - "sips -g pixelWidth -g pixelHeight -g hasAlpha assets/source/imagegen/fighters/tortoise-tofu/walk-forward.png assets/source/imagegen/fighters/tortoise-tofu/walk-back.png output/imagegen/tortoise-tofu-walk-forward-normalized.png output/imagegen/tortoise-tofu-walk-back-normalized.png"
+      - "sed -n '1,220p' docs/goals/aaa-game-expansion/notes/T103-tofu-locomotion-row-production.md"
+      - "node -e 'const fs=require(\"fs\"); const r=JSON.parse(fs.readFileSync(\"output/animation-preflight/tofu-tortoise-locomotion-row-qa.json\",\"utf8\")); console.log(JSON.stringify({fighterId:r.fighterId, result:r.result, rows:Object.fromEntries(Object.entries(r.rows).map(([id,row])=>[id,row.baselineComparison]))}, null, 2)); if(r.fighterId!==\"tortoise-tofu\" || r.result!==\"accepted\" || !r.rows[\"walk-forward\"] || !r.rows[\"walk-back\"] || Object.values(r.rows).some(row=>row.assets.acceptedSource.dimensions.width!==2048 || row.assets.acceptedSource.dimensions.height!==256 || !row.assets.acceptedSource.dimensions.hasAlpha || row.baselineComparison.maxGreenSpillPixels!==0)) process.exit(1);'"
       - "npm test -- test/fighter-animation-preflight.test.ts test/asset-pipeline.test.ts test/asset-qa.test.ts"
-      - "node scripts/asset-qa.mjs --json"
       - "test ! -e public/assets/generated/fighters/tortoise-tofu"
       - "git diff --name-only -- public/assets/generated/fighters/tortoise-tofu package.json package-lock.json src/game/audio.ts public/assets/audio assets/source/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts src/core/frameData.ts src/game/gameConfig.ts"
-      - "npm run verify"
-      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4174/ --out-dir output/web-game/tofu-locomotion-source-rows"
   t021_verification:
     result: pass
     task: T021
