@@ -105,6 +105,8 @@ describe("fighter asset manifests", () => {
       ["idle", "assets/source/imagegen/fighters/ferret-noodle/idle.png"],
       ["walk-forward", "assets/source/imagegen/fighters/ferret-noodle/walk-forward.png"],
       ["walk-back", "assets/source/imagegen/fighters/ferret-noodle/walk-back.png"],
+      ["crouch", "assets/source/imagegen/fighters/ferret-noodle/crouch.png"],
+      ["jump", "assets/source/imagegen/fighters/ferret-noodle/jump.png"],
     ]);
 
     for (const manifest of pawbreakerPlannedFighterAssetManifests) {

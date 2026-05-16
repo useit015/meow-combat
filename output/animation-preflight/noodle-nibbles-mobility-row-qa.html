@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Noodle Nibbles Mobility Row QA</title>
+  </head>
+  <body>
+    <main>
+      <h1>Noodle Nibbles Mobility Row QA</h1>
+      <p>Result: accepted. Runtime exposure: source-only / not playable.</p>
+      <p>Accepted rows: ferret-noodle crouch and jump.</p>
+      <p>Crouch is exact 1024x256 alpha. Jump is exact 1536x256 alpha.</p>
+      <p>Rejected candidates: crouch-codex-01 rose too tall; jump-codex-01 globally shrank; jump-codex-02 still used a tall canvas trajectory.</p>
+      <p>No-size-drift evidence: crouch stays broad and low; accepted jump keeps 133-167px width and 11k+ opaque pixels per frame.</p>
+      <p>Source-only gate: public/assets/generated/fighters/ferret-noodle remains absent, and Noodle Nibbles is not playable.</p>
+    </main>
+  </body>
+</html>

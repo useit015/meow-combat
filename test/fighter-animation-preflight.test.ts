@@ -362,6 +362,22 @@ describe("Noodle Nibbles animation preflight", () => {
 
     expect(existsSync(join(process.cwd(), "public/assets/generated/fighters/ferret-noodle"))).toBe(false);
   });
+
+  it("keeps generated Noodle mobility rows source-only without repeating jump shrink", () => {
+    const idleBounds = alphaBoundsByFrame("assets/source/imagegen/fighters/ferret-noodle/idle.png", 8);
+    const idleWidth = average(idleBounds.map((frame) => frame.width));
+    const crouchBounds = alphaBoundsByFrame("assets/source/imagegen/fighters/ferret-noodle/crouch.png", 4);
+    const jumpBounds = alphaBoundsByFrame("assets/source/imagegen/fighters/ferret-noodle/jump.png", 6);
+
+    expect(crouchBounds.every((frame) => frame.width >= 225 && frame.width <= 240)).toBe(true);
+    expect(crouchBounds.every((frame) => frame.height >= 160 && frame.height <= 185)).toBe(true);
+    expect(crouchBounds.every((frame) => frame.opaquePixels >= 19_000)).toBe(true);
+
+    expect(jumpBounds.every((frame) => frame.width >= Math.round(idleWidth * 1.05))).toBe(true);
+    expect(jumpBounds.every((frame) => frame.height >= 135 && frame.height <= 205)).toBe(true);
+    expect(jumpBounds.every((frame) => frame.opaquePixels >= 11_000)).toBe(true);
+    expect(existsSync(join(process.cwd(), "public/assets/generated/fighters/ferret-noodle"))).toBe(false);
+  });
 });
 
 function alphaBoundsByFrame(relativePath: string, frameCount: number) {

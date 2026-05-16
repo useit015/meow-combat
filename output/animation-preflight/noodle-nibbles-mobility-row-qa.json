@@ -1,0 +1,181 @@
+{
+  "id": "noodle-nibbles-mobility-row-qa",
+  "fighterId": "ferret-noodle",
+  "displayName": "Noodle Nibbles",
+  "animationIds": ["crouch", "jump"],
+  "result": "accepted",
+  "runtimeExposure": "source-only / not playable",
+  "generatedWith": "built-in Codex imagegen",
+  "sourceContract": {
+    "cellSize": {
+      "width": 256,
+      "height": 256
+    },
+    "expectedDimensions": {
+      "crouch": {
+        "width": 1024,
+        "height": 256,
+        "frameCount": 4
+      },
+      "jump": {
+        "width": 1536,
+        "height": 256,
+        "frameCount": 6
+      }
+    },
+    "baselines": [
+      "assets/source/imagegen/fighters/ferret-noodle/idle.png",
+      "assets/source/imagegen/fighters/ferret-noodle/walk-forward.png",
+      "assets/source/imagegen/fighters/ferret-noodle/walk-back.png"
+    ],
+    "rowGenerationBriefs": {
+      "crouch": "Noodle Nibbles crouch row-generation pass: Low guarded crouch pose, compact silhouette, no floor shadow.",
+      "jump": "Noodle Nibbles jump row-generation pass: Vertical jump poses with tucked knees and controlled landing posture; the engine supplies vertical movement."
+    },
+    "motionLanguage": {
+      "crouch": "low coiled ferret guard with full body folded, muzzle and tail still readable",
+      "jump": "full-size takeoff, tuck, apex, fall, and landing poses without global shrink"
+    }
+  },
+  "assets": {
+    "crouch": {
+      "rejectedCandidates": [
+        {
+          "path": "assets/source/imagegen/fighters/ferret-noodle/candidates/crouch-codex-01.png",
+          "sha256": "600eb63ea04049fb2082c323000cd69bafb2466c8f54f716093f3bc5fdddba6e",
+          "reason": "Rejected because later frames rose into a near-standing posture instead of staying low."
+        }
+      ],
+      "candidate": {
+        "path": "assets/source/imagegen/fighters/ferret-noodle/candidates/crouch-codex-02.png",
+        "sha256": "456058efd91a67212b86e4e8c4685f73eb39f31192d5ddfe7e9a32adc3d85870",
+        "dimensions": {
+          "width": 1935,
+          "height": 813,
+          "hasAlpha": false
+        }
+      },
+      "rawOutput": {
+        "path": "output/imagegen/ferret-noodle-crouch.png",
+        "sha256": "46171a1541545faef762bed72db9c848113c5568dde3ab4771e44aa182004675",
+        "dimensions": {
+          "width": 1935,
+          "height": 813,
+          "hasAlpha": true
+        }
+      },
+      "normalized": {
+        "path": "output/imagegen/ferret-noodle-crouch-normalized.png",
+        "sha256": "0c2f355d5610200ae4f0535db1bfe7ec0612410453cbc1bf075d016caa1e191a",
+        "dimensions": {
+          "width": 1024,
+          "height": 256,
+          "hasAlpha": true
+        }
+      },
+      "acceptedSource": {
+        "path": "assets/source/imagegen/fighters/ferret-noodle/crouch.png",
+        "sha256": "0c2f355d5610200ae4f0535db1bfe7ec0612410453cbc1bf075d016caa1e191a",
+        "dimensions": {
+          "width": 1024,
+          "height": 256,
+          "hasAlpha": true
+        }
+      }
+    },
+    "jump": {
+      "rejectedCandidates": [
+        {
+          "path": "assets/source/imagegen/fighters/ferret-noodle/candidates/jump-codex-01.png",
+          "sha256": "d86fc4d24ae762930a01e132d6bd2ba431c504e16e266d1992c6958db681c493",
+          "reason": "Rejected because normalized body bounds shrank to 88-141px wide and 103-191px high with weak opaque-pixel coverage."
+        },
+        {
+          "path": "assets/source/imagegen/fighters/ferret-noodle/candidates/jump-codex-02.png",
+          "sha256": "3d16ed57b5e8d94dadd0df6d238af16265198d494d015aea8b67963587463a27",
+          "reason": "Rejected because the sheet still drew a tall vertical trajectory across the canvas instead of in-cell full-size jump poses."
+        }
+      ],
+      "candidate": {
+        "path": "assets/source/imagegen/fighters/ferret-noodle/candidates/jump-codex-03.png",
+        "sha256": "6c2959fc138dcb9ce8cb530e0034b5797550a4b818832af07ed1ae8633d4af0d",
+        "dimensions": {
+          "width": 2172,
+          "height": 724,
+          "hasAlpha": false
+        }
+      },
+      "rawOutput": {
+        "path": "output/imagegen/ferret-noodle-jump.png",
+        "sha256": "16b91c0bd246622f97547792bbe59f4a04928fe1f2c5722a9fef3e55386a1c4f",
+        "dimensions": {
+          "width": 2172,
+          "height": 724,
+          "hasAlpha": true
+        }
+      },
+      "normalized": {
+        "path": "output/imagegen/ferret-noodle-jump-normalized.png",
+        "sha256": "4155304b8aad9d3c9a19e6d0e1be07605c4ca83b5ac7a5abea53a58ad7096933",
+        "dimensions": {
+          "width": 1536,
+          "height": 256,
+          "hasAlpha": true
+        }
+      },
+      "acceptedSource": {
+        "path": "assets/source/imagegen/fighters/ferret-noodle/jump.png",
+        "sha256": "4155304b8aad9d3c9a19e6d0e1be07605c4ca83b5ac7a5abea53a58ad7096933",
+        "dimensions": {
+          "width": 1536,
+          "height": 256,
+          "hasAlpha": true
+        }
+      }
+    }
+  },
+  "checks": [
+    {
+      "id": "frame-dimensions",
+      "result": "pass",
+      "evidence": "Crouch is exact 1024x256 alpha and jump is exact 1536x256 alpha."
+    },
+    {
+      "id": "identity-lock",
+      "result": "pass",
+      "evidence": "Both rows preserve Noodle face, tapered muzzle, rounded ears, teal scarf, belt, sock props, long body, short legs, and ringed tail."
+    },
+    {
+      "id": "no-size-drift",
+      "result": "pass",
+      "evidence": "Crouch stays broad and low; accepted jump keeps 133-167px width and 11k+ opaque pixels per frame instead of repeating the rejected global shrink."
+    },
+    {
+      "id": "alpha-cleanup",
+      "result": "pass",
+      "evidence": "Chroma-key backgrounds were removed before final source acceptance; residual green-threshold edge pixels are at or below 3 per frame with no visible key field."
+    },
+    {
+      "id": "source-only",
+      "result": "pass",
+      "evidence": "No public/assets/generated/fighters/ferret-noodle runtime folder was created."
+    }
+  ],
+  "frameBounds": {
+    "crouch": [
+      { "frame": 1, "width": 232, "height": 181, "opaquePixels": 20843, "greenSpillPixels": 0 },
+      { "frame": 2, "width": 233, "height": 174, "opaquePixels": 19948, "greenSpillPixels": 0 },
+      { "frame": 3, "width": 231, "height": 164, "opaquePixels": 20556, "greenSpillPixels": 0 },
+      { "frame": 4, "width": 233, "height": 169, "opaquePixels": 19919, "greenSpillPixels": 0 }
+    ],
+    "jump": [
+      { "frame": 1, "width": 167, "height": 139, "opaquePixels": 11620, "greenSpillPixels": 2 },
+      { "frame": 2, "width": 144, "height": 203, "opaquePixels": 13083, "greenSpillPixels": 3 },
+      { "frame": 3, "width": 139, "height": 189, "opaquePixels": 12269, "greenSpillPixels": 2 },
+      { "frame": 4, "width": 133, "height": 179, "opaquePixels": 12613, "greenSpillPixels": 1 },
+      { "frame": 5, "width": 154, "height": 201, "opaquePixels": 13549, "greenSpillPixels": 3 },
+      { "frame": 6, "width": 155, "height": 159, "opaquePixels": 12132, "greenSpillPixels": 0 }
+    ]
+  },
+  "verdict": "Accepted as source-only Noodle mobility rows. Do not use for runtime promotion until all required rows pass later QA and smoke."
+}
