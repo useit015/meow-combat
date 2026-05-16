@@ -3,6 +3,7 @@ import { existsSync } from "node:fs";
 import {
   REQUIRED_FIGHTER_ANIMATIONS,
   fighterAssetManifests,
+  meowtalFighterAssetManifests,
   pawbreakerPlannedFighterAssetManifests,
   stageAssetManifests,
   validateFighterManifest,
@@ -10,27 +11,23 @@ import {
 } from "../src/assets";
 
 describe("fighter asset manifests", () => {
-  const generatedPicklesRows = new Set([
-    "idle",
-    "walk-forward",
-    "walk-back",
-    "crouch",
-    "jump",
-    "light-punch",
-    "heavy-punch",
-    "light-kick",
-    "special",
-    "hitstun",
-    "blockstun",
-    "knockdown",
-    "win",
-    "lose",
-  ]);
-
   it("define every required production animation for each fighter", () => {
     for (const manifest of fighterAssetManifests) {
       const animationIds = manifest.animations.map((animation) => animation.id);
       expect(animationIds).toEqual(REQUIRED_FIGHTER_ANIMATIONS);
+    }
+  });
+
+  it("promotes Pickles rows as approved runtime sprites from the accepted source set", () => {
+    const pickles = meowtalFighterAssetManifests.find((manifest) => manifest.id === "pugilist-pug");
+
+    expect(pickles?.displayName).toBe("Pickles Pugilist");
+    expect(pickles?.animations.map((animation) => animation.id)).toEqual(REQUIRED_FIGHTER_ANIMATIONS);
+    for (const animation of pickles?.animations ?? []) {
+      expect(animation.source.status).toBe("approved");
+      expect(animation.source.outputPath).toBe(`/assets/generated/fighters/pugilist-pug/${animation.id}.png`);
+      expect(existsSync(`public${animation.source.outputPath}`)).toBe(true);
+      expect(existsSync(`assets/source/imagegen/fighters/pugilist-pug/${animation.id}.png`)).toBe(true);
     }
   });
 
@@ -96,7 +93,6 @@ describe("fighter asset manifests", () => {
 
   it("keeps planned Pawbreaker roster additions source-only until full animation approval", () => {
     const expectedNames = {
-      "pugilist-pug": "Pickles Pugilist",
       "ferret-noodle": "Noodle Nibbles",
       "tortoise-tofu": "Tofu Tortoise",
       "budgie-beanie": "Beanie Beak",
@@ -116,17 +112,6 @@ describe("fighter asset manifests", () => {
       expect(validateFighterManifest(manifest)).toEqual({ ok: true, errors: [] });
       expect(manifest.animations).toHaveLength(REQUIRED_FIGHTER_ANIMATIONS.length);
       for (const animation of manifest.animations) {
-        if (
-          manifest.id === "pugilist-pug" &&
-          generatedPicklesRows.has(animation.id)
-        ) {
-          expect(animation.source.status).toBe("generated");
-          expect(animation.source.outputPath).toBe(`assets/source/imagegen/fighters/pugilist-pug/${animation.id}.png`);
-          expect(animation.source.blocker).toBeUndefined();
-          expect(existsSync(animation.source.outputPath ?? "")).toBe(true);
-          continue;
-        }
-
         expect(animation.source.status).toBe("blocked");
         expect(animation.source.outputPath).toBeNull();
         expect(animation.source.blocker).toContain("source-only model sheet");

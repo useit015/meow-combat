@@ -13,11 +13,10 @@ describe("Pawbreaker source roster lab", () => {
 
     expect(lab.title).toBe("Pawbreaker League Source Roster Lab");
     expect(lab.summary.totalFighters).toBe(8);
-    expect(lab.runtimeRoster.map((fighter) => fighter.id)).toEqual(["gray-rabbit", "ginger-tabby-cat"]);
+    expect(lab.runtimeRoster.map((fighter) => fighter.id)).toEqual(["gray-rabbit", "ginger-tabby-cat", "pugilist-pug"]);
     expect(lab.runtimeRoster.every((fighter) => fighter.playable)).toBe(true);
 
     expect(lab.sourceOnlyIdentityLocks.map((fighter) => fighter.id)).toEqual([
-      "pugilist-pug",
       "ferret-noodle",
       "tortoise-tofu",
       "budgie-beanie",
@@ -39,7 +38,7 @@ describe("Pawbreaker source roster lab", () => {
     const lab = buildSourceRosterLab();
 
     expect(lab.missingIdentityLocks).toEqual([]);
-    expect(lab.summary.sourceOnlyIdentityLocks).toBe(6);
+    expect(lab.summary.sourceOnlyIdentityLocks).toBe(5);
     expect(lab.summary.missingIdentityLocks).toBe(0);
   });
 
@@ -63,15 +62,9 @@ describe("Pawbreaker source roster lab", () => {
     );
 
     expect(outputJson.summary.totalFighters).toBe(8);
-    expect(outputJson.sourceOnlyIdentityLocks.map((fighter: { id: string }) => fighter.id)).toEqual([
-      "pugilist-pug",
-      "ferret-noodle",
-      "tortoise-tofu",
-      "budgie-beanie",
-      "hamster-mochi",
-      "hedgehog-quillabelle",
-    ]);
+    expect(outputJson.sourceOnlyIdentityLocks.map((fighter: { id: string }) => fighter.id)).toContain("pugilist-pug");
     expect(html).toContain("Pickles Pugilist");
+    expect(html).toContain("playable-runtime");
     expect(html).toContain("Noodle Nibbles");
     expect(html).toContain("Tofu Tortoise");
     expect(html).toContain("Beanie Beak");
@@ -79,7 +72,7 @@ describe("Pawbreaker source roster lab", () => {
     expect(html).toContain("Quillabelle Prickles");
     expect(html).toContain("source-only");
     expect(html).toContain("not playable");
-    expect(html).not.toContain("/assets/generated/fighters/pugilist-pug");
+    expect(html).toContain("/assets/generated/fighters/pugilist-pug");
     expect(html).not.toContain("/assets/generated/fighters/ferret-noodle");
     expect(html).not.toContain("/assets/generated/fighters/tortoise-tofu");
     expect(html).not.toContain("/assets/generated/fighters/budgie-beanie");

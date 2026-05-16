@@ -119,6 +119,22 @@ const approvedAnimationRows: Record<string, Partial<Record<FighterAnimationSpec[
     win: "/assets/generated/fighters/ginger-tabby-cat/win.png",
     lose: "/assets/generated/fighters/ginger-tabby-cat/lose.png",
   },
+  "pugilist-pug": {
+    idle: "/assets/generated/fighters/pugilist-pug/idle.png",
+    "walk-forward": "/assets/generated/fighters/pugilist-pug/walk-forward.png",
+    "walk-back": "/assets/generated/fighters/pugilist-pug/walk-back.png",
+    crouch: "/assets/generated/fighters/pugilist-pug/crouch.png",
+    jump: "/assets/generated/fighters/pugilist-pug/jump.png",
+    "light-punch": "/assets/generated/fighters/pugilist-pug/light-punch.png",
+    "light-kick": "/assets/generated/fighters/pugilist-pug/light-kick.png",
+    "heavy-punch": "/assets/generated/fighters/pugilist-pug/heavy-punch.png",
+    special: "/assets/generated/fighters/pugilist-pug/special.png",
+    hitstun: "/assets/generated/fighters/pugilist-pug/hitstun.png",
+    blockstun: "/assets/generated/fighters/pugilist-pug/blockstun.png",
+    knockdown: "/assets/generated/fighters/pugilist-pug/knockdown.png",
+    win: "/assets/generated/fighters/pugilist-pug/win.png",
+    lose: "/assets/generated/fighters/pugilist-pug/lose.png",
+  },
 };
 
 const generatedAnimationRows: Record<string, Partial<Record<FighterAnimationSpec["id"], string>>> = {
@@ -232,18 +248,15 @@ export const meowtalFighterAssetManifests: readonly FighterAssetManifest[] = [
     ),
     animations: animationSpecsFor("ginger-tabby-cat"),
   },
-];
-
-export const pawbreakerPlannedFighterAssetManifests: readonly FighterAssetManifest[] = [
   {
     id: "pugilist-pug",
     displayName: "Pickles Pugilist",
     engineCharacterId: "pugilist-pug",
-    archetype: "source-only pressure boxer with short-range guard breaks",
+    archetype: "short-range pressure boxer with compact guard breaks",
     designNotes: [
-      "Pawbreaker planned roster fighter: cute upright pug pressure-boxer with readable short-limb punching shapes.",
+      "Pawbreaker promoted runtime fighter: cute upright pug pressure-boxer with readable short-limb punching shapes.",
       "Keep the pug identity locked through wrinkles, round muzzle, folded ears, curled tail, compact torso, and stubby limbs.",
-      "Source-only model sheet for now; do not promote to runtime or generate animation rows until a separate QA task approves the rig.",
+      "Runtime rows are byte-identical promotions from the approved source rows under assets/source/imagegen/fighters/pugilist-pug.",
     ],
     asymmetryNotes: [
       "Wrinkles, glove scuffs, belt tag, and ear folds may be side-specific; do not mirror rows until reviewed.",
@@ -254,8 +267,11 @@ export const pawbreakerPlannedFighterAssetManifests: readonly FighterAssetManife
       "pugilist-pug-canonical-character-sheet",
       "assets/source/imagegen/fighters/pugilist-pug/canonical-character-sheet.png",
     ),
-    animations: animationSpecsFor("pugilist-pug", sourceOnlyAnimationBlocker),
+    animations: animationSpecsFor("pugilist-pug"),
   },
+];
+
+export const pawbreakerPlannedFighterAssetManifests: readonly FighterAssetManifest[] = [
   {
     id: "ferret-noodle",
     displayName: "Noodle Nibbles",

@@ -1,6 +1,6 @@
 import { petFighterGameBible, type PlannedFighter } from "../content/gameBible";
 import { meowtalKombatConfig } from "../game/gameConfig";
-import { pawbreakerPlannedFighterAssetManifests } from "./catalog";
+import { meowtalFighterAssetManifests, pawbreakerPlannedFighterAssetManifests } from "./catalog";
 
 export type SourceRosterReviewStatus = "playable-runtime" | "source-only identity lock" | "missing identity lock";
 export type SourceRosterRuntimeExposure = "playable" | "not playable";
@@ -17,7 +17,7 @@ export interface SourceRosterLabEntry {
   sourceOnly: boolean;
   engineFighterId: string | null;
   canonicalSheetPath: string | null;
-  publicRuntimePath: null;
+  publicRuntimePath: string | null;
   notes: readonly string[];
 }
 
@@ -53,9 +53,11 @@ export const sourceRosterLabReviewCriteria = [
 
 export function buildSourceRosterLab(): SourceRosterLab {
   const runtimeIds = new Set(meowtalKombatConfig.roster.map((fighter) => fighter.id));
-  const plannedManifestById = new Map(pawbreakerPlannedFighterAssetManifests.map((manifest) => [manifest.id, manifest]));
+  const manifestById = new Map(
+    [...meowtalFighterAssetManifests, ...pawbreakerPlannedFighterAssetManifests].map((manifest) => [manifest.id, manifest]),
+  );
   const fighters = petFighterGameBible.fighters.map((fighter) =>
-    rosterLabEntry(fighter, runtimeIds.has(fighter.id), plannedManifestById.get(fighter.id)?.canonicalReference.outputPath ?? null),
+    rosterLabEntry(fighter, runtimeIds.has(fighter.id), manifestById.get(fighter.id)?.canonicalReference.outputPath ?? null),
   );
   const runtimeRoster = fighters.filter((fighter) => fighter.reviewStatus === "playable-runtime");
   const sourceOnlyIdentityLocks = fighters.filter((fighter) => fighter.reviewStatus === "source-only identity lock");
@@ -89,7 +91,7 @@ export function renderSourceRosterLabHtml(lab: SourceRosterLab = buildSourceRost
         <td>${escapeHtml(fighter.species)}</td>
         <td>${escapeHtml(fighter.reviewStatus)}</td>
         <td>${escapeHtml(fighter.runtimeExposure)}</td>
-        <td>${escapeHtml(fighter.canonicalSheetPath ?? "missing identity lock")}</td>
+        <td>${escapeHtml(fighter.publicRuntimePath ?? fighter.canonicalSheetPath ?? "missing identity lock")}</td>
       </tr>`,
     )
     .join("\n");
@@ -162,7 +164,7 @@ function rosterLabEntry(
     sourceOnly: reviewStatus === "source-only identity lock",
     engineFighterId: isRuntimePlayable ? fighter.runtime.engineFighterId : null,
     canonicalSheetPath,
-    publicRuntimePath: null,
+    publicRuntimePath: isRuntimePlayable ? `/assets/generated/fighters/${fighter.id}` : null,
     notes: reviewNotes(reviewStatus),
   };
 }

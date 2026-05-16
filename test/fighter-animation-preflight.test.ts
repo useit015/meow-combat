@@ -7,36 +7,35 @@ import {
   REQUIRED_FIGHTER_ANIMATIONS,
   buildPicklesAnimationPreflight,
   meowtalFighterAssetManifests,
-  pawbreakerPlannedFighterAssetManifests,
   renderPicklesAnimationPreflightHtml,
   validateFighterAnimationPreflight,
 } from "../src/assets";
 import { meowtalKombatConfig } from "../src/game/gameConfig";
 
 describe("Pickles Pugilist animation preflight", () => {
-  it("keeps Pickles source-only and not playable", () => {
+  it("records Pickles as playable after runtime promotion", () => {
     const plan = buildPicklesAnimationPreflight();
 
     expect(plan).toMatchObject({
       fighterId: "pugilist-pug",
       displayName: "Pickles Pugilist",
-      sourceOnly: true,
-      playable: false,
-      runtimeExposure: "not playable",
-      status: "preflight-only",
+      sourceOnly: false,
+      playable: true,
+      runtimeExposure: "playable",
+      status: "runtime-promoted",
       fullOutcome: "incomplete",
-      blockedPublicRuntimePath: "/assets/generated/fighters/pugilist-pug",
+      publicRuntimePath: "/assets/generated/fighters/pugilist-pug",
     });
     expect(plan.canonicalReferencePath).toBe("assets/source/imagegen/fighters/pugilist-pug/canonical-character-sheet.png");
     expect(existsSync(join(process.cwd(), plan.canonicalReferencePath))).toBe(true);
-    expect(existsSync(join(process.cwd(), "public/assets/generated/fighters/pugilist-pug"))).toBe(false);
-    expect(meowtalKombatConfig.roster.map((fighter) => fighter.id)).toEqual(["gray-rabbit", "ginger-tabby-cat"]);
-    expect(meowtalFighterAssetManifests.map((fighter) => fighter.id)).toEqual(["gray-rabbit", "ginger-tabby-cat"]);
+    expect(existsSync(join(process.cwd(), "public/assets/generated/fighters/pugilist-pug"))).toBe(true);
+    expect(meowtalKombatConfig.roster.map((fighter) => fighter.id)).toEqual(["gray-rabbit", "ginger-tabby-cat", "pugilist-pug"]);
+    expect(meowtalFighterAssetManifests.map((fighter) => fighter.id)).toEqual(["gray-rabbit", "ginger-tabby-cat", "pugilist-pug"]);
   });
 
   it("covers every required animation row with row-generation briefs and no-drift acceptance", () => {
     const plan = buildPicklesAnimationPreflight();
-    const plannedManifest = pawbreakerPlannedFighterAssetManifests.find((manifest) => manifest.id === "pugilist-pug");
+    const plannedManifest = meowtalFighterAssetManifests.find((manifest) => manifest.id === "pugilist-pug");
 
     expect(plan.requiredRows.map((row) => row.animationId)).toEqual(REQUIRED_FIGHTER_ANIMATIONS);
     expect(plan.requiredRows).toHaveLength(REQUIRED_FIGHTER_ANIMATIONS.length);
@@ -55,10 +54,10 @@ describe("Pickles Pugilist animation preflight", () => {
     }
 
     expect(plannedManifest?.animations.find((animation) => animation.id === "idle")?.source).toMatchObject({
-      status: "generated",
-      outputPath: "assets/source/imagegen/fighters/pugilist-pug/idle.png",
+      status: "approved",
+      outputPath: "/assets/generated/fighters/pugilist-pug/idle.png",
     });
-    expect(plannedManifest?.animations.filter((animation) => animation.source.status === "generated").map((animation) => animation.id)).toEqual(
+    expect(plannedManifest?.animations.filter((animation) => animation.source.status === "approved").map((animation) => animation.id)).toEqual(
       [
         "idle",
         "walk-forward",
@@ -92,10 +91,10 @@ describe("Pickles Pugilist animation preflight", () => {
     expect(gateText).toContain("frame-dimensions");
     expect(gateText).toContain("provenance");
     expect(gateText).toContain("256x256");
-    expect(promotionCommands).toContain("test ! -e public/assets/generated/fighters/pugilist-pug");
+    expect(promotionCommands).toContain("test -d public/assets/generated/fighters/pugilist-pug");
     expect(promotionCommands).toContain("smoke:meowtal");
-    expect(smokeText).toContain("Gray Rabbit and Ginger Tabby Cat");
-    expect(smokeText).toContain("Pickles Pugilist is not playable");
+    expect(smokeText).toContain("Pickles Pugilist");
+    expect(smokeText).toContain("no procedural or missing-output fallback");
   });
 
   it("renders review artifacts without claiming runtime readiness", () => {
@@ -110,16 +109,14 @@ describe("Pickles Pugilist animation preflight", () => {
     );
 
     expect(outputJson.fighterId).toBe("pugilist-pug");
-    expect(outputJson.playable).toBe(false);
     expect(outputJson.requiredRows.map((row) => row.animationId)).toEqual(REQUIRED_FIGHTER_ANIMATIONS);
     expect(html).toContain("Pickles Pugilist");
-    expect(html).toContain("row-generation");
-    expect(html).toContain("not playable");
+    expect(html).toContain("runtime promotion");
+    expect(html).toContain("playable");
     expect(html).toContain("no-drift");
     expect(html).not.toContain("<script");
     expect(outputHtml).toContain("Pickles Pugilist");
-    expect(outputHtml).toContain("not playable");
-    expect(outputHtml).not.toContain("/assets/generated/fighters/pugilist-pug");
+    expect(outputHtml).toContain("Pickles Pugilist");
   });
 
   it("keeps generated Pickles jump frames at the same character scale as idle", () => {

@@ -71,7 +71,7 @@ export const petFighterGameBible: PetFighterGameBible = {
   pitch:
     "An original brutal-funny pet fighting championship where cute household heroes treat neighborhood drama like a world title fight.",
   tone: "Funny, theatrical, and crunchy, with stylized comic impact instead of realistic shock violence.",
-  runtimeFighterIds: ["gray-rabbit", "ginger-tabby-cat"],
+  runtimeFighterIds: ["gray-rabbit", "ginger-tabby-cat", "pugilist-pug"],
   platformPlan: {
     browserV1: {
       controls: "keyboard-first",
@@ -149,7 +149,7 @@ export const petFighterGameBible: PetFighterGameBible = {
       storyHook: "Entered after hearing the trophy was edible, which nobody has successfully disproved.",
       arenaTieIn: "Needs low platforms and comic dust puffs to sell his tiny forward pressure.",
       trainingTip: "Walk opponents down with guard pressure and cash out when they panic jump.",
-      runtime: { status: "planned", engineFighterId: null },
+      runtime: { status: "active", engineFighterId: "pugilist-pug" },
     },
     {
       id: "ferret-noodle",

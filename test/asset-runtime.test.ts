@@ -34,6 +34,7 @@ const codexUiCandidatePaths = [
 ] as const;
 const rabbitManifest = manifestById("gray-rabbit");
 const catManifest = manifestById("ginger-tabby-cat");
+const picklesManifest = manifestById("pugilist-pug");
 const uprightRuntimeStates = [
   "idle",
   "walkForward",
@@ -184,6 +185,27 @@ describe("asset runtime resolver", () => {
     });
   });
 
+  it("resolves every Pickles runtime spritesheet without fallback rows", () => {
+    for (const animation of picklesManifest.animations) {
+      const runtimeAsset = resolveFighterRuntimeAsset(renderAssetForAnimationId(picklesManifest, animation.id));
+
+      expect(runtimeAsset).toMatchObject({
+        kind: "sprite",
+        assetKey: `pugilist-pug:${animation.id}`,
+        fighterId: "pugilist-pug",
+        animationId: animation.id,
+        path: `/assets/generated/fighters/pugilist-pug/${animation.id}.png`,
+        frameCount: animation.frameCount,
+        frameWidth: 256,
+        frameHeight: 256,
+      });
+      expect(pngDimensions(`/assets/generated/fighters/pugilist-pug/${animation.id}.png`)).toEqual({
+        width: animation.frameCount * 256,
+        height: 256,
+      });
+    }
+  });
+
   it("resolves approved win rows for match-presentation sprites", () => {
     const renderAsset = renderAssetForAnimationId(rabbitManifest, "win");
 
@@ -254,7 +276,7 @@ describe("asset runtime resolver", () => {
   });
 
   it("reserves grounded or prone sprite rows for knockdown and defeat presentation", () => {
-    for (const manifest of [rabbitManifest, catManifest]) {
+    for (const manifest of [rabbitManifest, catManifest, picklesManifest]) {
       expect(spriteStanceConventionForAnimation(resolveManifestRuntimeAsset(manifest, "knockdown").animationId)).toBe(
         "grounded-prone-reaction",
       );

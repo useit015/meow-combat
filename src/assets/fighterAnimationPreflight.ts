@@ -1,4 +1,4 @@
-import { pawbreakerPlannedFighterAssetManifests } from "./catalog";
+import { meowtalFighterAssetManifests } from "./catalog";
 import {
   DEFAULT_FIGHTER_CELL_SIZE,
   REQUIRED_FIGHTER_ANIMATIONS,
@@ -6,8 +6,8 @@ import {
   type FighterAnimationSpec,
 } from "./types";
 
-export type AnimationPreflightRuntimeExposure = "not playable";
-export type AnimationPreflightStatus = "preflight-only";
+export type AnimationPreflightRuntimeExposure = "playable";
+export type AnimationPreflightStatus = "runtime-promoted";
 
 export interface AnimationRowPreflight {
   animationId: FighterAnimationId;
@@ -45,13 +45,13 @@ export interface FighterAnimationPreflight {
   id: "pickles-pugilist-animation-preflight";
   fighterId: "pugilist-pug";
   displayName: "Pickles Pugilist";
-  sourceOnly: true;
-  playable: false;
+  sourceOnly: false;
+  playable: true;
   status: AnimationPreflightStatus;
   runtimeExposure: AnimationPreflightRuntimeExposure;
   fullOutcome: "incomplete";
   canonicalReferencePath: string;
-  blockedPublicRuntimePath: "/assets/generated/fighters/pugilist-pug";
+  publicRuntimePath: "/assets/generated/fighters/pugilist-pug";
   rowGenerationStrategy: readonly string[];
   requiredRows: readonly AnimationRowPreflight[];
   noDriftQaGates: readonly NoDriftQaGate[];
@@ -59,7 +59,7 @@ export interface FighterAnimationPreflight {
   browserSmokeRequirements: readonly BrowserSmokeRequirement[];
 }
 
-const picklesManifest = pawbreakerPlannedFighterAssetManifests.find((manifest) => manifest.id === "pugilist-pug");
+const picklesManifest = meowtalFighterAssetManifests.find((manifest) => manifest.id === "pugilist-pug");
 
 if (!picklesManifest) {
   throw new Error("Missing Pickles Pugilist planned fighter manifest.");
@@ -73,20 +73,20 @@ export const PICKLES_ANIMATION_PREFLIGHT: FighterAnimationPreflight = {
   id: "pickles-pugilist-animation-preflight",
   fighterId: "pugilist-pug",
   displayName: "Pickles Pugilist",
-  sourceOnly: true,
-  playable: false,
-  status: "preflight-only",
-  runtimeExposure: "not playable",
+  sourceOnly: false,
+  playable: true,
+  status: "runtime-promoted",
+  runtimeExposure: "playable",
   fullOutcome: "incomplete",
   canonicalReferencePath: picklesManifest.canonicalReference.outputPath ?? "",
-  blockedPublicRuntimePath: "/assets/generated/fighters/pugilist-pug",
+  publicRuntimePath: "/assets/generated/fighters/pugilist-pug",
   rowGenerationStrategy: [
     "Use the approved Pickles Pugilist canonical model sheet as the only identity source before any row-generation pass.",
     "Generate one animation row at a time at the locked 256x256 cell size; keep right-facing rows until a separate mirror review approves exceptions.",
     "Keep Pickles upright, compact, pug-faced, short-limbed, and pressure-boxer readable in every normal gameplay row.",
     "Compare each candidate row against the idle scale reference before accepting any motion row; no-drift approval is required before runtime promotion.",
-    "Keep rejected candidates and QA notes source-only; do not copy any pugilist-pug files into public/assets/generated/fighters during this preflight.",
-    "Runtime promotion must be a later Worker that proves source provenance, normalized spritesheet dimensions, tests, and browser smoke.",
+    "Keep rejected candidates and QA notes source-only; only the approved rows are promoted into public/assets/generated/fighters/pugilist-pug.",
+    "Runtime promotion requires source provenance, exact spritesheet dimensions, byte-identical source/runtime rows, and no fallback runtime rows.",
   ],
   requiredRows: REQUIRED_FIGHTER_ANIMATIONS.map((animationId) => rowPreflight(animationId)),
   noDriftQaGates: [
@@ -143,11 +143,11 @@ export const PICKLES_ANIMATION_PREFLIGHT: FighterAnimationPreflight = {
       label: "Source and runtime provenance",
       requiredEvidence: [
         "Source prompt, canonical-reference path, candidate path, QA decision, accepted source path, and runtime path are recorded before promotion.",
-        "Manifest entries remain blocked until the generation and QA Worker explicitly promotes a row.",
+        "Manifest entries are approved only after the generation and QA receipts explicitly promote each row.",
       ],
       failIf: [
         "A row lacks a source record, reviewer decision, or runtime destination.",
-        "Pickles appears in runtime config, select UI, public assets, or playable roster before the full promotion Worker passes.",
+        "Pickles runtime rows differ from the accepted source rows or fall back to procedural rendering.",
       ],
     },
   ],
@@ -155,17 +155,17 @@ export const PICKLES_ANIMATION_PREFLIGHT: FighterAnimationPreflight = {
     {
       id: "preflight-unit",
       command: "npm test -- test/fighter-animation-preflight.test.ts",
-      proves: "The Pickles preflight covers every required row and remains not playable.",
+      proves: "The Pickles runtime promotion covers every required row and marks the fighter playable.",
     },
     {
       id: "asset-pipeline-regression",
       command: "npm test -- test/asset-pipeline.test.ts test/source-roster-lab.test.ts test/game-config.test.ts",
-      proves: "The source-only planned manifest, roster lab, and runtime roster still block public/runtime Pickles exposure.",
+      proves: "The roster lab and runtime roster expose Pickles only after approved runtime promotion.",
     },
     {
       id: "public-path-block",
-      command: "test ! -e public/assets/generated/fighters/pugilist-pug",
-      proves: "No public/runtime pugilist-pug folder exists during preflight.",
+      command: "test -d public/assets/generated/fighters/pugilist-pug",
+      proves: "The promoted public/runtime pugilist-pug folder exists.",
     },
     {
       id: "future-smoke",
@@ -177,17 +177,17 @@ export const PICKLES_ANIMATION_PREFLIGHT: FighterAnimationPreflight = {
   browserSmokeRequirements: [
     {
       id: "current-roster-unchanged",
-      expectedEvidence: "Before promotion, smoke selectedFighters remain Gray Rabbit and Ginger Tabby Cat; Pickles Pugilist is not playable.",
+      expectedEvidence: "After promotion, smoke selectedFighters can include Pickles Pugilist from the runtime roster.",
     },
     {
       id: "promotion-roster-explicit",
       expectedEvidence:
-        "If a future Worker promotes Pickles, smoke must show an explicit pugilist-pug runtime spritesheet for every required animation row.",
+        "Smoke must show an explicit pugilist-pug runtime spritesheet for every required animation row.",
     },
     {
       id: "no-fallback-rows",
       expectedEvidence:
-        "Future smoke must show Pickles uses approved sprite rows, exact 256x256 cells, and no procedural or missing-output fallback.",
+        "Smoke must show Pickles uses approved sprite rows, exact 256x256 cells, and no procedural or missing-output fallback.",
     },
   ],
 };
@@ -201,8 +201,8 @@ export function validateFighterAnimationPreflight(plan: FighterAnimationPrefligh
   const rowIds = plan.requiredRows.map((row) => row.animationId);
 
   if (plan.fighterId !== "pugilist-pug") errors.push("preflight must target pugilist-pug.");
-  if (plan.playable) errors.push("Pickles Pugilist preflight must not mark the fighter playable.");
-  if (plan.runtimeExposure !== "not playable") errors.push("Pickles Pugilist must remain not playable during preflight.");
+  if (!plan.playable) errors.push("Pickles Pugilist promotion must mark the fighter playable.");
+  if (plan.runtimeExposure !== "playable") errors.push("Pickles Pugilist must be playable after promotion.");
   if (plan.requiredRows.length !== REQUIRED_FIGHTER_ANIMATIONS.length) {
     errors.push("preflight must cover every REQUIRED_FIGHTER_ANIMATIONS row.");
   }
@@ -228,8 +228,8 @@ export function validateFighterAnimationPreflight(plan: FighterAnimationPrefligh
   if (!plan.runtimePromotionTests.some((test) => test.command.includes("smoke:meowtal"))) {
     errors.push("runtime promotion tests must require browser smoke.");
   }
-  if (!plan.runtimePromotionTests.some((test) => test.command.includes("test ! -e public/assets/generated/fighters/pugilist-pug"))) {
-    errors.push("runtime promotion tests must prove public Pickles assets do not exist during preflight.");
+  if (!plan.runtimePromotionTests.some((test) => test.command.includes("test -d public/assets/generated/fighters/pugilist-pug"))) {
+    errors.push("runtime promotion tests must prove public Pickles assets exist after promotion.");
   }
 
   return errors;
@@ -268,7 +268,7 @@ export function renderPicklesAnimationPreflightHtml(plan: FighterAnimationPrefli
 <body>
 <main>
   <h1>${escapeHtml(plan.displayName)} Animation Preflight</h1>
-  <p>This is a source-only no-drift row-generation plan for ${escapeHtml(plan.fighterId)}. It is not playable and does not approve runtime promotion.</p>
+  <p>This is the runtime promotion record for ${escapeHtml(plan.fighterId)}. It keeps no-drift row provenance while exposing approved spritesheets as playable runtime assets.</p>
   <div>
     <span class="pill">Status: ${escapeHtml(plan.status)}</span>
     <span class="pill">Runtime exposure: ${escapeHtml(plan.runtimeExposure)}</span>

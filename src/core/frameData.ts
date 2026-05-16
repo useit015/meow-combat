@@ -155,3 +155,54 @@ export const GINGER_TABBY_CAT: FighterDefinition = {
     },
   },
 };
+
+export const PICKLES_PUGILIST: FighterDefinition = {
+  ...ATLAS_LION,
+  id: "pugilist-pug",
+  displayName: "Pickles Pugilist",
+  walkSpeed: 4.1,
+  jumpVelocity: -13.8,
+  hurtbox: { x: -24, y: -104, width: 48, height: 104 },
+  moves: {
+    ...ATLAS_LION.moves,
+    light: {
+      ...ATLAS_LION.moves.light,
+      duration: 16,
+      damage: 40,
+      hitstun: 15,
+      blockstun: 9,
+      pushback: 8,
+      meterGainOnUse: 18,
+      hitVolumes: [{ frameStart: 4, frameEnd: 8, rect: { x: 16, y: -86, width: 38, height: 24 } }],
+    },
+    lightKick: {
+      ...ATLAS_LION.moves.lightKick,
+      damage: 50,
+      pushback: 10,
+      hitVolumes: [{ frameStart: 7, frameEnd: 11, rect: { x: 14, y: -50, width: 44, height: 22 } }],
+    },
+    heavy: {
+      ...ATLAS_LION.moves.heavy,
+      duration: 28,
+      damage: 86,
+      hitstun: 24,
+      blockstun: 15,
+      pushback: 12,
+      hitVolumes: [{ frameStart: 9, frameEnd: 15, rect: { x: 18, y: -90, width: 50, height: 32 } }],
+    },
+    special: {
+      ...ATLAS_LION.moves.special,
+      damage: 116,
+      hitstun: 34,
+      blockstun: 20,
+      pushback: 20,
+      hitVolumes: [{ frameStart: 12, frameEnd: 22, rect: { x: 18, y: -94, width: 68, height: 36 } }],
+    },
+    super: {
+      ...ATLAS_LION.moves.super,
+      damage: 248,
+      pushback: 34,
+      hitVolumes: [{ frameStart: 17, frameEnd: 32, rect: { x: 18, y: -102, width: 100, height: 54 } }],
+    },
+  },
+};

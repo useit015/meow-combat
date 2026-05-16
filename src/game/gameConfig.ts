@@ -6,7 +6,7 @@ import {
   type StageAssetManifest,
 } from "../assets";
 import { petFighterGameBible, type PetFighterGameBible } from "../content";
-import { GINGER_TABBY_CAT, GRAY_RABBIT, type CpuDifficulty, type FighterDefinition } from "../core";
+import { GINGER_TABBY_CAT, GRAY_RABBIT, PICKLES_PUGILIST, type CpuDifficulty, type FighterDefinition } from "../core";
 
 export type PlayerContentSlot = "p1" | "p2";
 
@@ -221,7 +221,7 @@ export const meowtalKombatConfig: GameContentConfig = {
   title: "PAWBREAKER LEAGUE",
   subtitle: "SNACKBELT SHOWDOWN",
   cpuDifficulties: ["easy", "normal", "hard"],
-  roster: [GRAY_RABBIT, GINGER_TABBY_CAT],
+  roster: [GRAY_RABBIT, GINGER_TABBY_CAT, PICKLES_PUGILIST],
   defaultSelections: { p1: 0, p2: 1 },
   fighterAssetManifests: meowtalFighterAssetManifests,
   conceptSheet: null,
