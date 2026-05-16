@@ -170,6 +170,7 @@ const generatedAnimationRows: Record<string, Partial<Record<FighterAnimationSpec
     special: "assets/source/imagegen/fighters/ferret-noodle/special.png",
     hitstun: "assets/source/imagegen/fighters/ferret-noodle/hitstun.png",
     blockstun: "assets/source/imagegen/fighters/ferret-noodle/blockstun.png",
+    knockdown: "assets/source/imagegen/fighters/ferret-noodle/knockdown.png",
   },
 };
 

@@ -88,6 +88,10 @@ describe("imagegen asset QA command", () => {
       cwd: process.cwd(),
       encoding: "utf8",
     });
+    execFileSync("node", ["scripts/normalize-fighter-rows.mjs", "--animation", "knockdown", "--fighters", "ferret-noodle"], {
+      cwd: process.cwd(),
+      encoding: "utf8",
+    });
     execFileSync(
       "node",
       ["scripts/normalize-fighter-rows.mjs", "--animation", "special", "--fighters", "gray-rabbit,ginger-tabby-cat"],
@@ -150,8 +154,8 @@ describe("imagegen asset QA command", () => {
     });
     const summary = JSON.parse(output) as AssetQaSummary;
 
-    expect(summary.checked).toBe(162);
-    expect(summary.runtimeReady).toBe(106);
+    expect(summary.checked).toBe(164);
+    expect(summary.runtimeReady).toBe(108);
     expect(summary.needsNormalization).toBe(56);
     expect(summary.rows.map((row) => `${row.kind}:${row.fighterId}:${row.animationId}`).sort()).toEqual([
       "normalized-candidate:atlas-lion:blockstun",
@@ -174,6 +178,7 @@ describe("imagegen asset QA command", () => {
       "normalized-candidate:ferret-noodle:hitstun",
       "normalized-candidate:ferret-noodle:idle",
       "normalized-candidate:ferret-noodle:jump",
+      "normalized-candidate:ferret-noodle:knockdown",
       "normalized-candidate:ferret-noodle:light-kick",
       "normalized-candidate:ferret-noodle:light-punch",
       "normalized-candidate:ferret-noodle:special",
@@ -255,6 +260,7 @@ describe("imagegen asset QA command", () => {
       "source:ferret-noodle:hitstun",
       "source:ferret-noodle:idle",
       "source:ferret-noodle:jump",
+      "source:ferret-noodle:knockdown",
       "source:ferret-noodle:light-kick",
       "source:ferret-noodle:light-punch",
       "source:ferret-noodle:special",
@@ -340,6 +346,7 @@ describe("imagegen asset QA command", () => {
       "ferret-noodle:hitstun",
       "ferret-noodle:idle",
       "ferret-noodle:jump",
+      "ferret-noodle:knockdown",
       "ferret-noodle:light-kick",
       "ferret-noodle:light-punch",
       "ferret-noodle:special",
@@ -427,7 +434,7 @@ describe("imagegen asset QA command", () => {
     }
 
     const normalizedRows = summary.rows.filter((row) => row.kind === "normalized-candidate");
-    expect(normalizedRows).toHaveLength(81);
+    expect(normalizedRows).toHaveLength(82);
     for (const row of normalizedRows) {
       expect(row.expected).toEqual({ width: row.frameCount * 256, height: 256 });
       expect(row.dimensions).toEqual(row.expected);

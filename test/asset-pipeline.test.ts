@@ -113,6 +113,7 @@ describe("fighter asset manifests", () => {
       ["special", "assets/source/imagegen/fighters/ferret-noodle/special.png"],
       ["hitstun", "assets/source/imagegen/fighters/ferret-noodle/hitstun.png"],
       ["blockstun", "assets/source/imagegen/fighters/ferret-noodle/blockstun.png"],
+      ["knockdown", "assets/source/imagegen/fighters/ferret-noodle/knockdown.png"],
     ]);
 
     for (const manifest of pawbreakerPlannedFighterAssetManifests) {
