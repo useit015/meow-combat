@@ -270,7 +270,22 @@ describe("Meowtal production manifest", () => {
   });
 
   it("tracks authored primary audio plans with procedural fallback marked dev-only", () => {
-    const approvedAudioCueIds = [
+    const pixabayPrimaryCueIds = [
+      "ui-confirm",
+      "hit-light",
+      "hit-heavy",
+      "block-impact",
+      "dash-whoosh",
+      "ko-burst",
+    ] as const;
+    const proceduralFallbackOnlyCueIds = [
+      "music-loop",
+      "fight-announcer",
+      "rabbit-tornado",
+      "cat-aura-blast",
+      "victory-sting",
+    ] as const;
+    const allAudioCueIds = [
       "music-loop",
       "ui-confirm",
       "fight-announcer",
@@ -283,8 +298,16 @@ describe("Meowtal production manifest", () => {
       "ko-burst",
       "victory-sting",
     ] as const;
+    const sourcePaths = {
+      "ui-confirm": "assets/source/audio/ui-confirm/liecio-menu-button-190039.mp3",
+      "hit-light": "assets/source/audio/hit-light/universfield-classic-punch-impact-352711.mp3",
+      "hit-heavy": "assets/source/audio/hit-heavy/dragon-studio-hard-heavy-impact-515256.mp3",
+      "block-impact": "assets/source/audio/block-impact/freesound_community-clack-85854.mp3",
+      "dash-whoosh": "assets/source/audio/dash-whoosh/dragon-studio-simple-whoosh-382724.mp3",
+      "ko-burst": "assets/source/audio/ko-burst/universfield-animated-cartoon-explosion-impact-352744.mp3",
+    } as const;
 
-    for (const cueId of approvedAudioCueIds) {
+    for (const cueId of allAudioCueIds) {
       const cue = meowtalProductionManifest.audioCues.find((candidate) => candidate.id === cueId);
       const provenance = cue?.provenance;
 
@@ -300,6 +323,36 @@ describe("Meowtal production manifest", () => {
         implementationPath: "src/game/audio.ts",
       });
       expect(provenance?.medium).toBe("audio");
+    }
+
+    for (const cueId of pixabayPrimaryCueIds) {
+      const cue = meowtalProductionManifest.audioCues.find((candidate) => candidate.id === cueId);
+      const provenance = cue?.provenance;
+
+      expect(provenance?.status).toBe("approved");
+      expect(provenance?.sourceKind).toBe("pixabay");
+      expect(provenance?.sourcePath).toBe(sourcePaths[cueId]);
+      expect(provenance?.runtimePath).toBe(`/assets/generated/audio/${cueId}.ogg`);
+      expect(provenance?.license).toMatchObject({
+        kind: "external-license-required",
+        sourceUrl: "https://pixabay.com/service/license-summary/",
+        checkedOn: "2026-05-16",
+      });
+      expect(provenance?.license.attribution).toContain("via Pixabay");
+      expect(provenance?.createdOrDownloadedOn).toBe("2026-05-16");
+      expect(provenance?.approvalNotes).toContain("Approved Pixabay authored sample primary");
+      expect(provenance?.approvalNotes).toContain("Content ID/platform-claim");
+      expect(provenance?.approvalNotes).toContain("not music, voice, TTS");
+      expect(provenance?.blocker).toBeNull();
+      expect(existsSync(join(process.cwd(), provenance?.sourcePath ?? ""))).toBe(true);
+      expect(existsSync(join(process.cwd(), "public", provenance?.runtimePath ?? ""))).toBe(true);
+      expect(existsSync(join(process.cwd(), `assets/source/audio/${cueId}/source-record.json`))).toBe(true);
+    }
+
+    for (const cueId of proceduralFallbackOnlyCueIds) {
+      const cue = meowtalProductionManifest.audioCues.find((candidate) => candidate.id === cueId);
+      const provenance = cue?.provenance;
+
       expect(provenance?.status).toBe("approved");
       expect(provenance?.sourceKind).toBe("procedural");
       expect(provenance?.license.kind).toBe("procedural-owned");
@@ -311,7 +364,7 @@ describe("Meowtal production manifest", () => {
     }
 
     const plannedAudioCueIds = meowtalProductionManifest.audioCues.filter(
-      (cue) => !approvedAudioCueIds.includes(cue.id as (typeof approvedAudioCueIds)[number]),
+      (cue) => !allAudioCueIds.includes(cue.id as (typeof allAudioCueIds)[number]),
     );
 
     expect(plannedAudioCueIds).toEqual([]);

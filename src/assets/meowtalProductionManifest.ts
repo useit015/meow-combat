@@ -402,6 +402,19 @@ const proceduralUiSurfaceDetails: Readonly<
 
 const plannedVisualSurfaceBlockers: Readonly<Partial<Record<MeowtalVisualSurfaceId, string>>> = {};
 
+interface ApprovedAudioSampleDetails {
+  title: string;
+  creator: string;
+  sourceUrl: string;
+  downloadUrl: string;
+  sourcePath: string;
+  runtimePath: string;
+  originalSha256: string;
+  runtimeSha256: string;
+  durationSeconds: number;
+  qaNotes: string;
+}
+
 const implementedAudioCueDetails: Readonly<
   Partial<
     Record<
@@ -524,6 +537,87 @@ const implementedAudioCueDetails: Readonly<
     ],
     approvalNotes:
       "Approved procedural runtime audio: victory-sting is implemented through audioCueForMatchTransition and ArenaAudio.play('match-over').",
+  },
+};
+
+const approvedAudioSampleDetails: Readonly<Partial<Record<MeowtalAudioCueId, ApprovedAudioSampleDetails>>> = {
+  "ui-confirm": {
+    title: "Menu Button",
+    creator: "Liecio",
+    sourceUrl: "https://pixabay.com/sound-effects/film-special-effects-menu-button-190039/",
+    downloadUrl:
+      "https://cdn.pixabay.com/download/audio/2024/02/07/audio_4c136694ad.mp3?filename=liecio-menu-button-190039.mp3",
+    sourcePath: "assets/source/audio/ui-confirm/liecio-menu-button-190039.mp3",
+    runtimePath: "/assets/generated/audio/ui-confirm.ogg",
+    originalSha256: "2fc41e360c25f378a04f460b1a13dac36312e165dcb1ed82a56234a3c1a1c3b1",
+    runtimeSha256: "11d89faaf9fa717e2a1cae973a1826a655110de4553f208402f44ce5bc46d1a5",
+    durationSeconds: 1.02,
+    qaNotes: "Crisp, non-speech menu confirm tick for Pawbreaker UI.",
+  },
+  "hit-light": {
+    title: "Classic Punch Impact",
+    creator: "Universfield",
+    sourceUrl: "https://pixabay.com/sound-effects/film-special-effects-classic-punch-impact-352711/",
+    downloadUrl:
+      "https://cdn.pixabay.com/download/audio/2025/06/02/audio_8a9f3f7755.mp3?filename=universfield-classic-punch-impact-352711.mp3",
+    sourcePath: "assets/source/audio/hit-light/universfield-classic-punch-impact-352711.mp3",
+    runtimePath: "/assets/generated/audio/hit-light.ogg",
+    originalSha256: "81d76f16094e6f6b09e28e930e2900571a8b46d83fab0e9ac9b9a6b7a96cc694",
+    runtimeSha256: "83709c83a77354fc81abd7f3d5743bdd967c8b3072dd63fc6bc81b4ce3e3ea85",
+    durationSeconds: 0.72,
+    qaNotes: "Snappy light-hit impact with readable arcade punch shape.",
+  },
+  "hit-heavy": {
+    title: "Hard Heavy Impact",
+    creator: "DRAGON-STUDIO",
+    sourceUrl: "https://pixabay.com/sound-effects/film-special-effects-hard-heavy-impact-515256/",
+    downloadUrl:
+      "https://cdn.pixabay.com/download/audio/2026/04/06/audio_e64b6942ee.mp3?filename=dragon-studio-hard-heavy-impact-515256.mp3",
+    sourcePath: "assets/source/audio/hit-heavy/dragon-studio-hard-heavy-impact-515256.mp3",
+    runtimePath: "/assets/generated/audio/hit-heavy.ogg",
+    originalSha256: "5b19974d1914c70cf7fcc838674813ae27ebd7696d4063a3a0e61ee1c1530275",
+    runtimeSha256: "3a00f0a6869845454fa5a0dd44d4750147d3600d8a471a51bd53d20787411a13",
+    durationSeconds: 2.904,
+    qaNotes: "Bigger heavy-hit punctuation cue with no speech, music bed, brand, or realistic gore content.",
+  },
+  "block-impact": {
+    title: "clack",
+    creator: "freesound_community",
+    sourceUrl: "https://pixabay.com/sound-effects/film-special-effects-clack-85854/",
+    downloadUrl:
+      "https://cdn.pixabay.com/download/audio/2022/03/15/audio_1db683c2f9.mp3?filename=freesound_community-clack-85854.mp3",
+    sourcePath: "assets/source/audio/block-impact/freesound_community-clack-85854.mp3",
+    runtimePath: "/assets/generated/audio/block-impact.ogg",
+    originalSha256: "f875bb17f373f176373183960c9895c91aba5f74c142ce3e4f2a6c7b765306ef",
+    runtimeSha256: "29ecaa360e85e839d2be0b1829ea6ec5fac0111cd4f3109b8a0a2912d00f60df",
+    durationSeconds: 0.408,
+    qaNotes: "Compact guard clack that reads as block contact rather than a second hit.",
+  },
+  "dash-whoosh": {
+    title: "Simple Whoosh",
+    creator: "DRAGON-STUDIO",
+    sourceUrl: "https://pixabay.com/sound-effects/film-special-effects-simple-whoosh-382724/",
+    downloadUrl:
+      "https://cdn.pixabay.com/download/audio/2025/07/30/audio_b3087a581e.mp3?filename=dragon-studio-simple-whoosh-382724.mp3",
+    sourcePath: "assets/source/audio/dash-whoosh/dragon-studio-simple-whoosh-382724.mp3",
+    runtimePath: "/assets/generated/audio/dash-whoosh.ogg",
+    originalSha256: "c2efd9d902a59bf9ec5019035d7deadd17762136896b6e3cb6dd99ea50997a30",
+    runtimeSha256: "0818336cb25ec4f61757b84bf70c6dcc6f41a06ecfd7f03bbf25ff688735aebc",
+    durationSeconds: 0.576,
+    qaNotes: "Clean dash, hop, and roll movement whoosh without musical or vocal content.",
+  },
+  "ko-burst": {
+    title: "Animated Cartoon Explosion Impact",
+    creator: "Universfield",
+    sourceUrl: "https://pixabay.com/sound-effects/film-special-effects-animated-cartoon-explosion-impact-352744/",
+    downloadUrl:
+      "https://cdn.pixabay.com/download/audio/2025/06/02/audio_8c8a327ca0.mp3?filename=universfield-animated-cartoon-explosion-impact-352744.mp3",
+    sourcePath: "assets/source/audio/ko-burst/universfield-animated-cartoon-explosion-impact-352744.mp3",
+    runtimePath: "/assets/generated/audio/ko-burst.ogg",
+    originalSha256: "526e9be9511bc120af3bac6abf4c28b1a3f0ea5d5d08fc02b7a80d2ffae4ca60",
+    runtimeSha256: "dba798ce0039aff0c29671b73387111e938e40e2a7ce00c46e6717b7e94aca07",
+    durationSeconds: 2.376,
+    qaNotes: "Comic K.O. burst with stylized cartoon impact rather than realistic gore.",
   },
 };
 
@@ -1066,6 +1160,7 @@ export function validateMeowtalProductionManifest(
 
   for (const cue of manifest.audioCues) {
     const implementedCue = implementedAudioCueDetails[cue.id];
+    const approvedSample = approvedAudioSampleDetails[cue.id];
     const audioSpec = AUDIO_CUE_ASSET_SPECS.find((spec) => spec.id === cue.id);
     if (!audioSpec) {
       errors.push(`${cue.id}: audio cue requires an authored/sample asset spec.`);
@@ -1092,7 +1187,29 @@ export function validateMeowtalProductionManifest(
     if (cue.proceduralFallback.implementationPath !== "src/game/audio.ts") {
       errors.push(`${cue.provenance.assetId}: procedural fallback must point at src/game/audio.ts.`);
     }
-    if (implementedCue) {
+    if (approvedSample) {
+      if (cue.provenance.status !== "approved") {
+        errors.push(`${cue.provenance.assetId}: approved sample audio cue should be approved.`);
+      }
+      if (cue.provenance.sourceKind !== "pixabay") {
+        errors.push(`${cue.provenance.assetId}: approved sample audio cue should use pixabay sourceKind.`);
+      }
+      if (cue.provenance.sourcePath !== approvedSample.sourcePath) {
+        errors.push(`${cue.provenance.assetId}: approved sample audio cue requires the source MP3 path.`);
+      }
+      if (cue.provenance.runtimePath !== approvedSample.runtimePath) {
+        errors.push(`${cue.provenance.assetId}: approved sample audio cue requires the runtime OGG path.`);
+      }
+      if (cue.provenance.license.kind !== "external-license-required") {
+        errors.push(`${cue.provenance.assetId}: Pixabay audio cue requires external-license-required license tracking.`);
+      }
+      if (cue.provenance.license.checkedOn !== "2026-05-16") {
+        errors.push(`${cue.provenance.assetId}: Pixabay audio cue requires the T021/T022 license snapshot date.`);
+      }
+      if (!cue.provenance.approvalNotes.includes("Approved Pixabay authored sample primary")) {
+        errors.push(`${cue.provenance.assetId}: approved sample audio cue requires explicit primary-sample approval notes.`);
+      }
+    } else if (implementedCue) {
       if (cue.provenance.status !== "approved") {
         errors.push(`${cue.provenance.assetId}: implemented audio cue should be approved after T118.`);
       }
@@ -2029,9 +2146,54 @@ function approvedProceduralUiSurfaceProvenance(
 
 function audioCue(id: MeowtalAudioCueId, role: string, sourceKind: AssetSourceKind): MeowtalAudioCuePlan {
   const implementedCue = implementedAudioCueDetails[id];
+  const approvedSample = approvedAudioSampleDetails[id];
   const audioSpec = AUDIO_CUE_ASSET_SPECS.find((spec) => spec.id === id);
   if (!audioSpec) {
     throw new Error(`${id}: missing authored/sample audio asset spec`);
+  }
+
+  if (approvedSample) {
+    return {
+      id,
+      role,
+      primaryAsset: audioSpec.primary,
+      proceduralFallback: audioSpec.proceduralFallback,
+      provenance: {
+        ...baseProvenance({
+          assetId: `audio:${id}`,
+          sourceKind: "pixabay",
+          promptSlug: `pawbreaker-audio-${id}-pixabay-sfx`,
+          prompt: `Source a polished authored/sample ${id} cue for Pawbreaker League from an official Pixabay sound-effect page. ${role}`,
+          status: "approved",
+          blocker: "",
+        }),
+        medium: "audio",
+        sourcePath: approvedSample.sourcePath,
+        runtimePath: approvedSample.runtimePath,
+        license: {
+          kind: "external-license-required",
+          summary:
+            "Pixabay Content License checked 2026-05-16: commercial and non-commercial game embedding allowed subject to prohibited uses; no standalone sound library or isolated sample redistribution.",
+          sourceUrl: "https://pixabay.com/service/license-summary/",
+          attribution: `${approvedSample.title} by ${approvedSample.creator} via Pixabay. Attribution is not required by Pixabay, but this credit is retained for Pawbreaker audit and credits.`,
+          checkedOn: "2026-05-16",
+        },
+        createdOrDownloadedOn: "2026-05-16",
+        transforms: [
+          `Downloaded source MP3 from official Pixabay page ${approvedSample.sourceUrl}.`,
+          `Source download URL: ${approvedSample.downloadUrl}.`,
+          "Converted to native Vorbis OGG with ffmpeg, stereo 48000 Hz, loudnorm I=-16 TP=-1.5 LRA=11.",
+          `Runtime file duration is ${approvedSample.durationSeconds.toFixed(3)} seconds.`,
+        ],
+        approvalNotes:
+          `Approved Pixabay authored sample primary for ${id} in T022. ` +
+          `${approvedSample.qaNotes} Source title: ${approvedSample.title}; creator: ${approvedSample.creator}; ` +
+          `source SHA-256 ${approvedSample.originalSha256}; runtime SHA-256 ${approvedSample.runtimeSha256}. ` +
+          "Commercial use, attribution, standalone-distribution restriction, and Content ID/platform-claim notes were checked on 2026-05-16. " +
+          "This is short non-musical SFX, not music, voice, TTS, or a standalone sample library. Dev-only WebAudio fallback remains available.",
+        blocker: null,
+      },
+    };
   }
 
   if (implementedCue) {

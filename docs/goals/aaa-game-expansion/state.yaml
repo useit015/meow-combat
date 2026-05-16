@@ -117,7 +117,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T022
+active_task: T023
 
 tasks:
   - id: T001
@@ -1157,16 +1157,22 @@ tasks:
   - id: T022
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: medium
     objective: "Acquire or author the first six runtime primary audio cues with source records and QA proof: ui-confirm, hit-light, hit-heavy, block-impact, dash-whoosh, and ko-burst. Use Pixabay SFX, manual/owned recordings, or ElevenLabs Sound Effects only if paid commercial plan status is recorded and SFX sublicensing is disabled first. Prefer Pixabay/manual if ElevenLabs account/tier/opt-out state cannot be verified without risky login work. Do not acquire music, victory music, voice, TTS, real-person voice cloning, uploaded voices, or spoken announcer cues in this slice. Convert accepted assets to OGG at /assets/generated/audio/<cue>.ogg, register source/license metadata, and prove the sample-first runtime uses them before dev-only procedural fallback."
     allowed_files:
-      - "assets/source/audio/ui-confirm/"
-      - "assets/source/audio/hit-light/"
-      - "assets/source/audio/hit-heavy/"
-      - "assets/source/audio/block-impact/"
-      - "assets/source/audio/dash-whoosh/"
-      - "assets/source/audio/ko-burst/"
+      - "assets/source/audio/ui-confirm/liecio-menu-button-190039.mp3"
+      - "assets/source/audio/ui-confirm/source-record.json"
+      - "assets/source/audio/hit-light/universfield-classic-punch-impact-352711.mp3"
+      - "assets/source/audio/hit-light/source-record.json"
+      - "assets/source/audio/hit-heavy/dragon-studio-hard-heavy-impact-515256.mp3"
+      - "assets/source/audio/hit-heavy/source-record.json"
+      - "assets/source/audio/block-impact/freesound_community-clack-85854.mp3"
+      - "assets/source/audio/block-impact/source-record.json"
+      - "assets/source/audio/dash-whoosh/dragon-studio-simple-whoosh-382724.mp3"
+      - "assets/source/audio/dash-whoosh/source-record.json"
+      - "assets/source/audio/ko-burst/universfield-animated-cartoon-explosion-impact-352744.mp3"
+      - "assets/source/audio/ko-burst/source-record.json"
       - "public/assets/generated/audio/ui-confirm.ogg"
       - "public/assets/generated/audio/hit-light.ogg"
       - "public/assets/generated/audio/hit-heavy.ogg"
@@ -1200,21 +1206,94 @@ tasks:
       - "Manifest marks these six primary cues as approved authored/sample assets while keeping WebAudio procedural fallback dev-only."
       - "Tests prove sample-first runtime still loads primary samples before procedural fallback."
       - "Full AAA outcome is not claimed complete."
+    receipt:
+      result: done
+      changed_files:
+        - "assets/source/audio/ui-confirm/liecio-menu-button-190039.mp3"
+        - "assets/source/audio/ui-confirm/source-record.json"
+        - "assets/source/audio/hit-light/universfield-classic-punch-impact-352711.mp3"
+        - "assets/source/audio/hit-light/source-record.json"
+        - "assets/source/audio/hit-heavy/dragon-studio-hard-heavy-impact-515256.mp3"
+        - "assets/source/audio/hit-heavy/source-record.json"
+        - "assets/source/audio/block-impact/freesound_community-clack-85854.mp3"
+        - "assets/source/audio/block-impact/source-record.json"
+        - "assets/source/audio/dash-whoosh/dragon-studio-simple-whoosh-382724.mp3"
+        - "assets/source/audio/dash-whoosh/source-record.json"
+        - "assets/source/audio/ko-burst/universfield-animated-cartoon-explosion-impact-352744.mp3"
+        - "assets/source/audio/ko-burst/source-record.json"
+        - "public/assets/generated/audio/ui-confirm.ogg"
+        - "public/assets/generated/audio/hit-light.ogg"
+        - "public/assets/generated/audio/hit-heavy.ogg"
+        - "public/assets/generated/audio/block-impact.ogg"
+        - "public/assets/generated/audio/dash-whoosh.ogg"
+        - "public/assets/generated/audio/ko-burst.ogg"
+        - "src/assets/meowtalProductionManifest.ts"
+        - "test/meowtal-production-manifest.test.ts"
+        - "docs/goals/aaa-game-expansion/notes/T022-audio-batch.md"
+      commands:
+        - cmd: "Downloaded six MP3 source SFX from official Pixabay sound-effect pages without .env, APIs, login, ElevenLabs, music, voice, TTS, or asset-generation calls"
+          status: pass
+        - cmd: "ffmpeg native Vorbis conversion to public/assets/generated/audio/<cue>.ogg with stereo 48000 Hz and loudnorm"
+          status: pass
+        - cmd: "ffprobe runtime OGG files to output/audio/aaa-expansion-first-sample-batch/ffprobe-runtime-audio.jsonl"
+          status: pass
+        - cmd: "npm test -- test/presentation.test.ts test/meowtal-production-manifest.test.ts"
+          status: pass
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "rg -n \"ui-confirm|hit-light|hit-heavy|block-impact|dash-whoosh|ko-burst|Pixabay|ElevenLabs|commercial|attribution|Content ID|platform-claim|snapshot\" docs/goals/aaa-game-expansion/notes/T022-audio-batch.md src/assets/meowtalProductionManifest.ts"
+          status: pass
+        - cmd: "test -s public/assets/generated/audio/ui-confirm.ogg && test -s public/assets/generated/audio/hit-light.ogg && test -s public/assets/generated/audio/hit-heavy.ogg && test -s public/assets/generated/audio/block-impact.ogg && test -s public/assets/generated/audio/dash-whoosh.ogg && test -s public/assets/generated/audio/ko-burst.ogg"
+          status: pass
+        - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/aaa-expansion-first-audio-batch"
+          status: pass
+      summary: "Shipped exactly six approved primary runtime SFX samples for ui-confirm, hit-light, hit-heavy, block-impact, dash-whoosh, and ko-burst. All six came from official Pixabay Sound Effects pages, have source MP3s, source-record.json files, converted OGG runtime files, source/license/attribution/commercial-use/standalone-distribution/Content ID platform-claim notes, hashes, durations, and manifest provenance. No ElevenLabs, API key, login, .env, music, voice, TTS, uploaded voice, real-person voice clone, or spoken announcer cue was used. WebAudio remains dev-only fallback. Focused tests, typecheck, full verify, required rg/test checks, file-size checks, and smoke passed."
+      full_outcome_complete: false
+      next_task: T023
+  - id: T023
+    type: judge
+    assignee: Judge
+    status: active
+    reasoning_hint: high
+    objective: "Choose the next highest-leverage safe production package after the first authored/sample SFX batch. Decide whether to continue audio with remaining music/special/stinger/voice-adjacent risk, improve championship/story depth, begin a first new playable-candidate animation plan, improve select/roster review UX, or perform a phase audit. Keep AAA outcome honesty, no-slop animation consistency, audio licensing/source-record risk, and runtime overclaiming constraints central."
+    inputs:
+      - "T019 full source roster lock receipt"
+      - "T021 audio source/license Scout note"
+      - "T022 first authored sample audio batch receipt"
+      - "docs/goals/aaa-game-expansion/notes/T022-audio-batch.md"
+      - "src/assets/meowtalProductionManifest.ts"
+      - "output/web-game/aaa-expansion-first-audio-batch/report.json"
+    constraints:
+      - "Do not implement, acquire/generate assets, call APIs, log into services, or edit product files."
+      - "If choosing more audio, keep source/license records mandatory and avoid procedural synthesis as the primary shipped direction."
+      - "Do not approve ElevenLabs Music, voice/TTS, real-person voice cloning, or spoken announcer output without a separate terms/tier/rights plan."
+      - "Reject playable roster expansion until a candidate has an approved animation plan, full generated row set, normalization/QA, runtime promotion tests, and browser smoke proof."
+      - "Keep source-only planned fighters out of public/runtime/selectable surfaces unless a Worker explicitly proves safe promotion."
+      - "Prefer the largest useful reversible slice, not another tiny proof file, unless the risk profile demands it."
+    expected_output:
+      - "Decision: proceed_with_worker | require_scout | require_audit | defer_audio | defer_roster_playable | defer_story"
+      - "Rationale"
+      - "Exact next Worker or Scout objective"
+      - "allowed_files"
+      - "verify"
+      - "stop_if"
+      - "acceptance checklist"
     receipt: null
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T019
+    task: T022
     commands:
       - "npm run typecheck"
-      - "npm test -- test/asset-pipeline.test.ts test/imagegen-jobs.test.ts test/meowtal-production-manifest.test.ts test/source-roster-lab.test.ts test/game-config.test.ts"
+      - "npm test -- test/presentation.test.ts test/meowtal-production-manifest.test.ts"
       - "npm run verify"
-      - "sips -g pixelWidth -g pixelHeight assets/source/imagegen/fighters/budgie-beanie/canonical-character-sheet.png assets/source/imagegen/fighters/hamster-mochi/canonical-character-sheet.png assets/source/imagegen/fighters/hedgehog-quillabelle/canonical-character-sheet.png"
-      - "rg -n \"Beanie Beak|Mochi Munch|Quillabelle Prickles|source-only|not playable|8-fighter\" src/assets/sourceRosterLab.ts output/roster-lab/aaa-expansion-full-source-roster-lab.json"
-      - "test ! -e public/assets/generated/fighters/budgie-beanie && test ! -e public/assets/generated/fighters/hamster-mochi && test ! -e public/assets/generated/fighters/hedgehog-quillabelle"
-      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/aaa-expansion-full-source-roster-locks"
+      - "rg -n \"ui-confirm|hit-light|hit-heavy|block-impact|dash-whoosh|ko-burst|Pixabay|ElevenLabs|commercial|attribution|Content ID|platform-claim|snapshot\" docs/goals/aaa-game-expansion/notes/T022-audio-batch.md src/assets/meowtalProductionManifest.ts"
+      - "test -s public/assets/generated/audio/ui-confirm.ogg && test -s public/assets/generated/audio/hit-light.ogg && test -s public/assets/generated/audio/hit-heavy.ogg && test -s public/assets/generated/audio/block-impact.ogg && test -s public/assets/generated/audio/dash-whoosh.ogg && test -s public/assets/generated/audio/ko-burst.ogg"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/aaa-expansion-first-audio-batch"
   t021_verification:
     result: pass
     task: T021
