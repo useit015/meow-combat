@@ -117,7 +117,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T098
+active_task: T099
 
 tasks:
   - id: T001
@@ -6836,7 +6836,7 @@ tasks:
   - id: T098
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Review the T097 championship/story polish and decide the next largest safe useful package toward the AAA pet fighting game outcome: authored/sample-based audio production, another roster lane, final not-complete tranche audit, or a repair/polish follow-up."
     inputs:
@@ -6864,20 +6864,84 @@ tasks:
       - "Decision is explicit: approve next safe Worker, require repair, ask owner, or run final not-complete audit."
       - "Decision addresses how the next package moves toward the original AAA outcome rather than only maintaining existing coverage."
       - "The full AAA outcome remains active and incomplete unless directly proven otherwise."
+    receipt:
+      result: done
+      decision: approve_next_worker
+      full_outcome_complete: false
+      note: notes/T098-championship-story-review.md
+      summary: "Approved a bounded Tofu Tortoise animation-production preflight Worker. T097 is consistent with its zero-failure smoke report, protected diffs are empty, existing audio source/runtime assets are already tracked, and the largest remaining AAA gap is roster scale. Tofu has a locked source-only model sheet, so the next safe step is preflight before any row generation."
+      commands:
+        - cmd: "sed -n '1,220p' docs/goals/aaa-game-expansion/notes/T097-championship-story-polish.md"
+          result: pass
+        - cmd: "node -e 'const r=require(\"./output/web-game/championship-story-polish/report.json\"); console.log(JSON.stringify({failures:r.failures.length,resultNames:r.results.map(x=>x.name),hasChampionship:r.results.some(x=>x.name===\"championship-ladder\"),hasTraining:r.results.some(x=>x.name===\"training-demo\"),hasLocalVersus:r.results.some(x=>x.name===\"local-versus-demo\"),hasFourFighter:r.results.some(x=>x.name===\"four-fighter-runtime-promotion\")}, null, 2)); if (r.failures.length || !r.results.some(x=>x.name===\"championship-ladder\") || !r.results.some(x=>x.name===\"training-demo\") || !r.results.some(x=>x.name===\"local-versus-demo\") || !r.results.some(x=>x.name===\"four-fighter-runtime-promotion\")) process.exit(1);'"
+          result: pass
+          summary: "failures=0 and required story/runtime mode results are present."
+        - cmd: "git diff --name-only -- public/assets/generated/fighters assets/source/imagegen/fighters package.json package-lock.json src/game/audio.ts public/assets/audio assets/source/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts"
+          result: pass
+          summary: "No protected diffs."
+        - cmd: "find assets/source/audio -maxdepth 3 -type f"
+          result: pass
+          summary: "Existing source audio records/files are present."
+        - cmd: "git ls-files public/assets/generated/audio assets/source/audio"
+          result: pass
+          summary: "Existing runtime/source audio assets are already tracked."
+      spawned_tasks:
+        - T099
+  - id: T099
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: medium
+    objective: "Create the source-only animation-production preflight for Tofu Tortoise / `tortoise-tofu`. Define the identity requirements, row-production order, no-size-drift/QA checks, blockers, and focused tests needed before any Tofu animation row is generated, while proving Tofu remains non-playable with no public/runtime fighter assets."
+    inputs:
+      - "T098 championship/story review."
+      - "Tofu Tortoise canonical model sheet at assets/source/imagegen/fighters/tortoise-tofu/canonical-character-sheet.png."
+      - "src/content/gameBible.ts Tofu fighter identity."
+      - "Existing Pickles and Noodle animation preflight patterns."
+    constraints:
+      - "Do not run imagegen."
+      - "Do not generate animation rows."
+      - "Do not edit public/runtime fighter assets."
+      - "Do not promote Tofu to the runtime roster or playable selection."
+      - "Do not edit combat, audio, dependency, sprite cell size, or sprite visual sizing files."
+      - "Do not mark the full AAA outcome complete."
+    allowed_files:
+      - "src/assets/fighterAnimationPreflight.ts"
+      - "src/assets/catalog.ts"
+      - "test/fighter-animation-preflight.test.ts"
+      - "test/asset-pipeline.test.ts"
+      - "test/meowtal-production-manifest.test.ts"
+      - "output/animation-preflight/tofu-tortoise-animation-preflight.json"
+      - "output/animation-preflight/tofu-tortoise-animation-preflight.html"
+      - "docs/goals/aaa-game-expansion/notes/T099-tofu-animation-preflight.md"
+      - "docs/goals/aaa-game-expansion/state.yaml"
+    verification:
+      - "npm test -- test/fighter-animation-preflight.test.ts test/asset-pipeline.test.ts test/meowtal-production-manifest.test.ts"
+      - "npm run verify"
+      - "test ! -e public/assets/generated/fighters/tortoise-tofu"
+      - "git diff --name-only -- public/assets/generated/fighters/tortoise-tofu assets/source/imagegen/fighters/tortoise-tofu package.json package-lock.json src/game/audio.ts public/assets/audio assets/source/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts src/core/frameData.ts src/game/gameConfig.ts"
+    stop_conditions:
+      - "The preflight cannot be aligned to the existing Pickles/Noodle no-drift pattern."
+      - "The canonical model sheet is missing, corrupted, or insufficient for row planning."
+      - "The work requires image generation, runtime promotion, roster code, combat tuning, audio work, dependency changes, sprite-cell changes, or sprite-visual-sizing changes."
+    acceptance_criteria:
+      - "Tofu has a source-only preflight plan with identity requirements, row order, QA checks, and stop conditions."
+      - "Tests prove Tofu remains source-only and non-playable."
+      - "No public/runtime `tortoise-tofu` fighter folder exists."
+      - "Focused tests and full verify pass."
+      - "Protected diff check shows no public/runtime Tofu, dependency, audio, sprite-cell, sprite-visual-sizing, combat, or roster promotion changes."
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T097
+    task: T098
     commands:
-      - "npm test -- test/championship-story.test.ts"
-      - "node --check scripts/smoke-meowtal-browser.mjs"
-      - "git diff --check"
-      - "npm test -- test/game-bible.test.ts test/shell-flow.test.ts test/championship-story.test.ts"
-      - "npm run verify"
-      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4174/ --out-dir output/web-game/championship-story-polish"
+      - "sed -n '1,220p' docs/goals/aaa-game-expansion/notes/T097-championship-story-polish.md"
+      - "node -e 'const r=require(\"./output/web-game/championship-story-polish/report.json\"); console.log(JSON.stringify({failures:r.failures.length,resultNames:r.results.map(x=>x.name),hasChampionship:r.results.some(x=>x.name===\"championship-ladder\"),hasTraining:r.results.some(x=>x.name===\"training-demo\"),hasLocalVersus:r.results.some(x=>x.name===\"local-versus-demo\"),hasFourFighter:r.results.some(x=>x.name===\"four-fighter-runtime-promotion\")}, null, 2)); if (r.failures.length || !r.results.some(x=>x.name===\"championship-ladder\") || !r.results.some(x=>x.name===\"training-demo\") || !r.results.some(x=>x.name===\"local-versus-demo\") || !r.results.some(x=>x.name===\"four-fighter-runtime-promotion\")) process.exit(1);'"
       - "git diff --name-only -- public/assets/generated/fighters assets/source/imagegen/fighters package.json package-lock.json src/game/audio.ts public/assets/audio assets/source/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts"
+      - "find assets/source/audio -maxdepth 3 -type f"
+      - "git ls-files public/assets/generated/audio assets/source/audio"
   t021_verification:
     result: pass
     task: T021
