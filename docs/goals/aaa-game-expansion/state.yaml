@@ -117,7 +117,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T086
+active_task: T087
 
 tasks:
   - id: T001
@@ -5944,7 +5944,7 @@ tasks:
   - id: T086
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Review the accepted source-only Noodle knockdown row and decide the next safe Noodle animation package."
     inputs:
@@ -5967,6 +5967,101 @@ tasks:
       - "Exact next Worker objective if approved."
       - "Allowed files, verification commands, stop conditions, and acceptance criteria."
       - "Parallel-safety decision."
+    receipt:
+      result: done
+      decision: proceed_with_worker
+      full_outcome_complete: false
+      note: notes/T086-noodle-knockdown-review.md
+      rationale: "The accepted Noodle knockdown row is good enough to continue because it is exact 2048x256 alpha, preserves the ferret/scarf/belt/sock-prop/tail identity, reads as a safe fall into curled grounded recovery, avoids object/sock-pile mutation, and keeps Noodle source-only. Runtime promotion remains blocked because win and lose are still missing. The next safe package is a single Worker covering both outcome rows because win and lose share acting-row scale/style risk and can close the final source-only row set without runtime exposure."
+      rejected_alternatives:
+        - "Repair first: rejected because T085 passed exact dimensions, alpha checks, focused tests, full verify, asset QA, and visual review."
+        - "Win only next: rejected because win and lose share the same outcome-row acting QA profile and can be reviewed together without touching runtime."
+        - "Lose only next: rejected because isolating one outcome row would slow final source-only set closure without reducing a distinct technical risk."
+        - "Runtime promotion: rejected until win and lose pass source-only production, QA, Judge approval, and a separate promotion/audit task."
+        - "Parallel workers: rejected because the final outcome rows should share one scale/style decision and one source-only receipt."
+      next_task: T087
+      commands:
+        - cmd: "view_image assets/source/imagegen/fighters/ferret-noodle/knockdown.png"
+          result: pass
+        - cmd: "sed -n '1,180p' docs/goals/aaa-game-expansion/notes/T085-noodle-knockdown-row-production.md"
+          result: pass
+        - cmd: "sed -n '1,160p' output/animation-preflight/noodle-nibbles-knockdown-row-qa.json"
+          result: pass
+        - cmd: "test ! -e public/assets/generated/fighters/ferret-noodle"
+          result: pass
+        - cmd: "rg -n \"win|lose|knockdown|ferret-noodle|source-only|not playable\" src/assets/catalog.ts src/assets/fighterAnimationPreflight.ts test/fighter-animation-preflight.test.ts test/asset-pipeline.test.ts docs/goals/aaa-game-expansion/state.yaml"
+          result: pass
+        - cmd: "ruby -e 'require \"yaml\"; YAML.load_file(\"docs/goals/aaa-game-expansion/state.yaml\"); puts \"state yaml ok\"'"
+          result: pass
+      summary: "Reviewed the accepted source-only Noodle knockdown row. Approved one bounded next Worker to generate exactly win and lose as source-only outcome rows with built-in imagegen, while keeping runtime promotion and parallel workers blocked."
+      spawned_tasks:
+        - T087
+  - id: T087
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: medium
+    objective: "Generate and QA exactly two source-only Noodle Nibbles / ferret-noodle outcome rows: win and lose, using built-in imagegen only. Normalize win to exact 2048x256 and lose to exact 1536x256 transparent spritesheet form, compare them against every accepted Noodle source row, update only source/planned manifests and focused tests, and prove Noodle remains not playable with no public/runtime assets."
+    inputs:
+      - "T086 Judge receipt."
+      - "T071/T073/T075/T077/T079/T081/T083/T085 accepted Noodle source rows and QA."
+      - "assets/source/imagegen/fighters/ferret-noodle/canonical-character-sheet.png"
+    constraints:
+      - "Use built-in imagegen only; do not use external image APIs, .env, CLI fallbacks, new dependencies, or lockfile changes."
+      - "Generate only win and lose; do not generate idle, locomotion, mobility, attacks, special, reactions, knockdown, portraits, UI, stage, audio, story assets, or runtime promotion assets."
+      - "Do not create or modify public/assets/generated/fighters/ferret-noodle files."
+      - "Do not modify runtime roster/select/championship/combat/frame-data/hitboxes/damage/pushback/movement/sprite scale/placement/frame size/dependencies/audio/source records."
+      - "Reject any win candidate with size drift, identity drift, body melt, extra limbs, text props, trophy text, copied fighting-game victory language, detached confetti/effects, tail-ring instability, sock-prop mutation, weird anatomy, unstable alpha, baked UI/text, or cropped frames."
+      - "Reject any lose candidate with size drift, identity drift, body melt, unreadable sock-pile transformation, object mutation, missing face/scarf/tail, weird anatomy, unstable alpha, baked UI/text, cropped frames, or cruel/grotesque defeat posing."
+      - "Keep Noodle not playable and source-only."
+      - "Do not mark the full AAA outcome complete."
+    allowed_files:
+      - "assets/source/imagegen/fighters/ferret-noodle/candidates/win-codex-01.png"
+      - "assets/source/imagegen/fighters/ferret-noodle/candidates/win-codex-02.png"
+      - "assets/source/imagegen/fighters/ferret-noodle/candidates/win-codex-03.png"
+      - "assets/source/imagegen/fighters/ferret-noodle/candidates/lose-codex-01.png"
+      - "assets/source/imagegen/fighters/ferret-noodle/candidates/lose-codex-02.png"
+      - "assets/source/imagegen/fighters/ferret-noodle/candidates/lose-codex-03.png"
+      - "assets/source/imagegen/fighters/ferret-noodle/win.png"
+      - "assets/source/imagegen/fighters/ferret-noodle/lose.png"
+      - "output/imagegen/ferret-noodle-win.png"
+      - "output/imagegen/ferret-noodle-win-normalized.png"
+      - "output/imagegen/ferret-noodle-lose.png"
+      - "output/imagegen/ferret-noodle-lose-normalized.png"
+      - "output/animation-preflight/noodle-nibbles-outcome-row-qa.json"
+      - "output/animation-preflight/noodle-nibbles-outcome-row-qa.html"
+      - "output/web-game/noodle-outcome-source-rows/"
+      - "src/assets/catalog.ts"
+      - "test/asset-pipeline.test.ts"
+      - "test/asset-qa.test.ts"
+      - "test/fighter-animation-preflight.test.ts"
+      - "test/imagegen-jobs.test.ts"
+      - "docs/goals/aaa-game-expansion/notes/T087-noodle-outcome-row-production.md"
+      - "docs/goals/aaa-game-expansion/state.yaml"
+    verification:
+      - "node scripts/normalize-fighter-rows.mjs --animation win --fighters ferret-noodle"
+      - "node scripts/normalize-fighter-rows.mjs --animation lose --fighters ferret-noodle"
+      - "Use bundled remove_chroma_key.py cleanup if an accepted candidate has a generated background."
+      - "npm run typecheck"
+      - "npm test -- test/fighter-animation-preflight.test.ts test/asset-pipeline.test.ts test/source-roster-lab.test.ts test/game-config.test.ts test/imagegen-jobs.test.ts test/asset-qa.test.ts"
+      - "sips -g pixelWidth -g pixelHeight -g hasAlpha assets/source/imagegen/fighters/ferret-noodle/win.png assets/source/imagegen/fighters/ferret-noodle/lose.png output/imagegen/ferret-noodle-win-normalized.png output/imagegen/ferret-noodle-lose-normalized.png"
+      - "node scripts/asset-qa.mjs --json"
+      - "test ! -e public/assets/generated/fighters/ferret-noodle"
+      - "npm run verify"
+      - "git diff --name-only -- public/assets/generated/fighters package.json package-lock.json src/game/audio.ts public/assets/audio assets/source/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts src/core/frameData.ts"
+      - "rg -n \"Noodle Nibbles|ferret-noodle|win|lose|no-size-drift|row-generation|not playable|source-only\" src/assets/catalog.ts src/assets/fighterAnimationPreflight.ts test/fighter-animation-preflight.test.ts test/asset-pipeline.test.ts test/asset-qa.test.ts docs/goals/aaa-game-expansion/notes/T087-noodle-outcome-row-production.md output/animation-preflight/noodle-nibbles-outcome-row-qa.json"
+    stop_conditions:
+      - "Either row has size drift, identity drift, body melt, extra limbs, sock-pile/object mutation, missing face/scarf/tail, weird anatomy, unstable alpha, baked UI/text/effects, copied fighting-game language, or cropped frames."
+      - "Any public/runtime ferret-noodle asset or playable roster exposure appears."
+      - "Any dependency, lockfile, runtime combat, frame-data, audio, or unrelated source-record diff appears."
+      - "Focused tests, asset QA, or full verify fails."
+    acceptance_criteria:
+      - "Exactly two accepted source-only rows: win and lose."
+      - "Win is normalized to exact 2048x256 alpha spritesheet form."
+      - "Lose is normalized to exact 1536x256 alpha spritesheet form."
+      - "Catalog marks every required Noodle animation row as generated source-only; public runtime remains absent."
+      - "Noodle remains not playable."
+      - "The full AAA outcome remains active and incomplete."
 
 checks:
   dirty_fingerprint: unknown
