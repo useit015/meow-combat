@@ -167,6 +167,7 @@ const generatedAnimationRows: Record<string, Partial<Record<FighterAnimationSpec
     "light-punch": "assets/source/imagegen/fighters/ferret-noodle/light-punch.png",
     "heavy-punch": "assets/source/imagegen/fighters/ferret-noodle/heavy-punch.png",
     "light-kick": "assets/source/imagegen/fighters/ferret-noodle/light-kick.png",
+    special: "assets/source/imagegen/fighters/ferret-noodle/special.png",
     hitstun: "assets/source/imagegen/fighters/ferret-noodle/hitstun.png",
     blockstun: "assets/source/imagegen/fighters/ferret-noodle/blockstun.png",
   },

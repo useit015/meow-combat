@@ -150,8 +150,8 @@ describe("imagegen asset QA command", () => {
     });
     const summary = JSON.parse(output) as AssetQaSummary;
 
-    expect(summary.checked).toBe(160);
-    expect(summary.runtimeReady).toBe(104);
+    expect(summary.checked).toBe(162);
+    expect(summary.runtimeReady).toBe(106);
     expect(summary.needsNormalization).toBe(56);
     expect(summary.rows.map((row) => `${row.kind}:${row.fighterId}:${row.animationId}`).sort()).toEqual([
       "normalized-candidate:atlas-lion:blockstun",
@@ -176,6 +176,7 @@ describe("imagegen asset QA command", () => {
       "normalized-candidate:ferret-noodle:jump",
       "normalized-candidate:ferret-noodle:light-kick",
       "normalized-candidate:ferret-noodle:light-punch",
+      "normalized-candidate:ferret-noodle:special",
       "normalized-candidate:ferret-noodle:walk-back",
       "normalized-candidate:ferret-noodle:walk-forward",
       "normalized-candidate:ginger-tabby-cat:blockstun",
@@ -256,6 +257,7 @@ describe("imagegen asset QA command", () => {
       "source:ferret-noodle:jump",
       "source:ferret-noodle:light-kick",
       "source:ferret-noodle:light-punch",
+      "source:ferret-noodle:special",
       "source:ferret-noodle:walk-back",
       "source:ferret-noodle:walk-forward",
       "source:ginger-tabby-cat:blockstun",
@@ -340,6 +342,7 @@ describe("imagegen asset QA command", () => {
       "ferret-noodle:jump",
       "ferret-noodle:light-kick",
       "ferret-noodle:light-punch",
+      "ferret-noodle:special",
       "ferret-noodle:walk-back",
       "ferret-noodle:walk-forward",
       "ginger-tabby-cat:blockstun",
@@ -424,7 +427,7 @@ describe("imagegen asset QA command", () => {
     }
 
     const normalizedRows = summary.rows.filter((row) => row.kind === "normalized-candidate");
-    expect(normalizedRows).toHaveLength(80);
+    expect(normalizedRows).toHaveLength(81);
     for (const row of normalizedRows) {
       expect(row.expected).toEqual({ width: row.frameCount * 256, height: 256 });
       expect(row.dimensions).toEqual(row.expected);

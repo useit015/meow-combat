@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Noodle Nibbles special row QA</title>
+    <style>
+      body { margin: 24px; background: #111; color: #f5f5f5; font: 15px/1.5 system-ui, sans-serif; }
+      img { display: block; max-width: 100%; image-rendering: auto; background: #050505; border: 1px solid #444; }
+      code { color: #c8facc; }
+      .grid { display: grid; gap: 16px; }
+      .pass { color: #8ef08e; font-weight: 700; }
+    </style>
+  </head>
+  <body>
+    <h1>Noodle Nibbles / ferret-noodle special source-only QA</h1>
+    <p class="pass">Accepted candidate 01. This row-generation pass is source-only, no-size-drift, and not playable.</p>
+    <div class="grid">
+      <section>
+        <h2>Accepted normalized row</h2>
+        <img src="../imagegen/ferret-noodle-special-normalized.png" alt="Noodle Nibbles special normalized row" />
+      </section>
+      <section>
+        <h2>Source gate</h2>
+        <p><code>assets/source/imagegen/fighters/ferret-noodle/special.png</code> is exact 2560x256 with alpha.</p>
+        <p><code>public/assets/generated/fighters/ferret-noodle</code> remains absent, so Noodle Nibbles remains not playable.</p>
+      </section>
+      <section>
+        <h2>Candidate decision</h2>
+        <p>Candidate 01 was accepted after chroma cleanup, vertical crop, and normalizer verification. Candidate slots 02 and 03 were not needed.</p>
+      </section>
+    </div>
+  </body>
+</html>

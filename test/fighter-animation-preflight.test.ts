@@ -404,6 +404,16 @@ describe("Noodle Nibbles animation preflight", () => {
     expect(existsSync(join(process.cwd(), "public/assets/generated/fighters/ferret-noodle"))).toBe(false);
   });
 
+  it("keeps generated Noodle special source-only without loose effect drift", () => {
+    const specialBounds = alphaBoundsByFrame("assets/source/imagegen/fighters/ferret-noodle/special.png", 10);
+
+    expect(specialBounds.every((frame) => frame.width >= 138 && frame.width <= 210)).toBe(true);
+    expect(Math.max(...specialBounds.map((frame) => frame.width))).toBeGreaterThanOrEqual(200);
+    expect(specialBounds.every((frame) => frame.height >= 178 && frame.height <= 225)).toBe(true);
+    expect(specialBounds.every((frame) => frame.opaquePixels >= 15_700)).toBe(true);
+    expect(existsSync(join(process.cwd(), "public/assets/generated/fighters/ferret-noodle"))).toBe(false);
+  });
+
   it("keeps generated Noodle defense reactions source-only with compact recoil poses", () => {
     const hitstunBounds = alphaBoundsByFrame("assets/source/imagegen/fighters/ferret-noodle/hitstun.png", 5);
     const blockstunBounds = alphaBoundsByFrame("assets/source/imagegen/fighters/ferret-noodle/blockstun.png", 5);
