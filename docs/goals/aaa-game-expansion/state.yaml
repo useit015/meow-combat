@@ -117,7 +117,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T044
+active_task: T045
 
 tasks:
   - id: T001
@@ -2901,7 +2901,7 @@ tasks:
   - id: T044
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Audit the complete source-only Pickles Pugilist generated row set and decide the next safe GoalBuddy package: runtime/public promotion, another source QA correction, or a different AAA milestone."
     inputs:
@@ -2924,6 +2924,67 @@ tasks:
       - "Whether public/runtime promotion is safe as a separate Worker task"
       - "Required tests and smoke proof for the next package"
       - "Decision: promote_pickles_source_rows | fix_source_rows | switch_milestone | ask_owner"
+    receipt:
+      result: done
+      decision: promote_pickles_source_rows
+      full_outcome_complete: false
+      note: notes/T044-pickles-source-set-audit.md
+      summary: "Audited the complete source-only Pickles Pugilist generated row set and approved a separate bounded runtime/public promotion Worker. The audit confirmed exactly 14 generated source rows, complete REQUIRED_FIGHTER_ANIMATIONS coverage, catalog/filesystem agreement, current absence from public/runtime, and no blocking size drift, identity drift, malformed frames, detached effects, or AI-slop artifacts."
+      evidence:
+        - "assets/source/imagegen/fighters/pugilist-pug/*.png contains exactly 14 animation rows plus the canonical sheet."
+        - "src/assets/catalog.ts records all 14 Pickles rows as generated source rows."
+        - "public/assets/generated/fighters/pugilist-pug is absent before promotion."
+        - "Runtime roster remains gray-rabbit and ginger-tabby-cat before promotion."
+        - "Asset QA reports 140 checked, 84 runtime-ready, 56 needing normalization; Pickles contributes 14 source rows and 14 normalized candidates."
+      residual_risks:
+        - "T043 knockdown uses mechanical pre-isolation provenance; preserve that note during promotion."
+      spawned_tasks:
+        - T045
+  - id: T045
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: medium
+    objective: "Promote the approved Pickles Pugilist source rows to public/runtime as a selectable playable fighter in one bounded package. Copy only accepted rows, preserve pixel identity/no-size-change, update runtime manifests/config/content/tests from source-only to playable, and prove every Pickles runtime spritesheet loads with no fallback rows."
+    allowed_files:
+      - "public/assets/generated/fighters/pugilist-pug/*.png"
+      - "src/assets/catalog.ts"
+      - "src/core/frameData.ts"
+      - "src/core/index.ts"
+      - "src/game/gameConfig.ts"
+      - "src/content/gameBible.ts"
+      - "src/assets/sourceRosterLab.ts"
+      - "src/assets/fighterAnimationPreflight.ts"
+      - "test/asset-pipeline.test.ts"
+      - "test/asset-qa.test.ts"
+      - "test/fighter-animation-preflight.test.ts"
+      - "test/game-config.test.ts"
+      - "test/source-roster-lab.test.ts"
+      - "test/character-select.test.ts"
+      - "test/asset-runtime.test.ts"
+      - "docs/goals/aaa-game-expansion/notes/T045-pickles-runtime-promotion.md"
+      - "docs/goals/aaa-game-expansion/state.yaml"
+    verify:
+      - "test -d public/assets/generated/fighters/pugilist-pug"
+      - "node scripts/asset-qa.mjs --json"
+      - "npm test -- test/fighter-animation-preflight.test.ts test/asset-pipeline.test.ts test/asset-qa.test.ts test/game-config.test.ts test/source-roster-lab.test.ts test/character-select.test.ts test/asset-runtime.test.ts"
+      - "npm run typecheck"
+      - "npm run build"
+      - "npm run verify"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/pickles-runtime-promotion"
+    stop_if:
+      - "Any promoted row differs pixel-for-pixel from the accepted source/normalized proof without an explicit reason."
+      - "Any frame shows visible size drift, identity drift, malformed alpha bounds, detached effects, crop/zoom hiding, or changed Pickles traits."
+      - "Runtime wiring requires unrelated UI/audio/story expansion to avoid misleading cat/rabbit-only presentation."
+      - "Tests require weakening no-drift/source-only gates instead of updating them to the new promoted state."
+    acceptance:
+      - "Pickles public runtime folder exists and contains exactly the 14 approved animation rows."
+      - "Every promoted row matches the accepted source row hash, or a documented normalized proof hash where the source row is already the normalized proof."
+      - "Runtime roster/config includes Pickles as selectable/playable without promoting other planned fighters."
+      - "Catalog marks Pickles runtime rows as approved public assets while preserving source provenance in notes/tests."
+      - "Fighter definitions include Pickles with bounded, readable pressure-boxer gameplay values."
+      - "Game bible/source roster/preflight tests are updated from source-only to promoted runtime state without weakening no-size-change gates."
+      - "Focused tests, asset QA, typecheck, build, full verify, and browser smoke pass."
     receipt: null
 
 checks:
