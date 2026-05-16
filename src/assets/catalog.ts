@@ -126,6 +126,9 @@ const generatedAnimationRows: Record<string, Partial<Record<FighterAnimationSpec
   "sahara-viper": {},
   "gray-rabbit": {},
   "ginger-tabby-cat": {},
+  "pugilist-pug": {
+    idle: "assets/source/imagegen/fighters/pugilist-pug/idle.png",
+  },
 };
 
 export const fighterAssetManifests: readonly FighterAssetManifest[] = [

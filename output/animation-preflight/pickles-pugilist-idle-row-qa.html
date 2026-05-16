@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pickles Pugilist Idle Row QA</title>
+  <style>
+    body { margin: 0; font-family: Inter, system-ui, sans-serif; background: #f6f7f2; color: #151915; }
+    main { max-width: 1120px; margin: 0 auto; padding: 32px; }
+    h1 { font-size: 32px; margin: 0 0 8px; }
+    p { line-height: 1.5; }
+    table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #cbd9c4; }
+    th, td { padding: 10px 12px; border-bottom: 1px solid #dfe9d9; text-align: left; vertical-align: top; }
+    th { background: #24412f; color: #fff; }
+    .pill { display: inline-block; margin: 4px 8px 12px 0; border: 1px solid #b7c9ae; padding: 8px 10px; font-weight: 700; background: #fff; }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Pickles Pugilist Idle Row QA</h1>
+  <p>T028 accepted exactly one source-only idle row for <code>pugilist-pug</code>. Pickles Pugilist is still not playable and has no public runtime fighter asset folder.</p>
+  <div>
+    <span class="pill">Result: accepted-source-only</span>
+    <span class="pill">Frames: 8</span>
+    <span class="pill">Cells: 256x256</span>
+    <span class="pill">Row: 2048x256 alpha PNG</span>
+  </div>
+  <table>
+    <thead><tr><th>Path</th><th>Role</th><th>Dimensions</th><th>QA</th></tr></thead>
+    <tbody>
+      <tr><td><code>assets/source/imagegen/fighters/pugilist-pug/candidates/idle-codex-01.png</code></td><td>Built-in imagegen candidate</td><td>2172x724, no alpha</td><td>Accepted after normalization</td></tr>
+      <tr><td><code>assets/source/imagegen/fighters/pugilist-pug/idle.png</code></td><td>Accepted source-only idle row</td><td>2048x256, alpha</td><td>Identity, scale, motion, alpha, and source-only gates pass</td></tr>
+      <tr><td><code>output/imagegen/pugilist-pug-idle-normalized.png</code></td><td>Normalization proof</td><td>2048x256, alpha</td><td>Matches accepted source hash</td></tr>
+    </tbody>
+  </table>
+  <h2>No-Drift Verdict</h2>
+  <ul>
+    <li>Identity pass: wrinkles, round muzzle, folded ears, curled tail, red toy gloves, collar medallion, snack-belt, warm fawn palette, and compact pug boxer silhouette remain consistent.</li>
+    <li>Scale pass: baseline/head height are stable and normalized frames use fixed 256x256 cells.</li>
+    <li>Motion pass: idle is subtle breathing/guard variation only.</li>
+    <li>Source-only pass: <code>public/assets/generated/fighters/pugilist-pug</code> remains absent.</li>
+  </ul>
+</main>
+</body>
+</html>

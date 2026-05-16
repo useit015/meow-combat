@@ -99,6 +99,14 @@ describe("fighter asset manifests", () => {
       expect(validateFighterManifest(manifest)).toEqual({ ok: true, errors: [] });
       expect(manifest.animations).toHaveLength(REQUIRED_FIGHTER_ANIMATIONS.length);
       for (const animation of manifest.animations) {
+        if (manifest.id === "pugilist-pug" && animation.id === "idle") {
+          expect(animation.source.status).toBe("generated");
+          expect(animation.source.outputPath).toBe("assets/source/imagegen/fighters/pugilist-pug/idle.png");
+          expect(animation.source.blocker).toBeUndefined();
+          expect(existsSync(animation.source.outputPath ?? "")).toBe(true);
+          continue;
+        }
+
         expect(animation.source.status).toBe("blocked");
         expect(animation.source.outputPath).toBeNull();
         expect(animation.source.blocker).toContain("source-only model sheet");

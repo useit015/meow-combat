@@ -52,6 +52,14 @@ describe("Pickles Pugilist animation preflight", () => {
       expect(row.rejectionTriggers.join(" ")).toContain("size drift");
       expect(row.rejectionTriggers.join(" ")).toContain("identity drift");
     }
+
+    expect(plannedManifest?.animations.find((animation) => animation.id === "idle")?.source).toMatchObject({
+      status: "generated",
+      outputPath: "assets/source/imagegen/fighters/pugilist-pug/idle.png",
+    });
+    expect(plannedManifest?.animations.filter((animation) => animation.source.status === "generated").map((animation) => animation.id)).toEqual([
+      "idle",
+    ]);
   });
 
   it("defines concrete no-drift gates, runtime promotion tests, and smoke requirements", () => {

@@ -122,8 +122,8 @@ describe("imagegen asset QA command", () => {
     });
     const summary = JSON.parse(output) as AssetQaSummary;
 
-    expect(summary.checked).toBe(112);
-    expect(summary.runtimeReady).toBe(56);
+    expect(summary.checked).toBe(114);
+    expect(summary.runtimeReady).toBe(58);
     expect(summary.needsNormalization).toBe(56);
     expect(summary.rows.map((row) => `${row.kind}:${row.fighterId}:${row.animationId}`).sort()).toEqual([
       "normalized-candidate:atlas-lion:blockstun",
@@ -168,6 +168,7 @@ describe("imagegen asset QA command", () => {
       "normalized-candidate:gray-rabbit:walk-back",
       "normalized-candidate:gray-rabbit:walk-forward",
       "normalized-candidate:gray-rabbit:win",
+      "normalized-candidate:pugilist-pug:idle",
       "normalized-candidate:sahara-viper:blockstun",
       "normalized-candidate:sahara-viper:crouch",
       "normalized-candidate:sahara-viper:heavy-punch",
@@ -224,6 +225,7 @@ describe("imagegen asset QA command", () => {
       "source:gray-rabbit:walk-back",
       "source:gray-rabbit:walk-forward",
       "source:gray-rabbit:win",
+      "source:pugilist-pug:idle",
       "source:sahara-viper:blockstun",
       "source:sahara-viper:crouch",
       "source:sahara-viper:heavy-punch",
@@ -284,6 +286,7 @@ describe("imagegen asset QA command", () => {
       "gray-rabbit:walk-back",
       "gray-rabbit:walk-forward",
       "gray-rabbit:win",
+      "pugilist-pug:idle",
       "sahara-viper:blockstun",
       "sahara-viper:crouch",
       "sahara-viper:heavy-punch",
@@ -312,14 +315,19 @@ describe("imagegen asset QA command", () => {
                 : 8,
       );
       expect(row.expected).toEqual({ width: row.frameCount * 256, height: 256 });
-      expect(row.runtimeReady).toBe(false);
-      expect(row.status).toBe("needs-normalization");
+      if (row.fighterId === "pugilist-pug") {
+        expect(row.runtimeReady).toBe(true);
+        expect(row.status).toBe("runtime-ready");
+      } else {
+        expect(row.runtimeReady).toBe(false);
+        expect(row.status).toBe("needs-normalization");
+      }
       expect(row.dimensions.width).toBeGreaterThan(0);
       expect(row.dimensions.height).toBeGreaterThan(0);
     }
 
     const normalizedRows = summary.rows.filter((row) => row.kind === "normalized-candidate");
-    expect(normalizedRows).toHaveLength(56);
+    expect(normalizedRows).toHaveLength(57);
     for (const row of normalizedRows) {
       expect(row.expected).toEqual({ width: row.frameCount * 256, height: 256 });
       expect(row.dimensions).toEqual(row.expected);
