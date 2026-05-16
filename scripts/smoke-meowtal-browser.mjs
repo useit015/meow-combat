@@ -406,6 +406,24 @@ function checkPauseShellPresentation(state, scenario, failures) {
     failures,
     `${scenario} pause copy should expose resume controls`,
   );
+  assert(
+    visibleShellCopy(state).includes("BROWSER OPTIONS"),
+    failures,
+    `${scenario} pause copy should expose browser options`,
+  );
+  assert(state.browserSettings?.visible === true, failures, `${scenario} should expose visible browser settings state`);
+  assert(
+    state.browserSettings?.surface === "browser-v1-options",
+    failures,
+    `${scenario} should expose browser-v1-options surface`,
+  );
+  assert(state.browserSettings?.keyboardFirst === true, failures, `${scenario} settings should be keyboard-first`);
+  assert(state.browserSettings?.orientation === "landscape", failures, `${scenario} settings should report landscape orientation`);
+  assert(
+    state.shellPresentation?.settings?.surface === "browser-v1-options",
+    failures,
+    `${scenario} shell presentation should include settings state`,
+  );
   assert(state.shellPresentation?.actions?.includes("R reset"), failures, `${scenario} pause actions should include reset`);
 }
 
@@ -767,6 +785,97 @@ async function runLocalVersusDemo(browser, url, outDir) {
 
   await context.close();
   return { name: "local-versus-demo", failures, errors, screenshots, state };
+}
+
+async function runBrowserSettingsControlsDemo(browser, url, outDir) {
+  const failures = [];
+  const screenshots = [];
+  const { context, page, errors } = await openScenario(browser, url, {
+    viewport: { width: 1024, height: 576 },
+  });
+
+  await pressKey(page, "Space");
+  await pressKey(page, "Space");
+  await pressKey(page, "Space");
+  await waitFrames(page, 20);
+  await pressKey(page, "KeyP");
+  let state = await readState(page);
+  screenshots.push(await screenshot(page, outDir, "browser-settings-versus-cpu"));
+  assert(state.shellPhase === "paused", failures, `browser settings expected paused, got ${state.shellPhase}`);
+  assert(state.playMode === "versus-cpu", failures, `browser settings expected versus-cpu, got ${state.playMode}`);
+  checkPauseShellPresentation(state, "browser settings versus cpu", failures);
+  assert(state.browserSettings?.mode?.id === "versus-cpu", failures, `settings expected versus-cpu, got ${state.browserSettings?.mode?.id}`);
+  assert(state.browserSettings?.cpu?.toggleAvailable === true, failures, "settings should allow CPU toggle in 1 VS CPU");
+  assert(state.browserSettings?.cpu?.difficulty === "normal", failures, `settings expected normal CPU, got ${state.browserSettings?.cpu?.difficulty}`);
+  assert(
+    state.browserSettings?.p2?.control === "NORMAL CPU",
+    failures,
+    `settings expected NORMAL CPU control, got ${state.browserSettings?.p2?.control}`,
+  );
+
+  await pressKey(page, "KeyV");
+  state = await readState(page);
+  screenshots.push(await screenshot(page, outDir, "browser-settings-cpu-hard"));
+  assert(state.cpuDifficulty === "hard", failures, `browser settings expected hard CPU after V, got ${state.cpuDifficulty}`);
+  assert(
+    state.browserSettings?.cpu?.difficulty === "hard",
+    failures,
+    `settings expected hard CPU difficulty, got ${state.browserSettings?.cpu?.difficulty}`,
+  );
+
+  await pressKey(page, "KeyC");
+  state = await readState(page);
+  screenshots.push(await screenshot(page, outDir, "browser-settings-manual-p2"));
+  assert(state.p2Mode === "manual", failures, `browser settings expected manual P2 after C, got ${state.p2Mode}`);
+  assert(
+    state.browserSettings?.p2?.control === "manual P2",
+    failures,
+    `settings expected manual P2 control, got ${state.browserSettings?.p2?.control}`,
+  );
+
+  await pressKey(page, "KeyR");
+  state = await readState(page);
+  assert(state.shellPhase === "ready", failures, `browser settings reset expected ready, got ${state.shellPhase}`);
+
+  await pressKey(page, "Space");
+  for (let index = 0; index < 3; index += 1) {
+    await pressKey(page, "KeyD");
+  }
+  await pressKey(page, "Space");
+  await pressKey(page, "Space");
+  await waitFrames(page, 20);
+  await pressKey(page, "KeyP");
+  state = await readState(page);
+  screenshots.push(await screenshot(page, outDir, "browser-settings-local-versus"));
+  assert(state.shellPhase === "paused", failures, `local settings expected paused, got ${state.shellPhase}`);
+  assert(state.playMode === "local-versus", failures, `local settings expected local-versus, got ${state.playMode}`);
+  checkPauseShellPresentation(state, "browser settings local versus", failures);
+  assert(state.browserSettings?.mode?.id === "local-versus", failures, `settings expected local-versus, got ${state.browserSettings?.mode?.id}`);
+  assert(state.browserSettings?.cpu?.toggleAvailable === false, failures, "local versus settings should lock CPU toggle off");
+  assert(
+    state.browserSettings?.cpu?.summary?.includes("Local Versus keeps P2 manual"),
+    failures,
+    `local settings should explain manual P2 lock, got ${state.browserSettings?.cpu?.summary}`,
+  );
+  assert(
+    state.browserSettings?.p2?.controls?.includes("Numpad"),
+    failures,
+    `local settings should expose P2 numpad controls, got ${state.browserSettings?.p2?.controls}`,
+  );
+
+  await pressKey(page, "KeyC");
+  state = await readState(page);
+  screenshots.push(await screenshot(page, outDir, "browser-settings-local-versus-cpu-ignored"));
+  assert(state.p2Mode === "manual", failures, `local settings CPU toggle should keep manual P2, got ${state.p2Mode}`);
+  assert(
+    state.browserSettings?.p2?.control === "manual P2",
+    failures,
+    `local settings CPU toggle should keep manual P2 control, got ${state.browserSettings?.p2?.control}`,
+  );
+  assert(errors.length === 0, failures, `browser settings console/page errors: ${JSON.stringify(errors)}`);
+
+  await context.close();
+  return { name: "browser-settings-controls-demo", failures, errors, screenshots, state };
 }
 
 async function runThreeFighterRuntimePolish(browser, url, outDir) {
@@ -1499,6 +1608,7 @@ async function main() {
     results.push(await runCombatReadabilityDemo(browser, args.url, args.outDir));
     results.push(await runTrainingDemo(browser, args.url, args.outDir));
     results.push(await runLocalVersusDemo(browser, args.url, args.outDir));
+    results.push(await runBrowserSettingsControlsDemo(browser, args.url, args.outDir));
     results.push(await runThreeFighterRuntimePolish(browser, args.url, args.outDir));
     results.push(await runChampionshipLadderProgression(browser, args.url, args.outDir));
     results.push(await runGamepad(browser, args.url, args.outDir));

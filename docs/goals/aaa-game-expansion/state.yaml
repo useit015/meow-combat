@@ -117,7 +117,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T065
+active_task: T066
 
 tasks:
   - id: T001
@@ -4188,7 +4188,7 @@ tasks:
   - id: T065
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: default
     objective: "Add a browser-v1 controls/settings/options surface using current code-rendered UI only: expose current controls, CPU difficulty/manual/Local Versus control truth, fullscreen/reset/pause actions, and smoke-verifiable render_game_to_text state without persistence, audio, assets, dependencies, gameplay frame data, or character-size changes."
     inputs:
@@ -4234,20 +4234,81 @@ tasks:
       - "Existing 1 VS CPU, Training, Championship, Local Versus, pause, gamepad, and landscape smoke remain intact."
       - "No protected files are changed and Pickles runtime rows remain byte-identical to source."
       - "Receipt states full_outcome_complete=false."
+    receipt:
+      result: done
+      decision: approved
+      full_outcome_complete: false
+      note: notes/T065-browser-settings-controls.md
+      summary: "Added a browser-v1 options/settings surface using current code-rendered UI only. Pause now exposes current mode, P1 controls, P2 manual/CPU truth, CPU difficulty/toggle availability, Local Versus manual-P2 lock, fullscreen/reset/resume actions, and no-key-rebinding browser-v1 scope through visible copy and render_game_to_text state."
+      changed_files:
+        - "src/game/MeowtalArenaScene.ts"
+        - "scripts/smoke-meowtal-browser.mjs"
+        - "docs/goals/aaa-game-expansion/notes/T065-browser-settings-controls.md"
+        - "docs/goals/aaa-game-expansion/state.yaml"
+      evidence:
+        - "render_game_to_text exposes browserSettings.surface=browser-v1-options, keyboardFirst=true, orientation=landscape, session-only persistence, and keyRebinding=not-in-browser-v1."
+        - "Smoke covers 1 VS CPU settings, CPU hard level, manual P2 toggle, Local Versus settings, and ignored CPU toggle in Local Versus."
+        - "Local Versus settings report CPU toggle unavailable and P2 control manual."
+        - "Screenshots were reviewed after shortening an overlong Local Versus CPU line; current visible rows fit the pause panel."
+        - "No diffs under protected fighter/generated/imagegen/audio/source-audio/dependency/sprite-sizing/frame-data paths."
+        - "Pickles runtime rows remain byte-identical to source rows."
+      verification:
+        result: pass
+        commands:
+          - "git diff --name-only -- assets/source/imagegen/fighters public/assets/generated/fighters output/imagegen package.json package-lock.json src/game/audio.ts public/assets/audio assets/source/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts src/core/frameData.ts"
+          - "for row in idle walk-forward walk-back crouch jump light-punch heavy-punch light-kick special hitstun blockstun knockdown win lose; do cmp -s assets/source/imagegen/fighters/pugilist-pug/$row.png public/assets/generated/fighters/pugilist-pug/$row.png || exit 1; done"
+          - "npm test -- test/game-bible.test.ts test/shell-flow.test.ts test/character-select.test.ts test/control-fallback.test.ts"
+          - "npm run typecheck"
+          - "npm run verify"
+          - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/browser-settings-controls"
+      screenshots:
+        - "output/web-game/browser-settings-controls/browser-settings-versus-cpu.png"
+        - "output/web-game/browser-settings-controls/browser-settings-cpu-hard.png"
+        - "output/web-game/browser-settings-controls/browser-settings-manual-p2.png"
+        - "output/web-game/browser-settings-controls/browser-settings-local-versus.png"
+        - "output/web-game/browser-settings-controls/browser-settings-local-versus-cpu-ignored.png"
+      residual_risk:
+        - "Compact visible settings copy does not enumerate every alias/action detail, but render_game_to_text carries the fuller state and the visible copy is truthful."
+      spawned_tasks:
+        - T066
+  - id: T066
+    type: judge
+    assignee: Judge
+    status: active
+    reasoning_hint: high
+    objective: "Audit the post-settings browser milestone and decide whether any safe local non-size/non-asset/non-audio/non-frame-data package remains, or ask_owner with exact options if the next meaningful work requires audio, generated assets, roster production, or gameplay frame-data changes."
+    inputs:
+      - "T065 browser settings controls receipt"
+      - "Current goal charter"
+      - "Hard no-size/no-slop constraints"
+      - "Recent smoke and verification receipts"
+    constraints:
+      - "Read-only."
+      - "Do not implement."
+      - "Do not generate assets or audio."
+      - "Do not change fighter rows, generated assets, audio, source records, dependencies, sprite sizing, placement, character-size logic, or frame data."
+      - "Do not mark the full AAA outcome complete."
+      - "If the best next step requires audio, generated art, roster production, model-sheet work, sprite sizing, character-size logic, combat frame data, hitboxes, damage, pushback, movement, dependencies, or package-lock changes, return ask_owner with exact options and risks."
+    expected_output:
+      - "Post-T065 assessment"
+      - "Ranked remaining gaps"
+      - "Next package or owner question"
+      - "Allowed files, verification, stop_if, and acceptance if proceeding"
+      - "Decision: proceed_with_worker | require_audit | ask_owner"
     receipt: null
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T063
+    task: T065
     commands:
-      - "git diff --name-only -- assets/source/imagegen/fighters public/assets/generated/fighters output/imagegen package.json package-lock.json src/game/audio.ts public/assets/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts src/core/frameData.ts"
+      - "git diff --name-only -- assets/source/imagegen/fighters public/assets/generated/fighters output/imagegen package.json package-lock.json src/game/audio.ts public/assets/audio assets/source/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts src/core/frameData.ts"
       - "for row in idle walk-forward walk-back crouch jump light-punch heavy-punch light-kick special hitstun blockstun knockdown win lose; do cmp -s assets/source/imagegen/fighters/pugilist-pug/$row.png public/assets/generated/fighters/pugilist-pug/$row.png || exit 1; done"
-      - "npm test -- test/game-bible.test.ts test/shell-flow.test.ts test/character-select.test.ts test/combat-core.test.ts"
+      - "npm test -- test/game-bible.test.ts test/shell-flow.test.ts test/character-select.test.ts test/control-fallback.test.ts"
       - "npm run typecheck"
       - "npm run verify"
-      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/local-versus-mode"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/browser-settings-controls"
   t021_verification:
     result: pass
     task: T021

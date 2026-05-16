@@ -498,6 +498,7 @@ export class MeowtalArenaScene extends Phaser.Scene {
       p1: this.selectedFighterProfile("p1"),
       p2: this.selectedFighterProfile("p2"),
     };
+    const browserSettings = this.browserSettingsTextState(selectedFighterDetails);
 
     return JSON.stringify({
       coordinateSystem: "origin top-left, x right, y down",
@@ -537,6 +538,7 @@ export class MeowtalArenaScene extends Phaser.Scene {
         ...this.trainingTextState(),
       },
       localVersus: this.localVersusTextState(selectedFighterDetails),
+      browserSettings,
       cpuDifficulty: this.cpuDifficulty,
       cpuOpponent: this.p2CpuEnabled ? selectedFighterDetails.p2 : null,
       runtimeRoster: this.runtimeRosterState(),
@@ -1783,6 +1785,65 @@ export class MeowtalArenaScene extends Phaser.Scene {
     };
   }
 
+  private browserSettingsTextState(selectedFighterDetails: { p1: SelectedFighterTextProfile; p2: SelectedFighterTextProfile }) {
+    const mode = selectedPlayMode(this.shell);
+    const cpuBackedMode = playModeUsesCpu(this.shell);
+    const p2Control = cpuBackedMode
+      ? this.p2CpuEnabled
+        ? `${this.cpuDifficulty.toUpperCase()} CPU`
+        : "manual P2"
+      : "manual P2";
+    const p2Controls = mode === "local-versus" ? "P2 arrows + Numpad 1/4/2/3" : "P2 manual arrows + Numpad, or CPU";
+
+    return {
+      visible: this.shell.phase === "paused",
+      surface: "browser-v1-options",
+      keyboardFirst: true,
+      orientation: GAME_CONFIG.contentSpine.platformPlan.browserV1.orientation,
+      persistence: "session-only",
+      keyRebinding: "not-in-browser-v1",
+      mode: {
+        id: mode,
+        label: shellModeLabel(this.shell),
+      },
+      p1: {
+        fighter: selectedFighterDetails.p1,
+        controls: "P1 WASD + J/I/K/L",
+      },
+      p2: {
+        fighter: selectedFighterDetails.p2,
+        control: p2Control,
+        controls: p2Controls,
+      },
+      cpu: {
+        difficulty: this.cpuDifficulty,
+        toggleAvailable: cpuBackedMode,
+        levelAvailable: cpuBackedMode,
+        summary: cpuBackedMode
+          ? `C toggles CPU/manual, V changes level, current ${p2Control}`
+          : "CPU locked off here; Local Versus keeps P2 manual",
+      },
+      actions: ["START / P / ESC resume", "R reset to ready", "F fullscreen", "No key rebinding in browser v1"],
+    };
+  }
+
+  private browserSettingsHelpText(selectedFighterDetails: { p1: SelectedFighterTextProfile; p2: SelectedFighterTextProfile }): string {
+    const settings = this.browserSettingsTextState(selectedFighterDetails);
+    const p2Controls = settings.mode.id === "local-versus" ? "P2 ARROWS + NUM 1/4/2/3" : "P2 ARROWS + NUM, OR CPU";
+    const cpuLine = settings.cpu.toggleAvailable
+      ? `CPU: ${settings.cpu.difficulty.toUpperCase()} / C TOGGLE / V LEVEL`
+      : "CPU: OFF / LOCAL VERSUS MANUAL P2";
+    return [
+      "BROWSER OPTIONS",
+      `MODE: ${settings.mode.label} / ${settings.p2.control.toUpperCase()}`,
+      settings.p1.controls,
+      p2Controls,
+      cpuLine,
+      "START / P / ESC RESUME  |  R RESET",
+      "F FULLSCREEN  |  NO KEY REBINDING IN V1",
+    ].join("\n");
+  }
+
   private trainingPresentationState() {
     const visible =
       selectedPlayMode(this.shell) === "training" &&
@@ -2514,8 +2575,13 @@ export class MeowtalArenaScene extends Phaser.Scene {
   }
 
   private renderShellText(): void {
+    const selectedFighterDetails = this.selectedFighterDetails();
     this.titleText.setText(shellTitle(this.shell, this.snapshot, this.matchSet));
-    this.helpText.setText(shellHelp(this.shell, this.selectionLabel(), this.selectedFighterDetails()));
+    this.helpText.setText(
+      this.shell.phase === "paused"
+        ? this.browserSettingsHelpText(selectedFighterDetails)
+        : shellHelp(this.shell, this.selectionLabel(), selectedFighterDetails),
+    );
     this.titleText.setVisible(true);
     this.versusText.setVisible(this.shell.phase === "select");
     this.helpText.setVisible(true);
@@ -2551,10 +2617,10 @@ export class MeowtalArenaScene extends Phaser.Scene {
     } else if (this.shell.phase === "paused") {
       this.titleText.setText("PAUSED");
       this.titleText.setPosition(512, 194);
-      this.titleText.setFontSize(34);
-      this.helpText.setPosition(512, 286);
-      this.helpText.setFontSize(15);
-      this.helpText.setLineSpacing(7);
+      this.titleText.setFontSize(31);
+      this.helpText.setPosition(512, 314);
+      this.helpText.setFontSize(13);
+      this.helpText.setLineSpacing(5);
       this.helpText.setAlpha(1);
     } else {
       this.titleText.setPosition(512, 182);
@@ -2769,7 +2835,10 @@ export class MeowtalArenaScene extends Phaser.Scene {
 
   private shellPresentationState(selectedFighterDetails: { p1: SelectedFighterTextProfile; p2: SelectedFighterTextProfile }) {
     const title = shellTitle(this.shell, this.snapshot, this.matchSet);
-    const help = shellHelp(this.shell, this.selectionLabel(), selectedFighterDetails);
+    const help =
+      this.shell.phase === "paused"
+        ? this.browserSettingsHelpText(selectedFighterDetails)
+        : shellHelp(this.shell, this.selectionLabel(), selectedFighterDetails);
     const mode = selectedPlayMode(this.shell);
     const modeContent = GAME_CONFIG.contentSpine.modes.find((candidate) => candidate.id === mode);
     const runtimeFighters = GAME_CONFIG.contentSpine.fighters.filter((fighter) => fighter.runtime.status === "active");
@@ -2800,10 +2869,12 @@ export class MeowtalArenaScene extends Phaser.Scene {
         p1: fighterShellCard(selectedFighterDetails.p1, "P1"),
         p2: fighterShellCard(selectedFighterDetails.p2, playModeUsesCpu(this.shell) ? "CPU" : "P2"),
       },
+      settings: this.browserSettingsTextState(selectedFighterDetails),
       actions: shellActionLines(this.shell),
       visibleCopy: {
         title,
         help,
+        settingsPanel: this.shell.phase === "paused" ? this.browserSettingsHelpText(selectedFighterDetails) : null,
         modePanel: this.shell.phase === "mode-select" ? modeSelectText(this.shell, this.cpuDifficulty) : null,
         selectFooter: this.shell.phase === "select" ? selectFooterLine(this.assetReadiness) : null,
       },
