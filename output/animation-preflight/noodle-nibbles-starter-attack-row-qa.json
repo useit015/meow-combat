@@ -1,0 +1,180 @@
+{
+  "id": "noodle-nibbles-starter-attack-row-qa",
+  "fighterId": "ferret-noodle",
+  "displayName": "Noodle Nibbles",
+  "animationIds": ["light-punch", "light-kick"],
+  "result": "accepted",
+  "runtimeExposure": "source-only / not playable",
+  "generatedWith": "built-in Codex imagegen",
+  "sourceContract": {
+    "cellSize": {
+      "width": 256,
+      "height": 256
+    },
+    "expectedDimensions": {
+      "light-punch": {
+        "width": 1536,
+        "height": 256,
+        "frameCount": 6
+      },
+      "light-kick": {
+        "width": 2048,
+        "height": 256,
+        "frameCount": 8
+      }
+    },
+    "baselines": [
+      "assets/source/imagegen/fighters/ferret-noodle/idle.png",
+      "assets/source/imagegen/fighters/ferret-noodle/walk-forward.png",
+      "assets/source/imagegen/fighters/ferret-noodle/walk-back.png",
+      "assets/source/imagegen/fighters/ferret-noodle/crouch.png",
+      "assets/source/imagegen/fighters/ferret-noodle/jump.png"
+    ],
+    "rowGenerationBriefs": {
+      "light-punch": "Noodle Nibbles light-punch row-generation pass: Fast paw poke from a side-switch stance with tiny reach and quick recovery.",
+      "light-kick": "Noodle Nibbles light-kick row-generation pass: Short ankle-nip kick with grounded hips and stable tail counterbalance."
+    },
+    "motionLanguage": {
+      "light-punch": "quick paw jab from guard, visible extension, no giant stretched arm",
+      "light-kick": "compact bent-knee ankle pop, no long straight-leg extension"
+    }
+  },
+  "assets": {
+    "light-punch": {
+      "candidate": {
+        "path": "assets/source/imagegen/fighters/ferret-noodle/candidates/light-punch-codex-01.png",
+        "sha256": "4dc5741cd4654b8c1687d8b7cb0cb8a48bf866b789f14025578006042f669644",
+        "dimensions": {
+          "width": 2172,
+          "height": 724,
+          "hasAlpha": false
+        }
+      },
+      "rawOutput": {
+        "path": "output/imagegen/ferret-noodle-light-punch.png",
+        "sha256": "7362b4c05fa9fcbee42df0014fa7b28a763726c6a643874e29b58c8906e04f1a",
+        "dimensions": {
+          "width": 2172,
+          "height": 724,
+          "hasAlpha": true
+        }
+      },
+      "normalized": {
+        "path": "output/imagegen/ferret-noodle-light-punch-normalized.png",
+        "sha256": "2f51c117f8f07b3f9cf7d9d90a575a9e8ad2659ab294906f584c5cca8ce13259",
+        "dimensions": {
+          "width": 1536,
+          "height": 256,
+          "hasAlpha": true
+        }
+      },
+      "acceptedSource": {
+        "path": "assets/source/imagegen/fighters/ferret-noodle/light-punch.png",
+        "sha256": "2f51c117f8f07b3f9cf7d9d90a575a9e8ad2659ab294906f584c5cca8ce13259",
+        "dimensions": {
+          "width": 1536,
+          "height": 256,
+          "hasAlpha": true
+        }
+      }
+    },
+    "light-kick": {
+      "rejectedCandidates": [
+        {
+          "path": "assets/source/imagegen/fighters/ferret-noodle/candidates/light-kick-codex-01.png",
+          "sha256": "304d23a82cbe60c2a0e398a415b88bdc4258ba194d502789b185ca6f614747b3",
+          "reason": "Rejected because the contact frames used a long straight-leg extension instead of a compact ankle-nip kick."
+        },
+        {
+          "path": "assets/source/imagegen/fighters/ferret-noodle/candidates/light-kick-codex-02.png",
+          "sha256": "f6c405ddd3e30d16f4214dfb3b479a13dd22ea011873f69a7d001cb7656fb002",
+          "reason": "Rejected because it still stretched the front leg too far beyond the torso length."
+        }
+      ],
+      "candidate": {
+        "path": "assets/source/imagegen/fighters/ferret-noodle/candidates/light-kick-codex-03.png",
+        "sha256": "2c00c6271e060deb81480053aec02eac22cf1fbc229deb914f57aeccfc2a64ed",
+        "dimensions": {
+          "width": 2172,
+          "height": 724,
+          "hasAlpha": false
+        }
+      },
+      "rawOutput": {
+        "path": "output/imagegen/ferret-noodle-light-kick.png",
+        "sha256": "87358386cfb8a67dae111bde967ca4023a3342a15272d219a3dcbcb91428a73b",
+        "dimensions": {
+          "width": 2172,
+          "height": 724,
+          "hasAlpha": true
+        }
+      },
+      "normalized": {
+        "path": "output/imagegen/ferret-noodle-light-kick-normalized.png",
+        "sha256": "24b43be6bb906f91dfc02dd4e9592cb517ac846798f97c8eed9d58b034c1824f",
+        "dimensions": {
+          "width": 2048,
+          "height": 256,
+          "hasAlpha": true
+        }
+      },
+      "acceptedSource": {
+        "path": "assets/source/imagegen/fighters/ferret-noodle/light-kick.png",
+        "sha256": "24b43be6bb906f91dfc02dd4e9592cb517ac846798f97c8eed9d58b034c1824f",
+        "dimensions": {
+          "width": 2048,
+          "height": 256,
+          "hasAlpha": true
+        }
+      }
+    }
+  },
+  "checks": [
+    {
+      "id": "frame-dimensions",
+      "result": "pass",
+      "evidence": "Light-punch is exact 1536x256 alpha and light-kick is exact 2048x256 alpha."
+    },
+    {
+      "id": "identity-lock",
+      "result": "pass",
+      "evidence": "Both rows preserve Noodle face, tapered muzzle, rounded ears, teal scarf, belt, sock props, long body, short legs, and ringed tail."
+    },
+    {
+      "id": "contact-pose-compactness",
+      "result": "pass",
+      "evidence": "Accepted light-punch reaches 222px wide at max contact; accepted light-kick stays within 125-153px width after rejecting two long-leg candidates."
+    },
+    {
+      "id": "alpha-cleanup",
+      "result": "pass",
+      "evidence": "Chroma-key backgrounds were removed before final source acceptance; accepted starter attack rows have 0 green-threshold edge pixels per frame with no visible key field."
+    },
+    {
+      "id": "source-only",
+      "result": "pass",
+      "evidence": "No public/assets/generated/fighters/ferret-noodle runtime folder was created."
+    }
+  ],
+  "frameBounds": {
+    "light-punch": [
+      { "frame": 1, "width": 132, "height": 224, "opaquePixels": 15285, "greenSpillPixels": 0 },
+      { "frame": 2, "width": 150, "height": 221, "opaquePixels": 15538, "greenSpillPixels": 0 },
+      { "frame": 3, "width": 187, "height": 215, "opaquePixels": 15616, "greenSpillPixels": 0 },
+      { "frame": 4, "width": 222, "height": 206, "opaquePixels": 15875, "greenSpillPixels": 0 },
+      { "frame": 5, "width": 133, "height": 216, "opaquePixels": 14775, "greenSpillPixels": 0 },
+      { "frame": 6, "width": 123, "height": 224, "opaquePixels": 14820, "greenSpillPixels": 0 }
+    ],
+    "light-kick": [
+      { "frame": 1, "width": 125, "height": 221, "opaquePixels": 14910, "greenSpillPixels": 0 },
+      { "frame": 2, "width": 129, "height": 218, "opaquePixels": 14882, "greenSpillPixels": 0 },
+      { "frame": 3, "width": 137, "height": 220, "opaquePixels": 13854, "greenSpillPixels": 0 },
+      { "frame": 4, "width": 153, "height": 216, "opaquePixels": 13708, "greenSpillPixels": 0 },
+      { "frame": 5, "width": 137, "height": 221, "opaquePixels": 14170, "greenSpillPixels": 0 },
+      { "frame": 6, "width": 129, "height": 223, "opaquePixels": 13833, "greenSpillPixels": 0 },
+      { "frame": 7, "width": 127, "height": 219, "opaquePixels": 14720, "greenSpillPixels": 0 },
+      { "frame": 8, "width": 127, "height": 224, "opaquePixels": 14963, "greenSpillPixels": 0 }
+    ]
+  },
+  "verdict": "Accepted as source-only Noodle starter attack rows. Do not use for runtime promotion until all required rows pass later QA and smoke."
+}

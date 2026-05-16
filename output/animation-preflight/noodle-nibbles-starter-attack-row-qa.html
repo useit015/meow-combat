@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Noodle Nibbles Starter Attack Row QA</title>
+<body>
+  <h1>Noodle Nibbles Starter Attack Row QA</h1>
+  <p>Result: accepted. Runtime exposure: source-only / not playable.</p>
+  <h2>Accepted Rows</h2>
+  <ul>
+    <li><strong>light-punch</strong>: accepted from <code>light-punch-codex-01.png</code>, normalized to <code>1536x256</code> alpha.</li>
+    <li><strong>light-kick</strong>: accepted from <code>light-kick-codex-03.png</code>, normalized to <code>2048x256</code> alpha.</li>
+  </ul>
+  <h2>Rejected Candidates</h2>
+  <ul>
+    <li><code>light-kick-codex-01.png</code>: long straight-leg extension.</li>
+    <li><code>light-kick-codex-02.png</code>: leg still stretched too far beyond torso length.</li>
+  </ul>
+  <h2>Checks</h2>
+  <ul>
+    <li>Exact frame dimensions: pass.</li>
+    <li>Identity lock against idle/locomotion/mobility baselines: pass.</li>
+    <li>Compact contact poses: pass.</li>
+    <li>Alpha cleanup: pass.</li>
+    <li>Source-only / no public runtime folder: pass.</li>
+  </ul>
+</body>
+</html>

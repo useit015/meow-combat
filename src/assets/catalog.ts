@@ -164,6 +164,8 @@ const generatedAnimationRows: Record<string, Partial<Record<FighterAnimationSpec
     "walk-back": "assets/source/imagegen/fighters/ferret-noodle/walk-back.png",
     crouch: "assets/source/imagegen/fighters/ferret-noodle/crouch.png",
     jump: "assets/source/imagegen/fighters/ferret-noodle/jump.png",
+    "light-punch": "assets/source/imagegen/fighters/ferret-noodle/light-punch.png",
+    "light-kick": "assets/source/imagegen/fighters/ferret-noodle/light-kick.png",
   },
 };
 
@@ -287,7 +289,7 @@ export const pawbreakerPlannedFighterAssetManifests: readonly FighterAssetManife
     designNotes: [
       "Pawbreaker planned roster fighter: cute upright ferret sock thief with long flexible body and readable trickster silhouettes.",
       "Keep the ferret identity locked through tapered muzzle, bright mischievous eyes, rounded ears, long torso, short legs, ringed tail, and sock-belt gag.",
-      "Source-only model sheet, idle scale row, locomotion rows, and mobility rows exist; do not promote to runtime or generate additional animation rows until separate QA tasks approve them.",
+      "Source-only model sheet, idle scale row, locomotion rows, mobility rows, and starter attack rows exist; do not promote to runtime or generate additional animation rows until separate QA tasks approve them.",
     ],
     asymmetryNotes: [
       "Sock props, mask markings, tail rings, and belt pouches may be side-specific; do not mirror rows until reviewed.",
