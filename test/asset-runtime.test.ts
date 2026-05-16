@@ -35,6 +35,7 @@ const codexUiCandidatePaths = [
 const rabbitManifest = manifestById("gray-rabbit");
 const catManifest = manifestById("ginger-tabby-cat");
 const picklesManifest = manifestById("pugilist-pug");
+const noodleManifest = manifestById("ferret-noodle");
 const uprightRuntimeStates = [
   "idle",
   "walkForward",
@@ -200,6 +201,27 @@ describe("asset runtime resolver", () => {
         frameHeight: 256,
       });
       expect(pngDimensions(`/assets/generated/fighters/pugilist-pug/${animation.id}.png`)).toEqual({
+        width: animation.frameCount * 256,
+        height: 256,
+      });
+    }
+  });
+
+  it("resolves every Noodle runtime spritesheet without fallback rows", () => {
+    for (const animation of noodleManifest.animations) {
+      const runtimeAsset = resolveFighterRuntimeAsset(renderAssetForAnimationId(noodleManifest, animation.id));
+
+      expect(runtimeAsset).toMatchObject({
+        kind: "sprite",
+        assetKey: `ferret-noodle:${animation.id}`,
+        fighterId: "ferret-noodle",
+        animationId: animation.id,
+        path: `/assets/generated/fighters/ferret-noodle/${animation.id}.png`,
+        frameCount: animation.frameCount,
+        frameWidth: 256,
+        frameHeight: 256,
+      });
+      expect(pngDimensions(`/assets/generated/fighters/ferret-noodle/${animation.id}.png`)).toEqual({
         width: animation.frameCount * 256,
         height: 256,
       });

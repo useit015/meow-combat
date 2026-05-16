@@ -21,6 +21,28 @@ const FIGHT_UI_SLOTS = [
   "super-meter",
   "timer-frame",
 ];
+const EXPECTED_RUNTIME_ROSTER_IDS = ["gray-rabbit", "ginger-tabby-cat", "pugilist-pug", "ferret-noodle"];
+const EXPECTED_RUNTIME_PLAYABLE_COUNT = EXPECTED_RUNTIME_ROSTER_IDS.length;
+const EXPECTED_PLANNED_LOCKED_COUNT = 4;
+const EXPECTED_ROSTER_TRUTH =
+  `${EXPECTED_RUNTIME_PLAYABLE_COUNT} playable runtime fighters; ` +
+  `${EXPECTED_PLANNED_LOCKED_COUNT} planned locked for model-sheet QA`;
+const NOODLE_RUNTIME_ROWS = [
+  "idle",
+  "walk-forward",
+  "walk-back",
+  "crouch",
+  "jump",
+  "light-punch",
+  "heavy-punch",
+  "light-kick",
+  "special",
+  "hitstun",
+  "blockstun",
+  "knockdown",
+  "win",
+  "lose",
+];
 
 function parseArgs(argv) {
   const args = {
@@ -382,12 +404,32 @@ function checkModeShellPresentation(state, scenario, expectedMode, expectedLabel
 function checkSelectShellPresentation(state, scenario, failures) {
   checkKeyboardShellPresentation(state, scenario, failures);
   const shell = state.shellPresentation;
-  assert(shell?.roster?.playableCount === 3, failures, `${scenario} should expose exactly three playable runtime fighters`);
-  assert(shell?.roster?.plannedLockedCount === 5, failures, `${scenario} should expose five planned locked fighters`);
+  assert(
+    shell?.roster?.playableCount === EXPECTED_RUNTIME_PLAYABLE_COUNT,
+    failures,
+    `${scenario} should expose exactly ${EXPECTED_RUNTIME_PLAYABLE_COUNT} playable runtime fighters`,
+  );
+  assert(
+    shell?.roster?.plannedLockedCount === EXPECTED_PLANNED_LOCKED_COUNT,
+    failures,
+    `${scenario} should expose ${EXPECTED_PLANNED_LOCKED_COUNT} planned locked fighters`,
+  );
   assert(shell?.roster?.plannedFightersPlayable === false, failures, `${scenario} should not claim planned fighters are playable`);
-  assert(shell?.roster?.truthLine?.includes("3 PLAYABLE NOW"), failures, `${scenario} roster truth should name playable count`);
-  assert(shell?.roster?.truthLine?.includes("5 PLANNED LOCKED"), failures, `${scenario} roster truth should name planned locked count`);
-  assert(!visibleShellCopy(state).includes("5 PLAYABLE"), failures, `${scenario} shell copy should not overclaim planned fighters`);
+  assert(
+    shell?.roster?.truthLine?.includes(`${EXPECTED_RUNTIME_PLAYABLE_COUNT} PLAYABLE NOW`),
+    failures,
+    `${scenario} roster truth should name playable count`,
+  );
+  assert(
+    shell?.roster?.truthLine?.includes(`${EXPECTED_PLANNED_LOCKED_COUNT} PLANNED LOCKED`),
+    failures,
+    `${scenario} roster truth should name planned locked count`,
+  );
+  assert(
+    !visibleShellCopy(state).includes(`${EXPECTED_RUNTIME_PLAYABLE_COUNT + EXPECTED_PLANNED_LOCKED_COUNT} PLAYABLE`),
+    failures,
+    `${scenario} shell copy should not overclaim planned fighters`,
+  );
 
   for (const player of ["p1", "p2"]) {
     const card = shell?.selectedFighters?.[player];
@@ -455,8 +497,7 @@ function checkChampionshipRewardInterstitial(state, scenario, expectedKind, expe
     `${scenario} progress should include ${expectedProgress}, got ${interstitial?.progressLine}`,
   );
   assert(
-    interstitial?.rosterTruth?.includes("3 playable runtime fighters") &&
-      interstitial?.rosterTruth?.includes("5 planned locked"),
+    interstitial?.rosterTruth === EXPECTED_ROSTER_TRUTH,
     failures,
     `${scenario} should keep roster truth in interstitial state`,
   );
@@ -878,7 +919,7 @@ async function runBrowserSettingsControlsDemo(browser, url, outDir) {
   return { name: "browser-settings-controls-demo", failures, errors, screenshots, state };
 }
 
-async function runThreeFighterRuntimePolish(browser, url, outDir) {
+async function runRuntimeRosterPromotion(browser, url, outDir) {
   const failures = [];
   const screenshots = [];
   const states = {};
@@ -910,6 +951,15 @@ async function runThreeFighterRuntimePolish(browser, url, outDir) {
       p1StaticSlot: null,
       p2StaticSlot: null,
     },
+    {
+      name: "noodle-pickles",
+      p1Index: 3,
+      p2Index: 2,
+      p1Id: "ferret-noodle",
+      p2Id: "pugilist-pug",
+      p1StaticSlot: null,
+      p2StaticSlot: null,
+    },
   ];
 
   for (const rosterCase of rosterCases) {
@@ -934,14 +984,15 @@ async function runThreeFighterRuntimePolish(browser, url, outDir) {
     for (let index = 0; index < rosterCase.p1Index; index += 1) {
       await pressKey(page, "KeyD");
     }
-    const p2Steps = (rosterCase.p2Index - 1 + 3) % 3;
+    const p2Steps =
+      (rosterCase.p2Index - 1 + EXPECTED_RUNTIME_PLAYABLE_COUNT) % EXPECTED_RUNTIME_PLAYABLE_COUNT;
     for (let index = 0; index < p2Steps; index += 1) {
       await pressKey(page, "ArrowRight");
     }
     state = await readState(page);
     states[`${rosterCase.name}-select`] = state;
-    screenshots.push(await screenshot(page, outDir, `three-fighter-${rosterCase.name}-select`));
-    checkThreeFighterRosterState(state, `${rosterCase.name} select`, failures);
+    screenshots.push(await screenshot(page, outDir, `runtime-roster-${rosterCase.name}-select`));
+    checkRuntimeRosterState(state, `${rosterCase.name} select`, failures);
     checkSelectShellPresentation(state, `${rosterCase.name} select`, failures);
     assert(
       state.selectedFighterDetails?.p1?.fighterId === rosterCase.p1Id,
@@ -958,7 +1009,7 @@ async function runThreeFighterRuntimePolish(browser, url, outDir) {
     await waitFrames(page, 54);
     state = await readState(page);
     states[`${rosterCase.name}-fight`] = state;
-    screenshots.push(await screenshot(page, outDir, `three-fighter-${rosterCase.name}-fight`));
+    screenshots.push(await screenshot(page, outDir, `runtime-roster-${rosterCase.name}-fight`));
     assert(state.shellPhase === "fighting", failures, `${rosterCase.name} expected fighting, got ${state.shellPhase}`);
     assert(state.playMode === "championship", failures, `${rosterCase.name} fight expected championship, got ${state.playMode}`);
     assert(state.p2Mode === "cpu", failures, `${rosterCase.name} fight expected CPU opponent, got ${state.p2Mode}`);
@@ -968,9 +1019,10 @@ async function runThreeFighterRuntimePolish(browser, url, outDir) {
       `${rosterCase.name} expected CPU opponent ${rosterCase.p2Id}, got ${state.cpuOpponent?.fighterId}`,
     );
     assert(
-      state.storyMode?.firstBeat?.includes("Pickles Pugilist"),
+      state.storyMode?.firstBeat?.includes("Pickles Pugilist") &&
+        state.storyMode?.firstBeat?.includes("Noodle Nibbles"),
       failures,
-      `${rosterCase.name} championship beat should include Pickles Pugilist`,
+      `${rosterCase.name} championship beat should include promoted runtime rivals`,
     );
     assert(
       state.storyMode?.selectedRivals?.map((fighter) => fighter.fighterId).join(",") ===
@@ -996,11 +1048,27 @@ async function runThreeFighterRuntimePolish(browser, url, outDir) {
     checkRuntimeUiLoaded(state, `${rosterCase.name} fight`, failures);
     checkHudPortrait(state, "p1", rosterCase.p1Id, rosterCase.p1StaticSlot, `${rosterCase.name} P1`, failures);
     checkHudPortrait(state, "p2", rosterCase.p2Id, rosterCase.p2StaticSlot, `${rosterCase.name} P2`, failures);
+    if (rosterCase.p1Id === "ferret-noodle" || rosterCase.p2Id === "ferret-noodle") {
+      const noodlePlayer = rosterCase.p1Id === "ferret-noodle" ? "p1" : "p2";
+      const noodleVisual = state.runtimeVisuals?.[noodlePlayer];
+      assert(noodleVisual?.kind === "sprite", failures, `${rosterCase.name} Noodle should render as a runtime sprite`);
+      assert(
+        noodleVisual?.assetKey?.startsWith("ferret-noodle:") === true,
+        failures,
+        `${rosterCase.name} Noodle sprite key should be ferret-noodle runtime, got ${noodleVisual?.assetKey}`,
+      );
+      assert(
+        noodleVisual?.path?.startsWith("/assets/generated/fighters/ferret-noodle/") === true,
+        failures,
+        `${rosterCase.name} Noodle sprite path should resolve from public runtime assets, got ${noodleVisual?.path}`,
+      );
+      await checkNoodleRuntimeRowsFetched(page, rosterCase.name, failures);
+    }
     assert(errors.length === 0, failures, `${rosterCase.name} console/page errors: ${JSON.stringify(errors)}`);
     await context.close();
   }
 
-  return { name: "three-fighter-runtime-polish", failures, errors: [], screenshots, states };
+  return { name: "four-fighter-runtime-promotion", failures, errors: [], screenshots, states };
 }
 
 async function runChampionshipLadderProgression(browser, url, outDir) {
@@ -1032,7 +1100,11 @@ async function runChampionshipLadderProgression(browser, url, outDir) {
       failures,
       `advance demo expected Pickles next, got ${state.storyMode?.ladder?.currentOpponent?.fighterId}`,
     );
-    assert(state.storyMode?.ladder?.totalOpponents === 2, failures, "advance demo should expose two-opponent ladder");
+    assert(
+      state.storyMode?.ladder?.totalOpponents === EXPECTED_RUNTIME_PLAYABLE_COUNT - 1,
+      failures,
+      `advance demo should expose ${EXPECTED_RUNTIME_PLAYABLE_COUNT - 1}-opponent ladder`,
+    );
     assert(
       state.storyMode?.presentation?.headline === "ADVANCE TO NEXT RIVAL",
       failures,
@@ -1043,7 +1115,7 @@ async function runChampionshipLadderProgression(browser, url, outDir) {
       failures,
       "advance demo should name Pickles in presentation copy",
     );
-    checkChampionshipRewardInterstitial(state, "advance demo", "advance", "checkpoint", "1/2", failures);
+    checkChampionshipRewardInterstitial(state, "advance demo", "advance", "checkpoint", "1/3", failures);
     assert(
       state.storyMode?.presentation?.reward?.claimLine?.includes("couch rights still pending"),
       failures,
@@ -1088,9 +1160,9 @@ async function runChampionshipLadderProgression(browser, url, outDir) {
       "ladder advance should preserve completed opponent after next fight starts",
     );
     assert(
-      state.storyMode?.presentation?.headline === "SNACKBELT LADDER 2/2",
+      state.storyMode?.presentation?.headline === "SNACKBELT LADDER 2/3",
       failures,
-      `ladder advance expected 2/2 headline, got ${state.storyMode?.presentation?.headline}`,
+      `ladder advance expected 2/3 headline, got ${state.storyMode?.presentation?.headline}`,
     );
     assert(
       state.storyMode?.presentation?.currentRival?.fighterId === "pugilist-pug",
@@ -1102,7 +1174,7 @@ async function runChampionshipLadderProgression(browser, url, outDir) {
       failures,
       "ladder advance should surface Pickles story hook",
     );
-    checkChampionshipRewardInterstitial(state, "ladder advance next fight", "rival-preview", "up-for-grabs", "1/2", failures);
+    checkChampionshipRewardInterstitial(state, "ladder advance next fight", "rival-preview", "up-for-grabs", "1/3", failures);
     assert(
       state.assetReadiness?.runtimeFallbacks?.fighterAnimations === 0,
       failures,
@@ -1133,9 +1205,9 @@ async function runChampionshipLadderProgression(browser, url, outDir) {
     );
     assert(
       state.storyMode?.ladder?.completedOpponents?.map((fighter) => fighter.fighterId).join(",") ===
-        "ginger-tabby-cat,pugilist-pug",
+        "ginger-tabby-cat,pugilist-pug,ferret-noodle",
       failures,
-      "clear demo should record both defeated runtime opponents",
+      "clear demo should record all defeated runtime opponents",
     );
     assert(
       state.storyMode?.ladder?.remainingOpponents?.length === 0,
@@ -1152,7 +1224,7 @@ async function runChampionshipLadderProgression(browser, url, outDir) {
       failures,
       `clear demo expected restart CTA, got ${state.storyMode?.presentation?.callToAction}`,
     );
-    checkChampionshipRewardInterstitial(state, "ladder clear", "cleared", "claimed", "2/2", failures);
+    checkChampionshipRewardInterstitial(state, "ladder clear", "cleared", "claimed", "3/3", failures);
     assert(
       state.storyMode?.presentation?.reward?.claimLine?.includes("good couch naming rights"),
       failures,
@@ -1195,7 +1267,7 @@ async function runChampionshipLadderProgression(browser, url, outDir) {
       failures,
       "fail demo should name the rival that stopped the run",
     );
-    checkChampionshipRewardInterstitial(state, "ladder fail", "failed", "lost", "0/2", failures);
+    checkChampionshipRewardInterstitial(state, "ladder fail", "failed", "lost", "0/3", failures);
     assert(
       state.storyMode?.presentation?.reward?.claimLine?.includes("rematch"),
       failures,
@@ -1208,14 +1280,14 @@ async function runChampionshipLadderProgression(browser, url, outDir) {
   return { name: "championship-ladder", failures, errors: [], screenshots, states };
 }
 
-function checkThreeFighterRosterState(state, scenario, failures) {
+function checkRuntimeRosterState(state, scenario, failures) {
   const rosterIds = Array.isArray(state.runtimeRoster)
     ? state.runtimeRoster.map((fighter) => fighter.fighterId)
     : [];
   assert(
-    rosterIds.join(",") === "gray-rabbit,ginger-tabby-cat,pugilist-pug",
+    rosterIds.join(",") === EXPECTED_RUNTIME_ROSTER_IDS.join(","),
     failures,
-    `${scenario} expected three-fighter runtime roster, got ${rosterIds.join(",")}`,
+    `${scenario} expected runtime roster ${EXPECTED_RUNTIME_ROSTER_IDS.join(",")}, got ${rosterIds.join(",")}`,
   );
   for (const player of ["p1", "p2"]) {
     assert(
@@ -1260,6 +1332,35 @@ function checkHudPortrait(state, player, fighterId, staticSlot, scenario, failur
     assert(!visibleSlots.includes("rabbit-portrait"), failures, `${scenario} should not expose rabbit portrait slot`);
     assert(!visibleSlots.includes("cat-portrait"), failures, `${scenario} should not expose cat portrait slot`);
   }
+}
+
+async function checkNoodleRuntimeRowsFetched(page, scenario, failures) {
+  const rows = await page.evaluate(async (rowIds) => {
+    return Promise.all(
+      rowIds.map(async (rowId) => {
+        const path = `/assets/generated/fighters/ferret-noodle/${rowId}.png`;
+        try {
+          const response = await fetch(path, { cache: "no-store" });
+          const bytes = response.ok ? (await response.arrayBuffer()).byteLength : 0;
+          return {
+            rowId,
+            path,
+            ok: response.ok,
+            status: response.status,
+            contentType: response.headers.get("content-type") ?? "",
+            bytes,
+          };
+        } catch (error) {
+          return { rowId, path, ok: false, status: 0, contentType: "", bytes: 0, error: String(error) };
+        }
+      }),
+    );
+  }, NOODLE_RUNTIME_ROWS);
+
+  const missing = rows.filter((row) => row.ok !== true || row.bytes <= 0);
+  assert(missing.length === 0, failures, `${scenario} missing Noodle runtime rows: ${JSON.stringify(missing)}`);
+  const nonPng = rows.filter((row) => !row.contentType.includes("image/png"));
+  assert(nonPng.length === 0, failures, `${scenario} Noodle rows should be served as PNG: ${JSON.stringify(nonPng)}`);
 }
 
 async function runGamepad(browser, url, outDir) {
@@ -1609,7 +1710,7 @@ async function main() {
     results.push(await runTrainingDemo(browser, args.url, args.outDir));
     results.push(await runLocalVersusDemo(browser, args.url, args.outDir));
     results.push(await runBrowserSettingsControlsDemo(browser, args.url, args.outDir));
-    results.push(await runThreeFighterRuntimePolish(browser, args.url, args.outDir));
+    results.push(await runRuntimeRosterPromotion(browser, args.url, args.outDir));
     results.push(await runChampionshipLadderProgression(browser, args.url, args.outDir));
     results.push(await runGamepad(browser, args.url, args.outDir));
     results.push(await runRollDemo(browser, args.url, args.outDir));

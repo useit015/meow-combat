@@ -46,6 +46,7 @@ describe("imagegen jobs", () => {
     const blockedJobs = jobs.filter((job) => job.status === "blocked");
 
     expect(generatedJobs.map((job) => job.id).sort()).toEqual([
+      "ferret-noodle:canonical-reference",
       "ginger-tabby-cat:canonical-reference",
       "gray-rabbit:canonical-reference",
       "pugilist-pug:canonical-reference",
@@ -95,7 +96,6 @@ describe("imagegen jobs", () => {
     const jobs = buildSourceOnlyFighterImagegenJobs(pawbreakerPlannedFighterAssetManifests);
 
     expect(jobs.map((job) => job.id)).toEqual([
-      "ferret-noodle:canonical-reference",
       "tortoise-tofu:canonical-reference",
       "budgie-beanie:canonical-reference",
       "hamster-mochi:canonical-reference",

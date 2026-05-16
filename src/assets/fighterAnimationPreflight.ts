@@ -227,20 +227,20 @@ export const NOODLE_ANIMATION_PREFLIGHT: FighterAnimationPreflight = {
   id: "noodle-nibbles-animation-preflight",
   fighterId: "ferret-noodle",
   displayName: "Noodle Nibbles",
-  sourceOnly: true,
-  playable: false,
-  status: "source-only-preflight",
-  runtimeExposure: "not playable",
+  sourceOnly: false,
+  playable: true,
+  status: "runtime-promoted",
+  runtimeExposure: "playable",
   fullOutcome: "incomplete",
   canonicalReferencePath: noodleManifest.canonicalReference.outputPath ?? "",
-  publicRuntimePath: null,
+  publicRuntimePath: "/assets/generated/fighters/ferret-noodle",
   rowGenerationStrategy: [
-    "Use the approved source-only Noodle Nibbles canonical model sheet as the only identity source before any row-generation pass.",
-    "Start actual imagegen with idle only after a Judge approves it as the scale/reference row; row groups and runtime promotion remain blocked.",
+    "Use the approved Noodle Nibbles canonical model sheet as the only identity source before any row-generation pass.",
+    "Promote only the approved source rows that passed source-set audit; no runtime row may be generated, resized, normalized, or repainted during promotion.",
     "Keep Noodle upright, ferret-faced, long-bodied, short-legged, mischievous, and readable as a side-switch mix-up fighter in every normal gameplay row.",
-    "Every future row must keep exact 256x256 cells, transparent frames, stable alpha bounds, and no-size-drift evidence against the accepted idle/reference row.",
-    "Keep rejected candidates and QA notes source-only; do not create public/assets/generated/fighters/ferret-noodle until every required row passes and a separate promotion task approves it.",
-    "Runtime promotion requires byte-identical source/runtime rows, source provenance, browser smoke, and explicit roster/select/championship updates in a later task.",
+    "Every promoted row must keep exact 256x256 cells, transparent frames, stable alpha bounds, and no-size-drift evidence against the accepted idle/reference row.",
+    "Keep rejected candidates and QA notes source-only; only the approved rows are promoted into public/assets/generated/fighters/ferret-noodle.",
+    "Runtime promotion requires byte-identical source/runtime rows, source provenance, browser smoke, and explicit roster/select/championship updates.",
   ],
   requiredRows: REQUIRED_FIGHTER_ANIMATIONS.map((animationId) => rowPreflight(animationId, noodleManifest, noodleRowProfile)),
   noDriftQaGates: [
@@ -248,7 +248,7 @@ export const NOODLE_ANIMATION_PREFLIGHT: FighterAnimationPreflight = {
       id: "scale-bounds",
       label: "Scale and silhouette no-size-drift",
       requiredEvidence: [
-        "The first accepted idle row becomes the future Noodle scale reference before any locomotion, attack, reaction, or K.O. row.",
+        "The accepted idle row remains the Noodle scale reference for locomotion, attack, reaction, and K.O. rows.",
         "Head height, long torso length, shoulder width, sock-belt scale, short-leg length, and ringed-tail size remain stable across frames and rows.",
       ],
       failIf: [
@@ -296,11 +296,11 @@ export const NOODLE_ANIMATION_PREFLIGHT: FighterAnimationPreflight = {
       id: "provenance",
       label: "Source and runtime provenance",
       requiredEvidence: [
-        "Source prompt, canonical-reference path, candidate path, QA decision, accepted source path, and future runtime path are recorded before promotion.",
+        "Source prompt, canonical-reference path, candidate path, QA decision, accepted source path, and runtime path are recorded before promotion.",
         "Manifest entries are approved only after generation and QA receipts explicitly promote each row.",
       ],
       failIf: [
-        "A row lacks a source record, reviewer decision, or future runtime destination.",
+        "A row lacks a source record, reviewer decision, or runtime destination.",
         "Noodle public/runtime rows differ from accepted source rows or fall back to procedural rendering.",
       ],
     },
@@ -309,12 +309,12 @@ export const NOODLE_ANIMATION_PREFLIGHT: FighterAnimationPreflight = {
     {
       id: "preflight-unit",
       command: "npm test -- test/fighter-animation-preflight.test.ts",
-      proves: "The Noodle preflight covers every required row and keeps the fighter source-only.",
+      proves: "The Noodle runtime promotion covers every required row and marks the fighter playable.",
     },
     {
-      id: "source-only-public-block",
-      command: "test ! -e public/assets/generated/fighters/ferret-noodle",
-      proves: "Noodle Nibbles has no public/runtime fighter folder during preflight and row production.",
+      id: "public-path-promoted",
+      command: "test -d public/assets/generated/fighters/ferret-noodle",
+      proves: "The promoted public/runtime ferret-noodle folder exists.",
     },
     {
       id: "future-smoke",
@@ -326,12 +326,12 @@ export const NOODLE_ANIMATION_PREFLIGHT: FighterAnimationPreflight = {
   browserSmokeRequirements: [
     {
       id: "current-roster-unchanged",
-      expectedEvidence: "During preflight and source-only row production, Noodle Nibbles remains absent from the selectable runtime roster.",
+      expectedEvidence: "After promotion, smoke selectedFighters can include Noodle Nibbles from the runtime roster.",
     },
     {
       id: "promotion-roster-explicit",
       expectedEvidence:
-        "Only a later promotion smoke may show ferret-noodle runtime spritesheets for every required animation row.",
+        "Smoke must show an explicit ferret-noodle runtime spritesheet for every required animation row.",
     },
     {
       id: "no-fallback-rows",

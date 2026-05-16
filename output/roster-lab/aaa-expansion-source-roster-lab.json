@@ -2,75 +2,299 @@
   "title": "Pawbreaker League Source Roster Lab",
   "purpose": "Source-only roster review surface for comparing identity locks, missing model sheets, and no-slop criteria before any planned fighter becomes public, selectable, or playable.",
   "rosterDirection": "8-fighter",
-  "summary": {
-    "totalFighters": 8,
-    "playableRuntimeFighters": 3,
-    "sourceOnlyIdentityLocks": 2,
-    "missingIdentityLocks": 3,
-    "fullOutcome": "incomplete"
-  },
   "runtimeRoster": [
     {
       "id": "gray-rabbit",
       "displayName": "Bunjamin Thump",
+      "species": "gray rabbit",
+      "archetype": "fast footwork trickster",
+      "moveLanguage": "spring-loaded hops, heel taps, ear feints, and dust-ring evasions",
       "runtimeExposure": "playable",
-      "reviewStatus": "playable-runtime"
+      "reviewStatus": "playable-runtime",
+      "playable": true,
+      "sourceOnly": false,
+      "engineFighterId": "gray-rabbit",
+      "canonicalSheetPath": "assets/source/imagegen/fighters/gray-rabbit/canonical-character-sheet.png",
+      "publicRuntimePath": "/assets/generated/fighters/gray-rabbit",
+      "notes": [
+        "Playable runtime fighter; already outside the planned source-only queue."
+      ]
     },
     {
       "id": "ginger-tabby-cat",
       "displayName": "Marmalade Mayhem",
+      "species": "ginger tabby cat",
+      "archetype": "rushdown swat boxer",
+      "moveLanguage": "paw flurries, tail whips, shoulder bumps, and sunbeam-powered bursts",
       "runtimeExposure": "playable",
-      "reviewStatus": "playable-runtime"
+      "reviewStatus": "playable-runtime",
+      "playable": true,
+      "sourceOnly": false,
+      "engineFighterId": "ginger-tabby-cat",
+      "canonicalSheetPath": "assets/source/imagegen/fighters/ginger-tabby-cat/canonical-character-sheet.png",
+      "publicRuntimePath": "/assets/generated/fighters/ginger-tabby-cat",
+      "notes": [
+        "Playable runtime fighter; already outside the planned source-only queue."
+      ]
     },
     {
       "id": "pugilist-pug",
       "displayName": "Pickles Pugilist",
+      "species": "pug",
+      "archetype": "stubby pressure boxer",
+      "moveLanguage": "short hooks, belly checks, stubborn armor, and wheezy fake-outs",
       "runtimeExposure": "playable",
-      "reviewStatus": "playable-runtime"
+      "reviewStatus": "playable-runtime",
+      "playable": true,
+      "sourceOnly": false,
+      "engineFighterId": "pugilist-pug",
+      "canonicalSheetPath": "assets/source/imagegen/fighters/pugilist-pug/canonical-character-sheet.png",
+      "publicRuntimePath": "/assets/generated/fighters/pugilist-pug",
+      "notes": [
+        "Playable runtime fighter; already outside the planned source-only queue."
+      ]
+    },
+    {
+      "id": "ferret-noodle",
+      "displayName": "Noodle Nibbles",
+      "species": "ferret",
+      "archetype": "mix-up and side-switch specialist",
+      "moveLanguage": "slides, tunnel rolls, ankle nips, and sudden behind-you reversals",
+      "runtimeExposure": "playable",
+      "reviewStatus": "playable-runtime",
+      "playable": true,
+      "sourceOnly": false,
+      "engineFighterId": "ferret-noodle",
+      "canonicalSheetPath": "assets/source/imagegen/fighters/ferret-noodle/canonical-character-sheet.png",
+      "publicRuntimePath": "/assets/generated/fighters/ferret-noodle",
+      "notes": [
+        "Playable runtime fighter; already outside the planned source-only queue."
+      ]
     }
   ],
   "sourceOnlyIdentityLocks": [
     {
-      "id": "ferret-noodle",
-      "displayName": "Noodle Nibbles",
-      "runtimeExposure": "not playable",
-      "reviewStatus": "source-only identity lock",
-      "canonicalSheetPath": "assets/source/imagegen/fighters/ferret-noodle/canonical-character-sheet.png",
-      "publicRuntimePath": null
-    },
-    {
       "id": "tortoise-tofu",
       "displayName": "Tofu Tortoise",
+      "species": "tortoise",
+      "archetype": "armored grappler",
+      "moveLanguage": "shell braces, slow command grabs, ground bumps, and patient counter-hits",
       "runtimeExposure": "not playable",
       "reviewStatus": "source-only identity lock",
+      "playable": false,
+      "sourceOnly": true,
+      "engineFighterId": null,
       "canonicalSheetPath": "assets/source/imagegen/fighters/tortoise-tofu/canonical-character-sheet.png",
-      "publicRuntimePath": null
-    }
-  ],
-  "missingIdentityLocks": [
+      "publicRuntimePath": null,
+      "notes": [
+        "source-only model sheet exists",
+        "not playable",
+        "no public/runtime asset path"
+      ]
+    },
     {
       "id": "budgie-beanie",
       "displayName": "Beanie Beak",
+      "species": "blue budgie",
+      "archetype": "aerial poke zoner",
+      "moveLanguage": "wing flicks, perch hops, feather darts, and rhythm-based dive kicks",
       "runtimeExposure": "not playable",
-      "reviewStatus": "missing identity lock",
-      "canonicalSheetPath": null,
-      "publicRuntimePath": null
+      "reviewStatus": "source-only identity lock",
+      "playable": false,
+      "sourceOnly": true,
+      "engineFighterId": null,
+      "canonicalSheetPath": "assets/source/imagegen/fighters/budgie-beanie/canonical-character-sheet.png",
+      "publicRuntimePath": null,
+      "notes": [
+        "source-only model sheet exists",
+        "not playable",
+        "no public/runtime asset path"
+      ]
     },
     {
       "id": "hamster-mochi",
       "displayName": "Mochi Munch",
+      "species": "hamster",
+      "archetype": "tiny burst grappler",
+      "moveLanguage": "cheek-puff charges, rolling tackles, crumb traps, and surprise throws",
       "runtimeExposure": "not playable",
-      "reviewStatus": "missing identity lock",
-      "canonicalSheetPath": null,
-      "publicRuntimePath": null
+      "reviewStatus": "source-only identity lock",
+      "playable": false,
+      "sourceOnly": true,
+      "engineFighterId": null,
+      "canonicalSheetPath": "assets/source/imagegen/fighters/hamster-mochi/canonical-character-sheet.png",
+      "publicRuntimePath": null,
+      "notes": [
+        "source-only model sheet exists",
+        "not playable",
+        "no public/runtime asset path"
+      ]
     },
     {
       "id": "hedgehog-quillabelle",
       "displayName": "Quillabelle Prickles",
+      "species": "hedgehog",
+      "archetype": "counter-poke defender",
+      "moveLanguage": "quill parries, short lunges, prickly guard traps, and spinning retreats",
       "runtimeExposure": "not playable",
-      "reviewStatus": "missing identity lock",
-      "canonicalSheetPath": null,
-      "publicRuntimePath": null
+      "reviewStatus": "source-only identity lock",
+      "playable": false,
+      "sourceOnly": true,
+      "engineFighterId": null,
+      "canonicalSheetPath": "assets/source/imagegen/fighters/hedgehog-quillabelle/canonical-character-sheet.png",
+      "publicRuntimePath": null,
+      "notes": [
+        "source-only model sheet exists",
+        "not playable",
+        "no public/runtime asset path"
+      ]
+    }
+  ],
+  "missingIdentityLocks": [],
+  "fighters": [
+    {
+      "id": "gray-rabbit",
+      "displayName": "Bunjamin Thump",
+      "species": "gray rabbit",
+      "archetype": "fast footwork trickster",
+      "moveLanguage": "spring-loaded hops, heel taps, ear feints, and dust-ring evasions",
+      "runtimeExposure": "playable",
+      "reviewStatus": "playable-runtime",
+      "playable": true,
+      "sourceOnly": false,
+      "engineFighterId": "gray-rabbit",
+      "canonicalSheetPath": "assets/source/imagegen/fighters/gray-rabbit/canonical-character-sheet.png",
+      "publicRuntimePath": "/assets/generated/fighters/gray-rabbit",
+      "notes": [
+        "Playable runtime fighter; already outside the planned source-only queue."
+      ]
+    },
+    {
+      "id": "ginger-tabby-cat",
+      "displayName": "Marmalade Mayhem",
+      "species": "ginger tabby cat",
+      "archetype": "rushdown swat boxer",
+      "moveLanguage": "paw flurries, tail whips, shoulder bumps, and sunbeam-powered bursts",
+      "runtimeExposure": "playable",
+      "reviewStatus": "playable-runtime",
+      "playable": true,
+      "sourceOnly": false,
+      "engineFighterId": "ginger-tabby-cat",
+      "canonicalSheetPath": "assets/source/imagegen/fighters/ginger-tabby-cat/canonical-character-sheet.png",
+      "publicRuntimePath": "/assets/generated/fighters/ginger-tabby-cat",
+      "notes": [
+        "Playable runtime fighter; already outside the planned source-only queue."
+      ]
+    },
+    {
+      "id": "pugilist-pug",
+      "displayName": "Pickles Pugilist",
+      "species": "pug",
+      "archetype": "stubby pressure boxer",
+      "moveLanguage": "short hooks, belly checks, stubborn armor, and wheezy fake-outs",
+      "runtimeExposure": "playable",
+      "reviewStatus": "playable-runtime",
+      "playable": true,
+      "sourceOnly": false,
+      "engineFighterId": "pugilist-pug",
+      "canonicalSheetPath": "assets/source/imagegen/fighters/pugilist-pug/canonical-character-sheet.png",
+      "publicRuntimePath": "/assets/generated/fighters/pugilist-pug",
+      "notes": [
+        "Playable runtime fighter; already outside the planned source-only queue."
+      ]
+    },
+    {
+      "id": "ferret-noodle",
+      "displayName": "Noodle Nibbles",
+      "species": "ferret",
+      "archetype": "mix-up and side-switch specialist",
+      "moveLanguage": "slides, tunnel rolls, ankle nips, and sudden behind-you reversals",
+      "runtimeExposure": "playable",
+      "reviewStatus": "playable-runtime",
+      "playable": true,
+      "sourceOnly": false,
+      "engineFighterId": "ferret-noodle",
+      "canonicalSheetPath": "assets/source/imagegen/fighters/ferret-noodle/canonical-character-sheet.png",
+      "publicRuntimePath": "/assets/generated/fighters/ferret-noodle",
+      "notes": [
+        "Playable runtime fighter; already outside the planned source-only queue."
+      ]
+    },
+    {
+      "id": "tortoise-tofu",
+      "displayName": "Tofu Tortoise",
+      "species": "tortoise",
+      "archetype": "armored grappler",
+      "moveLanguage": "shell braces, slow command grabs, ground bumps, and patient counter-hits",
+      "runtimeExposure": "not playable",
+      "reviewStatus": "source-only identity lock",
+      "playable": false,
+      "sourceOnly": true,
+      "engineFighterId": null,
+      "canonicalSheetPath": "assets/source/imagegen/fighters/tortoise-tofu/canonical-character-sheet.png",
+      "publicRuntimePath": null,
+      "notes": [
+        "source-only model sheet exists",
+        "not playable",
+        "no public/runtime asset path"
+      ]
+    },
+    {
+      "id": "budgie-beanie",
+      "displayName": "Beanie Beak",
+      "species": "blue budgie",
+      "archetype": "aerial poke zoner",
+      "moveLanguage": "wing flicks, perch hops, feather darts, and rhythm-based dive kicks",
+      "runtimeExposure": "not playable",
+      "reviewStatus": "source-only identity lock",
+      "playable": false,
+      "sourceOnly": true,
+      "engineFighterId": null,
+      "canonicalSheetPath": "assets/source/imagegen/fighters/budgie-beanie/canonical-character-sheet.png",
+      "publicRuntimePath": null,
+      "notes": [
+        "source-only model sheet exists",
+        "not playable",
+        "no public/runtime asset path"
+      ]
+    },
+    {
+      "id": "hamster-mochi",
+      "displayName": "Mochi Munch",
+      "species": "hamster",
+      "archetype": "tiny burst grappler",
+      "moveLanguage": "cheek-puff charges, rolling tackles, crumb traps, and surprise throws",
+      "runtimeExposure": "not playable",
+      "reviewStatus": "source-only identity lock",
+      "playable": false,
+      "sourceOnly": true,
+      "engineFighterId": null,
+      "canonicalSheetPath": "assets/source/imagegen/fighters/hamster-mochi/canonical-character-sheet.png",
+      "publicRuntimePath": null,
+      "notes": [
+        "source-only model sheet exists",
+        "not playable",
+        "no public/runtime asset path"
+      ]
+    },
+    {
+      "id": "hedgehog-quillabelle",
+      "displayName": "Quillabelle Prickles",
+      "species": "hedgehog",
+      "archetype": "counter-poke defender",
+      "moveLanguage": "quill parries, short lunges, prickly guard traps, and spinning retreats",
+      "runtimeExposure": "not playable",
+      "reviewStatus": "source-only identity lock",
+      "playable": false,
+      "sourceOnly": true,
+      "engineFighterId": null,
+      "canonicalSheetPath": "assets/source/imagegen/fighters/hedgehog-quillabelle/canonical-character-sheet.png",
+      "publicRuntimePath": null,
+      "notes": [
+        "source-only model sheet exists",
+        "not playable",
+        "no public/runtime asset path"
+      ]
     }
   ],
   "reviewCriteria": [
@@ -81,5 +305,12 @@
     "proportion consistency between views and future frame rows",
     "reject copied marks, copied costume language, or reference-game symbols",
     "reject text, logos, or watermarks in source model sheets"
-  ]
+  ],
+  "summary": {
+    "totalFighters": 8,
+    "playableRuntimeFighters": 4,
+    "sourceOnlyIdentityLocks": 4,
+    "missingIdentityLocks": 0,
+    "fullOutcome": "incomplete"
+  }
 }

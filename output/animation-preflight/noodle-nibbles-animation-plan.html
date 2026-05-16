@@ -18,10 +18,10 @@
 <body>
 <main>
   <h1>Noodle Nibbles Animation Preflight</h1>
-  <p>This is the source-only production preflight for ferret-noodle. It keeps row-generation blocked behind no-size-drift gates and does not expose the fighter as playable.</p>
+  <p>This is the runtime promotion record for ferret-noodle. It keeps no-drift row provenance while exposing approved spritesheets as playable runtime assets.</p>
   <div>
-    <span class="pill">Status: source-only-preflight</span>
-    <span class="pill">Runtime exposure: not playable</span>
+    <span class="pill">Status: runtime-promoted</span>
+    <span class="pill">Runtime exposure: playable</span>
     <span class="pill">Full AAA outcome: incomplete</span>
   </div>
   <h2>Required Rows</h2>
@@ -147,7 +147,7 @@
 <li><strong>Transparent sprite bounds</strong>: A frame is cropped, clipped, floating outside its 256x256 cell, or has baked effects that belong in the game effects layer. The row needs hand-waved cleanup before it can pass tests.</li>
 <li><strong>Noodle identity lock</strong>: The face, muzzle, eyes, ears, torso length, tail rings, sock props, or palette mutate between frames. The row borrows recognizable costume, move, logo, title, or UI language from a reference fighting game.</li>
 <li><strong>Frame dimensions and row structure</strong>: Any row uses inconsistent dimensions, missing frames, variable cell sizes, or an unreviewed frame order. The motion reads as glitchy, jittery, resized, or mechanically unnatural when scrubbed frame by frame.</li>
-<li><strong>Source and runtime provenance</strong>: A row lacks a source record, reviewer decision, or future runtime destination. Noodle public/runtime rows differ from accepted source rows or fall back to procedural rendering.</li></ul>
+<li><strong>Source and runtime provenance</strong>: A row lacks a source record, reviewer decision, or runtime destination. Noodle public/runtime rows differ from accepted source rows or fall back to procedural rendering.</li></ul>
 </main>
 </body>
 </html>

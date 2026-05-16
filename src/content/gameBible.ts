@@ -71,7 +71,7 @@ export const petFighterGameBible: PetFighterGameBible = {
   pitch:
     "An original brutal-funny pet fighting championship where cute household heroes treat neighborhood drama like a world title fight.",
   tone: "Funny, theatrical, and crunchy, with stylized comic impact instead of realistic shock violence.",
-  runtimeFighterIds: ["gray-rabbit", "ginger-tabby-cat", "pugilist-pug"],
+  runtimeFighterIds: ["gray-rabbit", "ginger-tabby-cat", "pugilist-pug", "ferret-noodle"],
   platformPlan: {
     browserV1: {
       controls: "keyboard-first",
@@ -106,7 +106,7 @@ export const petFighterGameBible: PetFighterGameBible = {
     premise:
       "In normal 2026, a citywide pet wellness fair accidentally becomes a televised prize fight after every animal discovers the winner gets a lifetime treat dispenser and naming rights to the good couch.",
     firstStoryBeat:
-      "In 2026, Bunjamin Thump, Marmalade Mayhem, and Pickles Pugilist crash the opening weigh-in after a delivery drone drops the championship treat belt into the courtyard and every pet declares legal ownership by licking it first.",
+      "In 2026, Bunjamin Thump, Marmalade Mayhem, Pickles Pugilist, and Noodle Nibbles crash the opening weigh-in after a delivery drone drops the championship treat belt into the courtyard and every pet declares legal ownership by licking it first.",
   },
   fighters: [
     {
@@ -163,7 +163,7 @@ export const petFighterGameBible: PetFighterGameBible = {
       storyHook: "Needs the prize money to buy every sock in the neighborhood and hide them responsibly.",
       arenaTieIn: "Props and foreground clutter should emphasize sneaky entrances and exits.",
       trainingTip: "Use side switches to make guard direction and spacing feel unstable.",
-      runtime: { status: "planned", engineFighterId: null },
+      runtime: { status: "active", engineFighterId: "ferret-noodle" },
     },
     {
       id: "tortoise-tofu",
@@ -239,13 +239,13 @@ export const petFighterGameBible: PetFighterGameBible = {
       id: "championship",
       label: "Snackbelt Championship",
       status: "implemented",
-      purpose: "Three-fighter story ladder with funny rival beats and controlled roster progression.",
+      purpose: "Four-fighter story ladder with funny rival beats and controlled roster progression.",
     },
     {
       id: "local-versus",
       label: "Local Versus",
       status: "implemented",
-      purpose: "Same-keyboard browser v1 PvP using the current three-fighter runtime roster and manual P1/P2 controls.",
+      purpose: "Same-keyboard browser v1 PvP using the current four-fighter runtime roster and manual P1/P2 controls.",
     },
     {
       id: "roster-lab",

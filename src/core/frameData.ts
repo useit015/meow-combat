@@ -206,3 +206,58 @@ export const PICKLES_PUGILIST: FighterDefinition = {
     },
   },
 };
+
+export const NOODLE_NIBBLES: FighterDefinition = {
+  ...ATLAS_LION,
+  id: "ferret-noodle",
+  displayName: "Noodle Nibbles",
+  walkSpeed: 4.75,
+  jumpVelocity: -14.35,
+  hurtbox: { x: -26, y: -106, width: 52, height: 106 },
+  moves: {
+    ...ATLAS_LION.moves,
+    light: {
+      ...ATLAS_LION.moves.light,
+      duration: 15,
+      damage: 38,
+      hitstun: 14,
+      blockstun: 9,
+      pushback: 9,
+      meterGainOnUse: 20,
+      hitVolumes: [{ frameStart: 4, frameEnd: 8, rect: { x: 18, y: -82, width: 48, height: 24 } }],
+    },
+    lightKick: {
+      ...ATLAS_LION.moves.lightKick,
+      duration: 21,
+      damage: 52,
+      hitstun: 17,
+      pushback: 13,
+      hitVolumes: [{ frameStart: 6, frameEnd: 11, rect: { x: 20, y: -48, width: 58, height: 22 } }],
+    },
+    heavy: {
+      ...ATLAS_LION.moves.heavy,
+      duration: 29,
+      damage: 84,
+      hitstun: 24,
+      blockstun: 15,
+      pushback: 18,
+      hitVolumes: [{ frameStart: 9, frameEnd: 15, rect: { x: 16, y: -86, width: 78, height: 30 } }],
+    },
+    special: {
+      ...ATLAS_LION.moves.special,
+      duration: 40,
+      damage: 112,
+      hitstun: 34,
+      blockstun: 20,
+      pushback: 30,
+      meterGainOnUse: 46,
+      hitVolumes: [{ frameStart: 12, frameEnd: 23, rect: { x: 12, y: -76, width: 102, height: 38 } }],
+    },
+    super: {
+      ...ATLAS_LION.moves.super,
+      damage: 242,
+      pushback: 40,
+      hitVolumes: [{ frameStart: 16, frameEnd: 32, rect: { x: 10, y: -94, width: 132, height: 52 } }],
+    },
+  },
+};

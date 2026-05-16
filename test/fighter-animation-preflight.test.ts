@@ -32,8 +32,18 @@ describe("Pickles Pugilist animation preflight", () => {
     expect(plan.canonicalReferencePath).toBe("assets/source/imagegen/fighters/pugilist-pug/canonical-character-sheet.png");
     expect(existsSync(join(process.cwd(), plan.canonicalReferencePath))).toBe(true);
     expect(existsSync(join(process.cwd(), "public/assets/generated/fighters/pugilist-pug"))).toBe(true);
-    expect(meowtalKombatConfig.roster.map((fighter) => fighter.id)).toEqual(["gray-rabbit", "ginger-tabby-cat", "pugilist-pug"]);
-    expect(meowtalFighterAssetManifests.map((fighter) => fighter.id)).toEqual(["gray-rabbit", "ginger-tabby-cat", "pugilist-pug"]);
+    expect(meowtalKombatConfig.roster.map((fighter) => fighter.id)).toEqual([
+      "gray-rabbit",
+      "ginger-tabby-cat",
+      "pugilist-pug",
+      "ferret-noodle",
+    ]);
+    expect(meowtalFighterAssetManifests.map((fighter) => fighter.id)).toEqual([
+      "gray-rabbit",
+      "ginger-tabby-cat",
+      "pugilist-pug",
+      "ferret-noodle",
+    ]);
   });
 
   it("covers every required animation row with row-generation briefs and no-drift acceptance", () => {
@@ -228,28 +238,38 @@ describe("Pickles Pugilist animation preflight", () => {
 });
 
 describe("Noodle Nibbles animation preflight", () => {
-  it("records Noodle as the next source-only roster-production candidate", () => {
+  it("records Noodle as a promoted runtime roster fighter", () => {
     const plan = buildNoodleAnimationPreflight();
 
     expect(plan).toMatchObject({
       fighterId: "ferret-noodle",
       displayName: "Noodle Nibbles",
-      sourceOnly: true,
-      playable: false,
-      runtimeExposure: "not playable",
-      status: "source-only-preflight",
+      sourceOnly: false,
+      playable: true,
+      runtimeExposure: "playable",
+      status: "runtime-promoted",
       fullOutcome: "incomplete",
-      publicRuntimePath: null,
+      publicRuntimePath: "/assets/generated/fighters/ferret-noodle",
     });
     expect(plan.canonicalReferencePath).toBe("assets/source/imagegen/fighters/ferret-noodle/canonical-character-sheet.png");
     expect(existsSync(join(process.cwd(), plan.canonicalReferencePath))).toBe(true);
-    expect(existsSync(join(process.cwd(), "public/assets/generated/fighters/ferret-noodle"))).toBe(false);
-    expect(meowtalKombatConfig.roster.map((fighter) => fighter.id)).toEqual(["gray-rabbit", "ginger-tabby-cat", "pugilist-pug"]);
-    expect(meowtalFighterAssetManifests.map((fighter) => fighter.id)).toEqual(["gray-rabbit", "ginger-tabby-cat", "pugilist-pug"]);
-    expect(pawbreakerPlannedFighterAssetManifests.map((fighter) => fighter.id)).toContain("ferret-noodle");
+    expect(existsSync(join(process.cwd(), "public/assets/generated/fighters/ferret-noodle"))).toBe(true);
+    expect(meowtalKombatConfig.roster.map((fighter) => fighter.id)).toEqual([
+      "gray-rabbit",
+      "ginger-tabby-cat",
+      "pugilist-pug",
+      "ferret-noodle",
+    ]);
+    expect(meowtalFighterAssetManifests.map((fighter) => fighter.id)).toEqual([
+      "gray-rabbit",
+      "ginger-tabby-cat",
+      "pugilist-pug",
+      "ferret-noodle",
+    ]);
+    expect(pawbreakerPlannedFighterAssetManifests.map((fighter) => fighter.id)).not.toContain("ferret-noodle");
   });
 
-  it("covers every required Noodle row with no-size-drift source-only gates", () => {
+  it("covers every required Noodle row with no-size-drift runtime promotion gates", () => {
     const plan = buildNoodleAnimationPreflight();
     const errors = validateFighterAnimationPreflight(plan);
 
@@ -276,13 +296,14 @@ describe("Noodle Nibbles animation preflight", () => {
     expect(gateText).toContain("identity-traits");
     expect(gateText).toContain("256x256");
     expect(gateText).toContain("provenance");
-    expect(promotionCommands).toContain("test ! -e public/assets/generated/fighters/ferret-noodle");
+    expect(promotionCommands).toContain("test -d public/assets/generated/fighters/ferret-noodle");
     expect(promotionCommands).toContain("smoke:meowtal");
-    expect(smokeText).toContain("absent from the selectable runtime roster");
+    expect(smokeText).toContain("from the runtime roster");
+    expect(smokeText).toContain("ferret-noodle runtime spritesheet");
     expect(smokeText).toContain("no procedural or missing-output fallback");
   });
 
-  it("renders source-only review artifacts without claiming Noodle is playable", () => {
+  it("renders runtime promotion artifacts with no-drift row provenance", () => {
     const plan = buildNoodleAnimationPreflight();
     const html = renderNoodleAnimationPreflightHtml(plan);
     const outputJson = JSON.parse(
@@ -294,8 +315,8 @@ describe("Noodle Nibbles animation preflight", () => {
     );
 
     expect(outputJson.fighterId).toBe("ferret-noodle");
-    expect(outputJson.sourceOnly).toBe(true);
-    expect(outputJson.playable).toBe(false);
+    expect(outputJson.sourceOnly).toBe(false);
+    expect(outputJson.playable).toBe(true);
     expect(outputJson.requiredRows.map((row) => row.animationId)).toEqual(REQUIRED_FIGHTER_ANIMATIONS);
     expect(outputJson.requiredRows).toEqual(plan.requiredRows);
     expect(outputJson.noDriftQaGates).toEqual(plan.noDriftQaGates);
@@ -312,20 +333,20 @@ describe("Noodle Nibbles animation preflight", () => {
     expect(outputJson.requiredRows.every((row) => row.acceptanceCriteria.length > 0 && row.rejectionTriggers.length > 0)).toBe(true);
 
     expect(html).toContain("Noodle Nibbles");
-    expect(html).toContain("source-only production preflight");
-    expect(html).toContain("not playable");
+    expect(html).toContain("runtime promotion record");
+    expect(html).toContain("playable");
     expect(html).toContain("no-size-drift");
     expect(html).toContain("Noodle Nibbles idle row-generation pass");
     expect(html).toContain("long-body guard sway");
     expect(html).toContain("Reject if");
-    expect(html).not.toContain("playable runtime assets");
+    expect(html).toContain("playable runtime assets");
     expect(outputHtml).toContain("Noodle Nibbles");
-    expect(outputHtml).toContain("source-only production preflight");
+    expect(outputHtml).toContain("runtime promotion record");
     expect(outputHtml).toContain("Noodle Nibbles idle row-generation pass");
     expect(outputHtml).toContain("long-body guard sway");
     expect(outputHtml).toContain("Reject if");
     expect(outputHtml).toContain("size drift, identity drift");
-    expect(outputHtml).not.toContain("playable runtime assets");
+    expect(outputHtml).toContain("playable runtime assets");
   });
 
   it("keeps generated Noodle idle row as the source-only scale baseline", () => {
@@ -338,7 +359,7 @@ describe("Noodle Nibbles animation preflight", () => {
     expect(heights.every((height) => height >= 225 && height <= 235)).toBe(true);
     expect(Math.max(...heights) - Math.min(...heights)).toBeLessThanOrEqual(2);
     expect(average(opaquePixels)).toBeGreaterThanOrEqual(16_000);
-    expect(existsSync(join(process.cwd(), "public/assets/generated/fighters/ferret-noodle"))).toBe(false);
+    expect(existsSync(join(process.cwd(), "public/assets/generated/fighters/ferret-noodle"))).toBe(true);
   });
 
   it("keeps generated Noodle locomotion rows source-only and scale-stable against idle", () => {
@@ -360,7 +381,7 @@ describe("Noodle Nibbles animation preflight", () => {
       expect(average(opaquePixels)).toBeGreaterThanOrEqual(15_000);
     }
 
-    expect(existsSync(join(process.cwd(), "public/assets/generated/fighters/ferret-noodle"))).toBe(false);
+    expect(existsSync(join(process.cwd(), "public/assets/generated/fighters/ferret-noodle"))).toBe(true);
   });
 
   it("keeps generated Noodle mobility rows source-only without repeating jump shrink", () => {
@@ -376,7 +397,7 @@ describe("Noodle Nibbles animation preflight", () => {
     expect(jumpBounds.every((frame) => frame.width >= Math.round(idleWidth * 1.05))).toBe(true);
     expect(jumpBounds.every((frame) => frame.height >= 135 && frame.height <= 205)).toBe(true);
     expect(jumpBounds.every((frame) => frame.opaquePixels >= 11_000)).toBe(true);
-    expect(existsSync(join(process.cwd(), "public/assets/generated/fighters/ferret-noodle"))).toBe(false);
+    expect(existsSync(join(process.cwd(), "public/assets/generated/fighters/ferret-noodle"))).toBe(true);
   });
 
   it("keeps generated Noodle starter attacks source-only with compact contact poses", () => {
@@ -391,7 +412,7 @@ describe("Noodle Nibbles animation preflight", () => {
     expect(lightKickBounds.every((frame) => frame.width >= 120 && frame.width <= 160)).toBe(true);
     expect(lightKickBounds.every((frame) => frame.height >= 215 && frame.height <= 225)).toBe(true);
     expect(lightKickBounds.every((frame) => frame.opaquePixels >= 13_500)).toBe(true);
-    expect(existsSync(join(process.cwd(), "public/assets/generated/fighters/ferret-noodle"))).toBe(false);
+    expect(existsSync(join(process.cwd(), "public/assets/generated/fighters/ferret-noodle"))).toBe(true);
   });
 
   it("keeps generated Noodle heavy-punch source-only with no-size-drift body twist", () => {
@@ -401,7 +422,7 @@ describe("Noodle Nibbles animation preflight", () => {
     expect(Math.max(...heavyPunchBounds.map((frame) => frame.width))).toBeGreaterThanOrEqual(205);
     expect(heavyPunchBounds.every((frame) => frame.height >= 210 && frame.height <= 230)).toBe(true);
     expect(heavyPunchBounds.every((frame) => frame.opaquePixels >= 17_800)).toBe(true);
-    expect(existsSync(join(process.cwd(), "public/assets/generated/fighters/ferret-noodle"))).toBe(false);
+    expect(existsSync(join(process.cwd(), "public/assets/generated/fighters/ferret-noodle"))).toBe(true);
   });
 
   it("keeps generated Noodle special source-only without loose effect drift", () => {
@@ -411,7 +432,7 @@ describe("Noodle Nibbles animation preflight", () => {
     expect(Math.max(...specialBounds.map((frame) => frame.width))).toBeGreaterThanOrEqual(200);
     expect(specialBounds.every((frame) => frame.height >= 178 && frame.height <= 225)).toBe(true);
     expect(specialBounds.every((frame) => frame.opaquePixels >= 15_700)).toBe(true);
-    expect(existsSync(join(process.cwd(), "public/assets/generated/fighters/ferret-noodle"))).toBe(false);
+    expect(existsSync(join(process.cwd(), "public/assets/generated/fighters/ferret-noodle"))).toBe(true);
   });
 
   it("keeps generated Noodle knockdown source-only with readable grounded recovery", () => {
@@ -422,7 +443,7 @@ describe("Noodle Nibbles animation preflight", () => {
     expect(Math.min(...knockdownBounds.map((frame) => frame.height))).toBeLessThanOrEqual(105);
     expect(knockdownBounds.every((frame) => frame.height >= 103 && frame.height <= 216)).toBe(true);
     expect(knockdownBounds.every((frame) => frame.opaquePixels >= 10_000)).toBe(true);
-    expect(existsSync(join(process.cwd(), "public/assets/generated/fighters/ferret-noodle"))).toBe(false);
+    expect(existsSync(join(process.cwd(), "public/assets/generated/fighters/ferret-noodle"))).toBe(true);
   });
 
   it("keeps generated Noodle outcome rows source-only with controlled acting poses", () => {
@@ -438,7 +459,7 @@ describe("Noodle Nibbles animation preflight", () => {
     expect(loseBounds.every((frame) => frame.height >= 174 && frame.height <= 219)).toBe(true);
     expect(Math.max(...loseBounds.map((frame) => frame.width))).toBeGreaterThanOrEqual(207);
     expect(loseBounds.every((frame) => frame.opaquePixels >= 16_700)).toBe(true);
-    expect(existsSync(join(process.cwd(), "public/assets/generated/fighters/ferret-noodle"))).toBe(false);
+    expect(existsSync(join(process.cwd(), "public/assets/generated/fighters/ferret-noodle"))).toBe(true);
   });
 
   it("keeps generated Noodle defense reactions source-only with compact recoil poses", () => {
@@ -453,7 +474,7 @@ describe("Noodle Nibbles animation preflight", () => {
     expect(blockstunBounds.every((frame) => frame.width >= 140 && frame.width <= 165)).toBe(true);
     expect(blockstunBounds.every((frame) => frame.height >= 200 && frame.height <= 240)).toBe(true);
     expect(blockstunBounds.every((frame) => frame.opaquePixels >= 18_000)).toBe(true);
-    expect(existsSync(join(process.cwd(), "public/assets/generated/fighters/ferret-noodle"))).toBe(false);
+    expect(existsSync(join(process.cwd(), "public/assets/generated/fighters/ferret-noodle"))).toBe(true);
   });
 });
 

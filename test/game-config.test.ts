@@ -16,6 +16,7 @@ describe("game content config", () => {
       "Gray Rabbit",
       "Ginger Tabby Cat",
       "Pickles Pugilist",
+      "Noodle Nibbles",
     ]);
     expect(meowtalKombatConfig.defaultSelections).toEqual({ p1: 0, p2: 1 });
     expect(meowtalKombatConfig.stage.id).toBe("meowtal-courtyard");
@@ -29,11 +30,21 @@ describe("game content config", () => {
     ]);
   });
 
-  it("links the expansion bible with the promoted Pickles runtime roster", () => {
+  it("links the expansion bible with the promoted runtime roster", () => {
     expect(meowtalKombatConfig.contentSpine.workingTitle).toBe("Pawbreaker League");
     expect(meowtalKombatConfig.contentSpine.fighters).toHaveLength(8);
-    expect(meowtalKombatConfig.contentSpine.runtimeFighterIds).toEqual(["gray-rabbit", "ginger-tabby-cat", "pugilist-pug"]);
-    expect(meowtalKombatConfig.roster.map((fighter) => fighter.id)).toEqual(["gray-rabbit", "ginger-tabby-cat", "pugilist-pug"]);
+    expect(meowtalKombatConfig.contentSpine.runtimeFighterIds).toEqual([
+      "gray-rabbit",
+      "ginger-tabby-cat",
+      "pugilist-pug",
+      "ferret-noodle",
+    ]);
+    expect(meowtalKombatConfig.roster.map((fighter) => fighter.id)).toEqual([
+      "gray-rabbit",
+      "ginger-tabby-cat",
+      "pugilist-pug",
+      "ferret-noodle",
+    ]);
   });
 
   it("keeps Meowtal runtime sprite metadata centralized", () => {
@@ -42,9 +53,10 @@ describe("game content config", () => {
       "gray-rabbit",
       "ginger-tabby-cat",
       "pugilist-pug",
+      "ferret-noodle",
     ]);
     expect(meowtalKombatConfig.runtimeSpriteCellSize).toBe(256);
-    expect(meowtalKombatConfig.runtimeSpritesheets).toHaveLength(3 * REQUIRED_FIGHTER_ANIMATIONS.length);
+    expect(meowtalKombatConfig.runtimeSpritesheets).toHaveLength(4 * REQUIRED_FIGHTER_ANIMATIONS.length);
     expect(versionedAssetFromConfig(meowtalKombatConfig, "/assets/generated/fighters/gray-rabbit/idle.png")).toBe(
       "/assets/generated/fighters/gray-rabbit/idle.png?v=meowtal-courtyard-1",
     );
@@ -77,7 +89,7 @@ describe("game content config", () => {
   it("includes a runtime spritesheet for each approved animation row", () => {
     const runtimeKeys = new Set(meowtalKombatConfig.runtimeSpritesheets.map((spritesheet) => spritesheet.key));
 
-    for (const fighterId of ["gray-rabbit", "ginger-tabby-cat", "pugilist-pug"]) {
+    for (const fighterId of ["gray-rabbit", "ginger-tabby-cat", "pugilist-pug", "ferret-noodle"]) {
       for (const animationId of REQUIRED_FIGHTER_ANIMATIONS) {
         expect(runtimeKeys).toContain(`${fighterId}:${animationId}`);
       }
@@ -88,7 +100,8 @@ describe("game content config", () => {
     expect(selectedFighterFromConfig(meowtalKombatConfig, 0).displayName).toBe("Gray Rabbit");
     expect(selectedFighterFromConfig(meowtalKombatConfig, 1).displayName).toBe("Ginger Tabby Cat");
     expect(selectedFighterFromConfig(meowtalKombatConfig, 2).displayName).toBe("Pickles Pugilist");
-    expect(selectedFighterFromConfig(meowtalKombatConfig, -1).displayName).toBe("Pickles Pugilist");
+    expect(selectedFighterFromConfig(meowtalKombatConfig, 3).displayName).toBe("Noodle Nibbles");
+    expect(selectedFighterFromConfig(meowtalKombatConfig, -1).displayName).toBe("Noodle Nibbles");
     expect(nextCpuDifficultyFromConfig(meowtalKombatConfig, "easy")).toBe("normal");
     expect(nextCpuDifficultyFromConfig(meowtalKombatConfig, "normal")).toBe("hard");
     expect(nextCpuDifficultyFromConfig(meowtalKombatConfig, "hard")).toBe("easy");

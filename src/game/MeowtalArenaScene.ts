@@ -2060,18 +2060,18 @@ export class MeowtalArenaScene extends Phaser.Scene {
   }
 
   private primeChampionshipLadderClearDemo(): void {
-    this.selectedFighterIndex = { p1: fighterRosterIndex("gray-rabbit"), p2: fighterRosterIndex("pugilist-pug") };
+    this.selectedFighterIndex = { p1: fighterRosterIndex("gray-rabbit"), p2: fighterRosterIndex("ferret-noodle") };
     this.shell = { phase: "fighting", selectedMode: "championship" };
     this.championshipLadder = {
       status: "in-progress",
       result: null,
       playerFighterId: "gray-rabbit",
-      opponentIds: ["ginger-tabby-cat", "pugilist-pug"],
-      opponentIndex: 1,
-      completedOpponentIds: ["ginger-tabby-cat"],
+      opponentIds: ["ginger-tabby-cat", "pugilist-pug", "ferret-noodle"],
+      opponentIndex: 2,
+      completedOpponentIds: ["ginger-tabby-cat", "pugilist-pug"],
     };
     this.startSelectedMatch({ syncCpuToMode: true });
-    this.forceChampionshipMatchOver("p1", "pugilist-pug");
+    this.forceChampionshipMatchOver("p1", "ferret-noodle");
     this.recordChampionshipMatchOutcome();
   }
 
@@ -3132,7 +3132,7 @@ function championshipInterstitialState(
   lastCompletedRival: FighterStoryTextProfile | null,
   nextAction: string,
 ): ChampionshipRewardInterstitial {
-  const rosterTruth = "3 playable runtime fighters; 5 planned locked for model-sheet QA";
+  const rosterTruth = runtimeRosterTruthLine();
   const rivalLabel = rival ? `${kind === "advance" ? "Next" : "Current"} ${rival.displayName}` : "No active rival";
   const progressLine = `Progress: ${progress.completedCount}/${progress.totalOpponents} rivals folded | ${rivalLabel}`;
 
@@ -3188,7 +3188,7 @@ function modeSelectText(shell: ShellState, cpuDifficulty: CpuDifficulty): string
 function shellModeDetailLines(shell: ShellState, cpuDifficulty: CpuDifficulty): readonly string[] {
   const mode = selectedPlayMode(shell);
   if (mode === "training") return ["ENDLESS LAB", "TIMING + COMBO FEEDBACK"];
-  if (mode === "championship") return ["SNACKBELT LADDER", "2 CPU RIVALS"];
+  if (mode === "championship") return ["SNACKBELT LADDER", `${Math.max(FIGHTER_ROSTER.length - 1, 0)} CPU RIVALS`];
   if (mode === "local-versus") return ["SAME KEYBOARD PVP", "P1 VS P2 MANUAL"];
   return ["BEST OF THREE", `CPU ${cpuDifficulty.toUpperCase()}`];
 }
@@ -3407,6 +3407,12 @@ function selectFooterLine(summary: ReturnType<typeof buildAssetReadinessSummary>
   const plannedLockedCount = GAME_CONFIG.contentSpine.fighters.filter((fighter) => fighter.runtime.status === "planned").length;
   if (fallbackCount > 0) return `${playableCount} PLAYABLE NOW  |  PROTOTYPE ASSETS ACTIVE`;
   return `${playableCount} PLAYABLE NOW  |  ${plannedLockedCount} PLANNED LOCKED FOR MODEL-SHEET QA`;
+}
+
+function runtimeRosterTruthLine(): string {
+  const playableCount = GAME_CONFIG.contentSpine.fighters.filter((fighter) => fighter.runtime.status === "active").length;
+  const plannedLockedCount = GAME_CONFIG.contentSpine.fighters.filter((fighter) => fighter.runtime.status === "planned").length;
+  return `${playableCount} playable runtime fighters; ${plannedLockedCount} planned locked for model-sheet QA`;
 }
 
 function powerStockLabel(meter: number): string {

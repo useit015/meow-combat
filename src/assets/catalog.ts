@@ -135,6 +135,22 @@ const approvedAnimationRows: Record<string, Partial<Record<FighterAnimationSpec[
     win: "/assets/generated/fighters/pugilist-pug/win.png",
     lose: "/assets/generated/fighters/pugilist-pug/lose.png",
   },
+  "ferret-noodle": {
+    idle: "/assets/generated/fighters/ferret-noodle/idle.png",
+    "walk-forward": "/assets/generated/fighters/ferret-noodle/walk-forward.png",
+    "walk-back": "/assets/generated/fighters/ferret-noodle/walk-back.png",
+    crouch: "/assets/generated/fighters/ferret-noodle/crouch.png",
+    jump: "/assets/generated/fighters/ferret-noodle/jump.png",
+    "light-punch": "/assets/generated/fighters/ferret-noodle/light-punch.png",
+    "light-kick": "/assets/generated/fighters/ferret-noodle/light-kick.png",
+    "heavy-punch": "/assets/generated/fighters/ferret-noodle/heavy-punch.png",
+    special: "/assets/generated/fighters/ferret-noodle/special.png",
+    hitstun: "/assets/generated/fighters/ferret-noodle/hitstun.png",
+    blockstun: "/assets/generated/fighters/ferret-noodle/blockstun.png",
+    knockdown: "/assets/generated/fighters/ferret-noodle/knockdown.png",
+    win: "/assets/generated/fighters/ferret-noodle/win.png",
+    lose: "/assets/generated/fighters/ferret-noodle/lose.png",
+  },
 };
 
 const generatedAnimationRows: Record<string, Partial<Record<FighterAnimationSpec["id"], string>>> = {
@@ -285,18 +301,15 @@ export const meowtalFighterAssetManifests: readonly FighterAssetManifest[] = [
     ),
     animations: animationSpecsFor("pugilist-pug"),
   },
-];
-
-export const pawbreakerPlannedFighterAssetManifests: readonly FighterAssetManifest[] = [
   {
     id: "ferret-noodle",
     displayName: "Noodle Nibbles",
     engineCharacterId: "ferret-noodle",
-    archetype: "source-only mix-up and side-switch specialist",
+    archetype: "mix-up and side-switch specialist",
     designNotes: [
-      "Pawbreaker planned roster fighter: cute upright ferret sock thief with long flexible body and readable trickster silhouettes.",
+      "Pawbreaker promoted runtime fighter: cute upright ferret sock thief with long flexible body and readable trickster silhouettes.",
       "Keep the ferret identity locked through tapered muzzle, bright mischievous eyes, rounded ears, long torso, short legs, ringed tail, and sock-belt gag.",
-      "Source-only model sheet, idle scale row, locomotion rows, mobility rows, and starter attack rows exist; do not promote to runtime or generate additional animation rows until separate QA tasks approve them.",
+      "Runtime rows are byte-identical promotions from the approved source rows under assets/source/imagegen/fighters/ferret-noodle.",
     ],
     asymmetryNotes: [
       "Sock props, mask markings, tail rings, and belt pouches may be side-specific; do not mirror rows until reviewed.",
@@ -307,8 +320,11 @@ export const pawbreakerPlannedFighterAssetManifests: readonly FighterAssetManife
       "ferret-noodle-canonical-character-sheet",
       "assets/source/imagegen/fighters/ferret-noodle/canonical-character-sheet.png",
     ),
-    animations: animationSpecsFor("ferret-noodle", sourceOnlyAnimationBlocker),
+    animations: animationSpecsFor("ferret-noodle"),
   },
+];
+
+export const pawbreakerPlannedFighterAssetManifests: readonly FighterAssetManifest[] = [
   {
     id: "tortoise-tofu",
     displayName: "Tofu Tortoise",

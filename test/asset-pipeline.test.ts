@@ -18,16 +18,23 @@ describe("fighter asset manifests", () => {
     }
   });
 
-  it("promotes Pickles rows as approved runtime sprites from the accepted source set", () => {
-    const pickles = meowtalFighterAssetManifests.find((manifest) => manifest.id === "pugilist-pug");
+  it("promotes Pickles and Noodle rows as approved runtime sprites from accepted source sets", () => {
+    const promotedFighters = [
+      ["pugilist-pug", "Pickles Pugilist"],
+      ["ferret-noodle", "Noodle Nibbles"],
+    ] as const;
 
-    expect(pickles?.displayName).toBe("Pickles Pugilist");
-    expect(pickles?.animations.map((animation) => animation.id)).toEqual(REQUIRED_FIGHTER_ANIMATIONS);
-    for (const animation of pickles?.animations ?? []) {
-      expect(animation.source.status).toBe("approved");
-      expect(animation.source.outputPath).toBe(`/assets/generated/fighters/pugilist-pug/${animation.id}.png`);
-      expect(existsSync(`public${animation.source.outputPath}`)).toBe(true);
-      expect(existsSync(`assets/source/imagegen/fighters/pugilist-pug/${animation.id}.png`)).toBe(true);
+    for (const [fighterId, displayName] of promotedFighters) {
+      const manifest = meowtalFighterAssetManifests.find((candidate) => candidate.id === fighterId);
+
+      expect(manifest?.displayName).toBe(displayName);
+      expect(manifest?.animations.map((animation) => animation.id)).toEqual(REQUIRED_FIGHTER_ANIMATIONS);
+      for (const animation of manifest?.animations ?? []) {
+        expect(animation.source.status).toBe("approved");
+        expect(animation.source.outputPath).toBe(`/assets/generated/fighters/${fighterId}/${animation.id}.png`);
+        expect(existsSync(`public${animation.source.outputPath}`)).toBe(true);
+        expect(existsSync(`assets/source/imagegen/fighters/${fighterId}/${animation.id}.png`)).toBe(true);
+      }
     }
   });
 
@@ -93,7 +100,6 @@ describe("fighter asset manifests", () => {
 
   it("keeps planned Pawbreaker roster additions source-only until full animation approval", () => {
     const expectedNames = {
-      "ferret-noodle": "Noodle Nibbles",
       "tortoise-tofu": "Tofu Tortoise",
       "budgie-beanie": "Beanie Beak",
       "hamster-mochi": "Mochi Munch",
@@ -101,22 +107,6 @@ describe("fighter asset manifests", () => {
     } as const;
 
     expect(pawbreakerPlannedFighterAssetManifests.map((manifest) => manifest.id)).toEqual(Object.keys(expectedNames));
-    const generatedNoodleRows = new Map([
-      ["idle", "assets/source/imagegen/fighters/ferret-noodle/idle.png"],
-      ["walk-forward", "assets/source/imagegen/fighters/ferret-noodle/walk-forward.png"],
-      ["walk-back", "assets/source/imagegen/fighters/ferret-noodle/walk-back.png"],
-      ["crouch", "assets/source/imagegen/fighters/ferret-noodle/crouch.png"],
-      ["jump", "assets/source/imagegen/fighters/ferret-noodle/jump.png"],
-      ["light-punch", "assets/source/imagegen/fighters/ferret-noodle/light-punch.png"],
-      ["heavy-punch", "assets/source/imagegen/fighters/ferret-noodle/heavy-punch.png"],
-      ["light-kick", "assets/source/imagegen/fighters/ferret-noodle/light-kick.png"],
-      ["special", "assets/source/imagegen/fighters/ferret-noodle/special.png"],
-      ["hitstun", "assets/source/imagegen/fighters/ferret-noodle/hitstun.png"],
-      ["blockstun", "assets/source/imagegen/fighters/ferret-noodle/blockstun.png"],
-      ["knockdown", "assets/source/imagegen/fighters/ferret-noodle/knockdown.png"],
-      ["win", "assets/source/imagegen/fighters/ferret-noodle/win.png"],
-      ["lose", "assets/source/imagegen/fighters/ferret-noodle/lose.png"],
-    ]);
 
     for (const manifest of pawbreakerPlannedFighterAssetManifests) {
       expect(manifest.displayName).toBe(expectedNames[manifest.id as keyof typeof expectedNames]);
@@ -128,16 +118,9 @@ describe("fighter asset manifests", () => {
       expect(validateFighterManifest(manifest)).toEqual({ ok: true, errors: [] });
       expect(manifest.animations).toHaveLength(REQUIRED_FIGHTER_ANIMATIONS.length);
       for (const animation of manifest.animations) {
-        const generatedOutputPath = manifest.id === "ferret-noodle" ? generatedNoodleRows.get(animation.id) : undefined;
-        if (generatedOutputPath) {
-          expect(animation.source.status).toBe("generated");
-          expect(animation.source.outputPath).toBe(generatedOutputPath);
-          expect(existsSync(animation.source.outputPath ?? "")).toBe(true);
-        } else {
-          expect(animation.source.status).toBe("blocked");
-          expect(animation.source.outputPath).toBeNull();
-          expect(animation.source.blocker).toContain("source-only model sheet");
-        }
+        expect(animation.source.status).toBe("blocked");
+        expect(animation.source.outputPath).toBeNull();
+        expect(animation.source.blocker).toContain("source-only model sheet");
       }
     }
   });

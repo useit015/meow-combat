@@ -13,11 +13,15 @@ describe("Pawbreaker source roster lab", () => {
 
     expect(lab.title).toBe("Pawbreaker League Source Roster Lab");
     expect(lab.summary.totalFighters).toBe(8);
-    expect(lab.runtimeRoster.map((fighter) => fighter.id)).toEqual(["gray-rabbit", "ginger-tabby-cat", "pugilist-pug"]);
+    expect(lab.runtimeRoster.map((fighter) => fighter.id)).toEqual([
+      "gray-rabbit",
+      "ginger-tabby-cat",
+      "pugilist-pug",
+      "ferret-noodle",
+    ]);
     expect(lab.runtimeRoster.every((fighter) => fighter.playable)).toBe(true);
 
     expect(lab.sourceOnlyIdentityLocks.map((fighter) => fighter.id)).toEqual([
-      "ferret-noodle",
       "tortoise-tofu",
       "budgie-beanie",
       "hamster-mochi",
@@ -38,7 +42,7 @@ describe("Pawbreaker source roster lab", () => {
     const lab = buildSourceRosterLab();
 
     expect(lab.missingIdentityLocks).toEqual([]);
-    expect(lab.summary.sourceOnlyIdentityLocks).toBe(5);
+    expect(lab.summary.sourceOnlyIdentityLocks).toBe(4);
     expect(lab.summary.missingIdentityLocks).toBe(0);
   });
 
@@ -54,7 +58,7 @@ describe("Pawbreaker source roster lab", () => {
     expect(criteriaText).toContain("text, logos, or watermarks");
   });
 
-  it("keeps tracked roster-lab artifacts aligned with Pickles runtime promotion", () => {
+  it("keeps tracked roster-lab artifacts aligned with runtime promotions", () => {
     const lab = buildSourceRosterLab();
     const html = renderSourceRosterLabHtml(lab);
     const outputJson = JSON.parse(
@@ -70,8 +74,8 @@ describe("Pawbreaker source roster lab", () => {
 
     expect(outputJson.summary).toEqual({
       totalFighters: 8,
-      playableRuntimeFighters: 3,
-      sourceOnlyIdentityLocks: 5,
+      playableRuntimeFighters: 4,
+      sourceOnlyIdentityLocks: 4,
       missingIdentityLocks: 0,
       fullOutcome: "incomplete",
     });
@@ -79,11 +83,17 @@ describe("Pawbreaker source roster lab", () => {
       "gray-rabbit",
       "ginger-tabby-cat",
       "pugilist-pug",
+      "ferret-noodle",
     ]);
     expect(outputJson.sourceOnlyIdentityLocks.map((fighter: { id: string }) => fighter.id)).not.toContain("pugilist-pug");
+    expect(outputJson.sourceOnlyIdentityLocks.map((fighter: { id: string }) => fighter.id)).not.toContain("ferret-noodle");
     expect(partialOutputJson.runtimeRoster.map((fighter: { id: string }) => fighter.id)).toContain("pugilist-pug");
+    expect(partialOutputJson.runtimeRoster.map((fighter: { id: string }) => fighter.id)).toContain("ferret-noodle");
     expect(partialOutputJson.sourceOnlyIdentityLocks.map((fighter: { id: string }) => fighter.id)).not.toContain(
       "pugilist-pug",
+    );
+    expect(partialOutputJson.sourceOnlyIdentityLocks.map((fighter: { id: string }) => fighter.id)).not.toContain(
+      "ferret-noodle",
     );
     expect(html).toContain("Pickles Pugilist");
     expect(html).toContain("playable-runtime");
@@ -95,17 +105,21 @@ describe("Pawbreaker source roster lab", () => {
     expect(html).toContain("source-only");
     expect(html).toContain("not playable");
     expect(html).toContain("/assets/generated/fighters/pugilist-pug");
-    expect(html).not.toContain("/assets/generated/fighters/ferret-noodle");
+    expect(html).toContain("/assets/generated/fighters/ferret-noodle");
     expect(html).not.toContain("/assets/generated/fighters/tortoise-tofu");
     expect(html).not.toContain("/assets/generated/fighters/budgie-beanie");
     expect(html).not.toContain("/assets/generated/fighters/hamster-mochi");
     expect(html).not.toContain("/assets/generated/fighters/hedgehog-quillabelle");
     expect(outputHtml).toContain("/assets/generated/fighters/pugilist-pug");
+    expect(outputHtml).toContain("/assets/generated/fighters/ferret-noodle");
     expect(outputHtml).not.toContain(
       "<tr><td>Pickles Pugilist</td><td>source-only identity lock</td><td>not playable</td>",
     );
     expect(outputHtml).not.toContain(
       "<tr><td>Pickles Pugilist</td><td>pug</td><td>source-only identity lock</td><td>not playable</td>",
+    );
+    expect(outputHtml).not.toContain(
+      "<tr><td>Noodle Nibbles</td><td>ferret</td><td>source-only identity lock</td><td>not playable</td>",
     );
   });
 });

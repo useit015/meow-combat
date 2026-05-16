@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { FightingSimulation, GINGER_TABBY_CAT, GRAY_RABBIT, PICKLES_PUGILIST } from "../src/core";
+import { FightingSimulation, GINGER_TABBY_CAT, GRAY_RABBIT, NOODLE_NIBBLES, PICKLES_PUGILIST } from "../src/core";
 import { meowtalKombatConfig, selectedFighterFromConfig } from "../src/game/gameConfig";
 
 describe("character selection support", () => {
@@ -17,6 +17,11 @@ describe("character selection support", () => {
     expect(meowtalKombatConfig.roster.map((fighter) => fighter.id)).toContain("pugilist-pug");
   });
 
+  it("exposes Noodle as a selectable runtime fighter", () => {
+    expect(selectedFighterFromConfig(meowtalKombatConfig, 3).displayName).toBe("Noodle Nibbles");
+    expect(meowtalKombatConfig.roster.map((fighter) => fighter.id)).toContain("ferret-noodle");
+  });
+
   it("keeps every runtime-selectable fighter backed by shell story and move copy", () => {
     for (const fighterId of meowtalKombatConfig.contentSpine.runtimeFighterIds) {
       const content = meowtalKombatConfig.contentSpine.fighters.find((fighter) => fighter.id === fighterId);
@@ -29,7 +34,7 @@ describe("character selection support", () => {
       expect(content?.trainingTip).toBeTruthy();
     }
 
-    expect(meowtalKombatConfig.contentSpine.fighters.filter((fighter) => fighter.runtime.status === "planned")).toHaveLength(5);
+    expect(meowtalKombatConfig.contentSpine.fighters.filter((fighter) => fighter.runtime.status === "planned")).toHaveLength(4);
   });
 
   it("lets the simulation start with selected fighter definitions", () => {
@@ -54,6 +59,18 @@ describe("character selection support", () => {
 
     expect(snapshot.p1.character).toBe("Pickles Pugilist");
     expect(snapshot.p2.character).toBe("Ginger Tabby Cat");
+  });
+
+  it("lets the simulation start with Noodle selected", () => {
+    const simulation = new FightingSimulation({
+      p1Definition: NOODLE_NIBBLES,
+      p2Definition: PICKLES_PUGILIST,
+    });
+
+    const snapshot = simulation.snapshot();
+
+    expect(snapshot.p1.character).toBe("Noodle Nibbles");
+    expect(snapshot.p2.character).toBe("Pickles Pugilist");
   });
 
   it("preserves selected fighter definitions across reset", () => {

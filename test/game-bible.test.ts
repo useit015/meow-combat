@@ -28,7 +28,7 @@ describe("pet fighter game bible", () => {
     }
   });
 
-  it("plans eight original pet fighters with Pickles promoted into the runtime roster", () => {
+  it("plans eight original pet fighters with Pickles and Noodle promoted into the runtime roster", () => {
     expect(petFighterGameBible.fighters).toHaveLength(8);
 
     const ids = new Set(petFighterGameBible.fighters.map((fighter) => fighter.id));
@@ -36,9 +36,14 @@ describe("pet fighter game bible", () => {
 
     expect(ids.size).toBe(8);
     expect(names.size).toBe(8);
-    expect(petFighterGameBible.runtimeFighterIds).toEqual(["gray-rabbit", "ginger-tabby-cat", "pugilist-pug"]);
-    expect(petFighterGameBible.fighters.filter((fighter) => fighter.runtime.status === "active")).toHaveLength(3);
-    expect(petFighterGameBible.fighters.filter((fighter) => fighter.runtime.status === "planned")).toHaveLength(5);
+    expect(petFighterGameBible.runtimeFighterIds).toEqual([
+      "gray-rabbit",
+      "ginger-tabby-cat",
+      "pugilist-pug",
+      "ferret-noodle",
+    ]);
+    expect(petFighterGameBible.fighters.filter((fighter) => fighter.runtime.status === "active")).toHaveLength(4);
+    expect(petFighterGameBible.fighters.filter((fighter) => fighter.runtime.status === "planned")).toHaveLength(4);
   });
 
   it("keeps championship-facing copy aligned with all runtime fighters", () => {
@@ -85,7 +90,7 @@ describe("pet fighter game bible", () => {
     ]);
     const championship = petFighterGameBible.modes.find((mode) => mode.id === "championship");
     expect(championship?.status).toBe("implemented");
-    expect(championship?.purpose).toContain("Three-fighter story ladder");
+    expect(championship?.purpose).toContain("Four-fighter story ladder");
     const localVersus = petFighterGameBible.modes.find((mode) => mode.id === "local-versus");
     expect(localVersus?.status).toBe("implemented");
     expect(localVersus?.purpose).toContain("Same-keyboard");
