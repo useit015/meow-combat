@@ -117,7 +117,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T061
+active_task: T062
 
 tasks:
   - id: T001
@@ -3935,7 +3935,7 @@ tasks:
   - id: T061
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: medium
     objective: "Add championship rewards/interstitial flavor using current assets only: enrich Snackbelt advance, clear, and fail presentation with smoke-verifiable reward/interstitial state, comic payoff copy, rival progress, and next-action clarity without changing fighter size, fighter rows, generated assets, audio, dependencies, sprite scale, cell size, frame size, placement rules, or gameplay frame data."
     allowed_files:
@@ -3969,20 +3969,83 @@ tasks:
       - "No fighter rows, generated assets, audio, dependencies, sprite scale, cell sizes, frame sizes, placement rules, character-size logic, or frame data are changed."
       - "Focused tests, full verify, protected diff guard, Pickles row byte-compare, and championship smoke pass."
       - "T061 receipt states full_outcome_complete=false."
+    receipt:
+      result: done
+      decision: approved_by_judge
+      full_outcome_complete: false
+      note: notes/T061-championship-rewards-interstitials.md
+      summary: "Added smoke-verifiable championship reward and interstitial presentation for advance, rival-preview, clear, and fail states using current assets only. The Snackbelt ladder now exposes progress, reward status, comic payoff flavor, next actions, and truthful runtime roster scope without touching fighter size, fighter rows, generated assets, audio, dependencies, sprite sizing, placement, or frame data."
+      files_changed:
+        - "src/game/MeowtalArenaScene.ts"
+        - "scripts/smoke-meowtal-browser.mjs"
+        - "docs/goals/aaa-game-expansion/notes/T061-championship-rewards-interstitials.md"
+        - "docs/goals/aaa-game-expansion/state.yaml"
+      evidence:
+        - "Tracked implementation diff was limited to championship presentation state/rendering and championship smoke assertions before receipt."
+        - "No diffs under assets/source/imagegen/fighters, public/assets/generated/fighters, output/imagegen, package.json, package-lock.json, src/game/audio.ts, public/assets/audio, src/game/spriteFrame.ts, src/game/spriteVisualSizing.ts, or src/core/frameData.ts."
+        - "Pickles source/public rows compare byte-identical for all 14 rows."
+        - "Focused tests passed: 3 files, 23 tests."
+        - "npm run typecheck passed."
+        - "npm run verify passed: 31 files, 218 tests, plus production build."
+        - "Championship rewards/interstitials smoke report output/web-game/championship-rewards-interstitials/report.json has failures=[]."
+        - "Reviewed screenshots for advance, clear, fail, and next-fight championship states."
+        - "GoalBuddy Judge approved T061 receipt and commit."
+      verification:
+        result: pass
+        commands:
+          - "git diff --name-only -- assets/source/imagegen/fighters public/assets/generated/fighters output/imagegen package.json package-lock.json src/game/audio.ts public/assets/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts src/core/frameData.ts"
+          - "for row in idle walk-forward walk-back crouch jump light-punch heavy-punch light-kick special hitstun blockstun knockdown win lose; do cmp -s assets/source/imagegen/fighters/pugilist-pug/$row.png public/assets/generated/fighters/pugilist-pug/$row.png || exit 1; done"
+          - "npm test -- test/game-bible.test.ts test/shell-flow.test.ts test/character-select.test.ts"
+          - "npm run typecheck"
+          - "npm run verify"
+          - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/championship-rewards-interstitials"
+      residual_risks:
+        - "This deepens the current three-fighter championship milestone but is still not a full AAA game."
+        - "Further audio work, roster expansion, and model-sheet/animation gates remain separate future slices."
+      spawned_tasks:
+        - T062
+  - id: T062
+    type: judge
+    assignee: Judge
+    status: active
+    reasoning_hint: high
+    objective: "Audit the current post-T061 browser milestone and choose the next safe package without violating the no-size/no-asset/no-audio gates."
+    inputs:
+      - "T058 vertical-slice audit"
+      - "T059 shell UX polish receipt"
+      - "T061 championship rewards/interstitials receipt"
+      - "Current goal charter and hard character-size constraint"
+    constraints:
+      - "Read-only."
+      - "Do not implement."
+      - "Do not generate assets or audio."
+      - "Do not change fighter rows, generated assets, audio, dependencies, sprite sizing, placement, or frame data."
+      - "Do not mark the full AAA outcome complete."
+      - "Rank remaining gaps against the full AAA target and current hard gates."
+      - "If the next safe package requires owner approval because it must touch audio or generated assets, say ask_owner instead of forcing it."
+    expected_output:
+      - "Post-T061 milestone assessment"
+      - "Ranked remaining gaps"
+      - "Next safe package or explicit ask_owner decision"
+      - "Allowed files"
+      - "Verification commands"
+      - "Stop conditions"
+      - "Acceptance criteria"
+      - "Decision: proceed_with_worker | require_audit | ask_owner"
     receipt: null
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T059
+    task: T061
     commands:
       - "git diff --name-only -- assets/source/imagegen/fighters public/assets/generated/fighters output/imagegen package.json package-lock.json src/game/audio.ts public/assets/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts src/core/frameData.ts"
       - "for row in idle walk-forward walk-back crouch jump light-punch heavy-punch light-kick special hitstun blockstun knockdown win lose; do cmp -s assets/source/imagegen/fighters/pugilist-pug/$row.png public/assets/generated/fighters/pugilist-pug/$row.png || exit 1; done"
       - "npm test -- test/game-bible.test.ts test/shell-flow.test.ts test/character-select.test.ts"
       - "npm run typecheck"
       - "npm run verify"
-      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/shell-ux-polish"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/championship-rewards-interstitials"
   t021_verification:
     result: pass
     task: T021

@@ -99,6 +99,30 @@ interface SelectedFighterTextProfile {
   signatureMove: string | null;
   superMove: string | null;
 }
+interface FighterStoryTextProfile {
+  fighterId: string;
+  displayName: string;
+  leagueName: string;
+  storyHook: string | null;
+  signatureMove: string | null;
+  superMove: string | null;
+}
+type ChampionshipInterstitialKind = "intro" | "rival-preview" | "advance" | "cleared" | "failed";
+type ChampionshipRewardStatus = "up-for-grabs" | "checkpoint" | "claimed" | "lost";
+interface ChampionshipRewardInterstitial {
+  kind: ChampionshipInterstitialKind;
+  progressLine: string;
+  payoffLine: string;
+  nextAction: string;
+  rosterTruth: string;
+  completedCount: number;
+  totalOpponents: number;
+}
+interface ChampionshipRewardState {
+  title: string;
+  status: ChampionshipRewardStatus;
+  claimLine: string;
+}
 type ChampionshipLadderStatus = "inactive" | "in-progress" | "complete";
 type ChampionshipLadderResult = "cleared" | "failed" | null;
 interface ChampionshipLadderState {
@@ -1575,13 +1599,18 @@ export class MeowtalArenaScene extends Phaser.Scene {
       opponentOrder.length > 0
         ? `Order: ${opponentOrder.map((opponent) => `${opponent.marker} ${opponent.displayName}`).join(" > ")}`
         : "";
+    const progress = {
+      completedCount: completedRivals.length,
+      totalOpponents: this.championshipLadder.opponentIds.length,
+    };
 
     if (!visible) {
+      const callToAction = "";
       return {
         visible: false,
         headline: "",
         body: "",
-        callToAction: "",
+        callToAction,
         opponentOrderLabel,
         player,
         currentRival,
@@ -1589,15 +1618,18 @@ export class MeowtalArenaScene extends Phaser.Scene {
         lastCompletedRival,
         opponentOrder,
         result: this.championshipLadder.result,
+        reward: championshipRewardState("intro", progress, player, currentRival),
+        interstitial: championshipInterstitialState("intro", progress, player, currentRival, lastCompletedRival, callToAction),
       };
     }
 
     if (this.championshipLadder.status === "complete" && this.championshipLadder.result === "cleared") {
+      const callToAction = "Enter: restart ladder";
       return {
         visible,
         headline: "SNACKBELT CLEARED",
         body: `${player.displayName} survives ${completedRivals.map((rival) => rival.displayName).join(" and ")}. The treat belt is now legally theirs until somebody licks the paperwork.`,
-        callToAction: "Enter: restart ladder",
+        callToAction,
         opponentOrderLabel,
         player,
         currentRival: null,
@@ -1605,19 +1637,22 @@ export class MeowtalArenaScene extends Phaser.Scene {
         lastCompletedRival,
         opponentOrder,
         result: this.championshipLadder.result,
+        reward: championshipRewardState("cleared", progress, player, currentRival),
+        interstitial: championshipInterstitialState("cleared", progress, player, currentRival, lastCompletedRival, callToAction),
       };
     }
 
     if (this.championshipLadder.status === "complete" && this.championshipLadder.result === "failed") {
       const winner = this.snapshot.winner && this.snapshot.winner !== "draw" ? selectedFighter(this.selectedFighterIndex[this.snapshot.winner]).id : null;
       const spoiler = winner ? fighterStorySummary(winner) : null;
+      const callToAction = "Enter: retry ladder";
       return {
         visible,
         headline: "SNACKBELT RUN ENDED",
         body: spoiler
           ? `${spoiler.displayName} stops the run. ${spoiler.storyHook ?? "The bracket refuses to elaborate."}`
           : "The bracket stops the run in deeply suspicious circumstances.",
-        callToAction: "Enter: retry ladder",
+        callToAction,
         opponentOrderLabel,
         player,
         currentRival: null,
@@ -1625,15 +1660,18 @@ export class MeowtalArenaScene extends Phaser.Scene {
         lastCompletedRival,
         opponentOrder,
         result: this.championshipLadder.result,
+        reward: championshipRewardState("failed", progress, player, spoiler),
+        interstitial: championshipInterstitialState("failed", progress, player, spoiler, lastCompletedRival, callToAction),
       };
     }
 
     if (this.shell.phase === "match-over" && lastCompletedRival && currentRival) {
+      const callToAction = "Enter: next fight";
       return {
         visible,
         headline: "ADVANCE TO NEXT RIVAL",
         body: `${lastCompletedRival.displayName} is down. Next: ${currentRival.displayName} - ${currentRival.storyHook ?? "The bracket has chosen chaos."}`,
-        callToAction: "Enter: next fight",
+        callToAction,
         opponentOrderLabel,
         player,
         currentRival,
@@ -1641,15 +1679,18 @@ export class MeowtalArenaScene extends Phaser.Scene {
         lastCompletedRival,
         opponentOrder,
         result: this.championshipLadder.result,
+        reward: championshipRewardState("advance", progress, player, currentRival),
+        interstitial: championshipInterstitialState("advance", progress, player, currentRival, lastCompletedRival, callToAction),
       };
     }
 
     if (currentRival) {
+      const callToAction = "Win the set to advance";
       return {
         visible,
         headline: `SNACKBELT LADDER ${this.championshipLadder.opponentIndex + 1}/${this.championshipLadder.opponentIds.length}`,
         body: `Current rival: ${currentRival.displayName} - ${currentRival.storyHook ?? "The bracket has chosen chaos."}`,
-        callToAction: "Win the set to advance",
+        callToAction,
         opponentOrderLabel,
         player,
         currentRival,
@@ -1657,14 +1698,17 @@ export class MeowtalArenaScene extends Phaser.Scene {
         lastCompletedRival,
         opponentOrder,
         result: this.championshipLadder.result,
+        reward: championshipRewardState("rival-preview", progress, player, currentRival),
+        interstitial: championshipInterstitialState("rival-preview", progress, player, currentRival, lastCompletedRival, callToAction),
       };
     }
 
+    const callToAction = "Enter: fight";
     return {
       visible,
       headline: "SNACKBELT LADDER",
       body: GAME_CONFIG.contentSpine.championship.premise,
-      callToAction: "Enter: fight",
+      callToAction,
       opponentOrderLabel,
       player,
       currentRival,
@@ -1672,6 +1716,8 @@ export class MeowtalArenaScene extends Phaser.Scene {
       lastCompletedRival,
       opponentOrder,
       result: this.championshipLadder.result,
+      reward: championshipRewardState("intro", progress, player, currentRival),
+      interstitial: championshipInterstitialState("intro", progress, player, currentRival, lastCompletedRival, callToAction),
     };
   }
 
@@ -2516,9 +2562,7 @@ export class MeowtalArenaScene extends Phaser.Scene {
       return;
     }
 
-    const body = [presentation.body, presentation.opponentOrderLabel, presentation.callToAction]
-      .filter((line) => line.length > 0)
-      .join("\n");
+    const body = championshipPresentationBodyLines(presentation).join("\n");
     this.championshipTitleText
       .setText(presentation.headline)
       .setPosition(512, 106)
@@ -2926,6 +2970,122 @@ function shellHelp(
   return "Double-tap D/B run  |  W+dir hop  |  Space/J light  |  I kick  |  K heavy  |  L special  |  S,D,L super  |  C CPU  |  V level  |  P pause  |  F full";
 }
 
+function championshipPresentationBodyLines(presentation: {
+  body: string;
+  callToAction: string;
+  reward: ChampionshipRewardState;
+  interstitial: ChampionshipRewardInterstitial;
+}): string[] {
+  if (presentation.interstitial.kind === "cleared" || presentation.interstitial.kind === "failed") {
+    return [
+      presentation.body,
+      presentation.reward.claimLine,
+      presentation.interstitial.payoffLine,
+      presentation.callToAction,
+    ].filter((line) => line.length > 0);
+  }
+
+  return [
+    presentation.body,
+    presentation.interstitial.progressLine,
+    presentation.reward.claimLine,
+    presentation.callToAction,
+  ].filter((line) => line.length > 0);
+}
+
+function championshipRewardState(
+  kind: ChampionshipInterstitialKind,
+  progress: { completedCount: number; totalOpponents: number },
+  player: FighterStoryTextProfile,
+  rival: FighterStoryTextProfile | null,
+): ChampionshipRewardState {
+  const title = "Snackbelt Treat Dispenser";
+  if (kind === "cleared") {
+    return {
+      title,
+      status: "claimed",
+      claimLine: `Reward claimed: treat dispenser + good couch naming rights for ${player.displayName}.`,
+    };
+  }
+  if (kind === "failed") {
+    return {
+      title,
+      status: "lost",
+      claimLine: `Reward lost: ${rival?.displayName ?? "the bracket"} holds the belt for a rematch.`,
+    };
+  }
+  if (kind === "advance") {
+    return {
+      title,
+      status: "checkpoint",
+      claimLine: `Reward checkpoint: ${progress.completedCount}/${progress.totalOpponents} stamps; couch rights still pending.`,
+    };
+  }
+
+  return {
+    title,
+    status: "up-for-grabs",
+    claimLine: `Prize track: ${progress.completedCount}/${progress.totalOpponents} stamps toward treat dispenser + couch rights.`,
+  };
+}
+
+function championshipInterstitialState(
+  kind: ChampionshipInterstitialKind,
+  progress: { completedCount: number; totalOpponents: number },
+  player: FighterStoryTextProfile,
+  rival: FighterStoryTextProfile | null,
+  lastCompletedRival: FighterStoryTextProfile | null,
+  nextAction: string,
+): ChampionshipRewardInterstitial {
+  const rosterTruth = "3 playable runtime fighters; 5 planned locked for model-sheet QA";
+  const rivalLabel = rival ? `${kind === "advance" ? "Next" : "Current"} ${rival.displayName}` : "No active rival";
+  const progressLine = `Progress: ${progress.completedCount}/${progress.totalOpponents} rivals folded | ${rivalLabel}`;
+
+  if (kind === "cleared") {
+    return {
+      kind,
+      progressLine: `Progress: ${progress.completedCount}/${progress.totalOpponents} rivals folded | runtime ladder cleared`,
+      payoffLine: `${player.displayName}'s title is official until somebody licks the paperwork again.`,
+      nextAction,
+      rosterTruth,
+      completedCount: progress.completedCount,
+      totalOpponents: progress.totalOpponents,
+    };
+  }
+  if (kind === "failed") {
+    return {
+      kind,
+      progressLine,
+      payoffLine: `${rival?.displayName ?? "The bracket"} confiscates the snack paperwork until the rematch.`,
+      nextAction,
+      rosterTruth,
+      completedCount: progress.completedCount,
+      totalOpponents: progress.totalOpponents,
+    };
+  }
+  if (kind === "advance") {
+    return {
+      kind,
+      progressLine,
+      payoffLine: `${lastCompletedRival?.displayName ?? "One rival"} folded; ${rival?.displayName ?? "the next rival"} is now accepting snacks as legal tender.`,
+      nextAction,
+      rosterTruth,
+      completedCount: progress.completedCount,
+      totalOpponents: progress.totalOpponents,
+    };
+  }
+
+  return {
+    kind,
+    progressLine,
+    payoffLine: "Win the set, claim a stamp, and keep the paperwork unchewed.",
+    nextAction,
+    rosterTruth,
+    completedCount: progress.completedCount,
+    totalOpponents: progress.totalOpponents,
+  };
+}
+
 function modeSelectText(shell: ShellState, cpuDifficulty: CpuDifficulty): string {
   return [shellModeLabel(shell), ...shellModeDetailLines(shell, cpuDifficulty)].join("\n");
 }
@@ -2998,12 +3158,13 @@ function fighterSummary(fighterId: string) {
   };
 }
 
-function fighterStorySummary(fighterId: string) {
+function fighterStorySummary(fighterId: string): FighterStoryTextProfile {
   const fighter = FIGHTER_ROSTER[fighterRosterIndex(fighterId)];
   const content = GAME_CONFIG.contentSpine.fighters.find((candidate) => candidate.id === fighterId);
   return {
     fighterId: fighter.id,
     displayName: fighter.displayName,
+    leagueName: content?.name ?? fighter.displayName,
     storyHook: content?.storyHook ?? null,
     signatureMove: content?.signatureMove ?? null,
     superMove: content?.superMove ?? null,

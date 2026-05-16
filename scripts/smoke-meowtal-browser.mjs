@@ -419,6 +419,34 @@ function checkEndShellPresentation(state, scenario, expectedAction, failures) {
   assert(visibleShellCopy(state).includes("ENTER / SPACE"), failures, `${scenario} end copy should expose Enter/Space`);
 }
 
+function checkChampionshipRewardInterstitial(state, scenario, expectedKind, expectedRewardStatus, expectedProgress, failures) {
+  const presentation = state.storyMode?.presentation;
+  const interstitial = presentation?.interstitial;
+  const reward = presentation?.reward;
+
+  assert(interstitial?.kind === expectedKind, failures, `${scenario} expected ${expectedKind} interstitial, got ${interstitial?.kind}`);
+  assert(
+    reward?.status === expectedRewardStatus,
+    failures,
+    `${scenario} expected reward status ${expectedRewardStatus}, got ${reward?.status}`,
+  );
+  assert(reward?.title === "Snackbelt Treat Dispenser", failures, `${scenario} should expose the Snackbelt reward`);
+  assert(
+    interstitial?.progressLine?.includes(expectedProgress),
+    failures,
+    `${scenario} progress should include ${expectedProgress}, got ${interstitial?.progressLine}`,
+  );
+  assert(
+    interstitial?.rosterTruth?.includes("3 playable runtime fighters") &&
+      interstitial?.rosterTruth?.includes("5 planned locked"),
+    failures,
+    `${scenario} should keep roster truth in interstitial state`,
+  );
+  assert(interstitial?.nextAction === presentation?.callToAction, failures, `${scenario} nextAction should match CTA`);
+  assert(typeof interstitial?.payoffLine === "string" && interstitial.payoffLine.length > 0, failures, `${scenario} should expose payoff flavor`);
+  assert(typeof reward?.claimLine === "string" && reward.claimLine.length > 0, failures, `${scenario} should expose reward claim line`);
+}
+
 function checkFramePacing(state, scenario, failures) {
   const pacing = state.framePacing;
   assert(pacing && typeof pacing === "object", failures, `${scenario} should expose frame pacing telemetry`);
@@ -819,6 +847,17 @@ async function runChampionshipLadderProgression(browser, url, outDir) {
       failures,
       "advance demo should name Pickles in presentation copy",
     );
+    checkChampionshipRewardInterstitial(state, "advance demo", "advance", "checkpoint", "1/2", failures);
+    assert(
+      state.storyMode?.presentation?.reward?.claimLine?.includes("couch rights still pending"),
+      failures,
+      `advance demo should expose pending couch-rights reward, got ${state.storyMode?.presentation?.reward?.claimLine}`,
+    );
+    assert(
+      state.storyMode?.presentation?.interstitial?.payoffLine?.includes("legal tender"),
+      failures,
+      `advance demo should expose comic payoff, got ${state.storyMode?.presentation?.interstitial?.payoffLine}`,
+    );
     assert(
       state.storyMode?.presentation?.opponentOrderLabel?.includes("DONE Ginger Tabby Cat") &&
         state.storyMode?.presentation?.opponentOrderLabel?.includes("NEXT Pickles Pugilist"),
@@ -867,6 +906,7 @@ async function runChampionshipLadderProgression(browser, url, outDir) {
       failures,
       "ladder advance should surface Pickles story hook",
     );
+    checkChampionshipRewardInterstitial(state, "ladder advance next fight", "rival-preview", "up-for-grabs", "1/2", failures);
     assert(
       state.assetReadiness?.runtimeFallbacks?.fighterAnimations === 0,
       failures,
@@ -916,6 +956,17 @@ async function runChampionshipLadderProgression(browser, url, outDir) {
       failures,
       `clear demo expected restart CTA, got ${state.storyMode?.presentation?.callToAction}`,
     );
+    checkChampionshipRewardInterstitial(state, "ladder clear", "cleared", "claimed", "2/2", failures);
+    assert(
+      state.storyMode?.presentation?.reward?.claimLine?.includes("good couch naming rights"),
+      failures,
+      `clear demo should expose couch-rights reward, got ${state.storyMode?.presentation?.reward?.claimLine}`,
+    );
+    assert(
+      state.storyMode?.presentation?.interstitial?.payoffLine?.includes("paperwork"),
+      failures,
+      `clear demo should expose paperwork payoff, got ${state.storyMode?.presentation?.interstitial?.payoffLine}`,
+    );
     assert(errors.length === 0, failures, `ladder clear console/page errors: ${JSON.stringify(errors)}`);
     await context.close();
   }
@@ -947,6 +998,12 @@ async function runChampionshipLadderProgression(browser, url, outDir) {
       state.storyMode?.presentation?.body?.includes("Ginger Tabby Cat"),
       failures,
       "fail demo should name the rival that stopped the run",
+    );
+    checkChampionshipRewardInterstitial(state, "ladder fail", "failed", "lost", "0/2", failures);
+    assert(
+      state.storyMode?.presentation?.reward?.claimLine?.includes("rematch"),
+      failures,
+      `fail demo should expose rematch reward state, got ${state.storyMode?.presentation?.reward?.claimLine}`,
     );
     assert(errors.length === 0, failures, `ladder fail console/page errors: ${JSON.stringify(errors)}`);
     await context.close();
