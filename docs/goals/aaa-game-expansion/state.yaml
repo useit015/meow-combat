@@ -117,7 +117,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T099
+active_task: T100
 
 tasks:
   - id: T001
@@ -6890,7 +6890,7 @@ tasks:
   - id: T099
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: medium
     objective: "Create the source-only animation-production preflight for Tofu Tortoise / `tortoise-tofu`. Define the identity requirements, row-production order, no-size-drift/QA checks, blockers, and focused tests needed before any Tofu animation row is generated, while proving Tofu remains non-playable with no public/runtime fighter assets."
     inputs:
@@ -6930,18 +6930,100 @@ tasks:
       - "No public/runtime `tortoise-tofu` fighter folder exists."
       - "Focused tests and full verify pass."
       - "Protected diff check shows no public/runtime Tofu, dependency, audio, sprite-cell, sprite-visual-sizing, combat, or roster promotion changes."
+    receipt:
+      result: done
+      full_outcome_complete: false
+      note: notes/T099-tofu-animation-preflight.md
+      summary: "Completed the source-only Tofu Tortoise animation preflight. The plan defines identity requirements, row order, no-size-drift gates, promotion tests, and future smoke requirements while proving Tofu remains non-playable with no public/runtime fighter folder. Focused tests, full verify, artifact checks, public-folder absence, and protected diff checks passed."
+      changed_files:
+        - "src/assets/fighterAnimationPreflight.ts"
+        - "test/fighter-animation-preflight.test.ts"
+        - "output/animation-preflight/tofu-tortoise-animation-preflight.json"
+        - "output/animation-preflight/tofu-tortoise-animation-preflight.html"
+        - "docs/goals/aaa-game-expansion/notes/T099-tofu-animation-preflight.md"
+      commands:
+        - cmd: "npm test -- test/fighter-animation-preflight.test.ts"
+          result: fail
+          summary: "Expected TDD red: buildTofuAnimationPreflight did not exist."
+        - cmd: "npm test -- test/fighter-animation-preflight.test.ts"
+          result: fail
+          summary: "Expected artifact red after builder was added: tofu-tortoise-animation-preflight.json did not exist."
+        - cmd: "npm test -- test/fighter-animation-preflight.test.ts"
+          result: pass
+          summary: "1 file / 25 tests passed."
+        - cmd: "git diff --check"
+          result: pass
+        - cmd: "test ! -e public/assets/generated/fighters/tortoise-tofu"
+          result: pass
+        - cmd: "git diff --name-only -- public/assets/generated/fighters/tortoise-tofu assets/source/imagegen/fighters/tortoise-tofu package.json package-lock.json src/game/audio.ts public/assets/audio assets/source/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts src/core/frameData.ts src/game/gameConfig.ts"
+          result: pass
+          summary: "No protected diffs."
+        - cmd: "npm test -- test/fighter-animation-preflight.test.ts test/asset-pipeline.test.ts test/meowtal-production-manifest.test.ts"
+          result: pass
+          summary: "3 files / 55 tests passed."
+        - cmd: "npm run verify"
+          result: pass
+          summary: "typecheck, 33 files / 239 tests, and production build passed."
+        - cmd: "node -e 'const fs=require(\"fs\"); const p=\"output/animation-preflight/tofu-tortoise-animation-preflight.json\"; const r=JSON.parse(fs.readFileSync(p,\"utf8\")); console.log(JSON.stringify({fighterId:r.fighterId, sourceOnly:r.sourceOnly, playable:r.playable, rows:r.requiredRows.length, gates:r.noDriftQaGates.map(g=>g.id)}, null, 2)); if(r.fighterId!==\"tortoise-tofu\" || !r.sourceOnly || r.playable || r.requiredRows.length!==14) process.exit(1);'"
+          result: pass
+          summary: "JSON artifact reports Tofu source-only, not playable, 14 rows, and five no-drift gates."
+        - cmd: "test -s output/animation-preflight/tofu-tortoise-animation-preflight.json"
+          result: pass
+        - cmd: "test -s output/animation-preflight/tofu-tortoise-animation-preflight.html"
+          result: pass
+      spawned_tasks:
+        - T100
+  - id: T100
+    type: judge
+    assignee: Judge
+    status: active
+    reasoning_hint: high
+    objective: "Review the T099 Tofu Tortoise source-only animation preflight and decide whether the next safe package should start Tofu row production with idle, require preflight repair, route to another planned fighter lane, or run a not-complete tranche audit."
+    inputs:
+      - "T099 Tofu animation preflight receipt."
+      - "docs/goals/aaa-game-expansion/notes/T099-tofu-animation-preflight.md"
+      - "output/animation-preflight/tofu-tortoise-animation-preflight.json"
+      - "output/animation-preflight/tofu-tortoise-animation-preflight.html"
+      - "Current git diff and committed T099 changes."
+    constraints:
+      - "Read-only decision only."
+      - "Do not run imagegen."
+      - "Do not generate animation rows."
+      - "Do not edit public/runtime fighter assets."
+      - "Do not promote Tofu or any planned fighter."
+      - "Do not mark the full AAA outcome complete unless a requirement-by-requirement audit proves the original objective."
+    allowed_files:
+      - "docs/goals/aaa-game-expansion/notes/T100-tofu-preflight-review.md"
+      - "docs/goals/aaa-game-expansion/state.yaml"
+    verification:
+      - "sed -n '1,220p' docs/goals/aaa-game-expansion/notes/T099-tofu-animation-preflight.md"
+      - "node -e 'const fs=require(\"fs\"); const r=JSON.parse(fs.readFileSync(\"output/animation-preflight/tofu-tortoise-animation-preflight.json\",\"utf8\")); console.log(JSON.stringify({fighterId:r.fighterId, sourceOnly:r.sourceOnly, playable:r.playable, rows:r.requiredRows.length, gates:r.noDriftQaGates.map(g=>g.id)}, null, 2)); if(r.fighterId!==\"tortoise-tofu\" || !r.sourceOnly || r.playable || r.requiredRows.length!==14 || !r.noDriftQaGates.some(g=>g.id===\"shell-mass-scale-bounds\")) process.exit(1);'"
+      - "test ! -e public/assets/generated/fighters/tortoise-tofu"
+      - "git diff --name-only -- public/assets/generated/fighters/tortoise-tofu assets/source/imagegen/fighters/tortoise-tofu package.json package-lock.json src/game/audio.ts public/assets/audio assets/source/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts src/core/frameData.ts src/game/gameConfig.ts"
+    stop_conditions:
+      - "T099 receipt is missing, stale, or contradicts the JSON artifact."
+      - "Tofu source-only preflight lacks row coverage, shell-mass no-drift gates, public-folder absence, or non-playable proof."
+      - "Protected runtime/public, source image, dependency, audio, sprite-cell, sprite-visual-sizing, combat, or roster diffs appear."
+    acceptance_criteria:
+      - "Decision is explicit: approve next safe Worker, require repair, ask owner, route another lane, or run final not-complete audit."
+      - "If row production is approved, the chosen package must be the largest safe bounded source-only slice with allowed files and verification."
+      - "The full AAA outcome remains active and incomplete unless directly proven otherwise."
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T098
+    task: T099
     commands:
-      - "sed -n '1,220p' docs/goals/aaa-game-expansion/notes/T097-championship-story-polish.md"
-      - "node -e 'const r=require(\"./output/web-game/championship-story-polish/report.json\"); console.log(JSON.stringify({failures:r.failures.length,resultNames:r.results.map(x=>x.name),hasChampionship:r.results.some(x=>x.name===\"championship-ladder\"),hasTraining:r.results.some(x=>x.name===\"training-demo\"),hasLocalVersus:r.results.some(x=>x.name===\"local-versus-demo\"),hasFourFighter:r.results.some(x=>x.name===\"four-fighter-runtime-promotion\")}, null, 2)); if (r.failures.length || !r.results.some(x=>x.name===\"championship-ladder\") || !r.results.some(x=>x.name===\"training-demo\") || !r.results.some(x=>x.name===\"local-versus-demo\") || !r.results.some(x=>x.name===\"four-fighter-runtime-promotion\")) process.exit(1);'"
-      - "git diff --name-only -- public/assets/generated/fighters assets/source/imagegen/fighters package.json package-lock.json src/game/audio.ts public/assets/audio assets/source/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts"
-      - "find assets/source/audio -maxdepth 3 -type f"
-      - "git ls-files public/assets/generated/audio assets/source/audio"
+      - "npm test -- test/fighter-animation-preflight.test.ts"
+      - "git diff --check"
+      - "test ! -e public/assets/generated/fighters/tortoise-tofu"
+      - "git diff --name-only -- public/assets/generated/fighters/tortoise-tofu assets/source/imagegen/fighters/tortoise-tofu package.json package-lock.json src/game/audio.ts public/assets/audio assets/source/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts src/core/frameData.ts src/game/gameConfig.ts"
+      - "npm test -- test/fighter-animation-preflight.test.ts test/asset-pipeline.test.ts test/meowtal-production-manifest.test.ts"
+      - "npm run verify"
+      - "node -e 'const fs=require(\"fs\"); const p=\"output/animation-preflight/tofu-tortoise-animation-preflight.json\"; const r=JSON.parse(fs.readFileSync(p,\"utf8\")); console.log(JSON.stringify({fighterId:r.fighterId, sourceOnly:r.sourceOnly, playable:r.playable, rows:r.requiredRows.length, gates:r.noDriftQaGates.map(g=>g.id)}, null, 2)); if(r.fighterId!==\"tortoise-tofu\" || !r.sourceOnly || r.playable || r.requiredRows.length!==14) process.exit(1);'"
+      - "test -s output/animation-preflight/tofu-tortoise-animation-preflight.json"
+      - "test -s output/animation-preflight/tofu-tortoise-animation-preflight.html"
   t021_verification:
     result: pass
     task: T021
