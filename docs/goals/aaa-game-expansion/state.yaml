@@ -117,7 +117,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T014
+active_task: T016
 
 tasks:
   - id: T001
@@ -744,7 +744,7 @@ tasks:
   - id: T014
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Choose the next safe roster-production package after the T013 audit. Decide whether to generate a bounded source-only model-sheet batch for the next two planned fighters, generate only one model sheet, or defer roster art for another pipeline gap. Prioritize quality-first imagegen, no animation drift, no runtime overclaiming, and progress toward the 8-fighter direction."
     inputs:
@@ -768,16 +768,124 @@ tasks:
       - "verify"
       - "stop_if"
       - "no-slop acceptance checklist"
+    receipt:
+      result: done
+      decision: "proceed_with_worker"
+      rationale: "Approve a bounded source-only batch for exactly the next two planned fighters: ferret-noodle / Noodle Nibbles and tortoise-tofu / Tofu Tortoise. T012 proved the one-sheet pipeline, T013 confirms runtime overclaiming is controlled, and two source-only sheets is the largest safe QAable roster step toward 8 fighters without touching animation, select UI, or playable roster."
+      next_task: T015
+      summary: "Approved exactly two source-only canonical model sheets via built-in imagegen only. The Worker must add planned/source-only manifests, provenance, and imagegen jobs for ferret-noodle and tortoise-tofu, keep runtime playable roster as Gray Rabbit + Ginger Tabby Cat, and stop on any need for animation rows, portraits, public assets, select slots, playable promotion, or files outside the scoped asset/test paths."
+  - id: T015
+    type: worker
+    assignee: Worker
+    status: done
+    reasoning_hint: medium
+    objective: "Generate and register exactly two source-only canonical model sheets via built-in imagegen only: ferret-noodle / Noodle Nibbles and tortoise-tofu / Tofu Tortoise. Add them as planned/source-only fighter asset manifests, provenance, and imagegen jobs. Do not create animation rows, portraits, public assets, select-screen slots, or playable runtime content. Keep gameConfig runtime roster exactly gray-rabbit and ginger-tabby-cat."
+    allowed_files:
+      - "src/assets/catalog.ts"
+      - "src/assets/imagegenJobs.ts"
+      - "src/assets/meowtalProductionManifest.ts"
+      - "test/asset-pipeline.test.ts"
+      - "test/imagegen-jobs.test.ts"
+      - "test/meowtal-production-manifest.test.ts"
+      - "assets/source/imagegen/fighters/ferret-noodle/canonical-character-sheet.png"
+      - "assets/source/imagegen/fighters/ferret-noodle/candidates/canonical-character-sheet-codex-01.png"
+      - "assets/source/imagegen/fighters/tortoise-tofu/canonical-character-sheet.png"
+      - "assets/source/imagegen/fighters/tortoise-tofu/candidates/canonical-character-sheet-codex-01.png"
+      - "output/imagegen/ferret-noodle-canonical-character-sheet.png"
+      - "output/imagegen/tortoise-tofu-canonical-character-sheet.png"
+      - "output/web-game/aaa-expansion-two-model-sheets/"
+    verify:
+      - "npm run typecheck"
+      - "npm test -- test/asset-pipeline.test.ts test/imagegen-jobs.test.ts test/meowtal-production-manifest.test.ts test/game-config.test.ts"
+      - "npm run verify"
+      - "sips -g pixelWidth -g pixelHeight assets/source/imagegen/fighters/ferret-noodle/canonical-character-sheet.png assets/source/imagegen/fighters/tortoise-tofu/canonical-character-sheet.png"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/aaa-expansion-two-model-sheets"
+    stop_if:
+      - "Need any file outside allowed_files."
+      - "Need public/assets, src/game/gameConfig.ts, scene/select UX, combat, input, dependencies, or runtime roster files."
+      - "Need animation rows, runtime portraits, select-screen planned slots, or playable promotion."
+      - "More than two final generated model-sheet assets are required."
+      - "Either fighter needs more than two imagegen attempts to produce an acceptable source sheet."
+      - "Generated output has readable/pseudo text, logos, watermarks, copied fighting-game marks, malformed anatomy, identity drift, size drift, extra characters, generic AI look, unclear species identity, or mixed two-legged/four-legged normal stance."
+      - "Browser smoke reports any runtime promotion of ferret-noodle or tortoise-tofu."
+    acceptance:
+      - "Exactly one accepted source-only sheet for ferret-noodle."
+      - "Exactly one accepted source-only sheet for tortoise-tofu."
+      - "Noodle reads as one cute upright ferret mix-up fighter: long flexible body, mischievous face, sock-thief personality, readable side-switch pose language, stable palette and proportions."
+      - "Tofu reads as one cute upright tortoise armored grappler: shell mass, slow sturdy stance, calm face, command-grab readability, stable palette and proportions."
+      - "Both sheets include consistent front/side/back/three-quarter, guard/idle, head close-up, expressions, silhouette guide, and color swatches."
+      - "No text, pseudo-text, labels, logos, watermarks, brand marks, extra characters, or copied costume/move language."
+      - "Metadata clearly marks both as source-only identity locks, not playable assets."
+      - "All animation rows for both fighters remain blocked."
+      - "Latest smoke still shows only Gray Rabbit and Ginger Tabby Cat as playable."
+    receipt:
+      result: done
+      changed_files:
+        - "src/assets/catalog.ts"
+        - "src/assets/meowtalProductionManifest.ts"
+        - "test/asset-pipeline.test.ts"
+        - "test/imagegen-jobs.test.ts"
+        - "test/meowtal-production-manifest.test.ts"
+        - "assets/source/imagegen/fighters/ferret-noodle/canonical-character-sheet.png"
+        - "assets/source/imagegen/fighters/ferret-noodle/candidates/canonical-character-sheet-codex-01.png"
+        - "assets/source/imagegen/fighters/tortoise-tofu/canonical-character-sheet.png"
+        - "assets/source/imagegen/fighters/tortoise-tofu/candidates/canonical-character-sheet-codex-01.png"
+        - "output/imagegen/ferret-noodle-canonical-character-sheet.png"
+        - "output/imagegen/tortoise-tofu-canonical-character-sheet.png"
+        - "output/web-game/aaa-expansion-two-model-sheets/"
+      commands:
+        - cmd: "built-in Codex imagegen for source-only Noodle Nibbles canonical model sheet"
+          status: pass
+        - cmd: "built-in Codex imagegen for source-only Tofu Tortoise canonical model sheet"
+          status: pass
+        - cmd: "sips -g pixelWidth -g pixelHeight assets/source/imagegen/fighters/ferret-noodle/canonical-character-sheet.png assets/source/imagegen/fighters/tortoise-tofu/canonical-character-sheet.png"
+          status: pass
+        - cmd: "npm test -- test/asset-pipeline.test.ts test/imagegen-jobs.test.ts test/meowtal-production-manifest.test.ts test/game-config.test.ts"
+          status: pass
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/aaa-expansion-two-model-sheets"
+          status: pass
+      summary: "Generated exactly two accepted source-only canonical model sheets with built-in Codex imagegen: Noodle Nibbles / ferret-noodle and Tofu Tortoise / tortoise-tofu. Copied each to source/candidate paths and ignored QA output paths, registered planned/source-only manifests and production provenance, kept all new animation rows blocked, and did not create public/runtime assets, portraits, select slots, or playable content. Focused tests, typecheck, full verify, dimensions, and production-preview smoke passed; latest smoke still reports Gray Rabbit vs Ginger Tabby Cat as the playable runtime pair."
+  - id: T016
+    type: judge
+    assignee: Judge
+    status: active
+    reasoning_hint: high
+    objective: "Choose the next safe production package after three planned Pawbreaker fighters now have source-only identity locks. Decide whether to generate the remaining planned fighter model sheets, add a source-only roster-lab/review surface, begin authored/sample audio acquisition, or address another higher-risk gap. Keep no-slop quality and runtime overclaiming constraints central."
+    inputs:
+      - "T013 tranche inventory and checklist"
+      - "T014 batch decision"
+      - "T015 two-model-sheet receipt"
+      - "T004 8-fighter content spine"
+      - "T006 no-slop generated fighter asset contract"
+      - "Latest smoke proof at output/web-game/aaa-expansion-two-model-sheets/report.json"
+    constraints:
+      - "Do not implement, generate images, or acquire audio."
+      - "Reject playable roster expansion until candidate fighters have canonical sheets, approved animation plans, full generated row sets, normalization/QA, runtime promotion tests, and browser smoke proof."
+      - "Do not allow select-screen planned slots or public/runtime promotion unless the selected next Worker proves why it is safe."
+      - "If choosing more model sheets, cap the batch to the largest safe QAable set and include per-fighter rejection criteria."
+      - "If choosing audio, require source/license records and avoid procedural sound as the primary direction."
+    expected_output:
+      - "Decision: proceed_with_worker | require_scout | defer_roster_art | defer_audio"
+      - "Rationale"
+      - "Exact Worker objective"
+      - "allowed_files"
+      - "verify"
+      - "stop_if"
+      - "acceptance checklist"
     receipt: null
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T012
+    task: T015
     commands:
       - "npm run typecheck"
       - "npm test -- test/asset-pipeline.test.ts test/imagegen-jobs.test.ts test/meowtal-production-manifest.test.ts test/game-config.test.ts"
       - "npm run verify"
-      - "sips -g pixelWidth -g pixelHeight assets/source/imagegen/fighters/pugilist-pug/canonical-character-sheet.png"
-      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/aaa-expansion-pug-model-sheet"
+      - "sips -g pixelWidth -g pixelHeight assets/source/imagegen/fighters/ferret-noodle/canonical-character-sheet.png assets/source/imagegen/fighters/tortoise-tofu/canonical-character-sheet.png"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/aaa-expansion-two-model-sheets"
