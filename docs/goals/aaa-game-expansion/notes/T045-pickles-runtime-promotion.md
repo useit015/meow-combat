@@ -37,3 +37,26 @@ Promoted Pickles Pugilist (`pugilist-pug`) from approved source rows to public/r
 - `npm test -- test/fighter-animation-preflight.test.ts test/asset-pipeline.test.ts test/asset-qa.test.ts test/game-config.test.ts test/source-roster-lab.test.ts test/character-select.test.ts test/asset-runtime.test.ts` passed: 7 files, 52 tests.
 - `npm run typecheck` passed.
 - `npm run build` passed.
+- First `npm run verify` caught stale `test/game-bible.test.ts` and `test/imagegen-jobs.test.ts` expectations that still described Pickles as source-only. Those expectations were updated to the promoted runtime state.
+- `npm test -- test/game-bible.test.ts test/imagegen-jobs.test.ts` passed: 2 files, 12 tests.
+- Fresh `npm run verify` passed: 31 files, 214 tests, plus production build.
+- `PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/pickles-runtime-promotion` passed with no failures.
+- Targeted Playwright smoke passed and wrote `output/web-game/pickles-runtime-promotion/pickles-targeted-report.json`.
+
+## Browser Smoke Evidence
+
+The targeted smoke selected Pickles as P1 in Training mode, fetched all `14` public Pickles runtime rows as PNGs, and verified these runtime states without fighter fallbacks:
+
+- Select screen: `pugilist-pug:idle`
+- Fight idle: `pugilist-pug:idle`
+- Jump: `pugilist-pug:jump`
+- Light punch: `pugilist-pug:light-punch`
+- Special: `pugilist-pug:special`
+
+Screenshots:
+
+- `output/web-game/pickles-runtime-promotion/pickles-selected.png`
+- `output/web-game/pickles-runtime-promotion/pickles-fight-idle.png`
+- `output/web-game/pickles-runtime-promotion/pickles-fight-jump.png`
+- `output/web-game/pickles-runtime-promotion/pickles-fight-light-punch.png`
+- `output/web-game/pickles-runtime-promotion/pickles-fight-special.png`

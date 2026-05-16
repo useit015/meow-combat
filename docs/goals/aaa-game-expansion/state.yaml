@@ -117,7 +117,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T045
+active_task: T048
 
 tasks:
   - id: T001
@@ -2943,7 +2943,7 @@ tasks:
   - id: T045
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: medium
     objective: "Promote the approved Pickles Pugilist source rows to public/runtime as a selectable playable fighter in one bounded package. Copy only accepted rows, preserve pixel identity/no-size-change, update runtime manifests/config/content/tests from source-only to playable, and prove every Pickles runtime spritesheet loads with no fallback rows."
     allowed_files:
@@ -2962,6 +2962,8 @@ tasks:
       - "test/source-roster-lab.test.ts"
       - "test/character-select.test.ts"
       - "test/asset-runtime.test.ts"
+      - "test/game-bible.test.ts"
+      - "test/imagegen-jobs.test.ts"
       - "docs/goals/aaa-game-expansion/notes/T045-pickles-runtime-promotion.md"
       - "docs/goals/aaa-game-expansion/state.yaml"
     verify:
@@ -2985,23 +2987,227 @@ tasks:
       - "Fighter definitions include Pickles with bounded, readable pressure-boxer gameplay values."
       - "Game bible/source roster/preflight tests are updated from source-only to promoted runtime state without weakening no-size-change gates."
       - "Focused tests, asset QA, typecheck, build, full verify, and browser smoke pass."
+    receipt:
+      result: done
+      full_outcome_complete: false
+      note: notes/T045-pickles-runtime-promotion.md
+      summary: "Promoted Pickles Pugilist to public/runtime as the third selectable fighter. The promoted public rows are byte-identical to the approved source rows, runtime config/content/source roster/preflight state now mark Pickles playable, and stale game-bible/imagegen-job expectations were updated after full verify caught them. Browser smoke selected Pickles in Training mode and proved idle, jump, light-punch, and special route through pugilist-pug sprite assets with no fighter fallbacks."
+      changed_files:
+        - "public/assets/generated/fighters/pugilist-pug/*.png"
+        - "src/assets/catalog.ts"
+        - "src/core/frameData.ts"
+        - "src/game/gameConfig.ts"
+        - "src/content/gameBible.ts"
+        - "src/assets/sourceRosterLab.ts"
+        - "src/assets/fighterAnimationPreflight.ts"
+        - "test/asset-pipeline.test.ts"
+        - "test/fighter-animation-preflight.test.ts"
+        - "test/game-config.test.ts"
+        - "test/source-roster-lab.test.ts"
+        - "test/character-select.test.ts"
+        - "test/asset-runtime.test.ts"
+        - "test/game-bible.test.ts"
+        - "test/imagegen-jobs.test.ts"
+      evidence:
+        - "public/assets/generated/fighters/pugilist-pug contains exactly 14 PNG rows."
+        - "cmp -s passed for every accepted Pickles source row against its promoted public runtime copy."
+        - "Asset QA reported checked=140, runtimeReady=84, needsNormalization=56, Pickles rows=28."
+        - "Focused tests passed: 7 files, 52 tests."
+        - "Stale game-bible/imagegen-job tests were updated and passed: 2 files, 12 tests."
+        - "Fresh full verify passed: 31 files, 214 tests, plus production build."
+        - "Stock smoke passed with no failures at output/web-game/pickles-runtime-promotion."
+        - "Targeted Playwright smoke selected Pickles as P1, fetched all 14 public Pickles PNG rows, and verified pugilist-pug idle/jump/light-punch/special runtime sprite routing with zero fighter fallbacks."
+      verification:
+        result: pass
+        commands:
+          - "test -d public/assets/generated/fighters/pugilist-pug"
+          - "node scripts/asset-qa.mjs --json"
+          - "for row in idle walk-forward walk-back crouch jump light-punch heavy-punch light-kick special hitstun blockstun knockdown win lose; do cmp -s assets/source/imagegen/fighters/pugilist-pug/$row.png public/assets/generated/fighters/pugilist-pug/$row.png; done"
+          - "npm test -- test/fighter-animation-preflight.test.ts test/asset-pipeline.test.ts test/asset-qa.test.ts test/game-config.test.ts test/source-roster-lab.test.ts test/character-select.test.ts test/asset-runtime.test.ts"
+          - "npm test -- test/game-bible.test.ts test/imagegen-jobs.test.ts"
+          - "npm run typecheck"
+          - "npm run build"
+          - "npm run verify"
+          - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/pickles-runtime-promotion"
+          - "Targeted Playwright Pickles selection/runtime smoke wrote output/web-game/pickles-runtime-promotion/pickles-targeted-report.json"
+      residual_risks:
+        - "HUD/select portraits still use rabbit/cat portrait art; a later UI polish task should add Pickles-specific portrait/HUD treatment."
+        - "Gameplay values are bounded starter pressure-boxer values and still need tuning against the full roster standard."
+      spawned_tasks:
+        - T046
+  - id: T046
+    type: judge
+    assignee: Judge
+    status: done
+    reasoning_hint: high
+    objective: "Post-promotion audit Pickles as a runtime fighter and choose the next safe AAA package without marking the broad game complete."
+    inputs:
+      - "T045 runtime promotion receipt and screenshots"
+      - "Current runtime roster/config/content"
+      - "Focused/full verification output"
+      - "Browser smoke output under output/web-game/pickles-runtime-promotion"
+      - "User hard rule that character size should not change"
+    constraints:
+      - "Read-only."
+      - "Do not edit files."
+      - "Do not generate assets."
+      - "Judge visual/runtime quality honestly: selectable, playable, no fallback rows, no size drift, no identity drift, no misleading UI state."
+      - "The broad AAA goal remains incomplete unless a final PM/Judge audit explicitly proves all original outcomes."
+    expected_output:
+      - "Accept/reject the T045 runtime promotion."
+      - "Blocking issues, if any."
+      - "Residual polish risks such as portraits, HUD labeling, tuning, story/mode integration, or animation QA."
+      - "Recommended next largest safe Worker package with allowed files, verification, and stop conditions."
+      - "Decision: accept_promotion | fix_promotion | next_polish_worker | switch_milestone"
+    receipt:
+      result: done
+      decision: fix_promotion
+      full_outcome_complete: false
+      note: notes/T046-pickles-post-promotion-audit.md
+      summary: "Rejected T045 as complete because Pickles is playable in combat but the fight HUD still shows static rabbit/cat-only portrait truth when Pickles is selected, and tracked roster-lab artifacts still label Pickles source-only. No Pickles source/public row drift or runtime sprite fallback was found; the fix should preserve pixel identity and update HUD/artifact truthfulness."
+      blockers:
+        - "P1 Pickles can still show the static rabbit portrait in the runtime HUD."
+        - "Tracked roster-lab JSON/HTML artifacts still mark pugilist-pug as a source-only identity lock."
+      evidence:
+        - "Targeted Pickles smoke showed pugilist-pug idle/jump/light-punch/special runtime sprite routing with zero fighter fallbacks."
+        - "Visual screenshots showed Pickles in combat at stable scale but with the wrong static HUD portrait."
+        - "output/roster-lab/aaa-expansion-full-source-roster-lab.json still included pugilist-pug under sourceOnlyIdentityLocks."
+      spawned_tasks:
+        - T047
+  - id: T047
+    type: worker
+    assignee: Worker
+    status: done
+    reasoning_hint: medium
+    objective: "Fix Pickles promotion truthfulness without touching or resizing animation rows: make the runtime HUD accurately represent Pickles when selected, refresh roster-lab artifacts/tests so Pickles is playable-runtime rather than source-only, and prove no source/public row drift or fighter fallback."
+    allowed_files:
+      - "src/game/MeowtalArenaScene.ts"
+      - "test/source-roster-lab.test.ts"
+      - "output/roster-lab/*"
+      - "output/web-game/pickles-runtime-promotion/*"
+      - "docs/goals/aaa-game-expansion/notes/T046-pickles-post-promotion-audit.md"
+      - "docs/goals/aaa-game-expansion/notes/T047-pickles-promotion-truthfulness.md"
+      - "docs/goals/aaa-game-expansion/state.yaml"
+    verify:
+      - "for row in idle walk-forward walk-back crouch jump light-punch heavy-punch light-kick special hitstun blockstun knockdown win lose; do cmp -s assets/source/imagegen/fighters/pugilist-pug/$row.png public/assets/generated/fighters/pugilist-pug/$row.png; done"
+      - "node scripts/asset-qa.mjs --json"
+      - "npm test -- test/source-roster-lab.test.ts test/game-config.test.ts test/asset-runtime.test.ts"
+      - "npm run verify"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/pickles-runtime-promotion"
+      - "Targeted Playwright Pickles selection/runtime HUD smoke writes output/web-game/pickles-runtime-promotion/pickles-targeted-report.json"
+    stop_if:
+      - "Any Pickles animation row must be regenerated, resized, normalized, or pixel-edited."
+      - "Any promoted Pickles public row differs from its accepted source row."
+      - "HUD still shows a rabbit/cat-only fighter identity when Pickles is selected."
+      - "Tracked roster-lab artifacts still mark pugilist-pug source-only or not playable."
+      - "A new planned fighter would need promotion."
+      - "The fix requires unrelated audio, story, combat tuning, or dependency changes."
+    acceptance:
+      - "When Pickles is selected, the fight HUD does not expose the wrong rabbit/cat portrait slot for that player."
+      - "Runtime text state exposes truthful HUD portrait state for Pickles."
+      - "Roster-lab live output and tracked artifacts agree that Pickles is playable-runtime."
+      - "Pickles source/public rows remain byte-identical."
+      - "Focused tests, full verify, stock smoke, and targeted Pickles smoke pass."
+      - "Full AAA outcome remains explicitly incomplete."
+    receipt:
+      result: done
+      decision: accept_truthfulness_fix
+      full_outcome_complete: false
+      note: notes/T047-pickles-promotion-truthfulness.md
+      summary: "Fixed Pickles promotion truthfulness without touching fighter rows. Pickles P1 no longer exposes the rabbit portrait slot; runtime text state now reports a visible dynamic pugilist-pug:idle HUD portrait with no fallback; roster-lab artifacts/tests now mark pugilist-pug playable-runtime instead of source-only; stale promoted-state game-bible/imagegen-job expectations remain coherent with the runtime roster."
+      changed_files:
+        - "src/game/MeowtalArenaScene.ts"
+        - "test/source-roster-lab.test.ts"
+        - "test/game-bible.test.ts"
+        - "test/imagegen-jobs.test.ts"
+        - "output/roster-lab/aaa-expansion-full-source-roster-lab.html"
+        - "output/roster-lab/aaa-expansion-full-source-roster-lab.json"
+        - "output/roster-lab/aaa-expansion-source-roster-lab.html"
+        - "output/roster-lab/aaa-expansion-source-roster-lab.json"
+        - "docs/goals/aaa-game-expansion/notes/T046-pickles-post-promotion-audit.md"
+        - "docs/goals/aaa-game-expansion/notes/T047-pickles-promotion-truthfulness.md"
+        - "docs/goals/aaa-game-expansion/state.yaml"
+      evidence:
+        - "Targeted Pickles smoke failures=[] and fetched all 14 public Pickles rows as image/png."
+        - "Pickles P1 runtimeVisuals covered pugilist-pug idle, jump, light-punch, and special with no fighter fallback."
+        - "Pickles fight HUD visibleSlots excluded rabbit-portrait while keeping P2 cat-portrait."
+        - "runtimeUi.hudPortraits.p1 reported fighterId=pugilist-pug, staticSlot=null, dynamicAssetKey=pugilist-pug:idle, dynamicVisible=true, usesFallback=false."
+        - "Stock smoke output under output/web-game/pickles-runtime-promotion reported failures=[]."
+        - "Roster-lab JSON/HTML artifacts moved pugilist-pug into runtimeRoster/playable-runtime and removed it from sourceOnlyIdentityLocks."
+      verification:
+        result: pass
+        commands:
+          - "for row in idle walk-forward walk-back crouch jump light-punch heavy-punch light-kick special hitstun blockstun knockdown win lose; do cmp -s assets/source/imagegen/fighters/pugilist-pug/$row.png public/assets/generated/fighters/pugilist-pug/$row.png; done"
+          - "node scripts/asset-qa.mjs --json"
+          - "npm test -- test/source-roster-lab.test.ts test/game-config.test.ts test/asset-runtime.test.ts"
+          - "npm run typecheck"
+          - "npm run verify"
+          - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/pickles-runtime-promotion"
+          - "Targeted Playwright Pickles selection/runtime HUD smoke wrote output/web-game/pickles-runtime-promotion/pickles-targeted-report.json"
+      residual_risks:
+        - "runtimeUi.assets still lists loaded rabbit/cat portrait assets for stock compatibility; truth checks should use visibleSlots and hudPortraits."
+        - "Pickles HUD portrait is a constant-scale idle sprite rather than bespoke generated portrait art; acceptable for truthfulness but still a polish opportunity."
+      judge_review:
+        decision: approved
+        summary: "Judge accepted the truthfulness fix and confirmed no fighter-row changes, no Pickles HUD fallback, coherent promoted-state tests, and sufficient verification."
+      spawned_tasks:
+        - T048
+  - id: T048
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: medium
+    objective: "Create a three-fighter runtime integration polish slice: make Pickles first-class across select/combat/championship-facing copy, CPU rotation/readability, and smoke coverage without changing generated fighter rows, character size, dependencies, audio, or new assets."
+    allowed_files:
+      - "src/game/MeowtalArenaScene.ts"
+      - "src/game/gameConfig.ts"
+      - "src/core/frameData.ts"
+      - "src/core/simulation.ts"
+      - "src/content/gameBible.ts"
+      - "scripts/smoke-meowtal-browser.mjs"
+      - "test/game-config.test.ts"
+      - "test/game-bible.test.ts"
+      - "test/character-select.test.ts"
+      - "test/combat-core.test.ts"
+      - "test/combat-effects.test.ts"
+      - "output/web-game/three-fighter-runtime-polish/*"
+      - "docs/goals/aaa-game-expansion/notes/T048-three-fighter-runtime-polish.md"
+      - "docs/goals/aaa-game-expansion/state.yaml"
+    verify:
+      - "git diff --name-only -- assets/source/imagegen/fighters public/assets/generated/fighters output/imagegen"
+      - "for row in idle walk-forward walk-back crouch jump light-punch heavy-punch light-kick special hitstun blockstun knockdown win lose; do cmp -s assets/source/imagegen/fighters/pugilist-pug/$row.png public/assets/generated/fighters/pugilist-pug/$row.png; done"
+      - "npm test -- test/game-config.test.ts test/game-bible.test.ts test/character-select.test.ts test/combat-core.test.ts test/combat-effects.test.ts"
+      - "npm run verify"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/three-fighter-runtime-polish"
+      - "Targeted browser smoke rotates rabbit/cat/Pickles through P1/P2 and verifies runtimeVisuals, hudPortraits, visibleSlots, no fallbacks, and stock static portraits."
+    stop_if:
+      - "Any fighter animation row would be regenerated, normalized, resized, or pixel-edited."
+      - "Any character sprite scale/cell-size/row identity changes are needed."
+      - "Any new image/audio asset generation or dependency change is needed."
+      - "Stock rabbit/cat smoke expectations fail."
+      - "Any runtime fighter fallback appears."
+      - "The slice expands into fourth-fighter production, all-modes completion, or unrelated story/audio work."
+    acceptance:
+      - "Pickles is represented as first-class in select/fight/championship-facing copy without misleading rabbit/cat-only language."
+      - "P1/P2 selection can rotate through rabbit, cat, and Pickles with truthful runtimeVisuals and HUD portrait state."
+      - "No fighter rows or sprite scales are changed."
+      - "Focused tests, full verify, stock smoke, and targeted three-fighter smoke pass."
+      - "Full AAA outcome remains explicitly incomplete."
     receipt: null
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T043
+    task: T047
     commands:
-      - "node scripts/normalize-fighter-rows.mjs --animation knockdown --fighters pugilist-pug"
-      - "sips -g pixelWidth -g pixelHeight -g hasAlpha assets/source/imagegen/fighters/pugilist-pug/knockdown.png output/imagegen/pugilist-pug-knockdown-normalized.png"
-      - "npm test -- test/fighter-animation-preflight.test.ts test/asset-pipeline.test.ts test/asset-qa.test.ts test/game-config.test.ts"
+      - "for row in idle walk-forward walk-back crouch jump light-punch heavy-punch light-kick special hitstun blockstun knockdown win lose; do cmp -s assets/source/imagegen/fighters/pugilist-pug/$row.png public/assets/generated/fighters/pugilist-pug/$row.png; done"
       - "node scripts/asset-qa.mjs --json"
-      - "test ! -e public/assets/generated/fighters/pugilist-pug"
+      - "npm test -- test/source-roster-lab.test.ts test/game-config.test.ts test/asset-runtime.test.ts"
       - "npm run typecheck"
-      - "npm run build"
       - "npm run verify"
-      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/pickles-knockdown-source-row"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/pickles-runtime-promotion"
+      - "Targeted Playwright Pickles selection/runtime HUD smoke wrote output/web-game/pickles-runtime-promotion/pickles-targeted-report.json"
   t021_verification:
     result: pass
     task: T021

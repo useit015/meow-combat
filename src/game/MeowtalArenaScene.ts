@@ -141,6 +141,7 @@ export class MeowtalArenaScene extends Phaser.Scene {
   private versusText!: Phaser.GameObjects.Text;
   private conceptPreviews!: Record<"p1" | "p2", Phaser.GameObjects.Image | null>;
   private runtimeUiImages!: Record<RuntimeUiImageSlot, Phaser.GameObjects.Image>;
+  private hudPortraitSprites!: Record<"p1" | "p2", Phaser.GameObjects.Sprite>;
   private selectSprites!: Record<"p1" | "p2", Phaser.GameObjects.Sprite>;
   private fighterSprites!: Record<"p1" | "p2", Phaser.GameObjects.Sprite>;
   private spriteVisualScales = new Map<string, readonly number[]>();
@@ -332,6 +333,10 @@ export class MeowtalArenaScene extends Phaser.Scene {
       p2: this.createConceptPreview("p2"),
     };
     this.runtimeUiImages = this.createRuntimeUiImages();
+    this.hudPortraitSprites = {
+      p1: this.add.sprite(72, 130, this.initialSpriteKey("p1"), 0).setOrigin(0.5, 1).setDepth(86).setVisible(false),
+      p2: this.add.sprite(952, 130, this.initialSpriteKey("p2"), 0).setOrigin(0.5, 1).setDepth(86).setVisible(false),
+    };
     this.fighterSprites = {
       p1: this.add.sprite(0, 0, this.initialSpriteKey("p1"), 0).setOrigin(0.5, 1).setDepth(55).setVisible(false),
       p2: this.add.sprite(0, 0, this.initialSpriteKey("p2"), 0).setOrigin(0.5, 1).setDepth(55).setVisible(false),
@@ -471,6 +476,10 @@ export class MeowtalArenaScene extends Phaser.Scene {
         visibleSlots: Object.entries(this.runtimeUiImages)
           .filter(([, image]) => image.visible)
           .map(([slot]) => slot),
+        hudPortraits: {
+          p1: this.hudPortraitState("p1"),
+          p2: this.hudPortraitState("p2"),
+        },
       },
       assetReadiness: this.assetReadiness,
       conceptArt: {
@@ -841,6 +850,9 @@ export class MeowtalArenaScene extends Phaser.Scene {
     for (const image of Object.values(this.runtimeUiImages)) {
       image.setVisible(false);
     }
+    for (const sprite of Object.values(this.hudPortraitSprites)) {
+      sprite.setVisible(false);
+    }
     if (!runtimeUiReady) return;
 
     const logo = this.runtimeUiImages["title-logo"];
@@ -853,8 +865,6 @@ export class MeowtalArenaScene extends Phaser.Scene {
     if (showFightLayer) {
       for (const slot of [
         "hud-frame",
-        "rabbit-portrait",
-        "cat-portrait",
         "health-bar-rabbit",
         "health-bar-cat",
         "super-meter",
@@ -862,6 +872,13 @@ export class MeowtalArenaScene extends Phaser.Scene {
       ] as const) {
         this.runtimeUiImages[slot].setVisible(true);
       }
+      for (const player of ["p1", "p2"] as const) {
+        const staticSlot = this.staticHudPortraitSlot(player);
+        if (staticSlot) {
+          this.runtimeUiImages[staticSlot].setVisible(true);
+        }
+      }
+      this.renderHudPortraitSprites(true);
     }
 
     const overlaySlot = this.runtimeOverlaySlot();
@@ -1003,7 +1020,9 @@ export class MeowtalArenaScene extends Phaser.Scene {
 
   private victoryOverlaySlot(winner: "p1" | "p2"): RuntimeUiImageSlot {
     const winnerFighter = selectedFighter(this.selectedFighterIndex[winner]);
-    return winnerFighter.id === "gray-rabbit" ? "rabbit-win-overlay" : "cat-win-overlay";
+    if (winnerFighter.id === "gray-rabbit") return "rabbit-win-overlay";
+    if (winnerFighter.id === "ginger-tabby-cat") return "cat-win-overlay";
+    return "ko-overlay";
   }
 
   private canRenderRuntimeUi(): boolean {
@@ -1983,6 +2002,49 @@ export class MeowtalArenaScene extends Phaser.Scene {
     return runtimeAsset.kind === "sprite" ? runtimeAsset.assetKey : null;
   }
 
+  private renderHudPortraitSprites(showFightLayer: boolean): void {
+    for (const player of ["p1", "p2"] as const) {
+      const sprite = this.hudPortraitSprites[player];
+      const assetKey = this.selectIdleAssetKey(player);
+      const staticSlot = this.staticHudPortraitSlot(player);
+      if (!showFightLayer || staticSlot || !assetKey || !this.textures.exists(assetKey)) {
+        sprite.setVisible(false);
+        continue;
+      }
+
+      const placement = hudPortraitPlacement(player);
+      sprite
+        .setTexture(assetKey)
+        .setFrame(0)
+        .setPosition(placement.x, placement.y)
+        .setScale(placement.scale)
+        .setFlipX(player === "p2")
+        .setVisible(true);
+    }
+  }
+
+  private hudPortraitState(player: "p1" | "p2") {
+    const fighter = selectedFighter(this.selectedFighterIndex[player]);
+    const staticSlot = this.staticHudPortraitSlot(player);
+    const dynamicAssetKey = staticSlot ? null : this.selectIdleAssetKey(player);
+
+    return {
+      fighterId: fighter.id,
+      displayName: fighter.displayName,
+      staticSlot,
+      dynamicAssetKey,
+      dynamicVisible: this.hudPortraitSprites[player].visible,
+      usesFallback: !staticSlot && (!dynamicAssetKey || !this.textures.exists(dynamicAssetKey)),
+    };
+  }
+
+  private staticHudPortraitSlot(player: "p1" | "p2"): RuntimeUiImageSlot | null {
+    const fighter = selectedFighter(this.selectedFighterIndex[player]);
+    if (player === "p1" && fighter.id === "gray-rabbit") return "rabbit-portrait";
+    if (player === "p2" && fighter.id === "ginger-tabby-cat") return "cat-portrait";
+    return null;
+  }
+
   private selectionLabel(): string {
     return `P1 ${selectedFighter(this.selectedFighterIndex.p1).displayName}  |  P2 ${
       selectedFighter(this.selectedFighterIndex.p2).displayName
@@ -2155,6 +2217,10 @@ function selectSpritePlacement(shell: ShellState, player: "p1" | "p2"): { x: num
   return player === "p1"
     ? { x: 318, y: 470, scale: 1.06 }
     : { x: 706, y: 470, scale: 1.06 };
+}
+
+function hudPortraitPlacement(player: "p1" | "p2"): { x: number; y: number; scale: number } {
+  return player === "p1" ? { x: 72, y: 132, scale: 0.44 } : { x: 952, y: 132, scale: 0.44 };
 }
 
 function conceptArtPlacement(

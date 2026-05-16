@@ -54,15 +54,37 @@ describe("Pawbreaker source roster lab", () => {
     expect(criteriaText).toContain("text, logos, or watermarks");
   });
 
-  it("renders source-only artifacts without public runtime paths", () => {
+  it("keeps tracked roster-lab artifacts aligned with Pickles runtime promotion", () => {
     const lab = buildSourceRosterLab();
     const html = renderSourceRosterLabHtml(lab);
     const outputJson = JSON.parse(
       readFileSync(join(process.cwd(), "output/roster-lab/aaa-expansion-full-source-roster-lab.json"), "utf8"),
     );
+    const partialOutputJson = JSON.parse(
+      readFileSync(join(process.cwd(), "output/roster-lab/aaa-expansion-source-roster-lab.json"), "utf8"),
+    );
+    const outputHtml = readFileSync(
+      join(process.cwd(), "output/roster-lab/aaa-expansion-full-source-roster-lab.html"),
+      "utf8",
+    );
 
-    expect(outputJson.summary.totalFighters).toBe(8);
-    expect(outputJson.sourceOnlyIdentityLocks.map((fighter: { id: string }) => fighter.id)).toContain("pugilist-pug");
+    expect(outputJson.summary).toEqual({
+      totalFighters: 8,
+      playableRuntimeFighters: 3,
+      sourceOnlyIdentityLocks: 5,
+      missingIdentityLocks: 0,
+      fullOutcome: "incomplete",
+    });
+    expect(outputJson.runtimeRoster.map((fighter: { id: string }) => fighter.id)).toEqual([
+      "gray-rabbit",
+      "ginger-tabby-cat",
+      "pugilist-pug",
+    ]);
+    expect(outputJson.sourceOnlyIdentityLocks.map((fighter: { id: string }) => fighter.id)).not.toContain("pugilist-pug");
+    expect(partialOutputJson.runtimeRoster.map((fighter: { id: string }) => fighter.id)).toContain("pugilist-pug");
+    expect(partialOutputJson.sourceOnlyIdentityLocks.map((fighter: { id: string }) => fighter.id)).not.toContain(
+      "pugilist-pug",
+    );
     expect(html).toContain("Pickles Pugilist");
     expect(html).toContain("playable-runtime");
     expect(html).toContain("Noodle Nibbles");
@@ -78,5 +100,12 @@ describe("Pawbreaker source roster lab", () => {
     expect(html).not.toContain("/assets/generated/fighters/budgie-beanie");
     expect(html).not.toContain("/assets/generated/fighters/hamster-mochi");
     expect(html).not.toContain("/assets/generated/fighters/hedgehog-quillabelle");
+    expect(outputHtml).toContain("/assets/generated/fighters/pugilist-pug");
+    expect(outputHtml).not.toContain(
+      "<tr><td>Pickles Pugilist</td><td>source-only identity lock</td><td>not playable</td>",
+    );
+    expect(outputHtml).not.toContain(
+      "<tr><td>Pickles Pugilist</td><td>pug</td><td>source-only identity lock</td><td>not playable</td>",
+    );
   });
 });

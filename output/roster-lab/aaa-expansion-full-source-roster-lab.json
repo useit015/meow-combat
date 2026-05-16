@@ -4,8 +4,8 @@
   "rosterDirection": "8-fighter",
   "summary": {
     "totalFighters": 8,
-    "playableRuntimeFighters": 2,
-    "sourceOnlyIdentityLocks": 6,
+    "playableRuntimeFighters": 3,
+    "sourceOnlyIdentityLocks": 5,
     "missingIdentityLocks": 0,
     "fullOutcome": "incomplete"
   },
@@ -21,17 +21,15 @@
       "displayName": "Marmalade Mayhem",
       "runtimeExposure": "playable",
       "reviewStatus": "playable-runtime"
-    }
-  ],
-  "sourceOnlyIdentityLocks": [
+    },
     {
       "id": "pugilist-pug",
       "displayName": "Pickles Pugilist",
-      "runtimeExposure": "not playable",
-      "reviewStatus": "source-only identity lock",
-      "canonicalSheetPath": "assets/source/imagegen/fighters/pugilist-pug/canonical-character-sheet.png",
-      "publicRuntimePath": null
-    },
+      "runtimeExposure": "playable",
+      "reviewStatus": "playable-runtime"
+    }
+  ],
+  "sourceOnlyIdentityLocks": [
     {
       "id": "ferret-noodle",
       "displayName": "Noodle Nibbles",

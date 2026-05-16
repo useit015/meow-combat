@@ -20,7 +20,7 @@ describe("imagegen jobs", () => {
 
     expect(jobs).toHaveLength(expectedFighterJobs + expectedStageJobs);
     expect(new Set(jobs.map((job) => job.subjectId))).toEqual(
-      new Set(["gray-rabbit", "ginger-tabby-cat", "meowtal-courtyard"]),
+      new Set([...meowtalFighterAssetManifests.map((fighter) => fighter.id), "meowtal-courtyard"]),
     );
     expect(new Set(jobs.map((job) => job.id)).size).toBe(jobs.length);
     expect(new Set(jobs.map((job) => job.promptSlug)).size).toBe(jobs.length);
@@ -48,6 +48,7 @@ describe("imagegen jobs", () => {
     expect(generatedJobs.map((job) => job.id).sort()).toEqual([
       "ginger-tabby-cat:canonical-reference",
       "gray-rabbit:canonical-reference",
+      "pugilist-pug:canonical-reference",
     ]);
     const expectedApprovedIds = [
       ...meowtalFighterAssetManifests.flatMap((fighter) =>
@@ -94,7 +95,6 @@ describe("imagegen jobs", () => {
     const jobs = buildSourceOnlyFighterImagegenJobs(pawbreakerPlannedFighterAssetManifests);
 
     expect(jobs.map((job) => job.id)).toEqual([
-      "pugilist-pug:canonical-reference",
       "ferret-noodle:canonical-reference",
       "tortoise-tofu:canonical-reference",
       "budgie-beanie:canonical-reference",

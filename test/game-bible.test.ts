@@ -28,7 +28,7 @@ describe("pet fighter game bible", () => {
     }
   });
 
-  it("plans eight original pet fighters while keeping only two runtime-linked fighters active", () => {
+  it("plans eight original pet fighters with Pickles promoted into the runtime roster", () => {
     expect(petFighterGameBible.fighters).toHaveLength(8);
 
     const ids = new Set(petFighterGameBible.fighters.map((fighter) => fighter.id));
@@ -36,9 +36,9 @@ describe("pet fighter game bible", () => {
 
     expect(ids.size).toBe(8);
     expect(names.size).toBe(8);
-    expect(petFighterGameBible.runtimeFighterIds).toEqual(["gray-rabbit", "ginger-tabby-cat"]);
-    expect(petFighterGameBible.fighters.filter((fighter) => fighter.runtime.status === "active")).toHaveLength(2);
-    expect(petFighterGameBible.fighters.filter((fighter) => fighter.runtime.status === "planned")).toHaveLength(6);
+    expect(petFighterGameBible.runtimeFighterIds).toEqual(["gray-rabbit", "ginger-tabby-cat", "pugilist-pug"]);
+    expect(petFighterGameBible.fighters.filter((fighter) => fighter.runtime.status === "active")).toHaveLength(3);
+    expect(petFighterGameBible.fighters.filter((fighter) => fighter.runtime.status === "planned")).toHaveLength(5);
   });
 
   it("locks keyboard-first browser v1, landscape layout, and touch-mobile v2", () => {
