@@ -4295,7 +4295,35 @@ tasks:
       - "Next package or owner question"
       - "Allowed files, verification, stop_if, and acceptance if proceeding"
       - "Decision: proceed_with_worker | require_audit | ask_owner"
-    receipt: null
+    receipt:
+      result: blocked
+      decision: rejected
+      routing_decision: ask_owner
+      full_outcome_complete: false
+      note: notes/T066-post-settings-audit.md
+      summary: "Rejected another local Worker under the current hard gates. T065 closed the last meaningful non-size/non-asset/non-audio/non-frame-data browser-v1 gap; further safe local work would be low-value copy/settings churn. The next outcome-moving lanes are audio/music/voice/source-record work, roster/generated-asset production, or combat-feel/frame-data tuning, each requiring owner choice because they cross explicit risk boundaries."
+      ranked_gaps:
+        - "Music-loop, deeper audio, voice, and external sourced audio remain meaningful but touch audio files, source records, provider terms, attribution, credits, and Content ID/platform-claim risk."
+        - "Five planned fighters remain non-playable; roster production requires generated assets, model sheets, animation rows, normalization/promotion gates, and no-size-drift QA."
+        - "Combat-feel tuning requires gameplay frame data, hitboxes, damage, pushback, movement, or balance changes."
+        - "Persistence, key rebinding, touch, and online play are lower-leverage scope creep before the production lane is chosen."
+      evidence:
+        - "T065 reports 1 VS CPU, Training, Championship, Local Versus, shell/select polish, championship rewards/interstitials, combat readability, and browser settings/options smoke-covered."
+        - "T065 verification passed with clean protected asset/audio/dependency/sprite/frame-data diff guard, byte-identical Pickles rows, focused tests, typecheck, full verify, and browser-settings smoke failures=[]."
+      blocked_tasks:
+        - "No further local Worker package is approved under the current hard gate."
+        - "Audio/music/voice/source-record work is blocked pending owner lane choice."
+        - "Generated art, fighter row, roster/model-sheet, sprite sizing, placement, frame-size, character-size, and runtime promotion work is blocked pending owner lane choice."
+        - "Gameplay frame-data, hitbox, damage, pushback, and movement tuning is blocked pending owner lane choice."
+      owner_question:
+        prompt: "Choose the next meaningful production lane."
+        options:
+          - "A) Audio/music pass using vetted source records and runtime assets. Risk: provider terms, credits, attribution, Content ID/platform-claim risk, and audio/source-record churn."
+          - "B) Roster production for the next fighter. Risk: generated assets, animation-row QA, no-size-drift failures, normalization/public-runtime promotion gates."
+          - "C) Combat-feel tuning. Risk: gameplay frame-data, hitbox, damage, pushback, movement, and balance regressions."
+          - "D) Pause production and run only a final not-complete audit of the current browser milestone."
+      missing_evidence:
+        - "Owner must choose A, B, C, or D before safe execution can continue."
 
 checks:
   dirty_fingerprint: unknown
