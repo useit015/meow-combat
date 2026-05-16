@@ -10,6 +10,8 @@ import {
 } from "../src/assets";
 
 describe("fighter asset manifests", () => {
+  const generatedPicklesRows = new Set(["idle", "walk-forward", "walk-back", "crouch", "jump"]);
+
   it("define every required production animation for each fighter", () => {
     for (const manifest of fighterAssetManifests) {
       const animationIds = manifest.animations.map((animation) => animation.id);
@@ -101,7 +103,7 @@ describe("fighter asset manifests", () => {
       for (const animation of manifest.animations) {
         if (
           manifest.id === "pugilist-pug" &&
-          (animation.id === "idle" || animation.id === "walk-forward" || animation.id === "walk-back")
+          generatedPicklesRows.has(animation.id)
         ) {
           expect(animation.source.status).toBe("generated");
           expect(animation.source.outputPath).toBe(`assets/source/imagegen/fighters/pugilist-pug/${animation.id}.png`);

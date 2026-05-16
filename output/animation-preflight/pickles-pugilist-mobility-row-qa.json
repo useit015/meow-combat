@@ -1,0 +1,75 @@
+{
+  "task": "T032",
+  "fighterId": "pugilist-pug",
+  "displayName": "Pickles Pugilist",
+  "status": "pass",
+  "sourceOnly": true,
+  "publicRuntimePromotion": false,
+  "referenceRows": [
+    "assets/source/imagegen/fighters/pugilist-pug/idle.png",
+    "assets/source/imagegen/fighters/pugilist-pug/walk-forward.png",
+    "assets/source/imagegen/fighters/pugilist-pug/walk-back.png"
+  ],
+  "rows": [
+    {
+      "animationId": "crouch",
+      "verdict": "pass",
+      "candidatePath": "assets/source/imagegen/fighters/pugilist-pug/candidates/crouch-codex-01.png",
+      "candidateSha256": "c6e0064602501df8ac3e7ab0ea6f1269c5fee80a5f28552f4cd835d20dd70e39",
+      "acceptedPath": "assets/source/imagegen/fighters/pugilist-pug/crouch.png",
+      "acceptedSha256": "7c4c5c042875e6855a9ff79ce64752c975a6e762ad51b79db756f22e6ab18532",
+      "normalizedProofPath": "output/imagegen/pugilist-pug-crouch-normalized.png",
+      "dimensions": {
+        "candidate": { "width": 2132, "height": 738, "hasAlpha": false },
+        "accepted": { "width": 1024, "height": 256, "hasAlpha": true },
+        "expected": { "width": 1024, "height": 256 }
+      },
+      "detectedFrames": [
+        { "x": 111, "y": 158, "width": 400, "height": 452 },
+        { "x": 607, "y": 158, "width": 401, "height": 452 },
+        { "x": 1086, "y": 158, "width": 397, "height": 452 },
+        { "x": 1570, "y": 158, "width": 391, "height": 452 }
+      ],
+      "qa": {
+        "identity": "pass",
+        "scale": "pass",
+        "motion": "pass",
+        "alpha": "pass",
+        "notes": "Low guarded squat stays two-legged and compact; gloves, muzzle, ears, belt, tail curl, palette, and silhouette match the accepted Pickles references."
+      }
+    },
+    {
+      "animationId": "jump",
+      "verdict": "pass",
+      "candidatePath": "assets/source/imagegen/fighters/pugilist-pug/candidates/jump-codex-01.png",
+      "candidateSha256": "c2759c859b5ae7532c178edede884dce0fafff3e9009ac647d4a2e2c5d384369",
+      "acceptedPath": "assets/source/imagegen/fighters/pugilist-pug/jump.png",
+      "acceptedSha256": "9b4fc22a702a360252869b931e8f17df794f77f3940c2dfef0c2fd01e6f70b1d",
+      "normalizedProofPath": "output/imagegen/pugilist-pug-jump-normalized.png",
+      "dimensions": {
+        "candidate": { "width": 2172, "height": 724, "hasAlpha": false },
+        "accepted": { "width": 1536, "height": 256, "hasAlpha": true },
+        "expected": { "width": 1536, "height": 256 }
+      },
+      "detectedFrames": [
+        { "x": 66, "y": 104, "width": 261, "height": 482 },
+        { "x": 411, "y": 104, "width": 255, "height": 482 },
+        { "x": 774, "y": 104, "width": 261, "height": 482 },
+        { "x": 1126, "y": 104, "width": 259, "height": 482 },
+        { "x": 1465, "y": 104, "width": 258, "height": 482 },
+        { "x": 1803, "y": 104, "width": 261, "height": 482 }
+      ],
+      "qa": {
+        "identity": "pass",
+        "scale": "pass",
+        "motion": "pass",
+        "alpha": "pass",
+        "notes": "Small vertical hop keeps Pickles upright and two-legged with tucked knees; tall-cell scaling matches the existing playable-fighter jump convention and preserves pug traits."
+      }
+    }
+  ],
+  "runtimeProof": {
+    "publicPathAbsent": "public/assets/generated/fighters/pugilist-pug",
+    "playablePromotion": "blocked"
+  }
+}

@@ -130,6 +130,8 @@ const generatedAnimationRows: Record<string, Partial<Record<FighterAnimationSpec
     idle: "assets/source/imagegen/fighters/pugilist-pug/idle.png",
     "walk-forward": "assets/source/imagegen/fighters/pugilist-pug/walk-forward.png",
     "walk-back": "assets/source/imagegen/fighters/pugilist-pug/walk-back.png",
+    crouch: "assets/source/imagegen/fighters/pugilist-pug/crouch.png",
+    jump: "assets/source/imagegen/fighters/pugilist-pug/jump.png",
   },
 };
 

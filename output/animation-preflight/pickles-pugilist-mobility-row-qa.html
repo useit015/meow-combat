@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Pickles Pugilist Mobility Row QA</title>
+    <style>
+      body { font-family: system-ui, sans-serif; margin: 24px; background: #111; color: #f5f5f5; }
+      img { display: block; max-width: 100%; margin: 12px 0 24px; background: #0f0; image-rendering: auto; }
+      code { color: #ffe08a; }
+      .pass { color: #7dff9f; }
+    </style>
+  </head>
+  <body>
+    <h1>Pickles Pugilist Mobility Row QA</h1>
+    <p class="pass">PASS: source-only <code>crouch</code> and <code>jump</code> rows accepted for T032.</p>
+    <h2>Crouch</h2>
+    <p>Exact <code>1024x256</code> alpha spritesheet. Two-legged low guard, compact belly, stable gloves, muzzle, ears, belt, tail, palette, and silhouette.</p>
+    <img src="../imagegen/pugilist-pug-crouch-normalized.png" alt="Pickles Pugilist crouch normalized source row" />
+    <h2>Jump</h2>
+    <p>Exact <code>1536x256</code> alpha spritesheet. Small vertical hop with tucked knees, no stretched limbs, and stable Pickles identity.</p>
+    <img src="../imagegen/pugilist-pug-jump-normalized.png" alt="Pickles Pugilist jump normalized source row" />
+    <h2>Runtime Gate</h2>
+    <p>No <code>public/assets/generated/fighters/pugilist-pug</code> folder is introduced; Pickles remains non-playable.</p>
+  </body>
+</html>

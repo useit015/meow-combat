@@ -122,8 +122,8 @@ describe("imagegen asset QA command", () => {
     });
     const summary = JSON.parse(output) as AssetQaSummary;
 
-    expect(summary.checked).toBe(118);
-    expect(summary.runtimeReady).toBe(62);
+    expect(summary.checked).toBe(122);
+    expect(summary.runtimeReady).toBe(66);
     expect(summary.needsNormalization).toBe(56);
     expect(summary.rows.map((row) => `${row.kind}:${row.fighterId}:${row.animationId}`).sort()).toEqual([
       "normalized-candidate:atlas-lion:blockstun",
@@ -168,7 +168,9 @@ describe("imagegen asset QA command", () => {
       "normalized-candidate:gray-rabbit:walk-back",
       "normalized-candidate:gray-rabbit:walk-forward",
       "normalized-candidate:gray-rabbit:win",
+      "normalized-candidate:pugilist-pug:crouch",
       "normalized-candidate:pugilist-pug:idle",
+      "normalized-candidate:pugilist-pug:jump",
       "normalized-candidate:pugilist-pug:walk-back",
       "normalized-candidate:pugilist-pug:walk-forward",
       "normalized-candidate:sahara-viper:blockstun",
@@ -227,7 +229,9 @@ describe("imagegen asset QA command", () => {
       "source:gray-rabbit:walk-back",
       "source:gray-rabbit:walk-forward",
       "source:gray-rabbit:win",
+      "source:pugilist-pug:crouch",
       "source:pugilist-pug:idle",
+      "source:pugilist-pug:jump",
       "source:pugilist-pug:walk-back",
       "source:pugilist-pug:walk-forward",
       "source:sahara-viper:blockstun",
@@ -290,7 +294,9 @@ describe("imagegen asset QA command", () => {
       "gray-rabbit:walk-back",
       "gray-rabbit:walk-forward",
       "gray-rabbit:win",
+      "pugilist-pug:crouch",
       "pugilist-pug:idle",
+      "pugilist-pug:jump",
       "pugilist-pug:walk-back",
       "pugilist-pug:walk-forward",
       "sahara-viper:blockstun",
@@ -333,7 +339,7 @@ describe("imagegen asset QA command", () => {
     }
 
     const normalizedRows = summary.rows.filter((row) => row.kind === "normalized-candidate");
-    expect(normalizedRows).toHaveLength(59);
+    expect(normalizedRows).toHaveLength(61);
     for (const row of normalizedRows) {
       expect(row.expected).toEqual({ width: row.frameCount * 256, height: 256 });
       expect(row.dimensions).toEqual(row.expected);
