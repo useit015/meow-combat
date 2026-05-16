@@ -92,6 +92,14 @@ describe("imagegen asset QA command", () => {
       cwd: process.cwd(),
       encoding: "utf8",
     });
+    execFileSync("node", ["scripts/normalize-fighter-rows.mjs", "--animation", "win", "--fighters", "ferret-noodle"], {
+      cwd: process.cwd(),
+      encoding: "utf8",
+    });
+    execFileSync("node", ["scripts/normalize-fighter-rows.mjs", "--animation", "lose", "--fighters", "ferret-noodle"], {
+      cwd: process.cwd(),
+      encoding: "utf8",
+    });
     execFileSync(
       "node",
       ["scripts/normalize-fighter-rows.mjs", "--animation", "special", "--fighters", "gray-rabbit,ginger-tabby-cat"],
@@ -154,8 +162,8 @@ describe("imagegen asset QA command", () => {
     });
     const summary = JSON.parse(output) as AssetQaSummary;
 
-    expect(summary.checked).toBe(164);
-    expect(summary.runtimeReady).toBe(108);
+    expect(summary.checked).toBe(168);
+    expect(summary.runtimeReady).toBe(112);
     expect(summary.needsNormalization).toBe(56);
     expect(summary.rows.map((row) => `${row.kind}:${row.fighterId}:${row.animationId}`).sort()).toEqual([
       "normalized-candidate:atlas-lion:blockstun",
@@ -181,9 +189,11 @@ describe("imagegen asset QA command", () => {
       "normalized-candidate:ferret-noodle:knockdown",
       "normalized-candidate:ferret-noodle:light-kick",
       "normalized-candidate:ferret-noodle:light-punch",
+      "normalized-candidate:ferret-noodle:lose",
       "normalized-candidate:ferret-noodle:special",
       "normalized-candidate:ferret-noodle:walk-back",
       "normalized-candidate:ferret-noodle:walk-forward",
+      "normalized-candidate:ferret-noodle:win",
       "normalized-candidate:ginger-tabby-cat:blockstun",
       "normalized-candidate:ginger-tabby-cat:crouch",
       "normalized-candidate:ginger-tabby-cat:heavy-punch",
@@ -263,9 +273,11 @@ describe("imagegen asset QA command", () => {
       "source:ferret-noodle:knockdown",
       "source:ferret-noodle:light-kick",
       "source:ferret-noodle:light-punch",
+      "source:ferret-noodle:lose",
       "source:ferret-noodle:special",
       "source:ferret-noodle:walk-back",
       "source:ferret-noodle:walk-forward",
+      "source:ferret-noodle:win",
       "source:ginger-tabby-cat:blockstun",
       "source:ginger-tabby-cat:crouch",
       "source:ginger-tabby-cat:heavy-punch",
@@ -349,9 +361,11 @@ describe("imagegen asset QA command", () => {
       "ferret-noodle:knockdown",
       "ferret-noodle:light-kick",
       "ferret-noodle:light-punch",
+      "ferret-noodle:lose",
       "ferret-noodle:special",
       "ferret-noodle:walk-back",
       "ferret-noodle:walk-forward",
+      "ferret-noodle:win",
       "ginger-tabby-cat:blockstun",
       "ginger-tabby-cat:crouch",
       "ginger-tabby-cat:heavy-punch",
@@ -434,7 +448,7 @@ describe("imagegen asset QA command", () => {
     }
 
     const normalizedRows = summary.rows.filter((row) => row.kind === "normalized-candidate");
-    expect(normalizedRows).toHaveLength(82);
+    expect(normalizedRows).toHaveLength(84);
     for (const row of normalizedRows) {
       expect(row.expected).toEqual({ width: row.frameCount * 256, height: 256 });
       expect(row.dimensions).toEqual(row.expected);
