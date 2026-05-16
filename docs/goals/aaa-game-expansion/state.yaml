@@ -117,7 +117,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T051
+active_task: T052
 
 tasks:
   - id: T001
@@ -3299,7 +3299,7 @@ tasks:
   - id: T051
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Choose the next highest-leverage safe package after the three-fighter championship ladder. Decide between bounded championship/UI polish, story interstitials, training/mode depth, post-T050 audit, or another non-asset gameplay slice while preserving the hard no-size-change rule."
     inputs:
@@ -3325,6 +3325,62 @@ tasks:
       - "stop_if"
       - "acceptance checklist"
       - "Parallelization safety notes"
+    receipt:
+      result: done
+      decision: proceed_with_worker
+      full_outcome_complete: false
+      summary: "Approved a bounded championship/UI polish package using current assets only. T050 made the ladder functional, but the player-facing shell still needs clear Snackbelt ladder progress, opponent order/current rival, existing fighter story hooks, and advance/clear/fail messaging. The next slice must avoid fighter row regeneration, resizing, normalization, sprite scale changes, cell size changes, generated asset churn, dependencies, and audio."
+      rejected_alternatives:
+        - "Post-T050 audit: lower leverage because T050 already has fresh verify, smoke, byte-compare, and explicit asset guards."
+        - "Training/mode depth: useful later, but championship just gained functionality and now needs player-facing clarity."
+        - "Large story interstitial system: too broad unless kept inside bounded championship presentation using existing copy/state."
+        - "Fourth-fighter/runtime roster expansion: rejected because it risks asset churn and animation-size violations."
+        - "Audio slice: rejected now because the next package should remain non-asset and non-audio."
+      parallel_safety:
+        write_parallelism: unsafe
+        reason: "The slice touches shared scene rendering, shell copy, smoke scripts, and tests. Run one Worker only."
+        safe_parallel_followup: "A read-only Scout/Judge can review screenshots and smoke output after the Worker finishes, but should not run as a concurrent writer."
+      spawned_tasks:
+        - T052
+  - id: T052
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: medium
+    objective: "Polish the existing three-fighter championship ladder presentation using current assets only: show clear Snackbelt ladder progress, opponent order/current rival, existing fighter story hooks, advance/clear/fail messaging, and smoke-verifiable runtime text without changing character size or any generated assets."
+    allowed_files:
+      - "src/game/MeowtalArenaScene.ts"
+      - "src/game/shellFlow.ts"
+      - "src/content/gameBible.ts"
+      - "scripts/smoke-meowtal-browser.mjs"
+      - "test/game-bible.test.ts"
+      - "test/shell-flow.test.ts"
+      - "test/character-select.test.ts"
+      - "test/combat-core.test.ts"
+      - "output/web-game/championship-ui-polish/*"
+      - "docs/goals/aaa-game-expansion/notes/T052-championship-ui-polish.md"
+      - "docs/goals/aaa-game-expansion/state.yaml"
+    verify:
+      - "git diff --name-only -- assets/source/imagegen/fighters public/assets/generated/fighters output/imagegen package.json package-lock.json src/game/audio.ts public/assets/audio"
+      - "for row in idle walk-forward walk-back crouch jump light-punch heavy-punch light-kick special hitstun blockstun knockdown win lose; do cmp -s assets/source/imagegen/fighters/pugilist-pug/$row.png public/assets/generated/fighters/pugilist-pug/$row.png || exit 1; done"
+      - "npm test -- test/game-bible.test.ts test/shell-flow.test.ts test/character-select.test.ts test/combat-core.test.ts"
+      - "npm run typecheck"
+      - "npm run verify"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/championship-ui-polish"
+    stop_if:
+      - "Any fighter row would be regenerated, normalized, resized, cropped, repacked, or pixel-edited."
+      - "Any sprite scale, cell size, frame size, placement rule, or character-size logic change is needed."
+      - "Any generated asset churn, new dependency, package lock change, imagegen output, or audio change is needed."
+      - "The work expands into fourth-fighter promotion, asset production, training overhaul, save/continue, or broad all-modes completion."
+      - "Smoke shows runtime fighter fallbacks, misleading HUD portraits, or visible character size drift."
+    acceptance:
+      - "Championship mode visually communicates the Snackbelt ladder and current opponent without obscuring fighters or HUD."
+      - "Match-over states distinguish advance, cleared, and failed championship outcomes."
+      - "Existing story hooks/rival copy are surfaced for the active three runtime fighters."
+      - "render_game_to_text exposes enough presentation state for smoke assertions."
+      - "No fighter rows, sprite scale, cell sizes, generated assets, dependencies, or audio are changed."
+      - "Focused tests, full verify, and championship UI smoke pass."
+      - "Receipt states full_outcome_complete=false."
     receipt: null
 
 checks:
