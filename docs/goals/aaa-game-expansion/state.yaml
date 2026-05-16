@@ -117,7 +117,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T020
+active_task: T022
 
 tasks:
   - id: T001
@@ -1069,7 +1069,7 @@ tasks:
   - id: T020
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Audit the goal after all 8 Pawbreaker fighters now have either playable runtime status or source-only identity locks. Decide the next highest-leverage safe package: audio source/license Scout/Worker, championship/story depth, animation plan for first new playable candidate, select/roster review UX, or final tranche audit. Keep full AAA outcome honesty, no-slop asset quality, audio licensing risk, and runtime overclaiming constraints central."
     inputs:
@@ -1093,6 +1093,113 @@ tasks:
       - "verify"
       - "stop_if"
       - "acceptance checklist"
+    receipt:
+      result: done
+      decision: "require_scout"
+      rationale: "Do not run final audit or playable expansion yet. T019 proves the 8-fighter roster is now honest: 2 playable runtime fighters and 6 source-only identity locks, with latest smoke passing and no runtime promotion. The largest remaining AAA gap with the most risk is authored/sample audio: T005/T008 created the contract and sample-first runtime, but no actual licensed samples exist. Because Pixabay/ElevenLabs terms, attribution, tier limits, and Content ID/platform-claim risks are current-source dependent, a Worker must not acquire or promote audio until a fresh source/license Scout completes."
+      next_task: T021
+      summary: "Required a source-backed audio source/license Scout before any audio acquisition. The Scout must inspect local audio contracts, verify official Pixabay and ElevenLabs terms without using APIs, logging in, reading .env, downloading assets, or generating audio, and recommend the next bounded audio Worker or block acquisition."
+  - id: T021
+    type: scout
+    assignee: Scout
+    status: done
+    reasoning_hint: default
+    objective: "Create a source-backed audio source/license decision note for Pawbreaker runtime audio. Inspect the local audio contract, then verify current official terms for Pixabay and ElevenLabs without calling provider APIs, logging into services, reading .env, downloading audio, or acquiring/generating assets. Recommend whether the next Worker may acquire a first authored/sample cue batch, which providers/source kinds are allowed, required source-record fields, attribution/credits rules, and any blocked cue/provider combinations."
+    allowed_files:
+      read:
+        - "docs/goals/aaa-game-expansion/goal.md"
+        - "docs/goals/aaa-game-expansion/state.yaml"
+        - "docs/goals/aaa-game-expansion/notes/T013-tranche-inventory-checklist.md"
+        - "docs/goals/aaa-game-expansion/notes/T017-source-roster-lab.md"
+        - "output/roster-lab/aaa-expansion-full-source-roster-lab.json"
+        - "output/web-game/aaa-expansion-full-source-roster-locks/report.json"
+        - "src/game/audio.ts"
+        - "src/assets/meowtalProductionManifest.ts"
+        - "test/presentation.test.ts"
+        - "test/meowtal-production-manifest.test.ts"
+      write:
+        - "docs/goals/aaa-game-expansion/notes/T021-audio-source-license-scout.md"
+        - "docs/goals/aaa-game-expansion/state.yaml"
+    verify:
+      - "test -f docs/goals/aaa-game-expansion/notes/T021-audio-source-license-scout.md"
+      - "rg -n \"Pixabay|ElevenLabs|commercial|attribution|Content ID|platform-claim|prohibited|tier|snapshot|recommendation\" docs/goals/aaa-game-expansion/notes/T021-audio-source-license-scout.md"
+      - "npm test -- test/presentation.test.ts test/meowtal-production-manifest.test.ts"
+    stop_if:
+      - "Any API call, login, .env/key access, audio download, generation, voice cloning, or asset acquisition is needed."
+      - "Official/current terms cannot be verified from accessible source pages."
+      - "Terms are ambiguous for embedding audio in a browser game, commercial use, redistribution, attribution, or generated SFX."
+      - "Content ID/platform-claim risk cannot be bounded."
+      - "Need to edit product code, public assets, runtime audio files, roster files, or generated assets."
+      - "Any recommendation would make procedural synthesis the primary shipped audio direction."
+    acceptance:
+      - "Note cites official source URLs and snapshot date for each terms source checked."
+      - "Covers Pixabay, ElevenLabs sound generation, ElevenLabs music/voice risk, and manual/owned fallback."
+      - "Records commercial-use, attribution, redistribution/game-embedding, tier/plan, prohibited-use, and Content ID/platform-claim findings."
+      - "Maps findings to existing cue specs in src/game/audio.ts."
+      - "Defines exact source-record requirements before runtime promotion."
+      - "Recommends a bounded next Worker package or explicitly blocks audio acquisition."
+      - "Does not claim full AAA outcome complete."
+      - "Does not modify runtime roster or promote source-only fighters."
+    receipt:
+      result: done
+      decision: "proceed_with_bounded_worker"
+      full_outcome_complete: false
+      note: "notes/T021-audio-source-license-scout.md"
+      summary: "Verified the local sample-first audio contract and current official Pixabay/ElevenLabs terms without API calls, login, .env access, downloads, generation, voice cloning, or acquisition. Approved a bounded first authored/sample audio batch using Pixabay SFX, manual/owned recordings, or ElevenLabs Sound Effects only under paid commercial plan status with SFX sublicensing disabled; blocked ElevenLabs Music and voice/TTS for the next Worker. Defined required source-record fields, attribution/credits handling, standalone-distribution restrictions, Content ID/platform-claim notes, and cue-by-cue provider decisions."
+      commands:
+        - cmd: "test -f docs/goals/aaa-game-expansion/notes/T021-audio-source-license-scout.md"
+          status: pass
+        - cmd: "rg -n \"Pixabay|ElevenLabs|commercial|attribution|Content ID|platform-claim|prohibited|tier|snapshot|recommendation\" docs/goals/aaa-game-expansion/notes/T021-audio-source-license-scout.md"
+          status: pass
+        - cmd: "npm test -- test/presentation.test.ts test/meowtal-production-manifest.test.ts"
+          status: pass
+      next_task: T022
+  - id: T022
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: medium
+    objective: "Acquire or author the first six runtime primary audio cues with source records and QA proof: ui-confirm, hit-light, hit-heavy, block-impact, dash-whoosh, and ko-burst. Use Pixabay SFX, manual/owned recordings, or ElevenLabs Sound Effects only if paid commercial plan status is recorded and SFX sublicensing is disabled first. Prefer Pixabay/manual if ElevenLabs account/tier/opt-out state cannot be verified without risky login work. Do not acquire music, victory music, voice, TTS, real-person voice cloning, uploaded voices, or spoken announcer cues in this slice. Convert accepted assets to OGG at /assets/generated/audio/<cue>.ogg, register source/license metadata, and prove the sample-first runtime uses them before dev-only procedural fallback."
+    allowed_files:
+      - "assets/source/audio/ui-confirm/"
+      - "assets/source/audio/hit-light/"
+      - "assets/source/audio/hit-heavy/"
+      - "assets/source/audio/block-impact/"
+      - "assets/source/audio/dash-whoosh/"
+      - "assets/source/audio/ko-burst/"
+      - "public/assets/generated/audio/ui-confirm.ogg"
+      - "public/assets/generated/audio/hit-light.ogg"
+      - "public/assets/generated/audio/hit-heavy.ogg"
+      - "public/assets/generated/audio/block-impact.ogg"
+      - "public/assets/generated/audio/dash-whoosh.ogg"
+      - "public/assets/generated/audio/ko-burst.ogg"
+      - "src/assets/meowtalProductionManifest.ts"
+      - "src/assets/provenance.ts"
+      - "test/meowtal-production-manifest.test.ts"
+      - "test/presentation.test.ts"
+      - "docs/goals/aaa-game-expansion/notes/T022-audio-batch.md"
+      - "output/audio/aaa-expansion-first-sample-batch/"
+    verify:
+      - "npm test -- test/presentation.test.ts test/meowtal-production-manifest.test.ts"
+      - "npm run typecheck"
+      - "npm run verify"
+      - "rg -n \"ui-confirm|hit-light|hit-heavy|block-impact|dash-whoosh|ko-burst|Pixabay|ElevenLabs|commercial|attribution|Content ID|platform-claim|snapshot\" docs/goals/aaa-game-expansion/notes/T022-audio-batch.md src/assets/meowtalProductionManifest.ts"
+      - "test -s public/assets/generated/audio/ui-confirm.ogg && test -s public/assets/generated/audio/hit-light.ogg && test -s public/assets/generated/audio/hit-heavy.ogg && test -s public/assets/generated/audio/block-impact.ogg && test -s public/assets/generated/audio/dash-whoosh.ogg && test -s public/assets/generated/audio/ko-burst.ogg"
+    stop_if:
+      - "Need any file outside allowed_files."
+      - "Need to use .env, API calls, login, or account plan details but cannot verify paid commercial status and SFX sublicensing opt-out first."
+      - "Need music-loop, victory-sting, fight-announcer speech, voice, TTS, real-person voice cloning, uploaded voices, or spoken announcer output."
+      - "A candidate has unclear provider URL, missing creator/title, unclear commercial use, missing attribution/credits string, unresolved Content ID/platform-claim risk, recognizable brands/people, copied game audio identity, or standalone redistribution restrictions that conflict with browser game embedding."
+      - "Any output sounds generic, clipped, noisy, too procedural, too realistic/gory, mismatched to Pawbreaker tone, or lower quality than the existing dev fallback."
+      - "Need runtime roster, fighter art, story, select UI, dependencies, or any non-audio work."
+    acceptance:
+      - "Exactly six primary runtime audio OGG files exist for ui-confirm, hit-light, hit-heavy, block-impact, dash-whoosh, and ko-burst."
+      - "Each accepted cue has source audio under assets/source/audio/<cue>/ and a source/license record with official URL, creator/model, source URL or prompt, terms snapshot date, attribution/credits string, commercial-use note, standalone-distribution note, and Content ID/platform-claim note."
+      - "No ElevenLabs output is used unless paid commercial plan status and SFX sublicensing opt-out are recorded before generation."
+      - "No music, victory music, voice, TTS, real-person voice cloning, uploaded voice, or spoken announcer cue is acquired."
+      - "Manifest marks these six primary cues as approved authored/sample assets while keeping WebAudio procedural fallback dev-only."
+      - "Tests prove sample-first runtime still loads primary samples before procedural fallback."
+      - "Full AAA outcome is not claimed complete."
     receipt: null
 
 checks:
@@ -1108,3 +1215,10 @@ checks:
       - "rg -n \"Beanie Beak|Mochi Munch|Quillabelle Prickles|source-only|not playable|8-fighter\" src/assets/sourceRosterLab.ts output/roster-lab/aaa-expansion-full-source-roster-lab.json"
       - "test ! -e public/assets/generated/fighters/budgie-beanie && test ! -e public/assets/generated/fighters/hamster-mochi && test ! -e public/assets/generated/fighters/hedgehog-quillabelle"
       - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/aaa-expansion-full-source-roster-locks"
+  t021_verification:
+    result: pass
+    task: T021
+    commands:
+      - "test -f docs/goals/aaa-game-expansion/notes/T021-audio-source-license-scout.md"
+      - "rg -n \"Pixabay|ElevenLabs|commercial|attribution|Content ID|platform-claim|prohibited|tier|snapshot|recommendation\" docs/goals/aaa-game-expansion/notes/T021-audio-source-license-scout.md"
+      - "npm test -- test/presentation.test.ts test/meowtal-production-manifest.test.ts"
