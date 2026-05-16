@@ -117,7 +117,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T053
+active_task: T054
 
 tasks:
   - id: T001
@@ -3422,7 +3422,7 @@ tasks:
   - id: T053
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Choose the next highest-leverage safe package after championship UI polish. Decide whether to deepen championship rewards/interstitials, improve training/mode depth, audit the current tranche, or select another non-asset gameplay slice while preserving the hard no-size-change rule."
     inputs:
@@ -3448,6 +3448,62 @@ tasks:
       - "stop_if"
       - "acceptance checklist"
       - "Parallelization safety notes"
+    receipt:
+      result: done
+      decision: proceed_with_worker
+      full_outcome_complete: false
+      summary: "Approved one Worker for Training mode depth. Championship now has a functional three-fighter ladder plus clear UI, so the next highest-leverage non-asset slice is a richer single-player practice lab using existing runtime state and current assets only."
+      rejected_alternatives:
+        - "Further championship rewards/interstitials: useful later, but recent T050/T052 work already improved championship and training is shallower."
+        - "Post-T052 audit: lower leverage because T052 has fresh verify, smoke, byte-compare, screenshot review, and Judge approval."
+        - "Fourth-fighter promotion: rejected because it risks asset churn and animation-size violations."
+        - "Audio, fighter row regeneration, resizing, normalization, sprite-scale/cell-size/placement changes, dependencies, and generated asset churn: rejected for this slice."
+      parallel_safety:
+        write_parallelism: unsafe
+        reason: "This touches shared scene runtime text/UI, shell mode flow, smoke scripts, and tests. Run one Worker only."
+        safe_parallel_followup: "A read-only Judge or Scout may review screenshots/smoke output after the Worker finishes."
+      spawned_tasks:
+        - T054
+  - id: T054
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: medium
+    objective: "Deepen Training mode into a small practice lab using existing runtime assets only: add smoke-verifiable training presentation/state for selected fighter tips, dummy behavior/status, input/combo practice feedback, and reset/retry affordances without changing fighter size, fighter rows, generated assets, audio, dependencies, sprite scale, cell size, or placement rules."
+    allowed_files:
+      - "src/game/MeowtalArenaScene.ts"
+      - "src/game/shellFlow.ts"
+      - "src/content/gameBible.ts"
+      - "scripts/smoke-meowtal-browser.mjs"
+      - "test/game-bible.test.ts"
+      - "test/shell-flow.test.ts"
+      - "test/character-select.test.ts"
+      - "test/combat-core.test.ts"
+      - "test/match-flow.test.ts"
+      - "output/web-game/training-mode-depth/*"
+      - "docs/goals/aaa-game-expansion/notes/T054-training-mode-depth.md"
+      - "docs/goals/aaa-game-expansion/state.yaml"
+    verify:
+      - "git diff --name-only -- assets/source/imagegen/fighters public/assets/generated/fighters output/imagegen package.json package-lock.json src/game/audio.ts public/assets/audio"
+      - "for row in idle walk-forward walk-back crouch jump light-punch heavy-punch light-kick special hitstun blockstun knockdown win lose; do cmp -s assets/source/imagegen/fighters/pugilist-pug/$row.png public/assets/generated/fighters/pugilist-pug/$row.png || exit 1; done"
+      - "npm test -- test/game-bible.test.ts test/shell-flow.test.ts test/character-select.test.ts test/combat-core.test.ts test/match-flow.test.ts"
+      - "npm run typecheck"
+      - "npm run verify"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/training-mode-depth"
+    stop_if:
+      - "Any fighter row would be regenerated, normalized, resized, cropped, repacked, or pixel-edited."
+      - "Any sprite scale, cell size, frame size, placement rule, or character-size logic change is needed."
+      - "Any generated asset churn, imagegen output, new dependency, package lock change, or audio change is needed."
+      - "The slice expands into championship save/continue, large story interstitials, fourth-fighter promotion, asset production, or broad all-modes completion."
+      - "Smoke shows runtime fighter fallbacks, misleading HUD portraits, broken championship ladder, or visible character size drift."
+    acceptance:
+      - "Training mode exposes richer practice-lab state through render_game_to_text."
+      - "Training UI/presentation communicates selected fighter training tips and current dummy/practice status."
+      - "Training remains endless and resettable without regressing 1 VS CPU or championship flow."
+      - "Smoke asserts the new training state and captures training screenshots."
+      - "No fighter rows, sprite scale, cell sizes, placement rules, generated assets, dependencies, or audio are changed."
+      - "Focused tests, full verify, and training smoke pass."
+      - "Receipt states full_outcome_complete=false."
     receipt: null
 
 checks:
