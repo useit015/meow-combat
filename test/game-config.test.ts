@@ -28,6 +28,13 @@ describe("game content config", () => {
     ]);
   });
 
+  it("links the expansion bible without expanding the runtime roster yet", () => {
+    expect(meowtalKombatConfig.contentSpine.workingTitle).toBe("Pawbreaker League");
+    expect(meowtalKombatConfig.contentSpine.fighters).toHaveLength(8);
+    expect(meowtalKombatConfig.contentSpine.runtimeFighterIds).toEqual(["gray-rabbit", "ginger-tabby-cat"]);
+    expect(meowtalKombatConfig.roster.map((fighter) => fighter.id)).toEqual(["gray-rabbit", "ginger-tabby-cat"]);
+  });
+
   it("keeps Meowtal runtime sprite metadata centralized", () => {
     expect(meowtalKombatConfig.conceptSheet).toBeNull();
     expect(meowtalKombatConfig.fighterAssetManifests.map((manifest) => manifest.id)).toEqual([

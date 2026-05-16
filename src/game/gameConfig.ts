@@ -5,6 +5,7 @@ import {
   type FighterAssetManifest,
   type StageAssetManifest,
 } from "../assets";
+import { petFighterGameBible, type PetFighterGameBible } from "../content";
 import { GINGER_TABBY_CAT, GRAY_RABBIT, type CpuDifficulty, type FighterDefinition } from "../core";
 
 export type PlayerContentSlot = "p1" | "p2";
@@ -89,6 +90,7 @@ export interface GameContentConfig {
   runtimeUiAssets: readonly RuntimeUiAssetConfig[];
   assetVersion: string;
   stage: StageAssetManifest;
+  contentSpine: PetFighterGameBible;
 }
 
 export const RUNTIME_UI_IMAGE_SPECS = [
@@ -237,6 +239,7 @@ export const meowtalKombatConfig: GameContentConfig = {
   ]),
   assetVersion: "meowtal-courtyard-1",
   stage: meowtalStageAssetManifests[0] ?? stageAssetManifests[0],
+  contentSpine: petFighterGameBible,
 };
 
 function runtimeSpritesheetsFor(manifests: readonly FighterAssetManifest[]): readonly RuntimeSpritesheetConfig[] {
