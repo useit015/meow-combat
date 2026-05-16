@@ -117,7 +117,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T999
+active_task: T014
 
 tasks:
   - id: T001
@@ -672,7 +672,7 @@ tasks:
   - id: T999
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Audit whether the implemented tranche satisfies the original AAA-style expansion outcome."
     inputs:
@@ -693,6 +693,81 @@ tasks:
       - "full_outcome_complete: true | false"
       - "missing evidence"
       - "next task if not complete"
+    receipt:
+      result: done
+      decision: "not_complete"
+      full_outcome_complete: false
+      strongest_evidence:
+        - "T004-T012 are done with passing focused tests, npm run verify, and latest production-preview smoke."
+        - "Latest playable proof exists at output/web-game/aaa-expansion-pug-model-sheet/report.json plus screenshots; smoke has no failures and reports PAWBREAKER LEAGUE."
+        - "src/content/gameBible.ts defines the 8-fighter Pawbreaker League plan, story premise, modes, IP-safety rules, and no-slop animation standards."
+        - "src/game/gameConfig.ts keeps runtime roster limited to gray-rabbit and ginger-tabby-cat."
+        - "assets/source/imagegen/fighters/pugilist-pug/canonical-character-sheet.png is source-only model-sheet proof, not runtime overclaiming."
+      missing_evidence:
+        - "No explicit content milestone inventory artifact exists yet."
+        - "No explicit before/after review checklist artifact exists yet."
+        - "Broad AAA-style outcome remains incomplete: runtime still has 2 playable fighters, only 1 new planned fighter has source-only art, authored/sample audio paths exist but actual authored samples are not present, and championship/story is still a non-final shell."
+        - "One source-only new fighter is useful pipeline proof but not enough for the 8-fighter direction."
+      next_task: T013
+      summary: "Judge rejected completion. The tranche has credible playable and source-control proof, but final audit evidence is missing and safe local follow-up work remains. Next task must create a source-controlled content milestone inventory and before/after review checklist before choosing the next production slice."
+  - id: T013
+    type: worker
+    assignee: Worker
+    status: done
+    reasoning_hint: medium
+    objective: "Create a source-controlled tranche audit artifact that includes the required content milestone inventory and before/after review checklist, then recommend the next roster-production slice. Do not edit product code or assets."
+    allowed_files:
+      - "docs/goals/aaa-game-expansion/notes/T013-tranche-inventory-checklist.md"
+      - "docs/goals/aaa-game-expansion/state.yaml"
+    verify:
+      - "test -f docs/goals/aaa-game-expansion/notes/T013-tranche-inventory-checklist.md"
+      - "rg -n \"Full outcome: incomplete|Content Milestone Inventory|Before/After Review Checklist|Recommended Next Slice|T004|T012|aaa-expansion-pug-model-sheet\" docs/goals/aaa-game-expansion/notes/T013-tranche-inventory-checklist.md"
+      - "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/aaa-game-expansion/state.yaml"
+    stop_if:
+      - "Need product code, generated assets, public assets, package/dependency changes, or external APIs."
+      - "Need to claim the full AAA-style outcome is complete."
+      - "Cannot cite T004-T012 receipts, latest smoke report, roster/runtime facts, and explicit incomplete status."
+      - "Verification fails twice."
+    receipt:
+      result: done
+      changed_files:
+        - "docs/goals/aaa-game-expansion/notes/T013-tranche-inventory-checklist.md"
+        - "docs/goals/aaa-game-expansion/state.yaml"
+      commands:
+        - cmd: "test -f docs/goals/aaa-game-expansion/notes/T013-tranche-inventory-checklist.md"
+          status: pass
+        - cmd: "rg -n \"Full outcome: incomplete|Content Milestone Inventory|Before/After Review Checklist|Recommended Next Slice|T004|T012|aaa-expansion-pug-model-sheet\" docs/goals/aaa-game-expansion/notes/T013-tranche-inventory-checklist.md"
+          status: pass
+        - cmd: "node /Users/oussmustaine/.codex/plugins/cache/goalbuddy/goalbuddy/0.3.6/skills/goalbuddy/scripts/check-goal-state.mjs docs/goals/aaa-game-expansion/state.yaml"
+          status: pass
+      summary: "Created the required tranche audit artifact with a content milestone inventory, before/after review checklist, latest smoke summary, explicit Full outcome: incomplete status, T004-T012 evidence citations, and a recommended next roster-production slice. The artifact recommends a Judge decision on whether to generate a bounded source-only model-sheet batch for Noodle Nibbles and Tofu Tortoise, with no runtime/public promotion."
+  - id: T014
+    type: judge
+    assignee: Judge
+    status: active
+    reasoning_hint: high
+    objective: "Choose the next safe roster-production package after the T013 audit. Decide whether to generate a bounded source-only model-sheet batch for the next two planned fighters, generate only one model sheet, or defer roster art for another pipeline gap. Prioritize quality-first imagegen, no animation drift, no runtime overclaiming, and progress toward the 8-fighter direction."
+    inputs:
+      - "T013 tranche inventory and checklist"
+      - "T011/T012 Pickles Pugilist model-sheet receipt"
+      - "T004 8-fighter content spine"
+      - "T006 no-slop generated fighter asset contract"
+      - "Latest smoke proof at output/web-game/aaa-expansion-pug-model-sheet/report.json"
+    constraints:
+      - "Do not implement or generate images."
+      - "Do not choose playable roster expansion before canonical sheets, approved animation plans, full generated row sets, normalization/QA, runtime promotion tests, and browser smoke proof."
+      - "Prefer source-only canonical/model-sheet work if it advances the 8-fighter direction safely."
+      - "If approving a batch, cap it to the largest safe QAable batch and define rejection criteria per asset."
+      - "Preserve runtime playable roster as Gray Rabbit + Ginger Tabby Cat."
+      - "Do not allow public/runtime promotion, select-screen planned slots, portraits, or animation rows in the next Worker unless specifically justified."
+    expected_output:
+      - "Decision: proceed_with_worker | require_one_at_a_time | defer_roster_art | require_scout"
+      - "Rationale"
+      - "Exact Worker objective"
+      - "allowed_files"
+      - "verify"
+      - "stop_if"
+      - "no-slop acceptance checklist"
     receipt: null
 
 checks:
