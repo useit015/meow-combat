@@ -117,7 +117,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T093
+active_task: T094
 
 tasks:
   - id: T001
@@ -6487,7 +6487,7 @@ tasks:
   - id: T093
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: medium
     objective: "Run a bounded Noodle post-promotion playability polish slice. Audit Noodle in select, Training, Local Versus, and Championship as an already-promoted runtime fighter; fix only small runtime polish/readability issues that appear in code, copy, tuning, or smoke coverage; and prove the four-fighter runtime remains truthful with zero fallbacks."
     inputs:
@@ -6530,17 +6530,81 @@ tasks:
       - "Select, Training, Local Versus, and Championship smoke states remain readable and truthful for Noodle/four-fighter runtime."
       - "Focused tests, full verify, and browser smoke pass."
       - "Protected diff check shows no image, dependency, audio, source-record, sprite-cell, or sprite-visual-sizing changes."
+    receipt:
+      result: done
+      full_outcome_complete: false
+      note: notes/T093-noodle-post-promotion-polish.md
+      summary: "Expanded browser smoke coverage so Noodle is now selected and verified in Training, Local Versus, and Championship. The smoke asserts Noodle/Pickles selected state, runtime sprite IDs, dynamic HUD portrait keys, all 14 public Noodle rows fetched in-browser, and zero fighter fallbacks without editing image, audio, dependency, source-record, sprite-cell, or sprite-visual-sizing files."
+      commands:
+        - cmd: "node --check scripts/smoke-meowtal-browser.mjs"
+          result: pass
+        - cmd: "git diff --check"
+          result: pass
+        - cmd: "npm test -- test/character-select.test.ts test/game-config.test.ts test/game-bible.test.ts test/asset-runtime.test.ts test/fighter-animation-preflight.test.ts"
+          result: pass
+          summary: "5 files / 63 tests passed."
+        - cmd: "npm run verify"
+          result: pass
+          summary: "typecheck passed, 31 files / 233 tests passed, and production build passed."
+        - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4174/ --out-dir output/web-game/noodle-post-promotion-polish"
+          result: pass
+          summary: "report.json failures=[]; training-demo selected ferret-noodle; local-versus-demo selected ferret-noodle vs pugilist-pug; four-fighter-runtime-promotion remained green."
+        - cmd: "git diff --name-only -- public/assets/generated/fighters/ferret-noodle assets/source/imagegen/fighters/ferret-noodle package.json package-lock.json src/game/audio.ts public/assets/audio assets/source/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts"
+          result: pass
+          summary: "No protected image, dependency, audio, source-record, sprite-cell, or sprite-visual-sizing diffs."
+      evidence:
+        - "output/web-game/noodle-post-promotion-polish/report.json"
+        - "output/web-game/noodle-post-promotion-polish/training-noodle-character-select.png"
+        - "output/web-game/noodle-post-promotion-polish/training-noodle-fight.png"
+        - "output/web-game/noodle-post-promotion-polish/local-versus-noodle-pickles-select.png"
+        - "output/web-game/noodle-post-promotion-polish/local-versus-noodle-pickles-fight.png"
+        - "output/web-game/noodle-post-promotion-polish/runtime-roster-noodle-pickles-fight.png"
+      spawned_tasks:
+        - T094
+  - id: T094
+    type: judge
+    assignee: Judge
+    status: active
+    reasoning_hint: high
+    objective: "Review the T093 Noodle post-promotion polish and choose the next largest safe useful package toward the AAA pet fighting game outcome. Decide whether to route to four-fighter combat/readability polish, championship/story polish, audio production, another roster lane, or a final tranche audit."
+    inputs:
+      - "T093 Worker receipt."
+      - "docs/goals/aaa-game-expansion/notes/T093-noodle-post-promotion-polish.md"
+      - "output/web-game/noodle-post-promotion-polish/report.json"
+      - "Current git diff and committed T093 changes."
+    constraints:
+      - "Read-only decision only."
+      - "Do not generate or edit image/audio assets."
+      - "Do not tune combat, change dependencies, or edit runtime code."
+      - "Do not mark the full AAA outcome complete unless a requirement-by-requirement audit proves the original objective."
+    allowed_files:
+      - "docs/goals/aaa-game-expansion/notes/T094-post-noodle-polish-review.md"
+      - "docs/goals/aaa-game-expansion/state.yaml"
+    verification:
+      - "sed -n '1,220p' docs/goals/aaa-game-expansion/notes/T093-noodle-post-promotion-polish.md"
+      - "node -e 'const r=require(\"./output/web-game/noodle-post-promotion-polish/report.json\"); console.log(JSON.stringify({failures:r.failures.length,resultNames:r.results.map(x=>x.name)}, null, 2)); if (r.failures.length) process.exit(1);'"
+      - "git diff --name-only -- public/assets/generated/fighters/ferret-noodle assets/source/imagegen/fighters/ferret-noodle package.json package-lock.json src/game/audio.ts public/assets/audio assets/source/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts"
+    stop_conditions:
+      - "T093 receipt is missing, stale, or contradicts report.json."
+      - "Browser smoke report has failures or lacks Training, Local Versus, or four-fighter runtime promotion results."
+      - "Protected image, dependency, audio, source-record, sprite-cell, or sprite-visual-sizing diffs appear."
+    acceptance_criteria:
+      - "Decision is explicit: approve next safe Worker, require repair, ask owner, or run final not-complete audit."
+      - "Decision addresses how the next package moves toward the original AAA outcome rather than only maintaining existing coverage."
+      - "The full AAA outcome remains active and incomplete unless directly proven otherwise."
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T092
+    task: T093
     commands:
-      - "sed -n '1,220p' docs/goals/aaa-game-expansion/notes/T091-noodle-runtime-promotion.md"
-      - "node -e 'const r=require(\"./output/web-game/noodle-runtime-promotion/report.json\"); console.log(JSON.stringify({url:r.url, failures:r.failures.length, resultNames:r.results.map(x=>x.name), hasFourFighterPromotion:r.results.some(x=>x.name===\"four-fighter-runtime-promotion\")}, null, 2)); if (r.failures.length || !r.results.some(x=>x.name===\"four-fighter-runtime-promotion\")) process.exit(1);'"
-      - "git diff --name-only -- package.json package-lock.json src/game/audio.ts public/assets/audio assets/source/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts"
-      - "find public/assets/generated/fighters/ferret-noodle -maxdepth 1 -type f | sort"
+      - "node --check scripts/smoke-meowtal-browser.mjs"
+      - "git diff --check"
+      - "npm test -- test/character-select.test.ts test/game-config.test.ts test/game-bible.test.ts test/asset-runtime.test.ts test/fighter-animation-preflight.test.ts"
+      - "npm run verify"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4174/ --out-dir output/web-game/noodle-post-promotion-polish"
+      - "git diff --name-only -- public/assets/generated/fighters/ferret-noodle assets/source/imagegen/fighters/ferret-noodle package.json package-lock.json src/game/audio.ts public/assets/audio assets/source/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts"
   t021_verification:
     result: pass
     task: T021
