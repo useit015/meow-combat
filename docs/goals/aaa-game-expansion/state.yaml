@@ -117,7 +117,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T016
+active_task: T018
 
 tasks:
   - id: T001
@@ -852,7 +852,7 @@ tasks:
   - id: T016
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Choose the next safe production package after three planned Pawbreaker fighters now have source-only identity locks. Decide whether to generate the remaining planned fighter model sheets, add a source-only roster-lab/review surface, begin authored/sample audio acquisition, or address another higher-risk gap. Keep no-slop quality and runtime overclaiming constraints central."
     inputs:
@@ -876,16 +876,103 @@ tasks:
       - "verify"
       - "stop_if"
       - "acceptance checklist"
+    receipt:
+      result: done
+      decision: "proceed_with_worker"
+      rationale: "After three planned fighters have source-only identity locks, the next safest package is a source-only roster lab/review surface, not more imagegen or audio acquisition. The project needs a controlled way to compare roster cohesion, mark missing identity locks, and prevent runtime overclaiming before spending more quality-first generation on remaining fighters. Audio remains important, but acquisition carries licensing/source-record risk and is less central than protecting the 8-fighter roster direction right now."
+      next_task: T017
+      summary: "Approved a source-only Pawbreaker roster lab/review surface that inventories the 8-fighter direction, indexes the three accepted planned model sheets, identifies remaining missing identity locks, records no-slop review criteria, and proves no planned fighter is public/runtime/playable."
+  - id: T017
+    type: worker
+    assignee: Worker
+    status: done
+    reasoning_hint: medium
+    objective: "Add a source-only Pawbreaker roster lab/review surface that inventories the 8-fighter direction, indexes the three accepted planned model sheets, identifies remaining missing identity locks, records no-slop review criteria, and proves no planned fighter is public/runtime/playable."
+    allowed_files:
+      - "src/assets/sourceRosterLab.ts"
+      - "test/source-roster-lab.test.ts"
+      - "docs/goals/aaa-game-expansion/notes/T017-source-roster-lab.md"
+      - "output/roster-lab/aaa-expansion-source-roster-lab.html"
+      - "output/roster-lab/aaa-expansion-source-roster-lab.json"
+    verify:
+      - "npm run typecheck"
+      - "npm test -- test/source-roster-lab.test.ts test/asset-pipeline.test.ts test/imagegen-jobs.test.ts test/game-config.test.ts"
+      - "npm run verify"
+      - "rg -n \"Pickles Pugilist|Noodle Nibbles|Tofu Tortoise|source-only|not playable|missing identity lock|8-fighter\" docs/goals/aaa-game-expansion/notes/T017-source-roster-lab.md"
+      - "test ! -e public/assets/generated/fighters/pugilist-pug && test ! -e public/assets/generated/fighters/ferret-noodle && test ! -e public/assets/generated/fighters/tortoise-tofu"
+    stop_if:
+      - "Need imagegen, audio acquisition, .env, Pixabay, ElevenLabs, or any external API."
+      - "Need public/assets, runtime portraits, animation rows, select-screen planned slots, playable promotion, combat, scene flow, audio runtime, or dependency changes."
+      - "Need to edit existing asset manifests instead of reading/indexing them."
+      - "The lab cannot clearly separate playable runtime fighters from source-only planned fighters."
+      - "Any wording claims Pickles, Noodle, or Tofu are playable/runtime-ready."
+      - "Verification fails twice."
+    acceptance:
+      - "Lists the full 8-fighter Pawbreaker direction without advertising unfinished fighters as playable."
+      - "Separates current playable runtime roster from source-only planned identity locks."
+      - "Indexes Pickles, Noodle, and Tofu with exact source asset paths and source-only status."
+      - "Marks remaining planned fighters as missing identity locks unless an existing approved canonical sheet is proven."
+      - "Includes no-slop review criteria for silhouette variety, species readability, palette spread, stance readability, proportion consistency, copied-mark rejection, and no text/logo/watermark."
+      - "Creates no new generated images or audio."
+      - "Adds no public/runtime asset paths."
+      - "Tests prove runtime roster remains only Gray Rabbit and Ginger Tabby Cat."
+    receipt:
+      result: done
+      changed_files:
+        - "src/assets/sourceRosterLab.ts"
+        - "test/source-roster-lab.test.ts"
+        - "docs/goals/aaa-game-expansion/notes/T017-source-roster-lab.md"
+        - "output/roster-lab/aaa-expansion-source-roster-lab.html"
+        - "output/roster-lab/aaa-expansion-source-roster-lab.json"
+      commands:
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm test -- test/source-roster-lab.test.ts test/asset-pipeline.test.ts test/imagegen-jobs.test.ts test/game-config.test.ts"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "rg -n \"Pickles Pugilist|Noodle Nibbles|Tofu Tortoise|source-only|not playable|missing identity lock|8-fighter\" docs/goals/aaa-game-expansion/notes/T017-source-roster-lab.md"
+          status: pass
+        - cmd: "test ! -e public/assets/generated/fighters/pugilist-pug && test ! -e public/assets/generated/fighters/ferret-noodle && test ! -e public/assets/generated/fighters/tortoise-tofu"
+          status: pass
+      summary: "Added a source-only Pawbreaker roster lab/review surface and tests. The lab inventories the 8-fighter direction, separates the current playable runtime roster from source-only planned identity locks, indexes Pickles/Noodle/Tofu source sheet paths, marks Beanie/Mochi/Quillabelle as missing identity locks, records no-slop criteria, and produces JSON/HTML review artifacts without adding public/runtime asset paths or playable planned fighters."
+  - id: T018
+    type: judge
+    assignee: Judge
+    status: active
+    reasoning_hint: high
+    objective: "Choose the next safe production package after the source-only roster lab. Decide whether to generate remaining planned fighter model sheets, start authored/sample audio source acquisition, improve championship/story depth, or address another higher-risk gap. Keep the full AAA-style outcome, no-slop asset standard, source/license risk, and runtime overclaiming constraints central."
+    inputs:
+      - "T013 tranche inventory and checklist"
+      - "T015 two-model-sheet receipt"
+      - "T017 source roster lab receipt and artifacts"
+      - "T004 8-fighter content spine"
+      - "T005/T008 authored/sample audio contract and sample-first runtime"
+      - "Latest full verification"
+    constraints:
+      - "Do not implement, generate images, acquire audio, or call external APIs."
+      - "Reject playable roster expansion until candidate fighters have canonical sheets, approved animation plans, full generated row sets, normalization/QA, runtime promotion tests, and browser smoke proof."
+      - "If choosing model sheets, cap the batch to the largest safe QAable set and define per-fighter no-slop rejection criteria."
+      - "If choosing audio, require source/license records before runtime consumption and do not make procedural synthesis primary."
+      - "If choosing story/modes, preserve runtime stability and keep scope bounded."
+    expected_output:
+      - "Decision: proceed_with_worker | require_scout | defer_roster_art | defer_audio | defer_story"
+      - "Rationale"
+      - "Exact Worker objective"
+      - "allowed_files"
+      - "verify"
+      - "stop_if"
+      - "acceptance checklist"
     receipt: null
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T015
+    task: T017
     commands:
       - "npm run typecheck"
-      - "npm test -- test/asset-pipeline.test.ts test/imagegen-jobs.test.ts test/meowtal-production-manifest.test.ts test/game-config.test.ts"
+      - "npm test -- test/source-roster-lab.test.ts test/asset-pipeline.test.ts test/imagegen-jobs.test.ts test/game-config.test.ts"
       - "npm run verify"
-      - "sips -g pixelWidth -g pixelHeight assets/source/imagegen/fighters/ferret-noodle/canonical-character-sheet.png assets/source/imagegen/fighters/tortoise-tofu/canonical-character-sheet.png"
-      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/aaa-expansion-two-model-sheets"
+      - "rg -n \"Pickles Pugilist|Noodle Nibbles|Tofu Tortoise|source-only|not playable|missing identity lock|8-fighter\" docs/goals/aaa-game-expansion/notes/T017-source-roster-lab.md"
+      - "test ! -e public/assets/generated/fighters/pugilist-pug && test ! -e public/assets/generated/fighters/ferret-noodle && test ! -e public/assets/generated/fighters/tortoise-tofu"
