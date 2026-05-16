@@ -301,6 +301,9 @@ describe("asset runtime resolver", () => {
 
   it("keeps approved public fighter spritesheets on the manifest frame-cell contract", () => {
     for (const manifest of meowtalFighterAssetManifests) {
+      expect(manifest.identityLock.scaleReferenceAnimation).toBe("idle");
+      expect(manifest.productionAcceptance.runtimePromotionChecks).toContain("source and runtime provenance recorded");
+
       for (const animation of manifest.animations) {
         const runtimeAsset = resolveFighterRuntimeAsset(renderAssetForAnimationId(manifest, animation.id));
 

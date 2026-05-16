@@ -57,6 +57,24 @@ describe("fighter asset manifests", () => {
       }
     }
   });
+
+  it("requires identity-lock and no-slop production rules before fighter runtime promotion", () => {
+    for (const manifest of fighterAssetManifests) {
+      expect(manifest.identityLock.canonicalReferenceRequired).toBe(true);
+      expect(manifest.identityLock.scaleReferenceAnimation).toBe("idle");
+      expect(manifest.identityLock.lockedTraits).toEqual(
+        expect.arrayContaining(["proportions", "markings", "face shape", "silhouette"]),
+      );
+      expect(manifest.identityLock.forbiddenDrift).toEqual(
+        expect.arrayContaining(["size drift", "identity drift", "warped anatomy", "baked text or logos"]),
+      );
+      expect(manifest.productionAcceptance.modelSheetRequiredBeforeAnimation).toBe(true);
+      expect(manifest.productionAcceptance.runtimePromotionChecks).toEqual(
+        expect.arrayContaining(["exact frame-cell dimensions", "alpha channel present", "stable alpha bounds"]),
+      );
+      expect(manifest.productionAcceptance.rejectionReasons).toContain("generic AI-looking output");
+    }
+  });
 });
 
 describe("stage asset manifests", () => {

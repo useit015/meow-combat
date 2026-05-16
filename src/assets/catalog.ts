@@ -2,6 +2,8 @@ import {
   DEFAULT_FIGHTER_CELL_SIZE,
   type FighterAnimationSpec,
   type FighterAssetManifest,
+  type FighterIdentityLock,
+  type FighterProductionAcceptance,
   type StageAssetManifest,
 } from "./types";
 
@@ -12,6 +14,25 @@ const sharedAnimationConstraints = [
   "Preserve fighter identity, proportions, palette, face, outfit, and readable silhouette across every frame.",
   "Keep normal gameplay rows upright and two-legged; grounded or prone poses are only for hit reactions and K.O. end states.",
 ] as const;
+
+const fighterProductionAcceptance: FighterProductionAcceptance = {
+  modelSheetRequiredBeforeAnimation: true,
+  runtimePromotionChecks: [
+    "exact frame-cell dimensions",
+    "alpha channel present",
+    "stable alpha bounds",
+    "source and runtime provenance recorded",
+    "no baked text, logos, watermarks, frame numbers, grids, or detached effects",
+  ],
+  rejectionReasons: [
+    "generic AI-looking output",
+    "size drift",
+    "identity drift",
+    "warped anatomy",
+    "unreadable silhouette",
+    "copied reference-game costume, move, logo, title, or UI language",
+  ],
+};
 
 const animationBriefs = [
   ["idle", 8, "Calm fighting stance with subtle breathing and grounded weight shift."],
@@ -118,6 +139,8 @@ export const fighterAssetManifests: readonly FighterAssetManifest[] = [
     asymmetryNotes: [
       "Potential sash or shoulder trim may be asymmetric; do not mirror rows until reviewed.",
     ],
+    identityLock: identityLockFor(),
+    productionAcceptance: fighterProductionAcceptance,
     canonicalReference: generatedSource(
       "atlas-lion-canonical-reference",
       "assets/source/imagegen/fighters/atlas-lion/canonical-reference.png",
@@ -137,6 +160,8 @@ export const fighterAssetManifests: readonly FighterAssetManifest[] = [
     asymmetryNotes: [
       "Head wrap tail and belt accessories may be side-specific; do not mirror rows until reviewed.",
     ],
+    identityLock: identityLockFor(),
+    productionAcceptance: fighterProductionAcceptance,
     canonicalReference: generatedSource(
       "sahara-viper-canonical-reference",
       "assets/source/imagegen/fighters/sahara-viper/canonical-reference.png",
@@ -159,6 +184,8 @@ export const meowtalFighterAssetManifests: readonly FighterAssetManifest[] = [
     asymmetryNotes: [
       "Ear tilt, cheek fur, and small wraps may be side-specific; do not mirror rows until reviewed.",
     ],
+    identityLock: identityLockFor(),
+    productionAcceptance: fighterProductionAcceptance,
     canonicalReference: generatedSource(
       "gray-rabbit-canonical-character-sheet",
       "assets/source/imagegen/fighters/gray-rabbit/canonical-character-sheet.png",
@@ -178,6 +205,8 @@ export const meowtalFighterAssetManifests: readonly FighterAssetManifest[] = [
     asymmetryNotes: [
       "Stripe pattern, tail curve, and cheek markings may be side-specific; do not mirror rows until reviewed.",
     ],
+    identityLock: identityLockFor(),
+    productionAcceptance: fighterProductionAcceptance,
     canonicalReference: generatedSource(
       "ginger-tabby-cat-canonical-character-sheet",
       "assets/source/imagegen/fighters/ginger-tabby-cat/canonical-character-sheet.png",
@@ -306,6 +335,15 @@ export const meowtalStageAssetManifests: readonly StageAssetManifest[] = [
 
 function animationSpecsFor(fighterId: string): readonly FighterAnimationSpec[] {
   return animationBriefs.map(([id, frameCount, promptIntent]) => animation(fighterId, id, frameCount, promptIntent));
+}
+
+function identityLockFor(): FighterIdentityLock {
+  return {
+    canonicalReferenceRequired: true,
+    scaleReferenceAnimation: "idle",
+    lockedTraits: ["proportions", "markings", "face shape", "silhouette", "palette", "costume details"],
+    forbiddenDrift: ["size drift", "identity drift", "warped anatomy", "baked text or logos", "untracked style changes"],
+  };
 }
 
 function animation(

@@ -51,6 +51,19 @@ export interface FighterAnimationSpec {
   constraints: readonly string[];
 }
 
+export interface FighterIdentityLock {
+  canonicalReferenceRequired: true;
+  scaleReferenceAnimation: FighterAnimationId;
+  lockedTraits: readonly string[];
+  forbiddenDrift: readonly string[];
+}
+
+export interface FighterProductionAcceptance {
+  modelSheetRequiredBeforeAnimation: true;
+  runtimePromotionChecks: readonly string[];
+  rejectionReasons: readonly string[];
+}
+
 export interface FighterAssetManifest {
   id: string;
   displayName: string;
@@ -58,6 +71,8 @@ export interface FighterAssetManifest {
   archetype: string;
   designNotes: readonly string[];
   asymmetryNotes: readonly string[];
+  identityLock: FighterIdentityLock;
+  productionAcceptance: FighterProductionAcceptance;
   canonicalReference: ImagegenSource;
   animations: readonly FighterAnimationSpec[];
 }
