@@ -117,7 +117,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T090
+active_task: T091
 
 tasks:
   - id: T001
@@ -6268,7 +6268,7 @@ tasks:
   - id: T090
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Review the T089 Noodle source-set audit/readiness package and decide whether the next safe package is runtime promotion prep, row repair, or holding for more review. Challenge public promotion, roster/playability truthfulness, browser smoke coverage, and the risk of overclaiming Noodle as playable."
     inputs:
@@ -6304,18 +6304,107 @@ tasks:
       - "If approving promotion prep, provide a bounded Worker objective, allowed files, verification commands, and stop conditions."
       - "Decision preserves source-only truthfulness until a later Worker intentionally promotes runtime files."
       - "The full AAA outcome remains active and incomplete."
+    receipt:
+      result: done
+      decision: approve_runtime_promotion_worker
+      full_outcome_complete: false
+      note: notes/T090-noodle-runtime-promotion-prep-review.md
+      rationale: "T089 provides sufficient source-set evidence to proceed with a separate bounded runtime/public promotion Worker: all 14 required Noodle rows exist, are exact alpha 256-cell spritesheets, are cataloged and tested as generated source rows, and public/assets/generated/fighters/ferret-noodle remains absent before promotion. Row repair and another audit are lower value than one explicit promotion package with byte-identity, runtime truthfulness, and smoke gates."
+      rejected_alternatives:
+        - "Row repair first: rejected because the audit found all 14 required rows exact, alpha-enabled, cataloged, and source-only."
+        - "Hold for another audit: rejected because T089 already provides hashes, catalog/test truthfulness, public absence proof, asset QA, and full verify."
+        - "Promote only public files without runtime truth updates: rejected because public assets, catalog, config, content, tests, and smoke must move together."
+        - "Mark full AAA complete: rejected because one additional runtime fighter is progress, not the complete AAA expansion."
+      commands:
+        - cmd: "sed -n '1,220p' docs/goals/aaa-game-expansion/notes/T089-noodle-source-set-audit.md"
+          result: pass
+        - cmd: "node -e 'JSON.parse(require(\"node:fs\").readFileSync(\"output/animation-preflight/noodle-nibbles-source-set-audit.json\", \"utf8\")); console.log(\"source audit json ok\");'"
+          result: pass
+        - cmd: "test ! -e public/assets/generated/fighters/ferret-noodle"
+          result: pass
+        - cmd: "rg -n \"runtime promotion prep|source-only|not playable|ferret-noodle|Noodle Nibbles|full AAA outcome remains incomplete\" docs/goals/aaa-game-expansion/notes/T089-noodle-source-set-audit.md output/animation-preflight/noodle-nibbles-source-set-audit.json docs/goals/aaa-game-expansion/state.yaml"
+          result: pass
+        - cmd: "git diff --name-only -- public/assets/generated/fighters package.json package-lock.json src/game/audio.ts public/assets/audio assets/source/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts src/core/frameData.ts src/assets/catalog.ts test/asset-pipeline.test.ts test/fighter-animation-preflight.test.ts test/asset-qa.test.ts"
+          result: pass
+          summary: "No forbidden runtime/source/test/dependency/audio diffs before the next Worker."
+      summary: "Approved one bounded Worker to promote Noodle Nibbles source rows to public/runtime as a selectable playable fighter, with no generation, resizing, normalization, unrelated gameplay, audio, dependency, or other planned-fighter promotion."
+      spawned_tasks:
+        - T091
+  - id: T091
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: medium
+    objective: "Promote the approved Noodle Nibbles source rows to public/runtime as a selectable playable fighter in one bounded package. Copy only accepted rows, preserve pixel identity/no-size-change, update runtime manifests/config/content/tests from source-only to playable, and prove every Noodle runtime spritesheet loads with no fallback rows."
+    inputs:
+      - "T089 source-set audit receipt and artifacts."
+      - "T090 runtime promotion prep review."
+      - "assets/source/imagegen/fighters/ferret-noodle/*.png"
+      - "src/assets/catalog.ts"
+      - "Existing Pickles runtime promotion pattern from T045."
+    constraints:
+      - "No new Noodle image generation."
+      - "No regeneration, resizing, normalization, cropping, repainting, or pixel edits."
+      - "Every promoted public row must be byte-identical to its accepted source row."
+      - "Do not promote Tofu Tortoise, Beanie Beak, Mochi Munch, Quillabelle Prickles, or any other planned fighter."
+      - "Do not change audio, dependencies, source records, stage assets, title/UI art, sprite cell size, sprite visual sizing, or unrelated gameplay systems."
+      - "Do not mark the full AAA outcome complete."
+    allowed_files:
+      - "public/assets/generated/fighters/ferret-noodle/*.png"
+      - "src/assets/catalog.ts"
+      - "src/core/frameData.ts"
+      - "src/core/index.ts"
+      - "src/game/gameConfig.ts"
+      - "src/content/gameBible.ts"
+      - "src/assets/sourceRosterLab.ts"
+      - "src/assets/fighterAnimationPreflight.ts"
+      - "test/asset-pipeline.test.ts"
+      - "test/asset-qa.test.ts"
+      - "test/fighter-animation-preflight.test.ts"
+      - "test/game-config.test.ts"
+      - "test/source-roster-lab.test.ts"
+      - "test/character-select.test.ts"
+      - "test/asset-runtime.test.ts"
+      - "test/game-bible.test.ts"
+      - "test/imagegen-jobs.test.ts"
+      - "output/web-game/noodle-runtime-promotion/*"
+      - "docs/goals/aaa-game-expansion/notes/T091-noodle-runtime-promotion.md"
+      - "docs/goals/aaa-game-expansion/state.yaml"
+    verification:
+      - "test -d public/assets/generated/fighters/ferret-noodle"
+      - "for row in idle walk-forward walk-back crouch jump light-punch heavy-punch light-kick special hitstun blockstun knockdown win lose; do cmp -s assets/source/imagegen/fighters/ferret-noodle/$row.png public/assets/generated/fighters/ferret-noodle/$row.png || exit 1; done"
+      - "node scripts/asset-qa.mjs --json"
+      - "npm test -- test/fighter-animation-preflight.test.ts test/asset-pipeline.test.ts test/asset-qa.test.ts test/game-config.test.ts test/source-roster-lab.test.ts test/character-select.test.ts test/asset-runtime.test.ts"
+      - "npm run typecheck"
+      - "npm run build"
+      - "npm run verify"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/noodle-runtime-promotion"
+      - "Targeted browser smoke selects Noodle, fetches all 14 public runtime rows, verifies runtimeVisuals and HUD portraits use ferret-noodle keys, and reports no fighter fallbacks."
+    stop_conditions:
+      - "Any promoted row differs byte-for-byte from the accepted source row."
+      - "Any frame shows visible size drift, identity drift, malformed alpha bounds, detached effects, crop/zoom hiding, or changed Noodle traits."
+      - "Runtime wiring requires unrelated audio, story, UI-art, stage, dependency, sprite-sizing, sprite-cell, or combat-system expansion."
+      - "Tests require weakening no-drift/source-only gates instead of updating them to the new promoted state."
+      - "Any other planned fighter becomes public/runtime/playable."
+    acceptance_criteria:
+      - "Noodle public runtime folder exists and contains exactly the 14 approved animation rows."
+      - "Every promoted row is byte-identical to the accepted source row."
+      - "Runtime roster/config includes Noodle as selectable/playable without promoting other planned fighters."
+      - "Catalog marks Noodle runtime rows as approved public assets while preserving source provenance in notes/tests."
+      - "Fighter definitions include Noodle with bounded, readable mix-up/side-switch gameplay values."
+      - "Game bible/source roster/preflight tests are updated from source-only to promoted runtime state without weakening no-size-change gates."
+      - "Focused tests, asset QA, typecheck, build, full verify, and browser smoke pass."
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T089
+    task: T090
     commands:
-      - "node audit generation for output/animation-preflight/noodle-nibbles-source-set-audit.json and .html"
-      - "sips -g pixelWidth -g pixelHeight -g hasAlpha over all 14 ferret-noodle source rows"
-      - "node scripts/asset-qa.mjs --json"
+      - "sed -n '1,220p' docs/goals/aaa-game-expansion/notes/T089-noodle-source-set-audit.md"
+      - "node -e 'JSON.parse(require(\"node:fs\").readFileSync(\"output/animation-preflight/noodle-nibbles-source-set-audit.json\", \"utf8\")); console.log(\"source audit json ok\");'"
       - "test ! -e public/assets/generated/fighters/ferret-noodle"
-      - "npm run verify"
+      - "rg -n \"runtime promotion prep|source-only|not playable|ferret-noodle|Noodle Nibbles|full AAA outcome remains incomplete\" docs/goals/aaa-game-expansion/notes/T089-noodle-source-set-audit.md output/animation-preflight/noodle-nibbles-source-set-audit.json docs/goals/aaa-game-expansion/state.yaml"
       - "git diff --name-only -- public/assets/generated/fighters package.json package-lock.json src/game/audio.ts public/assets/audio assets/source/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts src/core/frameData.ts src/assets/catalog.ts test/asset-pipeline.test.ts test/fighter-animation-preflight.test.ts test/asset-qa.test.ts"
   t021_verification:
     result: pass
