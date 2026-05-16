@@ -117,7 +117,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T011
+active_task: T999
 
 tasks:
   - id: T001
@@ -569,7 +569,7 @@ tasks:
   - id: T011
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Choose the next safe roster-expansion slice toward the 8-fighter goal. Challenge whether to generate one source-only canonical model sheet now, add non-playable roster preview data, or improve select UX first; prioritize no animation drift, no playable roster overclaiming, and browser-demo stability."
     inputs:
@@ -592,11 +592,87 @@ tasks:
       - "verify"
       - "stop_if"
       - "no-slop acceptance checklist"
-    receipt: null
+    receipt:
+      result: done
+      decision: "proceed_with_worker"
+      rationale: "Proceed with one source-only canonical model sheet now. This is the safest roster-expansion slice because the 8-fighter content spine exists, identity locks require model sheets first, and runtime select stability should not advertise unapproved planned slots."
+      next_task: T012
+      blocked_tasks:
+        - "Non-playable roster preview UI until at least one accepted source identity lock exists."
+        - "Playable roster expansion without complete approved animation rows."
+        - "Animation rows, portraits, or select-screen planned slots for Pickles Pugilist."
+      summary: "Approved source-only Pickles Pugilist model-sheet generation: exactly one built-in imagegen canonical sheet, metadata/provenance/job registration, no runtime/public promotion, and smoke proof that the playable two-fighter demo remains stable."
+  - id: T012
+    type: worker
+    assignee: Worker
+    status: done
+    reasoning_hint: medium
+    objective: "Generate and register exactly one source-only canonical model sheet for planned fighter pugilist-pug / Pickles Pugilist. Use built-in imagegen only. Record it as generated source/provenance/job metadata with no runtime/public promotion. Keep all animation rows blocked/unapproved, keep runtime playable roster at Gray Rabbit + Ginger Tabby Cat, and prove the browser demo still works."
+    allowed_files:
+      - "src/assets/catalog.ts"
+      - "src/assets/imagegenJobs.ts"
+      - "src/assets/meowtalProductionManifest.ts"
+      - "test/asset-pipeline.test.ts"
+      - "test/imagegen-jobs.test.ts"
+      - "test/meowtal-production-manifest.test.ts"
+      - "test/game-config.test.ts"
+      - "assets/source/imagegen/fighters/pugilist-pug/canonical-character-sheet.png"
+      - "assets/source/imagegen/fighters/pugilist-pug/candidates/canonical-character-sheet-codex-01.png"
+      - "output/imagegen/pugilist-pug-canonical-character-sheet.png"
+      - "output/web-game/aaa-expansion-pug-model-sheet/"
+    verify:
+      - "npm run typecheck"
+      - "npm test -- test/asset-pipeline.test.ts test/imagegen-jobs.test.ts test/meowtal-production-manifest.test.ts test/game-config.test.ts"
+      - "npm run verify"
+      - "sips -g pixelWidth -g pixelHeight assets/source/imagegen/fighters/pugilist-pug/canonical-character-sheet.png"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/aaa-expansion-pug-model-sheet"
+    stop_if:
+      - "Need files outside allowed_files."
+      - "Need public/assets, runtime roster, gameConfig runtime roster, scene/select UX, combat, input, or dependency changes."
+      - "Need animation rows, playable promotion, portraits, or select-screen planned slots."
+      - "More than one final generated model-sheet asset is required."
+      - "Generated output has readable/pseudo text, logos, watermarks, copied fighting-game marks, malformed anatomy, identity drift, size drift, extra characters, generic AI look, or unclear pug identity."
+      - "Imagegen fails or produces rejectable output twice."
+      - "Verification or browser smoke fails twice."
+    acceptance:
+      - "Exactly one accepted source-only model sheet for pugilist-pug."
+      - "Pickles reads as one cute upright pug pressure-boxer: consistent wrinkles, muzzle, ears, curled tail, short limbs, palette, and silhouette across views/poses."
+      - "No text, pseudo-text, watermark, real logo, copied reference-game costume, or brand language."
+      - "No animation rows and no public/runtime asset path."
+      - "gameConfig.roster remains exactly gray-rabbit and ginger-tabby-cat."
+      - "Metadata clearly says source-only identity lock, not playable content."
+      - "Browser smoke proves ready, mode/select, fight/training flow remains stable."
+    receipt:
+      result: done
+      changed_files:
+        - "src/assets/catalog.ts"
+        - "src/assets/imagegenJobs.ts"
+        - "src/assets/meowtalProductionManifest.ts"
+        - "test/asset-pipeline.test.ts"
+        - "test/imagegen-jobs.test.ts"
+        - "test/meowtal-production-manifest.test.ts"
+        - "assets/source/imagegen/fighters/pugilist-pug/canonical-character-sheet.png"
+        - "assets/source/imagegen/fighters/pugilist-pug/candidates/canonical-character-sheet-codex-01.png"
+        - "output/imagegen/pugilist-pug-canonical-character-sheet.png"
+        - "output/web-game/aaa-expansion-pug-model-sheet/"
+      commands:
+        - cmd: "built-in Codex imagegen for source-only Pickles Pugilist canonical model sheet"
+          status: pass
+        - cmd: "sips -g pixelWidth -g pixelHeight assets/source/imagegen/fighters/pugilist-pug/canonical-character-sheet.png"
+          status: pass
+        - cmd: "npm test -- test/asset-pipeline.test.ts test/imagegen-jobs.test.ts test/meowtal-production-manifest.test.ts test/game-config.test.ts"
+          status: pass
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/aaa-expansion-pug-model-sheet"
+          status: pass
+      summary: "Generated exactly one accepted source-only Pickles Pugilist canonical model sheet with built-in Codex imagegen, copied it to the source/candidate asset tree and ignored QA output path, registered the planned fighter metadata, provenance, and source-only imagegen job, and kept all Pickles animation rows blocked with no runtime/public promotion. Focused tests, typecheck, full verify, dimension check, and production-preview smoke passed; smoke state still shows the playable roster as Gray Rabbit and Ginger Tabby Cat with no runtime Pickles asset."
   - id: T999
     type: judge
     assignee: Judge
-    status: queued
+    status: active
     reasoning_hint: high
     objective: "Audit whether the implemented tranche satisfies the original AAA-style expansion outcome."
     inputs:
@@ -623,9 +699,10 @@ checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T010
+    task: T012
     commands:
       - "npm run typecheck"
-      - "npm test -- test/game-config.test.ts test/meowtal-production-manifest.test.ts test/imagegen-jobs.test.ts test/asset-runtime.test.ts"
+      - "npm test -- test/asset-pipeline.test.ts test/imagegen-jobs.test.ts test/meowtal-production-manifest.test.ts test/game-config.test.ts"
       - "npm run verify"
-      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/aaa-expansion-visual-rebrand"
+      - "sips -g pixelWidth -g pixelHeight assets/source/imagegen/fighters/pugilist-pug/canonical-character-sheet.png"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/aaa-expansion-pug-model-sheet"
