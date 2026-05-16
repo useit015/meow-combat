@@ -117,7 +117,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T036
+active_task: T037
 
 tasks:
   - id: T001
@@ -2170,7 +2170,7 @@ tasks:
   - id: T036
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Review Pickles after the jump size-lock correction and decide the next safe row-production package without allowing character scale drift or premature playable promotion."
     inputs:
@@ -2196,6 +2196,79 @@ tasks:
       - "stop_if"
       - "acceptance checklist including no-size-change thresholds"
       - "Whether parallel agents are safe"
+    receipt:
+      result: done
+      decision: proceed_with_worker
+      full_outcome_complete: false
+      rationale:
+        - "T035 corrected the undersized jump row: old jump was 144-158px tall, corrected jump is 190-212px tall with 153-163px width against idle at about 166-168px wide and 228px tall."
+        - "Current accepted Pickles source rows are coherent enough to continue source-only production: idle, walk-forward, walk-back, crouch, corrected jump, light-punch, and light-kick."
+        - "src/assets/catalog.ts still keeps Pickles source-only; no public/assets/generated/fighters/pugilist-pug folder exists."
+        - "Playable promotion remains blocked. Some rows are alpha/dimension runtime-ready in QA terminology, but the fighter is not runtime-integrated or roster-ready."
+      rejected_alternatives:
+        - "require_scout: rejected because T026-T035 already define row plan, QA gates, source-only policy, and corrected size evidence."
+        - "require_audit: rejected for now because T035 is a targeted correction with focused test coverage; audit should happen after the next risky offense package or before runtime integration."
+        - "defer_imagegen: rejected because built-in imagegen source-only row production is the intended path."
+        - "hitstun/blockstun: deferred until Pickles' complete offensive language is established."
+        - "knockdown/win/lose: deferred because those introduce larger pose deformation and end-state scale ambiguity."
+        - "playable promotion: blocked until all required rows are complete and a separate runtime integration gate is defined."
+      next_task: T037
+      summary: "Approved one Worker for exactly two source-only Pickles power/offense rows, heavy-punch and special. Both must use built-in imagegen only, normalize to exact alpha spritesheets, obey explicit no-size-change thresholds, update only source/planned manifests/tests/QA notes, and prove Pickles remains non-playable with no public/runtime assets."
+  - id: T037
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: medium
+    objective: "Generate and QA exactly two source-only Pickles Pugilist power/offense rows: heavy-punch and special, using built-in imagegen only. Normalize heavy-punch to 2048x256 and special to 2560x256 alpha spritesheets, compare both against idle, walk-forward, walk-back, crouch, corrected jump, light-punch, and light-kick, update source/planned manifests and focused tests, and prove Pickles remains non-playable with no public/runtime assets."
+    allowed_files:
+      - "assets/source/imagegen/fighters/pugilist-pug/candidates/heavy-punch-codex-01.png"
+      - "assets/source/imagegen/fighters/pugilist-pug/candidates/heavy-punch-codex-02.png"
+      - "assets/source/imagegen/fighters/pugilist-pug/candidates/heavy-punch-codex-03.png"
+      - "assets/source/imagegen/fighters/pugilist-pug/candidates/special-codex-01.png"
+      - "assets/source/imagegen/fighters/pugilist-pug/candidates/special-codex-02.png"
+      - "assets/source/imagegen/fighters/pugilist-pug/candidates/special-codex-03.png"
+      - "assets/source/imagegen/fighters/pugilist-pug/heavy-punch.png"
+      - "assets/source/imagegen/fighters/pugilist-pug/special.png"
+      - "output/imagegen/pugilist-pug-heavy-punch.png"
+      - "output/imagegen/pugilist-pug-heavy-punch-normalized.png"
+      - "output/imagegen/pugilist-pug-special.png"
+      - "output/imagegen/pugilist-pug-special-normalized.png"
+      - "output/animation-preflight/pickles-pugilist-power-attack-row-qa.json"
+      - "output/animation-preflight/pickles-pugilist-power-attack-row-qa.html"
+      - "output/web-game/pickles-power-attacks-source-rows/"
+      - "src/assets/catalog.ts"
+      - "test/fighter-animation-preflight.test.ts"
+      - "test/asset-pipeline.test.ts"
+      - "test/asset-qa.test.ts"
+      - "docs/goals/aaa-game-expansion/notes/T037-pickles-power-attack-row-production.md"
+    verify:
+      - "node scripts/normalize-fighter-rows.mjs --animation heavy-punch --fighters pugilist-pug"
+      - "node scripts/normalize-fighter-rows.mjs --animation special --fighters pugilist-pug"
+      - "sips -g pixelWidth -g pixelHeight -g hasAlpha assets/source/imagegen/fighters/pugilist-pug/heavy-punch.png assets/source/imagegen/fighters/pugilist-pug/special.png output/imagegen/pugilist-pug-heavy-punch-normalized.png output/imagegen/pugilist-pug-special-normalized.png"
+      - "npm test -- test/fighter-animation-preflight.test.ts test/asset-pipeline.test.ts test/asset-qa.test.ts test/game-config.test.ts"
+      - "node scripts/asset-qa.mjs --json"
+      - "test ! -e public/assets/generated/fighters/pugilist-pug"
+      - "npm run typecheck"
+      - "npm run build"
+      - "npm run verify"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/pickles-power-attacks-source-rows"
+    stop_if:
+      - "Need files outside allowed_files."
+      - "Any public/runtime asset, roster, select-screen, combat, input, dependency, or playable promotion change is needed."
+      - "Any row globally shrinks/enlarges Pickles relative to idle/grounded rows."
+      - "Any candidate changes Pickles' face, muzzle, wrinkles, ears, gloves, belt, tail curl, palette, body scale, or upright pug-boxer identity."
+      - "Special row requires detached projectiles/effects, baked sparks, text, logos, frame numbers, watermarks, UI, or copied fighting-game visual language."
+      - "Heavy-punch reads as a different character scale, giant-glove gag, stretched limb mutation, or unnatural motion."
+      - "The rows cannot normalize to exact 2048x256 and 2560x256 alpha PNGs."
+    acceptance:
+      - "Exactly two accepted source-only rows: heavy-punch and special."
+      - "heavy-punch is exact 2048x256 alpha, 8 frames of 256x256."
+      - "special is exact 2560x256 alpha, 10 frames of 256x256."
+      - "No public/runtime Pickles folder exists; Pickles remains non-playable."
+      - "Catalog marks exactly nine generated Pickles rows; hitstun, blockstun, knockdown, win, and lose remain blocked."
+      - "No-size-change thresholds: idle reference is about 167px body width and 228px body height. Character core width must stay >=150px and <=185px except intentional extended attacking glove; character core height must average >=205px and no frame may drop below 195px unless QA explicitly proves pose-local crouch/lean rather than global shrink. Head/glove/muzzle scale must visually match idle/light rows."
+      - "QA JSON records candidate paths, hashes, dimensions, body-bound measurements, rejected candidates, T035 corrected jump comparison, and verdict."
+      - "Tests, build, verify, asset QA, and smoke pass."
     receipt: null
 
 checks:
