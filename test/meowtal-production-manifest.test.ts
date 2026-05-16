@@ -202,7 +202,7 @@ describe("Meowtal production manifest", () => {
     expect(plannedSurfaces).toEqual([]);
   });
 
-  it("tracks implemented procedural audio cues", () => {
+  it("tracks authored primary audio plans with procedural fallback marked dev-only", () => {
     const approvedAudioCueIds = [
       "music-loop",
       "ui-confirm",
@@ -221,12 +221,23 @@ describe("Meowtal production manifest", () => {
       const cue = meowtalProductionManifest.audioCues.find((candidate) => candidate.id === cueId);
       const provenance = cue?.provenance;
 
+      expect(cue?.primaryAsset).toMatchObject({
+        status: "planned",
+        kind: "authored-sample",
+        sourceRecordRequired: true,
+        runtimePath: `/assets/generated/audio/${cueId}.ogg`,
+      });
+      expect(cue?.primaryAsset.allowedSourceKinds).not.toContain("elevenlabs-music");
+      expect(cue?.proceduralFallback).toMatchObject({
+        status: "dev-only",
+        implementationPath: "src/game/audio.ts",
+      });
       expect(provenance?.medium).toBe("audio");
       expect(provenance?.status).toBe("approved");
       expect(provenance?.sourceKind).toBe("procedural");
       expect(provenance?.license.kind).toBe("procedural-owned");
       expect(provenance?.createdOrDownloadedOn).toBe("2026-05-14");
-      expect(provenance?.approvalNotes).toContain("Approved procedural runtime audio");
+      expect(provenance?.approvalNotes).toContain("Approved dev-only procedural fallback");
       expect(provenance?.blocker).toBeNull();
       expect(existsSync(join(process.cwd(), provenance?.sourcePath ?? ""))).toBe(true);
       expect(existsSync(join(process.cwd(), provenance?.runtimePath ?? ""))).toBe(true);

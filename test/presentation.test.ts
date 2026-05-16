@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { audioCueForCombatEvents, audioCuesForCombatEvents, audioCueForMatchTransition } from "../src/game/audio";
+import {
+  AUDIO_CUE_ASSET_SPECS,
+  audioAssetSpecForCue,
+  audioCueForCombatEvents,
+  audioCuesForCombatEvents,
+  audioCueForMatchTransition,
+} from "../src/game/audio";
 import {
   fighterMobilityMotionCue,
   fighterRollMotionCue,
@@ -165,5 +171,35 @@ describe("presentation helpers", () => {
         matchWinner: null,
       }),
     ).toBe("ko-burst");
+  });
+
+  it("keeps procedural audio as dev fallback behind planned authored sample specs", () => {
+    expect(AUDIO_CUE_ASSET_SPECS.map((spec) => spec.id)).toEqual([
+      "music-loop",
+      "ui-confirm",
+      "fight-announcer",
+      "hit-light",
+      "hit-heavy",
+      "block-impact",
+      "dash-whoosh",
+      "rabbit-tornado",
+      "cat-aura-blast",
+      "ko-burst",
+      "victory-sting",
+    ]);
+
+    for (const spec of AUDIO_CUE_ASSET_SPECS) {
+      expect(spec.primary.kind).toBe("authored-sample");
+      expect(spec.primary.status).toBe("planned");
+      expect(spec.primary.sourceRecordRequired).toBe(true);
+      expect(spec.primary.runtimePath).toBe(`/assets/generated/audio/${spec.id}.ogg`);
+      expect(spec.proceduralFallback).toMatchObject({
+        status: "dev-only",
+        implementationPath: "src/game/audio.ts",
+      });
+    }
+
+    expect(audioAssetSpecForCue("rabbit-tornado")?.primary.allowedSourceKinds).toContain("elevenlabs-sound-generation");
+    expect(audioAssetSpecForCue("music-loop")?.primary.allowedSourceKinds).not.toContain("elevenlabs-music");
   });
 });

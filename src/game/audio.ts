@@ -11,9 +11,100 @@ export type ArenaAudioCue =
   | "cat-aura-blast"
   | "ko-burst"
   | "victory-sting";
+export type ArenaAudioAssetId = "music-loop" | ArenaAudioCue;
 export type ArenaAudioStatus = "locked" | "ready" | "unavailable";
 
 export type ArenaAudioCharacters = Readonly<Record<PlayerId, string>>;
+
+export interface ArenaAudioPrimaryAssetSpec {
+  kind: "authored-sample";
+  status: "planned";
+  allowedSourceKinds: readonly string[];
+  sourceRecordRequired: true;
+  runtimePath: string;
+  licenseNotes: string;
+}
+
+export interface ArenaAudioProceduralFallbackSpec {
+  status: "dev-only";
+  implementationPath: "src/game/audio.ts";
+  notes: string;
+}
+
+export interface ArenaAudioAssetSpec {
+  id: ArenaAudioAssetId;
+  role: string;
+  primary: ArenaAudioPrimaryAssetSpec;
+  proceduralFallback: ArenaAudioProceduralFallbackSpec;
+}
+
+const audioSourceRecordNotes =
+  "Requires provider/source URL or generation prompt, creator/model when applicable, terms snapshot date, attribution notes, and Content ID/platform-claim risk notes before runtime promotion.";
+
+const proceduralFallback: ArenaAudioProceduralFallbackSpec = {
+  status: "dev-only",
+  implementationPath: "src/game/audio.ts",
+  notes:
+    "Current WebAudio synthesis may remain as a development fallback while authored/sample-based assets are missing, but it is not the primary shipped audio direction.",
+};
+
+export const AUDIO_CUE_ASSET_SPECS: readonly ArenaAudioAssetSpec[] = [
+  audioAssetSpec("music-loop", "Looping fight bed for the arena.", ["pixabay", "manual"]),
+  audioAssetSpec("ui-confirm", "Short menu confirm/select tick.", ["pixabay", "manual", "elevenlabs-sound-generation"]),
+  audioAssetSpec("fight-announcer", "Short original fight-start bark or stinger.", [
+    "pixabay",
+    "manual",
+    "elevenlabs-sound-generation",
+  ]),
+  audioAssetSpec("hit-light", "Light hit impact variant pool.", ["pixabay", "manual", "elevenlabs-sound-generation"]),
+  audioAssetSpec("hit-heavy", "Heavy hit impact variant pool.", ["pixabay", "manual", "elevenlabs-sound-generation"]),
+  audioAssetSpec("block-impact", "Guard impact clack variant pool.", ["pixabay", "manual", "elevenlabs-sound-generation"]),
+  audioAssetSpec("dash-whoosh", "Dash, hop, and roll movement whoosh variants.", [
+    "pixabay",
+    "manual",
+    "elevenlabs-sound-generation",
+  ]),
+  audioAssetSpec("rabbit-tornado", "Bunjamin Thump special-impact spin cue.", [
+    "pixabay",
+    "manual",
+    "elevenlabs-sound-generation",
+  ]),
+  audioAssetSpec("cat-aura-blast", "Marmalade Mayhem special-impact burst cue.", [
+    "pixabay",
+    "manual",
+    "elevenlabs-sound-generation",
+  ]),
+  audioAssetSpec("ko-burst", "K.O. burst and comic impact punctuation.", [
+    "pixabay",
+    "manual",
+    "elevenlabs-sound-generation",
+  ]),
+  audioAssetSpec("victory-sting", "Short round or match victory sting.", ["pixabay", "manual"]),
+] as const;
+
+export function audioAssetSpecForCue(id: ArenaAudioAssetId): ArenaAudioAssetSpec | null {
+  return AUDIO_CUE_ASSET_SPECS.find((spec) => spec.id === id) ?? null;
+}
+
+function audioAssetSpec(
+  id: ArenaAudioAssetId,
+  role: string,
+  allowedSourceKinds: readonly string[],
+): ArenaAudioAssetSpec {
+  return {
+    id,
+    role,
+    primary: {
+      kind: "authored-sample",
+      status: "planned",
+      allowedSourceKinds,
+      sourceRecordRequired: true,
+      runtimePath: `/assets/generated/audio/${id}.ogg`,
+      licenseNotes: audioSourceRecordNotes,
+    },
+    proceduralFallback,
+  };
+}
 
 type AudioGlobal = typeof globalThis & {
   webkitAudioContext?: typeof AudioContext;

@@ -8,6 +8,7 @@ import {
   type ProvenanceStatus,
   type ProvenanceValidationResult,
 } from "./provenance";
+import { AUDIO_CUE_ASSET_SPECS, type ArenaAudioAssetSpec } from "../game/audio";
 
 export type MeowtalFighterId = "gray-rabbit" | "ginger-tabby-cat";
 export type MeowtalStageLayerId =
@@ -88,6 +89,8 @@ export interface MeowtalVisualSurfacePlan {
 export interface MeowtalAudioCuePlan {
   id: MeowtalAudioCueId;
   role: string;
+  primaryAsset: ArenaAudioAssetSpec["primary"];
+  proceduralFallback: ArenaAudioAssetSpec["proceduralFallback"];
   provenance: AssetProvenance;
 }
 
@@ -929,6 +932,32 @@ export function validateMeowtalProductionManifest(
 
   for (const cue of manifest.audioCues) {
     const implementedCue = implementedAudioCueDetails[cue.id];
+    const audioSpec = AUDIO_CUE_ASSET_SPECS.find((spec) => spec.id === cue.id);
+    if (!audioSpec) {
+      errors.push(`${cue.id}: audio cue requires an authored/sample asset spec.`);
+      continue;
+    }
+    if (cue.primaryAsset.kind !== "authored-sample") {
+      errors.push(`${cue.provenance.assetId}: primary audio must be authored/sample-based.`);
+    }
+    if (cue.primaryAsset.status !== "planned") {
+      errors.push(`${cue.provenance.assetId}: primary authored/sample audio should remain planned until a source record exists.`);
+    }
+    if (!cue.primaryAsset.sourceRecordRequired) {
+      errors.push(`${cue.provenance.assetId}: primary audio requires a source/license record.`);
+    }
+    if (cue.primaryAsset.runtimePath !== `/assets/generated/audio/${cue.id}.ogg`) {
+      errors.push(`${cue.provenance.assetId}: primary audio runtime path must use the generated audio folder.`);
+    }
+    if (cue.primaryAsset.allowedSourceKinds.includes("elevenlabs-music")) {
+      errors.push(`${cue.provenance.assetId}: ElevenLabs Music is not approved for game music without written approval.`);
+    }
+    if (cue.proceduralFallback.status !== "dev-only") {
+      errors.push(`${cue.provenance.assetId}: procedural fallback must be dev-only.`);
+    }
+    if (cue.proceduralFallback.implementationPath !== "src/game/audio.ts") {
+      errors.push(`${cue.provenance.assetId}: procedural fallback must point at src/game/audio.ts.`);
+    }
     if (implementedCue) {
       if (cue.provenance.status !== "approved") {
         errors.push(`${cue.provenance.assetId}: implemented audio cue should be approved after T118.`);
@@ -1779,10 +1808,17 @@ function approvedProceduralUiSurfaceProvenance(
 
 function audioCue(id: MeowtalAudioCueId, role: string, sourceKind: AssetSourceKind): MeowtalAudioCuePlan {
   const implementedCue = implementedAudioCueDetails[id];
+  const audioSpec = AUDIO_CUE_ASSET_SPECS.find((spec) => spec.id === id);
+  if (!audioSpec) {
+    throw new Error(`${id}: missing authored/sample audio asset spec`);
+  }
+
   if (implementedCue) {
     return {
       id,
       role,
+      primaryAsset: audioSpec.primary,
+      proceduralFallback: audioSpec.proceduralFallback,
       provenance: {
         ...baseProvenance({
           assetId: `audio:${id}`,
@@ -1800,7 +1836,7 @@ function audioCue(id: MeowtalAudioCueId, role: string, sourceKind: AssetSourceKi
         ),
         createdOrDownloadedOn: generatedOn,
         transforms: implementedCue.transforms,
-        approvalNotes: implementedCue.approvalNotes,
+        approvalNotes: `${implementedCue.approvalNotes} Approved dev-only procedural fallback pending authored/sample primary audio with source records.`,
         blocker: null,
       },
     };
@@ -1809,6 +1845,8 @@ function audioCue(id: MeowtalAudioCueId, role: string, sourceKind: AssetSourceKi
   return {
     id,
     role,
+    primaryAsset: audioSpec.primary,
+    proceduralFallback: audioSpec.proceduralFallback,
     provenance: {
       ...baseProvenance({
         assetId: `audio:${id}`,
