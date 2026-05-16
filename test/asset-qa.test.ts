@@ -112,6 +112,10 @@ describe("imagegen asset QA command", () => {
       cwd: process.cwd(),
       encoding: "utf8",
     });
+    execFileSync("node", ["scripts/normalize-fighter-rows.mjs", "--animation", "win", "--fighters", "pugilist-pug"], {
+      cwd: process.cwd(),
+      encoding: "utf8",
+    });
     execFileSync(
       "node",
       ["scripts/normalize-fighter-rows.mjs", "--animation", "win", "--fighters", "gray-rabbit,ginger-tabby-cat"],
@@ -138,8 +142,8 @@ describe("imagegen asset QA command", () => {
     });
     const summary = JSON.parse(output) as AssetQaSummary;
 
-    expect(summary.checked).toBe(134);
-    expect(summary.runtimeReady).toBe(78);
+    expect(summary.checked).toBe(136);
+    expect(summary.runtimeReady).toBe(80);
     expect(summary.needsNormalization).toBe(56);
     expect(summary.rows.map((row) => `${row.kind}:${row.fighterId}:${row.animationId}`).sort()).toEqual([
       "normalized-candidate:atlas-lion:blockstun",
@@ -195,6 +199,7 @@ describe("imagegen asset QA command", () => {
       "normalized-candidate:pugilist-pug:special",
       "normalized-candidate:pugilist-pug:walk-back",
       "normalized-candidate:pugilist-pug:walk-forward",
+      "normalized-candidate:pugilist-pug:win",
       "normalized-candidate:sahara-viper:blockstun",
       "normalized-candidate:sahara-viper:crouch",
       "normalized-candidate:sahara-viper:heavy-punch",
@@ -262,6 +267,7 @@ describe("imagegen asset QA command", () => {
       "source:pugilist-pug:special",
       "source:pugilist-pug:walk-back",
       "source:pugilist-pug:walk-forward",
+      "source:pugilist-pug:win",
       "source:sahara-viper:blockstun",
       "source:sahara-viper:crouch",
       "source:sahara-viper:heavy-punch",
@@ -333,6 +339,7 @@ describe("imagegen asset QA command", () => {
       "pugilist-pug:special",
       "pugilist-pug:walk-back",
       "pugilist-pug:walk-forward",
+      "pugilist-pug:win",
       "sahara-viper:blockstun",
       "sahara-viper:crouch",
       "sahara-viper:heavy-punch",
@@ -373,7 +380,7 @@ describe("imagegen asset QA command", () => {
     }
 
     const normalizedRows = summary.rows.filter((row) => row.kind === "normalized-candidate");
-    expect(normalizedRows).toHaveLength(67);
+    expect(normalizedRows).toHaveLength(68);
     for (const row of normalizedRows) {
       expect(row.expected).toEqual({ width: row.frameCount * 256, height: 256 });
       expect(row.dimensions).toEqual(row.expected);

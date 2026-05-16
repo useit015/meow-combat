@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>T039 Pickles Win Row QA</title>
+  <style>
+    body { margin: 0; font-family: Inter, system-ui, sans-serif; background: #f5f1e8; color: #171512; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px; }
+    h1, h2 { margin: 0 0 12px; }
+    p { line-height: 1.5; }
+    table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #dccfb6; margin: 16px 0 24px; }
+    th, td { text-align: left; border-bottom: 1px solid #eadfca; padding: 10px 12px; vertical-align: top; }
+    th { background: #59361f; color: #fff; }
+    code { background: #efe5d4; padding: 2px 4px; border-radius: 4px; }
+    .pill { display: inline-block; margin: 4px 8px 12px 0; border: 1px solid #ccb891; padding: 8px 10px; font-weight: 700; background: #fff; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>T039 Pickles Win Row QA</h1>
+    <p><strong>Status:</strong> pass. Pickles remains source-only and non-playable; no public runtime fighter folder exists.</p>
+    <div class="pill">Idle reference: 166-168px wide, 228-228px high</div>
+    <div class="pill">Win row: 155-167px wide, 221-226px high</div>
+    <h2>Accepted Row</h2>
+    <table>
+      <thead><tr><th>Row</th><th>Dimensions</th><th>Width px</th><th>Height px</th><th>Avg height</th><th>Verdict</th></tr></thead>
+      <tbody><tr><td>win</td><td>2048x256</td><td>155-167</td><td>221-226</td><td>224</td><td>pass</td></tr></tbody>
+    </table>
+    <h2>Runtime Gate</h2>
+    <p><code>public/assets/generated/fighters/pugilist-pug</code> absent: true. Pickles animation rows are still source-only and blocked from roster/runtime selection.</p>
+  </main>
+</body>
+</html>

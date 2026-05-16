@@ -71,6 +71,7 @@ describe("Pickles Pugilist animation preflight", () => {
         "special",
         "hitstun",
         "blockstun",
+        "win",
       ],
     );
   });
@@ -177,6 +178,17 @@ describe("Pickles Pugilist animation preflight", () => {
       expect(Math.min(...heights)).toBeGreaterThanOrEqual(195);
       expect(average(heights)).toBeGreaterThanOrEqual(220);
     }
+  });
+
+  it("keeps generated Pickles win row at the approved character size", () => {
+    const bounds = alphaBoundsByFrame("assets/source/imagegen/fighters/pugilist-pug/win.png", 8);
+    const widths = bounds.map((frame) => frame.width);
+    const heights = bounds.map((frame) => frame.height);
+
+    expect(Math.min(...widths)).toBeGreaterThanOrEqual(150);
+    expect(Math.max(...widths)).toBeLessThanOrEqual(210);
+    expect(Math.min(...heights)).toBeGreaterThanOrEqual(195);
+    expect(average(heights)).toBeGreaterThanOrEqual(205);
   });
 });
 
