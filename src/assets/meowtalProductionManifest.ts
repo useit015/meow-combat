@@ -554,6 +554,19 @@ const approvedAudioSampleDetails: Readonly<Partial<Record<MeowtalAudioCueId, App
     durationSeconds: 1.02,
     qaNotes: "Crisp, non-speech menu confirm tick for Pawbreaker UI.",
   },
+  "fight-announcer": {
+    title: "Game Start",
+    creator: "49447089",
+    sourceUrl: "https://pixabay.com/sound-effects/film-special-effects-game-start-317318/",
+    downloadUrl:
+      "https://cdn.pixabay.com/download/audio/2025/03/22/audio_086c1534e5.mp3?filename=49447089-game-start-317318.mp3",
+    sourcePath: "assets/source/audio/fight-announcer/49447089-game-start-317318.mp3",
+    runtimePath: "/assets/generated/audio/fight-announcer.ogg",
+    originalSha256: "ec4f0a70f696060679f7ae228473020b3f59771d0bebfb5fa5d7eae06bc25c23",
+    runtimeSha256: "f191f20dd6e058a0a7d2c02f7773e0dbea5274353ad2b649cf67fa439def1de9",
+    durationSeconds: 1.437333,
+    qaNotes: "Non-speech fight-start stinger with no voice, TTS, or announcer imitation.",
+  },
   "hit-light": {
     title: "Classic Punch Impact",
     creator: "Universfield",
@@ -606,6 +619,32 @@ const approvedAudioSampleDetails: Readonly<Partial<Record<MeowtalAudioCueId, App
     durationSeconds: 0.576,
     qaNotes: "Clean dash, hop, and roll movement whoosh without musical or vocal content.",
   },
+  "rabbit-tornado": {
+    title: "Rotate Movement Whoosh 2",
+    creator: "floraphonic",
+    sourceUrl: "https://pixabay.com/sound-effects/film-special-effects-rotate-movement-whoosh-2-185336/",
+    downloadUrl:
+      "https://cdn.pixabay.com/download/audio/2024/01/11/audio_04ca355fac.mp3?filename=floraphonic-rotate-movement-whoosh-2-185336.mp3",
+    sourcePath: "assets/source/audio/rabbit-tornado/floraphonic-rotate-movement-whoosh-2-185336.mp3",
+    runtimePath: "/assets/generated/audio/rabbit-tornado.ogg",
+    originalSha256: "b883e41dc422cfa22a5fec5e8d72596118ab8f916c67f963a7878d5c7a1cfccf",
+    runtimeSha256: "7f5e0cbf9c23c9ffb2fb0a9df762ffd01dab6d80db83b0c0404e4c54b03539f5",
+    durationSeconds: 1.6,
+    qaNotes: "Bunjamin Thump spinning special-impact cue, trimmed with fade-out to avoid a long ambience tail.",
+  },
+  "cat-aura-blast": {
+    title: "Energy Beam Blast (5)",
+    creator: "Yodguard",
+    sourceUrl: "https://pixabay.com/sound-effects/film-special-effects-energy-beam-blast-5-482509/",
+    downloadUrl:
+      "https://cdn.pixabay.com/download/audio/2026/02/10/audio_45c43233d1.mp3?filename=yodguard-energy-beam-blast-5-482509.mp3",
+    sourcePath: "assets/source/audio/cat-aura-blast/yodguard-energy-beam-blast-5-482509.mp3",
+    runtimePath: "/assets/generated/audio/cat-aura-blast.ogg",
+    originalSha256: "926be488ffc0a15b99d7ff9334558a476d2477e0cfc337f58ce531da02d4116c",
+    runtimeSha256: "3d5fed538f6b8aabfe4ff3b79c727c320a6deb147f389f8019d447a9827f2755",
+    durationSeconds: 3.045333,
+    qaNotes: "Marmalade Mayhem aura-blast special cue with non-vocal, non-musical energy impact.",
+  },
   "ko-burst": {
     title: "Animated Cartoon Explosion Impact",
     creator: "Universfield",
@@ -618,6 +657,19 @@ const approvedAudioSampleDetails: Readonly<Partial<Record<MeowtalAudioCueId, App
     runtimeSha256: "dba798ce0039aff0c29671b73387111e938e40e2a7ce00c46e6717b7e94aca07",
     durationSeconds: 2.376,
     qaNotes: "Comic K.O. burst with stylized cartoon impact rather than realistic gore.",
+  },
+  "victory-sting": {
+    title: "correct_answer_toy_bi-bling",
+    creator: "u_o8xh7gwsrj",
+    sourceUrl: "https://pixabay.com/sound-effects/technology-correct-answer-toy-bi-bling-476370/",
+    downloadUrl:
+      "https://cdn.pixabay.com/download/audio/2026/01/30/audio_3172ebc2df.mp3?filename=u_o8xh7gwsrj-correct_answer_toy_bi-bling-476370.mp3",
+    sourcePath: "assets/source/audio/victory-sting/u_o8xh7gwsrj-correct_answer_toy_bi-bling-476370.mp3",
+    runtimePath: "/assets/generated/audio/victory-sting.ogg",
+    originalSha256: "0de91cf7c214e5ca2c19b58a261e2e32dd69de2155f25a218a73a60a4297f960",
+    runtimeSha256: "17b9d62beef6587d0bf10b184d52eae07b9bb505b3da35f1d2e01ac09f40d16e",
+    durationSeconds: 2.038667,
+    qaNotes: "Cute non-vocal victory sting that avoids risky looped music or spoken win lines.",
   },
 };
 
@@ -2186,7 +2238,7 @@ function audioCue(id: MeowtalAudioCueId, role: string, sourceKind: AssetSourceKi
           `Runtime file duration is ${approvedSample.durationSeconds.toFixed(3)} seconds.`,
         ],
         approvalNotes:
-          `Approved Pixabay authored sample primary for ${id} in T022. ` +
+          `Approved Pixabay authored sample primary for ${id}. ` +
           `${approvedSample.qaNotes} Source title: ${approvedSample.title}; creator: ${approvedSample.creator}; ` +
           `source SHA-256 ${approvedSample.originalSha256}; runtime SHA-256 ${approvedSample.runtimeSha256}. ` +
           "Commercial use, attribution, standalone-distribution restriction, and Content ID/platform-claim notes were checked on 2026-05-16. " +

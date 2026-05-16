@@ -117,7 +117,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T023
+active_task: T025
 
 tasks:
   - id: T001
@@ -1255,7 +1255,7 @@ tasks:
   - id: T023
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Choose the next highest-leverage safe production package after the first authored/sample SFX batch. Decide whether to continue audio with remaining music/special/stinger/voice-adjacent risk, improve championship/story depth, begin a first new playable-candidate animation plan, improve select/roster review UX, or perform a phase audit. Keep AAA outcome honesty, no-slop animation consistency, audio licensing/source-record risk, and runtime overclaiming constraints central."
     inputs:
@@ -1280,20 +1280,148 @@ tasks:
       - "verify"
       - "stop_if"
       - "acceptance checklist"
+    receipt:
+      result: done
+      decision: "proceed_with_worker"
+      rationale: "T022 proved the sample-first audio path with clean source records and smoke still passes. The biggest safe reversible slice now is finishing the remaining non-loop, non-voice runtime cue gap: fight-start stinger, rabbit/cat specials, and victory sting. Music-loop and voice remain deferred because they carry higher Content ID, tier, and rights risk. Playable roster expansion remains deferred until planned fighters have animation plans, full generated rows, QA, runtime promotion tests, and smoke proof."
+      next_task: T024
+      summary: "Approved exactly four remaining non-loop runtime primary cues with source records and QA proof: fight-announcer as non-speech stinger, rabbit-tornado, cat-aura-blast, and victory-sting as short non-vocal SFX/fanfare sting. Use Pixabay official pages or manual/owned only; do not use ElevenLabs, .env, APIs, login, music-loop, voice, TTS, spoken announcer output, uploaded voices, or real-person voice cloning."
+  - id: T024
+    type: worker
+    assignee: Worker
+    status: done
+    reasoning_hint: medium
+    objective: "Acquire or author exactly four remaining non-loop runtime primary cues with source records and QA proof: fight-announcer as a non-speech start stinger, rabbit-tornado, cat-aura-blast, and victory-sting as a short non-vocal SFX/fanfare sting. Use Pixabay official sound-effect/music pages or genuinely manual/owned audio only. Do not use ElevenLabs, .env, API calls, login, music-loop, voice, TTS, spoken announcer output, uploaded voices, or real-person voice cloning. Convert accepted assets to OGG, register provenance, and prove sample-first runtime still falls back only as dev-only when samples are missing."
+    allowed_files:
+      - "assets/source/audio/fight-announcer/49447089-game-start-317318.mp3"
+      - "assets/source/audio/fight-announcer/source-record.json"
+      - "assets/source/audio/rabbit-tornado/floraphonic-rotate-movement-whoosh-2-185336.mp3"
+      - "assets/source/audio/rabbit-tornado/source-record.json"
+      - "assets/source/audio/cat-aura-blast/yodguard-energy-beam-blast-5-482509.mp3"
+      - "assets/source/audio/cat-aura-blast/source-record.json"
+      - "assets/source/audio/victory-sting/u_o8xh7gwsrj-correct_answer_toy_bi-bling-476370.mp3"
+      - "assets/source/audio/victory-sting/source-record.json"
+      - "public/assets/generated/audio/fight-announcer.ogg"
+      - "public/assets/generated/audio/rabbit-tornado.ogg"
+      - "public/assets/generated/audio/cat-aura-blast.ogg"
+      - "public/assets/generated/audio/victory-sting.ogg"
+      - "src/assets/meowtalProductionManifest.ts"
+      - "test/meowtal-production-manifest.test.ts"
+      - "test/presentation.test.ts"
+      - "docs/goals/aaa-game-expansion/notes/T024-audio-special-stinger-batch.md"
+      - "output/audio/aaa-expansion-special-stinger-batch/"
+      - "output/web-game/aaa-expansion-special-stinger-audio/"
+    verify:
+      - "npm test -- test/presentation.test.ts test/meowtal-production-manifest.test.ts"
+      - "npm run typecheck"
+      - "npm run verify"
+      - "rg -n \"fight-announcer|rabbit-tornado|cat-aura-blast|victory-sting|Pixabay|commercial|attribution|Content ID|platform-claim|snapshot|non-speech|non-vocal\" docs/goals/aaa-game-expansion/notes/T024-audio-special-stinger-batch.md src/assets/meowtalProductionManifest.ts"
+      - "test -s public/assets/generated/audio/fight-announcer.ogg && test -s public/assets/generated/audio/rabbit-tornado.ogg && test -s public/assets/generated/audio/cat-aura-blast.ogg && test -s public/assets/generated/audio/victory-sting.ogg"
+      - "for file in public/assets/generated/audio/fight-announcer.ogg public/assets/generated/audio/rabbit-tornado.ogg public/assets/generated/audio/cat-aura-blast.ogg public/assets/generated/audio/victory-sting.ogg; do ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1 \"$file\"; done"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/aaa-expansion-special-stinger-audio"
+    stop_if:
+      - "Need any file outside allowed_files."
+      - "Any cue requires music-loop, looped music bed, ElevenLabs Music, ElevenLabs SFX, .env, API use, login, paid account verification, voice/TTS, spoken announcer output, uploaded voices, or real-person voice cloning."
+      - "A candidate lacks an official source URL, creator/title, clear commercial embedding permission, attribution string, standalone-redistribution note, or Content ID/platform-claim note."
+      - "victory-sting can only be satisfied by a risky/registered/unclear music track rather than a short non-vocal sting."
+      - "Any output is generic, clipped, noisy, too realistic/gory, too close to a known fighting-game sound identity, or worse than the current fallback."
+      - "Runtime roster, select UI, story, animation rows, src/game/audio.ts, dependencies, or public fighter assets become necessary."
+    acceptance:
+      - "Exactly four new OGG runtime files exist for fight-announcer, rabbit-tornado, cat-aura-blast, and victory-sting."
+      - "Each cue has source audio plus source-record.json with provider, creator, exact URL, terms snapshot date, attribution, commercial-use note, standalone-distribution restriction, platform-claim note, conversion notes, duration, hashes, and QA notes."
+      - "Manifest marks those four as approved authored/sample primaries; WebAudio remains dev-only fallback."
+      - "No music-loop, voice, speech, ElevenLabs, API, login, or .env use occurs."
+      - "Smoke still shows only Gray Rabbit and Ginger Tabby Cat as playable."
+      - "Full AAA outcome remains explicitly incomplete."
+    receipt:
+      result: done
+      note: notes/T024-audio-special-stinger-batch.md
+      changed_files:
+        - "assets/source/audio/fight-announcer/49447089-game-start-317318.mp3"
+        - "assets/source/audio/fight-announcer/source-record.json"
+        - "assets/source/audio/rabbit-tornado/floraphonic-rotate-movement-whoosh-2-185336.mp3"
+        - "assets/source/audio/rabbit-tornado/source-record.json"
+        - "assets/source/audio/cat-aura-blast/yodguard-energy-beam-blast-5-482509.mp3"
+        - "assets/source/audio/cat-aura-blast/source-record.json"
+        - "assets/source/audio/victory-sting/u_o8xh7gwsrj-correct_answer_toy_bi-bling-476370.mp3"
+        - "assets/source/audio/victory-sting/source-record.json"
+        - "public/assets/generated/audio/fight-announcer.ogg"
+        - "public/assets/generated/audio/rabbit-tornado.ogg"
+        - "public/assets/generated/audio/cat-aura-blast.ogg"
+        - "public/assets/generated/audio/victory-sting.ogg"
+        - "src/assets/meowtalProductionManifest.ts"
+        - "test/meowtal-production-manifest.test.ts"
+        - "docs/goals/aaa-game-expansion/notes/T024-audio-special-stinger-batch.md"
+      commands:
+        - cmd: "npm test -- test/presentation.test.ts test/meowtal-production-manifest.test.ts"
+          status: pass
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "rg -n \"fight-announcer|rabbit-tornado|cat-aura-blast|victory-sting|Pixabay|commercial|attribution|Content ID|platform-claim|snapshot|non-speech|non-vocal\" docs/goals/aaa-game-expansion/notes/T024-audio-special-stinger-batch.md src/assets/meowtalProductionManifest.ts"
+          status: pass
+        - cmd: "test -s public/assets/generated/audio/fight-announcer.ogg && test -s public/assets/generated/audio/rabbit-tornado.ogg && test -s public/assets/generated/audio/cat-aura-blast.ogg && test -s public/assets/generated/audio/victory-sting.ogg"
+          status: pass
+        - cmd: "for file in public/assets/generated/audio/fight-announcer.ogg public/assets/generated/audio/rabbit-tornado.ogg public/assets/generated/audio/cat-aura-blast.ogg public/assets/generated/audio/victory-sting.ogg; do ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1 \"$file\"; done"
+          status: pass
+        - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/aaa-expansion-special-stinger-audio"
+          status: pass
+        - cmd: "node_repl Playwright preview loaded http://127.0.0.1:4173/ with one canvas and captured the Pawbreaker League title screen"
+          status: pass
+      summary: "Added four source-backed Pixabay runtime sample primaries for fight-announcer, rabbit-tornado, cat-aura-blast, and victory-sting, with source records, OGG conversions, manifest provenance, focused tests, full verify, smoke, and browser preview. No ElevenLabs, API, .env, music-loop, speech, TTS, voice, roster, story, or animation rows were used."
+      full_outcome_complete: false
+      spawned_tasks:
+        - T025
+  - id: T025
+    type: judge
+    assignee: Judge
+    status: active
+    reasoning_hint: high
+    objective: "Decide the next highest-leverage AAA expansion package after all non-loop runtime cues have sample primaries."
+    inputs:
+      - "Original request and hard constraints"
+      - "T001 plan challenge"
+      - "T002 Scout aggregate"
+      - "T021 audio source/license Scout"
+      - "T022 first audio sample batch"
+      - "T024 special/stinger audio batch"
+      - "Current manifest, tests, and smoke receipts"
+    constraints:
+      - "Read-only."
+      - "Do not implement."
+      - "Do not generate assets."
+      - "Do not use .env, APIs, ElevenLabs, Pixabay, or imagegen."
+      - "Treat the full AAA outcome as incomplete."
+      - "Choose the largest safe useful next package, not a token planning task."
+      - "Consider music-loop source work, championship/story depth, runtime select/roster UX, first new playable candidate animation plan, visual polish audit, and phase-level review."
+      - "Do not approve playable roster promotion until a single candidate has an animation plan, full row generation strategy, no-drift QA criteria, runtime promotion tests, and browser smoke requirements."
+      - "Do not approve music-loop work unless source/license/Content ID risk is bounded enough for a reversible local Worker."
+      - "Prefer a Worker slice with exact allowed_files, verify commands, stop_if conditions, and acceptance checklist."
+    expected_output:
+      - "Decision: proceed_with_worker | require_scout | require_audit | ask_owner"
+      - "Rationale and rejected alternatives"
+      - "Exact next Worker or Scout objective"
+      - "allowed_files"
+      - "verify"
+      - "stop_if"
+      - "acceptance checklist"
+      - "Whether parallel agents are safe for the next package"
     receipt: null
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T022
+    task: T024
     commands:
-      - "npm run typecheck"
       - "npm test -- test/presentation.test.ts test/meowtal-production-manifest.test.ts"
+      - "npm run typecheck"
       - "npm run verify"
-      - "rg -n \"ui-confirm|hit-light|hit-heavy|block-impact|dash-whoosh|ko-burst|Pixabay|ElevenLabs|commercial|attribution|Content ID|platform-claim|snapshot\" docs/goals/aaa-game-expansion/notes/T022-audio-batch.md src/assets/meowtalProductionManifest.ts"
-      - "test -s public/assets/generated/audio/ui-confirm.ogg && test -s public/assets/generated/audio/hit-light.ogg && test -s public/assets/generated/audio/hit-heavy.ogg && test -s public/assets/generated/audio/block-impact.ogg && test -s public/assets/generated/audio/dash-whoosh.ogg && test -s public/assets/generated/audio/ko-burst.ogg"
-      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/aaa-expansion-first-audio-batch"
+      - "rg -n \"fight-announcer|rabbit-tornado|cat-aura-blast|victory-sting|Pixabay|commercial|attribution|Content ID|platform-claim|snapshot|non-speech|non-vocal\" docs/goals/aaa-game-expansion/notes/T024-audio-special-stinger-batch.md src/assets/meowtalProductionManifest.ts"
+      - "test -s public/assets/generated/audio/fight-announcer.ogg && test -s public/assets/generated/audio/rabbit-tornado.ogg && test -s public/assets/generated/audio/cat-aura-blast.ogg && test -s public/assets/generated/audio/victory-sting.ogg"
+      - "for file in public/assets/generated/audio/fight-announcer.ogg public/assets/generated/audio/rabbit-tornado.ogg public/assets/generated/audio/cat-aura-blast.ogg public/assets/generated/audio/victory-sting.ogg; do ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1 \"$file\"; done"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/aaa-expansion-special-stinger-audio"
   t021_verification:
     result: pass
     task: T021

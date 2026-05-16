@@ -272,19 +272,17 @@ describe("Meowtal production manifest", () => {
   it("tracks authored primary audio plans with procedural fallback marked dev-only", () => {
     const pixabayPrimaryCueIds = [
       "ui-confirm",
+      "fight-announcer",
       "hit-light",
       "hit-heavy",
       "block-impact",
       "dash-whoosh",
-      "ko-burst",
-    ] as const;
-    const proceduralFallbackOnlyCueIds = [
-      "music-loop",
-      "fight-announcer",
       "rabbit-tornado",
       "cat-aura-blast",
+      "ko-burst",
       "victory-sting",
     ] as const;
+    const proceduralFallbackOnlyCueIds = ["music-loop"] as const;
     const allAudioCueIds = [
       "music-loop",
       "ui-confirm",
@@ -300,11 +298,15 @@ describe("Meowtal production manifest", () => {
     ] as const;
     const sourcePaths = {
       "ui-confirm": "assets/source/audio/ui-confirm/liecio-menu-button-190039.mp3",
+      "fight-announcer": "assets/source/audio/fight-announcer/49447089-game-start-317318.mp3",
       "hit-light": "assets/source/audio/hit-light/universfield-classic-punch-impact-352711.mp3",
       "hit-heavy": "assets/source/audio/hit-heavy/dragon-studio-hard-heavy-impact-515256.mp3",
       "block-impact": "assets/source/audio/block-impact/freesound_community-clack-85854.mp3",
       "dash-whoosh": "assets/source/audio/dash-whoosh/dragon-studio-simple-whoosh-382724.mp3",
+      "rabbit-tornado": "assets/source/audio/rabbit-tornado/floraphonic-rotate-movement-whoosh-2-185336.mp3",
+      "cat-aura-blast": "assets/source/audio/cat-aura-blast/yodguard-energy-beam-blast-5-482509.mp3",
       "ko-burst": "assets/source/audio/ko-burst/universfield-animated-cartoon-explosion-impact-352744.mp3",
+      "victory-sting": "assets/source/audio/victory-sting/u_o8xh7gwsrj-correct_answer_toy_bi-bling-476370.mp3",
     } as const;
 
     for (const cueId of allAudioCueIds) {
