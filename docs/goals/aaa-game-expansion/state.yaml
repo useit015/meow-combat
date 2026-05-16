@@ -117,7 +117,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T092
+active_task: T093
 
 tasks:
   - id: T001
@@ -6436,7 +6436,7 @@ tasks:
   - id: T092
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Review the T091 Noodle runtime promotion and decide whether the next safe package is a post-promotion audit/polish slice, another roster lane, audio, combat feel, or owner input. Challenge roster truthfulness, public promotion scope, smoke coverage, and whether any overclaiming or unrelated changes slipped in."
     inputs:
@@ -6464,23 +6464,83 @@ tasks:
       - "Decision is explicit: approve next safe Worker, require repair, ask owner, or run final not-complete audit."
       - "Decision addresses whether Noodle is truthfully playable without promoting other planned fighters."
       - "The full AAA outcome remains active and incomplete."
+    receipt:
+      result: done
+      decision: approve_next_worker
+      full_outcome_complete: false
+      note: notes/T092-noodle-post-promotion-review.md
+      summary: "Approved a bounded post-promotion playability polish Worker before any additional roster lane. T091 truthfully promotes Noodle as the fourth runtime fighter, leaves four planned fighters locked, keeps protected dependency/audio/source/sprite-sizing diffs empty, and has a zero-failure smoke report with the four-fighter runtime promotion case."
+      commands:
+        - cmd: "sed -n '1,220p' docs/goals/aaa-game-expansion/notes/T091-noodle-runtime-promotion.md"
+          result: pass
+        - cmd: "node -e 'const r=require(\"./output/web-game/noodle-runtime-promotion/report.json\"); console.log(JSON.stringify({url:r.url, failures:r.failures.length, resultNames:r.results.map(x=>x.name), hasFourFighterPromotion:r.results.some(x=>x.name===\"four-fighter-runtime-promotion\")}, null, 2)); if (r.failures.length || !r.results.some(x=>x.name===\"four-fighter-runtime-promotion\")) process.exit(1);'"
+          result: pass
+          summary: "failures=0 and four-fighter-runtime-promotion present."
+        - cmd: "git diff --name-only -- package.json package-lock.json src/game/audio.ts public/assets/audio assets/source/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts"
+          result: pass
+          summary: "No protected diffs."
+        - cmd: "find public/assets/generated/fighters/ferret-noodle -maxdepth 1 -type f | sort"
+          result: pass
+          summary: "Listed exactly the 14 promoted runtime rows."
+      spawned_tasks:
+        - T093
+  - id: T093
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: medium
+    objective: "Run a bounded Noodle post-promotion playability polish slice. Audit Noodle in select, Training, Local Versus, and Championship as an already-promoted runtime fighter; fix only small runtime polish/readability issues that appear in code, copy, tuning, or smoke coverage; and prove the four-fighter runtime remains truthful with zero fallbacks."
+    inputs:
+      - "T091 promotion receipt."
+      - "T092 post-promotion review."
+      - "Current four-fighter runtime roster."
+      - "output/web-game/noodle-runtime-promotion/report.json"
+    constraints:
+      - "Do not generate, resize, normalize, crop, repaint, or edit any Noodle image rows."
+      - "Do not promote any other planned fighter."
+      - "Do not change dependencies, audio, source records, stage assets, title/UI art, sprite cell size, or sprite visual sizing."
+      - "Keep changes limited to Noodle/four-fighter runtime polish, browser smoke coverage, focused tests, and receipt/state updates."
+      - "Do not mark the full AAA outcome complete."
+    allowed_files:
+      - "src/core/frameData.ts"
+      - "src/game/MeowtalArenaScene.ts"
+      - "src/game/gameConfig.ts"
+      - "src/content/gameBible.ts"
+      - "scripts/smoke-meowtal-browser.mjs"
+      - "test/character-select.test.ts"
+      - "test/game-config.test.ts"
+      - "test/game-bible.test.ts"
+      - "test/asset-runtime.test.ts"
+      - "test/fighter-animation-preflight.test.ts"
+      - "output/web-game/noodle-post-promotion-polish/*"
+      - "docs/goals/aaa-game-expansion/notes/T093-noodle-post-promotion-polish.md"
+      - "docs/goals/aaa-game-expansion/state.yaml"
+    verification:
+      - "npm test -- test/character-select.test.ts test/game-config.test.ts test/game-bible.test.ts test/asset-runtime.test.ts test/fighter-animation-preflight.test.ts"
+      - "npm run verify"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/noodle-post-promotion-polish"
+      - "git diff --name-only -- public/assets/generated/fighters/ferret-noodle assets/source/imagegen/fighters/ferret-noodle package.json package-lock.json src/game/audio.ts public/assets/audio assets/source/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts"
+    stop_conditions:
+      - "A polish issue requires editing image pixels, regenerating assets, changing sprite cell size, or changing sprite visual sizing."
+      - "A fix would broaden into unrelated audio, dependency, stage, title/UI art, or another fighter promotion work."
+      - "Four-fighter roster truth, Noodle runtime keys, or fallback-free runtime loading regresses."
+    acceptance_criteria:
+      - "Noodle remains selectable/playable in the four-fighter runtime roster."
+      - "No Noodle image/source/public PNGs are edited."
+      - "Select, Training, Local Versus, and Championship smoke states remain readable and truthful for Noodle/four-fighter runtime."
+      - "Focused tests, full verify, and browser smoke pass."
+      - "Protected diff check shows no image, dependency, audio, source-record, sprite-cell, or sprite-visual-sizing changes."
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T091
+    task: T092
     commands:
-      - "test -d public/assets/generated/fighters/ferret-noodle"
-      - "for row in idle walk-forward walk-back crouch jump light-punch heavy-punch light-kick special hitstun blockstun knockdown win lose; do cmp -s assets/source/imagegen/fighters/ferret-noodle/$row.png public/assets/generated/fighters/ferret-noodle/$row.png || exit 1; done"
-      - "node scripts/asset-qa.mjs --json"
-      - "npm test -- test/fighter-animation-preflight.test.ts test/asset-pipeline.test.ts test/asset-qa.test.ts test/game-config.test.ts test/source-roster-lab.test.ts test/character-select.test.ts test/asset-runtime.test.ts"
-      - "npm run typecheck"
-      - "npm run build"
-      - "npm run verify"
-      - "node --check scripts/smoke-meowtal-browser.mjs"
-      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/noodle-runtime-promotion"
+      - "sed -n '1,220p' docs/goals/aaa-game-expansion/notes/T091-noodle-runtime-promotion.md"
+      - "node -e 'const r=require(\"./output/web-game/noodle-runtime-promotion/report.json\"); console.log(JSON.stringify({url:r.url, failures:r.failures.length, resultNames:r.results.map(x=>x.name), hasFourFighterPromotion:r.results.some(x=>x.name===\"four-fighter-runtime-promotion\")}, null, 2)); if (r.failures.length || !r.results.some(x=>x.name===\"four-fighter-runtime-promotion\")) process.exit(1);'"
       - "git diff --name-only -- package.json package-lock.json src/game/audio.ts public/assets/audio assets/source/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts"
+      - "find public/assets/generated/fighters/ferret-noodle -maxdepth 1 -type f | sort"
   t021_verification:
     result: pass
     task: T021
