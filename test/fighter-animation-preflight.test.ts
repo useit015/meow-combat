@@ -327,6 +327,19 @@ describe("Noodle Nibbles animation preflight", () => {
     expect(outputHtml).toContain("size drift, identity drift");
     expect(outputHtml).not.toContain("playable runtime assets");
   });
+
+  it("keeps generated Noodle idle row as the source-only scale baseline", () => {
+    const bounds = alphaBoundsByFrame("assets/source/imagegen/fighters/ferret-noodle/idle.png", 8);
+    const widths = bounds.map((frame) => frame.width);
+    const heights = bounds.map((frame) => frame.height);
+    const opaquePixels = bounds.map((frame) => frame.opaquePixels);
+
+    expect(widths.every((width) => width >= 110 && width <= 140)).toBe(true);
+    expect(heights.every((height) => height >= 225 && height <= 235)).toBe(true);
+    expect(Math.max(...heights) - Math.min(...heights)).toBeLessThanOrEqual(2);
+    expect(average(opaquePixels)).toBeGreaterThanOrEqual(16_000);
+    expect(existsSync(join(process.cwd(), "public/assets/generated/fighters/ferret-noodle"))).toBe(false);
+  });
 });
 
 function alphaBoundsByFrame(relativePath: string, frameCount: number) {

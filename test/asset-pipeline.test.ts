@@ -112,9 +112,15 @@ describe("fighter asset manifests", () => {
       expect(validateFighterManifest(manifest)).toEqual({ ok: true, errors: [] });
       expect(manifest.animations).toHaveLength(REQUIRED_FIGHTER_ANIMATIONS.length);
       for (const animation of manifest.animations) {
-        expect(animation.source.status).toBe("blocked");
-        expect(animation.source.outputPath).toBeNull();
-        expect(animation.source.blocker).toContain("source-only model sheet");
+        if (manifest.id === "ferret-noodle" && animation.id === "idle") {
+          expect(animation.source.status).toBe("generated");
+          expect(animation.source.outputPath).toBe("assets/source/imagegen/fighters/ferret-noodle/idle.png");
+          expect(existsSync(animation.source.outputPath ?? "")).toBe(true);
+        } else {
+          expect(animation.source.status).toBe("blocked");
+          expect(animation.source.outputPath).toBeNull();
+          expect(animation.source.blocker).toContain("source-only model sheet");
+        }
       }
     }
   });

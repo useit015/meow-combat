@@ -117,7 +117,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T071
+active_task: T072
 
 tasks:
   - id: T001
@@ -4556,7 +4556,7 @@ tasks:
   - id: T071
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: medium
     objective: "Generate and QA exactly one source-only Noodle Nibbles / ferret-noodle idle animation row using built-in imagegen only. Normalize it to exact 2048x256 transparent spritesheet form, record source-only QA/provenance, update only source/planned manifests/tests, and prove Noodle remains not playable with no public/runtime assets."
     inputs:
@@ -4611,18 +4611,97 @@ tasks:
       - "Noodle remains not playable."
       - "QA records no-size-drift evidence against the canonical sheet and accepted idle row dimensions."
       - "Tests and verification pass."
+    receipt:
+      result: done
+      note: notes/T071-noodle-idle-row-production.md
+      full_outcome_complete: false
+      changed_files:
+        - "assets/source/imagegen/fighters/ferret-noodle/candidates/idle-codex-01.png"
+        - "assets/source/imagegen/fighters/ferret-noodle/idle.png"
+        - "output/imagegen/ferret-noodle-idle.png"
+        - "output/imagegen/ferret-noodle-idle-normalized.png"
+        - "output/animation-preflight/noodle-nibbles-idle-row-qa.json"
+        - "output/animation-preflight/noodle-nibbles-idle-row-qa.html"
+        - "src/assets/catalog.ts"
+        - "test/asset-pipeline.test.ts"
+        - "test/asset-qa.test.ts"
+        - "test/fighter-animation-preflight.test.ts"
+        - "docs/goals/aaa-game-expansion/notes/T071-noodle-idle-row-production.md"
+        - "docs/goals/aaa-game-expansion/state.yaml"
+      commands:
+        - cmd: "built-in Codex imagegen for source-only Noodle Nibbles idle row"
+          result: pass
+        - cmd: "node scripts/normalize-fighter-rows.mjs --animation idle --fighters ferret-noodle"
+          result: pass
+        - cmd: "/Users/oussmustaine/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 /Users/oussmustaine/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py --input output/imagegen/ferret-noodle-idle-normalized.png --out /private/tmp/ferret-noodle-idle-alpha-green.png --key-color '#00ff00' --soft-matte --transparent-threshold 35 --opaque-threshold 180 --edge-contract 1 --despill --force"
+          result: pass
+        - cmd: "npm run typecheck"
+          result: pass
+        - cmd: "npm test -- test/fighter-animation-preflight.test.ts test/asset-pipeline.test.ts test/source-roster-lab.test.ts test/game-config.test.ts test/imagegen-jobs.test.ts test/asset-qa.test.ts"
+          result: pass
+          evidence: "6 test files, 38 tests passed."
+        - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha assets/source/imagegen/fighters/ferret-noodle/idle.png output/imagegen/ferret-noodle-idle-normalized.png"
+          result: pass
+          evidence: "Both are 2048x256 alpha PNGs."
+        - cmd: "node scripts/asset-qa.mjs --json"
+          result: pass
+          evidence: "142 checked, 86 runtime-ready, 56 needing normalization; ferret-noodle idle source and normalized candidate are runtime-ready dimensions."
+        - cmd: "test ! -e public/assets/generated/fighters/ferret-noodle"
+          result: pass
+        - cmd: "npm run verify"
+          result: pass
+          evidence: "Typecheck, 31 test files / 222 tests, and production build passed."
+        - cmd: "git diff --name-only -- public/assets/generated/fighters package.json package-lock.json src/game/audio.ts public/assets/audio assets/source/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts src/core/frameData.ts"
+          result: pass
+          evidence: "No changed files."
+        - cmd: "rg -n \"Noodle Nibbles|ferret-noodle|idle|no-size-drift|row-generation|not playable|source-only\" src/assets/catalog.ts src/assets/fighterAnimationPreflight.ts test/fighter-animation-preflight.test.ts test/asset-pipeline.test.ts test/asset-qa.test.ts docs/goals/aaa-game-expansion/notes/T071-noodle-idle-row-production.md output/animation-preflight/noodle-nibbles-idle-row-qa.json"
+          result: pass
+      summary: "Generated exactly one accepted source-only Noodle Nibbles idle row with built-in Codex imagegen, normalized it to exact 2048x256 alpha form, removed the chroma key after normalization, recorded QA evidence, registered only ferret-noodle:idle as generated source in the planned manifest, updated focused tests, and proved Noodle remains not playable with no public/runtime ferret-noodle folder. Full verify passed."
+      spawned_tasks:
+        - T072
+  - id: T072
+    type: judge
+    assignee: Judge
+    status: active
+    reasoning_hint: high
+    objective: "Review the accepted Noodle Nibbles idle row and decide the next safe row-production package without risking character-size drift or identity drift."
+    inputs:
+      - "T071 accepted idle row, QA JSON/HTML, note, tests, and verification receipt."
+      - "T069 hardened Noodle preflight artifacts."
+      - "Original owner constraints: no glitchy animations, no size drift, no identity drift, natural movement, quality-first generation."
+    constraints:
+      - "Read-only."
+      - "Do not run imagegen."
+      - "Do not edit files."
+      - "Do not change generated assets, public runtime assets, runtime roster/select/combat, sprite sizing, frame data, hitboxes, damage, pushback, movement, audio, dependencies, or lockfiles."
+      - "Treat the full AAA outcome as incomplete."
+      - "Decide whether the idle row is good enough as Noodle's scale reference or whether it needs repair before more row generation."
+      - "If proceeding, choose the largest safe next Worker slice: one locomotion row, a walk-forward/walk-back pair, a crouch/jump mobility set, or another bounded package."
+      - "Do not approve playable promotion."
+    expected_output:
+      - "Decision: proceed_with_worker | require_repair | require_audit | ask_owner | pause"
+      - "Rationale and rejected alternatives."
+      - "Exact next Worker objective if approved."
+      - "Allowed files, verification commands, stop conditions, and acceptance criteria."
+      - "Parallel-safety decision."
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T069
+    task: T071
     commands:
-      - "npm test -- test/fighter-animation-preflight.test.ts test/imagegen-jobs.test.ts test/source-roster-lab.test.ts test/game-config.test.ts"
+      - "built-in Codex imagegen for source-only Noodle Nibbles idle row"
+      - "node scripts/normalize-fighter-rows.mjs --animation idle --fighters ferret-noodle"
+      - "bundled remove_chroma_key.py cleanup on output/imagegen/ferret-noodle-idle-normalized.png"
       - "npm run typecheck"
+      - "npm test -- test/fighter-animation-preflight.test.ts test/asset-pipeline.test.ts test/source-roster-lab.test.ts test/game-config.test.ts test/imagegen-jobs.test.ts test/asset-qa.test.ts"
+      - "sips -g pixelWidth -g pixelHeight -g hasAlpha assets/source/imagegen/fighters/ferret-noodle/idle.png output/imagegen/ferret-noodle-idle-normalized.png"
+      - "node scripts/asset-qa.mjs --json"
       - "test ! -e public/assets/generated/fighters/ferret-noodle"
-      - "rg -n \"rowGenerationBrief|motionLanguage|acceptanceCriteria|rejectionTriggers|Noodle Nibbles idle|long-body guard sway|no-size-drift|not playable\" output/animation-preflight/noodle-nibbles-animation-plan.json output/animation-preflight/noodle-nibbles-animation-plan.html test/fighter-animation-preflight.test.ts src/assets/fighterAnimationPreflight.ts"
-      - "git diff --name-only -- assets/source/imagegen/fighters public/assets/generated/fighters output/imagegen package.json package-lock.json src/game/audio.ts public/assets/audio assets/source/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts src/core/frameData.ts"
+      - "npm run verify"
+      - "git diff --name-only -- public/assets/generated/fighters package.json package-lock.json src/game/audio.ts public/assets/audio assets/source/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts src/core/frameData.ts"
+      - "rg -n \"Noodle Nibbles|ferret-noodle|idle|no-size-drift|row-generation|not playable|source-only\" src/assets/catalog.ts src/assets/fighterAnimationPreflight.ts test/fighter-animation-preflight.test.ts test/asset-pipeline.test.ts test/asset-qa.test.ts docs/goals/aaa-game-expansion/notes/T071-noodle-idle-row-production.md output/animation-preflight/noodle-nibbles-idle-row-qa.json"
   t021_verification:
     result: pass
     task: T021
