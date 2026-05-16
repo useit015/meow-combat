@@ -1,0 +1,87 @@
+{
+  "title": "Pawbreaker League Source Roster Lab",
+  "purpose": "Source-only roster review surface for comparing identity locks, missing model sheets, and no-slop criteria before any planned fighter becomes public, selectable, or playable.",
+  "rosterDirection": "8-fighter",
+  "summary": {
+    "totalFighters": 8,
+    "playableRuntimeFighters": 2,
+    "sourceOnlyIdentityLocks": 3,
+    "missingIdentityLocks": 3,
+    "fullOutcome": "incomplete"
+  },
+  "runtimeRoster": [
+    {
+      "id": "gray-rabbit",
+      "displayName": "Bunjamin Thump",
+      "runtimeExposure": "playable",
+      "reviewStatus": "playable-runtime"
+    },
+    {
+      "id": "ginger-tabby-cat",
+      "displayName": "Marmalade Mayhem",
+      "runtimeExposure": "playable",
+      "reviewStatus": "playable-runtime"
+    }
+  ],
+  "sourceOnlyIdentityLocks": [
+    {
+      "id": "pugilist-pug",
+      "displayName": "Pickles Pugilist",
+      "runtimeExposure": "not playable",
+      "reviewStatus": "source-only identity lock",
+      "canonicalSheetPath": "assets/source/imagegen/fighters/pugilist-pug/canonical-character-sheet.png",
+      "publicRuntimePath": null
+    },
+    {
+      "id": "ferret-noodle",
+      "displayName": "Noodle Nibbles",
+      "runtimeExposure": "not playable",
+      "reviewStatus": "source-only identity lock",
+      "canonicalSheetPath": "assets/source/imagegen/fighters/ferret-noodle/canonical-character-sheet.png",
+      "publicRuntimePath": null
+    },
+    {
+      "id": "tortoise-tofu",
+      "displayName": "Tofu Tortoise",
+      "runtimeExposure": "not playable",
+      "reviewStatus": "source-only identity lock",
+      "canonicalSheetPath": "assets/source/imagegen/fighters/tortoise-tofu/canonical-character-sheet.png",
+      "publicRuntimePath": null
+    }
+  ],
+  "missingIdentityLocks": [
+    {
+      "id": "budgie-beanie",
+      "displayName": "Beanie Beak",
+      "runtimeExposure": "not playable",
+      "reviewStatus": "missing identity lock",
+      "canonicalSheetPath": null,
+      "publicRuntimePath": null
+    },
+    {
+      "id": "hamster-mochi",
+      "displayName": "Mochi Munch",
+      "runtimeExposure": "not playable",
+      "reviewStatus": "missing identity lock",
+      "canonicalSheetPath": null,
+      "publicRuntimePath": null
+    },
+    {
+      "id": "hedgehog-quillabelle",
+      "displayName": "Quillabelle Prickles",
+      "runtimeExposure": "not playable",
+      "reviewStatus": "missing identity lock",
+      "canonicalSheetPath": null,
+      "publicRuntimePath": null
+    }
+  ],
+  "reviewCriteria": [
+    "silhouette variety across the 8-fighter roster",
+    "species readability before any animation or select-screen promotion",
+    "palette spread that avoids a one-note roster wall",
+    "stance readability for each fighter archetype",
+    "proportion consistency between views and future frame rows",
+    "reject copied marks, copied costume language, or reference-game symbols",
+    "reject text, logos, or watermarks in source model sheets"
+  ]
+}

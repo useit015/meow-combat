@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pawbreaker League Source Roster Lab</title>
+  <style>
+    body { margin: 0; font-family: Inter, system-ui, sans-serif; background: #f6f2ea; color: #181512; }
+    main { max-width: 1120px; margin: 0 auto; padding: 32px; }
+    h1 { font-size: 32px; margin: 0 0 8px; }
+    p { line-height: 1.5; }
+    table { width: 100%; border-collapse: collapse; background: #fffaf2; border: 1px solid #d8c7a7; }
+    th, td { padding: 10px 12px; border-bottom: 1px solid #e7dac3; text-align: left; vertical-align: top; }
+    th { background: #2c2f31; color: #fff; }
+    .summary { display: flex; gap: 12px; flex-wrap: wrap; margin: 20px 0; }
+    .pill { border: 1px solid #cdb990; background: #fff; padding: 8px 10px; font-weight: 700; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Pawbreaker League Source Roster Lab</h1>
+  <p>Source-only roster review surface for comparing identity locks, missing model sheets, and no-slop criteria before any planned fighter becomes public, selectable, or playable.</p>
+  <div class="summary">
+    <div class="pill">8 total / 8-fighter</div>
+    <div class="pill">2 playable runtime fighters</div>
+    <div class="pill">3 source-only identity locks</div>
+    <div class="pill">3 missing identity lock</div>
+    <div class="pill">Full outcome: incomplete</div>
+  </div>
+  <table>
+    <thead>
+      <tr><th>Fighter</th><th>Species</th><th>Review status</th><th>Runtime exposure</th><th>Source sheet</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Bunjamin Thump</td><td>gray rabbit</td><td>playable-runtime</td><td>playable</td><td>missing identity lock</td></tr>
+      <tr><td>Marmalade Mayhem</td><td>ginger tabby cat</td><td>playable-runtime</td><td>playable</td><td>missing identity lock</td></tr>
+      <tr><td>Pickles Pugilist</td><td>pug</td><td>source-only identity lock</td><td>not playable</td><td>assets/source/imagegen/fighters/pugilist-pug/canonical-character-sheet.png</td></tr>
+      <tr><td>Noodle Nibbles</td><td>ferret</td><td>source-only identity lock</td><td>not playable</td><td>assets/source/imagegen/fighters/ferret-noodle/canonical-character-sheet.png</td></tr>
+      <tr><td>Tofu Tortoise</td><td>tortoise</td><td>source-only identity lock</td><td>not playable</td><td>assets/source/imagegen/fighters/tortoise-tofu/canonical-character-sheet.png</td></tr>
+      <tr><td>Beanie Beak</td><td>blue budgie</td><td>missing identity lock</td><td>not playable</td><td>missing identity lock</td></tr>
+      <tr><td>Mochi Munch</td><td>hamster</td><td>missing identity lock</td><td>not playable</td><td>missing identity lock</td></tr>
+      <tr><td>Quillabelle Prickles</td><td>hedgehog</td><td>missing identity lock</td><td>not playable</td><td>missing identity lock</td></tr>
+    </tbody>
+  </table>
+  <h2>No-Slop Review Criteria</h2>
+  <ul>
+    <li>silhouette variety across the 8-fighter roster</li>
+    <li>species readability before any animation or select-screen promotion</li>
+    <li>palette spread that avoids a one-note roster wall</li>
+    <li>stance readability for each fighter archetype</li>
+    <li>proportion consistency between views and future frame rows</li>
+    <li>reject copied marks, copied costume language, or reference-game symbols</li>
+    <li>reject text, logos, or watermarks in source model sheets</li>
+  </ul>
+</main>
+</body>
+</html>
