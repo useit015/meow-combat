@@ -1,0 +1,629 @@
+{
+  "task": "T043",
+  "fighterId": "pugilist-pug",
+  "displayName": "Pickles Pugilist",
+  "status": "pass",
+  "sourceOnly": true,
+  "publicRuntimePromotion": false,
+  "reason": "Knockdown row uses the T042 true-prone no-size-change rubric to prove fallen frames are rotation of the same full-size body.",
+  "candidatePolicy": {
+    "generatedWith": "built-in Codex imagegen",
+    "accepted": "assets/source/imagegen/fighters/pugilist-pug/candidates/knockdown-codex-01.png",
+    "rejected": [],
+    "preprocessing": "Candidate art was chroma-keyed, then mechanically isolated into eight fixed 256x256 cells before the existing normalize script ran, because the mixed upright/prone row otherwise triggers equal full-height slices and shrinks the prone frames. No drawing details, pose content, or identity features were edited.",
+    "avoidance": [
+      "dust clouds",
+      "floor shadows",
+      "props",
+      "text",
+      "logos",
+      "detached effects",
+      "camera zoom",
+      "crop tricks",
+      "tiny flattened pose"
+    ]
+  },
+  "assets": {
+    "acceptedCandidate": {
+      "path": "assets/source/imagegen/fighters/pugilist-pug/candidates/knockdown-codex-01.png",
+      "exists": true,
+      "dimensions": {
+        "width": 2172,
+        "height": 724,
+        "hasAlpha": false
+      },
+      "sha256": "364706ffe985c78eb6fb23a62b337338529b15747158038f9739cc7a707ba159"
+    },
+    "preisolatedSource": {
+      "path": "output/imagegen/pugilist-pug-knockdown.png",
+      "exists": true,
+      "dimensions": {
+        "width": 2048,
+        "height": 256,
+        "hasAlpha": true
+      },
+      "sha256": "9226462ae72502e42c45997af45f93a92e9123504cc285e0c053391961469994"
+    },
+    "normalizedProof": {
+      "path": "output/imagegen/pugilist-pug-knockdown-normalized.png",
+      "exists": true,
+      "dimensions": {
+        "width": 2048,
+        "height": 256,
+        "hasAlpha": true
+      },
+      "sha256": "7537503735fe4661416fe9ca0624161e0f3bae5112b47b33786319711cffd51b"
+    },
+    "accepted": {
+      "path": "assets/source/imagegen/fighters/pugilist-pug/knockdown.png",
+      "exists": true,
+      "dimensions": {
+        "width": 2048,
+        "height": 256,
+        "hasAlpha": true
+      },
+      "sha256": "7537503735fe4661416fe9ca0624161e0f3bae5112b47b33786319711cffd51b"
+    }
+  },
+  "sizeAudit": {
+    "rule": "Knockdown must be exact 2048x256 alpha; at least two early frames must anchor full-size upright/falling scale; at least two final frames must be true prone/side-lying 210-245px wide; no tiny width<195 and height<195 frame; row average opaque pixels >=22500.",
+    "referenceComparisons": {
+      "idle": {
+        "widthPx": [
+          167,
+          166,
+          166,
+          168,
+          166,
+          168,
+          168,
+          167
+        ],
+        "heightPx": [
+          228,
+          228,
+          228,
+          228,
+          228,
+          228,
+          228,
+          228
+        ],
+        "opaquePixels": [
+          25140,
+          25090,
+          25116,
+          25229,
+          24948,
+          25203,
+          25228,
+          25217
+        ],
+        "minWidthPx": 166,
+        "maxWidthPx": 168,
+        "averageWidthPx": 167,
+        "minHeightPx": 228,
+        "maxHeightPx": 228,
+        "averageHeightPx": 228,
+        "minOpaquePixels": 24948,
+        "maxOpaquePixels": 25229,
+        "averageOpaquePixels": 25146,
+        "edgeContactFrames": []
+      },
+      "correctedJump": {
+        "widthPx": [
+          163,
+          154,
+          156,
+          156,
+          153,
+          161
+        ],
+        "heightPx": [
+          196,
+          212,
+          190,
+          190,
+          211,
+          197
+        ],
+        "opaquePixels": [
+          20934,
+          21057,
+          20195,
+          20168,
+          20836,
+          20932
+        ],
+        "minWidthPx": 153,
+        "maxWidthPx": 163,
+        "averageWidthPx": 157,
+        "minHeightPx": 190,
+        "maxHeightPx": 212,
+        "averageHeightPx": 199,
+        "minOpaquePixels": 20168,
+        "maxOpaquePixels": 21057,
+        "averageOpaquePixels": 20687,
+        "edgeContactFrames": []
+      },
+      "heavyPunch": {
+        "widthPx": [
+          176,
+          166,
+          164,
+          233,
+          178,
+          174,
+          171,
+          170
+        ],
+        "heightPx": [
+          222,
+          219,
+          223,
+          204,
+          219,
+          223,
+          223,
+          223
+        ],
+        "opaquePixels": [
+          21559,
+          21225,
+          23605,
+          21372,
+          22047,
+          21248,
+          21064,
+          21051
+        ],
+        "minWidthPx": 164,
+        "maxWidthPx": 233,
+        "averageWidthPx": 179,
+        "minHeightPx": 204,
+        "maxHeightPx": 223,
+        "averageHeightPx": 220,
+        "minOpaquePixels": 21051,
+        "maxOpaquePixels": 23605,
+        "averageOpaquePixels": 21646,
+        "edgeContactFrames": []
+      },
+      "special": {
+        "widthPx": [
+          176,
+          190,
+          169,
+          152,
+          189,
+          200,
+          152,
+          182,
+          174,
+          178
+        ],
+        "heightPx": [
+          230,
+          220,
+          233,
+          231,
+          222,
+          220,
+          225,
+          225,
+          226,
+          227
+        ],
+        "opaquePixels": [
+          24204,
+          24176,
+          22537,
+          22887,
+          24137,
+          24151,
+          21878,
+          23737,
+          23513,
+          23647
+        ],
+        "minWidthPx": 152,
+        "maxWidthPx": 200,
+        "averageWidthPx": 176,
+        "minHeightPx": 220,
+        "maxHeightPx": 233,
+        "averageHeightPx": 226,
+        "minOpaquePixels": 21878,
+        "maxOpaquePixels": 24204,
+        "averageOpaquePixels": 23487,
+        "edgeContactFrames": []
+      },
+      "hitstun": {
+        "widthPx": [
+          176,
+          161,
+          190,
+          218,
+          173
+        ],
+        "heightPx": [
+          229,
+          228,
+          237,
+          220,
+          229
+        ],
+        "opaquePixels": [
+          23042,
+          23347,
+          26491,
+          24630,
+          22424
+        ],
+        "minWidthPx": 161,
+        "maxWidthPx": 218,
+        "averageWidthPx": 184,
+        "minHeightPx": 220,
+        "maxHeightPx": 237,
+        "averageHeightPx": 229,
+        "minOpaquePixels": 22424,
+        "maxOpaquePixels": 26491,
+        "averageOpaquePixels": 23987,
+        "edgeContactFrames": []
+      },
+      "blockstun": {
+        "widthPx": [
+          176,
+          180,
+          169,
+          177,
+          177
+        ],
+        "heightPx": [
+          231,
+          228,
+          231,
+          227,
+          231
+        ],
+        "opaquePixels": [
+          23609,
+          24214,
+          24287,
+          23296,
+          23381
+        ],
+        "minWidthPx": 169,
+        "maxWidthPx": 180,
+        "averageWidthPx": 176,
+        "minHeightPx": 227,
+        "maxHeightPx": 231,
+        "averageHeightPx": 230,
+        "minOpaquePixels": 23296,
+        "maxOpaquePixels": 24287,
+        "averageOpaquePixels": 23757,
+        "edgeContactFrames": []
+      },
+      "win": {
+        "widthPx": [
+          167,
+          166,
+          159,
+          162,
+          155,
+          165,
+          165,
+          163
+        ],
+        "heightPx": [
+          225,
+          225,
+          226,
+          221,
+          224,
+          222,
+          225,
+          223
+        ],
+        "opaquePixels": [
+          24933,
+          24765,
+          24793,
+          24009,
+          24834,
+          24263,
+          24611,
+          24131
+        ],
+        "minWidthPx": 155,
+        "maxWidthPx": 167,
+        "averageWidthPx": 163,
+        "minHeightPx": 221,
+        "maxHeightPx": 226,
+        "averageHeightPx": 224,
+        "minOpaquePixels": 24009,
+        "maxOpaquePixels": 24933,
+        "averageOpaquePixels": 24542,
+        "edgeContactFrames": []
+      },
+      "lose": {
+        "widthPx": [
+          163,
+          164,
+          165,
+          162,
+          160,
+          162
+        ],
+        "heightPx": [
+          232,
+          229,
+          230,
+          229,
+          225,
+          231
+        ],
+        "opaquePixels": [
+          26709,
+          26356,
+          26279,
+          25728,
+          25574,
+          26448
+        ],
+        "minWidthPx": 160,
+        "maxWidthPx": 165,
+        "averageWidthPx": 163,
+        "minHeightPx": 225,
+        "maxHeightPx": 232,
+        "averageHeightPx": 229,
+        "minOpaquePixels": 25574,
+        "maxOpaquePixels": 26709,
+        "averageOpaquePixels": 26182,
+        "edgeContactFrames": []
+      }
+    },
+    "knockdown": {
+      "path": "assets/source/imagegen/fighters/pugilist-pug/knockdown.png",
+      "frameCount": 8,
+      "bounds": [
+        {
+          "frame": 1,
+          "width": 161,
+          "height": 233,
+          "opaquePixels": 24544,
+          "minX": 47,
+          "maxX": 207,
+          "minY": 20,
+          "maxY": 252,
+          "edgeContact": false
+        },
+        {
+          "frame": 2,
+          "width": 196,
+          "height": 233,
+          "opaquePixels": 28289,
+          "minX": 30,
+          "maxX": 225,
+          "minY": 20,
+          "maxY": 252,
+          "edgeContact": false
+        },
+        {
+          "frame": 3,
+          "width": 228,
+          "height": 190,
+          "opaquePixels": 25827,
+          "minX": 20,
+          "maxX": 247,
+          "minY": 63,
+          "maxY": 252,
+          "edgeContact": false
+        },
+        {
+          "frame": 4,
+          "width": 237,
+          "height": 163,
+          "opaquePixels": 26571,
+          "minX": 9,
+          "maxX": 245,
+          "minY": 90,
+          "maxY": 252,
+          "edgeContact": false
+        },
+        {
+          "frame": 5,
+          "width": 238,
+          "height": 128,
+          "opaquePixels": 22960,
+          "minX": 8,
+          "maxX": 245,
+          "minY": 125,
+          "maxY": 252,
+          "edgeContact": false
+        },
+        {
+          "frame": 6,
+          "width": 238,
+          "height": 131,
+          "opaquePixels": 23162,
+          "minX": 8,
+          "maxX": 245,
+          "minY": 122,
+          "maxY": 252,
+          "edgeContact": false
+        },
+        {
+          "frame": 7,
+          "width": 236,
+          "height": 128,
+          "opaquePixels": 22390,
+          "minX": 10,
+          "maxX": 245,
+          "minY": 124,
+          "maxY": 251,
+          "edgeContact": false
+        },
+        {
+          "frame": 8,
+          "width": 237,
+          "height": 128,
+          "opaquePixels": 22836,
+          "minX": 10,
+          "maxX": 246,
+          "minY": 124,
+          "maxY": 251,
+          "edgeContact": false
+        }
+      ],
+      "summary": {
+        "widthPx": [
+          161,
+          196,
+          228,
+          237,
+          238,
+          238,
+          236,
+          237
+        ],
+        "heightPx": [
+          233,
+          233,
+          190,
+          163,
+          128,
+          131,
+          128,
+          128
+        ],
+        "opaquePixels": [
+          24544,
+          28289,
+          25827,
+          26571,
+          22960,
+          23162,
+          22390,
+          22836
+        ],
+        "minWidthPx": 161,
+        "maxWidthPx": 238,
+        "averageWidthPx": 221,
+        "minHeightPx": 128,
+        "maxHeightPx": 233,
+        "averageHeightPx": 167,
+        "minOpaquePixels": 22390,
+        "maxOpaquePixels": 28289,
+        "averageOpaquePixels": 24572,
+        "edgeContactFrames": []
+      },
+      "dimensions": {
+        "width": 2048,
+        "height": 256,
+        "hasAlpha": true
+      }
+    },
+    "knockdownVerdict": {
+      "row": "knockdown",
+      "summary": {
+        "widthPx": [
+          161,
+          196,
+          228,
+          237,
+          238,
+          238,
+          236,
+          237
+        ],
+        "heightPx": [
+          233,
+          233,
+          190,
+          163,
+          128,
+          131,
+          128,
+          128
+        ],
+        "opaquePixels": [
+          24544,
+          28289,
+          25827,
+          26571,
+          22960,
+          23162,
+          22390,
+          22836
+        ],
+        "minWidthPx": 161,
+        "maxWidthPx": 238,
+        "averageWidthPx": 221,
+        "minHeightPx": 128,
+        "maxHeightPx": 233,
+        "averageHeightPx": 167,
+        "minOpaquePixels": 22390,
+        "maxOpaquePixels": 28289,
+        "averageOpaquePixels": 24572,
+        "edgeContactFrames": []
+      },
+      "earlyAnchorFrames": [
+        1,
+        2
+      ],
+      "finalProneFrames": [
+        5,
+        6,
+        7,
+        8
+      ],
+      "below195HeightFrames": [
+        {
+          "frame": 3,
+          "width": 228,
+          "passes": true
+        },
+        {
+          "frame": 4,
+          "width": 237,
+          "passes": true
+        },
+        {
+          "frame": 5,
+          "width": 238,
+          "passes": true
+        },
+        {
+          "frame": 6,
+          "width": 238,
+          "passes": true
+        },
+        {
+          "frame": 7,
+          "width": 236,
+          "passes": true
+        },
+        {
+          "frame": 8,
+          "width": 237,
+          "passes": true
+        }
+      ],
+      "tinyViolationFrames": [],
+      "passesEarlyAnchors": true,
+      "passesFinalProne": true,
+      "passesBelow195WidthProof": true,
+      "passesTinyFrameRule": true,
+      "passesAverageOpaque": true,
+      "visualNoSizeChangeRationale": "Frames 1-2 preserve full upright/falling scale. Frames 3-4 rotate Pickles sideways with head, muzzle, gloves, belt, feet, and tail still full-size. Frames 5-8 are true side-lying poses with 236-238px horizontal body length and visible identity features; no dust, shadow, props, crop, zoom, or empty-canvas shrink hides scale.",
+      "verdict": "pass"
+    }
+  },
+  "runtimeGate": {
+    "publicRuntimePath": "public/assets/generated/fighters/pugilist-pug",
+    "absent": true,
+    "playableRoster": [
+      "gray-rabbit",
+      "ginger-tabby-cat"
+    ]
+  }
+}

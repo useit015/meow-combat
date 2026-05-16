@@ -71,6 +71,7 @@ describe("Pickles Pugilist animation preflight", () => {
         "special",
         "hitstun",
         "blockstun",
+        "knockdown",
         "win",
         "lose",
       ],
@@ -205,6 +206,25 @@ describe("Pickles Pugilist animation preflight", () => {
     expect(Math.min(...opaquePixels)).toBeGreaterThanOrEqual(20_000);
     expect(average(opaquePixels)).toBeGreaterThanOrEqual(22_500);
   });
+
+  it("keeps generated Pickles knockdown row full-size under the true-prone rubric", () => {
+    const bounds = alphaBoundsByFrame("assets/source/imagegen/fighters/pugilist-pug/knockdown.png", 8);
+    const opaquePixels = bounds.map((frame) => frame.opaquePixels);
+    const earlyAnchors = bounds.filter(
+      (frame) => frame.frame <= 4 && frame.height >= 205 && frame.width >= 150 && frame.width <= 230 && frame.opaquePixels >= 22_000,
+    );
+    const finalProneFrames = bounds.filter(
+      (frame) => frame.frame >= 5 && frame.width >= 210 && frame.width <= 245 && frame.opaquePixels >= 20_000,
+    );
+    const below195Frames = bounds.filter((frame) => frame.height < 195);
+    const tinyFrames = bounds.filter((frame) => frame.width < 195 && frame.height < 195);
+
+    expect(earlyAnchors).toHaveLength(2);
+    expect(finalProneFrames.length).toBeGreaterThanOrEqual(2);
+    expect(below195Frames.every((frame) => frame.width >= 205)).toBe(true);
+    expect(tinyFrames).toEqual([]);
+    expect(average(opaquePixels)).toBeGreaterThanOrEqual(22_500);
+  });
 });
 
 function alphaBoundsByFrame(relativePath: string, frameCount: number) {
@@ -243,6 +263,7 @@ function alphaBoundsByFrame(relativePath: string, frameCount: number) {
     if (!found) throw new Error(`${relativePath} frame ${frameIndex + 1} has no opaque pixels`);
 
     return {
+      frame: frameIndex + 1,
       width: maxX - minX + 1,
       height: maxY - minY + 1,
       opaquePixels,

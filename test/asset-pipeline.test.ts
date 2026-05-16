@@ -22,6 +22,7 @@ describe("fighter asset manifests", () => {
     "special",
     "hitstun",
     "blockstun",
+    "knockdown",
     "win",
     "lose",
   ]);
