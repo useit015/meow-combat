@@ -12,6 +12,7 @@ import {
   visualStateForSnapshot,
   type RuntimeSpriteAsset,
 } from "../assets";
+import type { FighterChampionshipStory } from "../content";
 import {
   FightingSimulation,
   buttonsFromKeys,
@@ -98,6 +99,7 @@ interface SelectedFighterTextProfile {
   trainingTip: string | null;
   signatureMove: string | null;
   superMove: string | null;
+  championship: FighterChampionshipStory | null;
 }
 interface FighterStoryTextProfile {
   fighterId: string;
@@ -106,6 +108,7 @@ interface FighterStoryTextProfile {
   storyHook: string | null;
   signatureMove: string | null;
   superMove: string | null;
+  championship: FighterChampionshipStory | null;
 }
 type ChampionshipInterstitialKind = "intro" | "rival-preview" | "advance" | "cleared" | "failed";
 type ChampionshipRewardStatus = "up-for-grabs" | "checkpoint" | "claimed" | "lost";
@@ -1633,7 +1636,10 @@ export class MeowtalArenaScene extends Phaser.Scene {
       return {
         visible,
         headline: "SNACKBELT CLEARED",
-        body: `${player.displayName} survives ${completedRivals.map((rival) => rival.displayName).join(" and ")}. The treat belt is now legally theirs until somebody licks the paperwork.`,
+        body: `${player.displayName} survives ${completedRivals.map((rival) => rival.displayName).join(" and ")}. ${
+          player.championship?.titleClaim ??
+          "The treat belt is now legally theirs until somebody licks the paperwork."
+        }`,
         callToAction,
         opponentOrderLabel,
         player,
@@ -1655,7 +1661,9 @@ export class MeowtalArenaScene extends Phaser.Scene {
         visible,
         headline: "SNACKBELT RUN ENDED",
         body: spoiler
-          ? `${spoiler.displayName} stops the run. ${spoiler.storyHook ?? "The bracket refuses to elaborate."}`
+          ? `${spoiler.displayName} stops the run. ${
+              spoiler.championship?.runEnd ?? spoiler.storyHook ?? "The bracket refuses to elaborate."
+            }`
           : "The bracket stops the run in deeply suspicious circumstances.",
         callToAction,
         opponentOrderLabel,
@@ -1675,7 +1683,11 @@ export class MeowtalArenaScene extends Phaser.Scene {
       return {
         visible,
         headline: "ADVANCE TO NEXT RIVAL",
-        body: `${lastCompletedRival.displayName} is down. Next: ${currentRival.displayName} - ${currentRival.storyHook ?? "The bracket has chosen chaos."}`,
+        body: `${lastCompletedRival.displayName} is down. ${
+          lastCompletedRival.championship?.advancePayoff ?? "One stamp lands on the paperwork."
+        } Next: ${currentRival.displayName} - ${
+          currentRival.championship?.rivalIntro ?? currentRival.storyHook ?? "The bracket has chosen chaos."
+        }`,
         callToAction,
         opponentOrderLabel,
         player,
@@ -1694,7 +1706,9 @@ export class MeowtalArenaScene extends Phaser.Scene {
       return {
         visible,
         headline: `SNACKBELT LADDER ${this.championshipLadder.opponentIndex + 1}/${this.championshipLadder.opponentIds.length}`,
-        body: `Current rival: ${currentRival.displayName} - ${currentRival.storyHook ?? "The bracket has chosen chaos."}`,
+        body: `Current rival: ${currentRival.displayName} - ${
+          currentRival.championship?.rivalIntro ?? currentRival.storyHook ?? "The bracket has chosen chaos."
+        }`,
         callToAction,
         opponentOrderLabel,
         player,
@@ -2813,6 +2827,7 @@ export class MeowtalArenaScene extends Phaser.Scene {
       trainingTip: content?.trainingTip ?? null,
       signatureMove: content?.signatureMove ?? null,
       superMove: content?.superMove ?? null,
+      championship: content?.championship ?? null,
     };
   }
 
@@ -2828,6 +2843,7 @@ export class MeowtalArenaScene extends Phaser.Scene {
         trainingTip: content?.trainingTip ?? null,
         signatureMove: content?.signatureMove ?? null,
         superMove: content?.superMove ?? null,
+        championship: content?.championship ?? null,
         runtimeStatus: content?.runtime.status ?? "active",
       };
     });
@@ -3140,7 +3156,7 @@ function championshipInterstitialState(
     return {
       kind,
       progressLine: `Progress: ${progress.completedCount}/${progress.totalOpponents} rivals folded | runtime ladder cleared`,
-      payoffLine: `${player.displayName}'s title is official until somebody licks the paperwork again.`,
+      payoffLine: player.championship?.titleClaim ?? `${player.displayName}'s title is official until somebody licks the paperwork again.`,
       nextAction,
       rosterTruth,
       completedCount: progress.completedCount,
@@ -3151,7 +3167,9 @@ function championshipInterstitialState(
     return {
       kind,
       progressLine,
-      payoffLine: `${rival?.displayName ?? "The bracket"} confiscates the snack paperwork until the rematch.`,
+      payoffLine:
+        rival?.championship?.runEnd ??
+        `${rival?.displayName ?? "The bracket"} confiscates the snack paperwork until the rematch.`,
       nextAction,
       rosterTruth,
       completedCount: progress.completedCount,
@@ -3162,7 +3180,9 @@ function championshipInterstitialState(
     return {
       kind,
       progressLine,
-      payoffLine: `${lastCompletedRival?.displayName ?? "One rival"} folded; ${rival?.displayName ?? "the next rival"} is now accepting snacks as legal tender.`,
+      payoffLine:
+        lastCompletedRival?.championship?.advancePayoff ??
+        `${lastCompletedRival?.displayName ?? "One rival"} folded; ${rival?.displayName ?? "the next rival"} is now accepting snacks as legal tender.`,
       nextAction,
       rosterTruth,
       completedCount: progress.completedCount,
@@ -3173,7 +3193,8 @@ function championshipInterstitialState(
   return {
     kind,
     progressLine,
-    payoffLine: "Win the set, claim a stamp, and keep the paperwork unchewed.",
+    payoffLine:
+      rival?.championship?.rivalIntro ?? "Win the set, claim a stamp, and keep the paperwork unchewed.",
     nextAction,
     rosterTruth,
     completedCount: progress.completedCount,
@@ -3213,6 +3234,7 @@ function fighterShellCard(profile: SelectedFighterTextProfile, role: string) {
     trainingTip: profile.trainingTip,
     signatureMove: profile.signatureMove,
     superMove: profile.superMove,
+    championship: profile.championship,
     storyTag: fighterStoryTag(profile),
   };
 }
@@ -3264,6 +3286,7 @@ function fighterStorySummary(fighterId: string): FighterStoryTextProfile {
     storyHook: content?.storyHook ?? null,
     signatureMove: content?.signatureMove ?? null,
     superMove: content?.superMove ?? null,
+    championship: content?.championship ?? null,
   };
 }
 

@@ -1196,9 +1196,14 @@ async function runChampionshipLadderProgression(browser, url, outDir) {
       `advance demo should expose pending couch-rights reward, got ${state.storyMode?.presentation?.reward?.claimLine}`,
     );
     assert(
-      state.storyMode?.presentation?.interstitial?.payoffLine?.includes("legal tender"),
+      state.storyMode?.presentation?.lastCompletedRival?.championship?.advancePayoff?.includes("couch fur"),
       failures,
-      `advance demo should expose comic payoff, got ${state.storyMode?.presentation?.interstitial?.payoffLine}`,
+      `advance demo should expose Marmalade's specific advance payoff, got ${state.storyMode?.presentation?.lastCompletedRival?.championship?.advancePayoff}`,
+    );
+    assert(
+      state.storyMode?.presentation?.interstitial?.payoffLine?.includes("couch fur"),
+      failures,
+      `advance demo should render the fighter-specific payoff, got ${state.storyMode?.presentation?.interstitial?.payoffLine}`,
     );
     assert(
       state.storyMode?.presentation?.opponentOrderLabel?.includes("DONE Ginger Tabby Cat") &&
@@ -1244,9 +1249,14 @@ async function runChampionshipLadderProgression(browser, url, outDir) {
       `ladder advance expected Pickles current rival, got ${state.storyMode?.presentation?.currentRival?.fighterId}`,
     );
     assert(
-      state.storyMode?.presentation?.body?.includes("trophy was edible"),
+      state.storyMode?.presentation?.currentRival?.championship?.rivalIntro?.includes("edible trophy"),
       failures,
-      "ladder advance should surface Pickles story hook",
+      `ladder advance should expose Pickles' specific rival intro, got ${state.storyMode?.presentation?.currentRival?.championship?.rivalIntro}`,
+    );
+    assert(
+      state.storyMode?.presentation?.body?.includes("edible trophy"),
+      failures,
+      `ladder advance should render Pickles' rival intro, got ${state.storyMode?.presentation?.body}`,
     );
     checkChampionshipRewardInterstitial(state, "ladder advance next fight", "rival-preview", "up-for-grabs", "1/3", failures);
     assert(
@@ -1305,9 +1315,9 @@ async function runChampionshipLadderProgression(browser, url, outDir) {
       `clear demo should expose couch-rights reward, got ${state.storyMode?.presentation?.reward?.claimLine}`,
     );
     assert(
-      state.storyMode?.presentation?.interstitial?.payoffLine?.includes("paperwork"),
+      state.storyMode?.presentation?.interstitial?.payoffLine?.includes("cardboard"),
       failures,
-      `clear demo should expose paperwork payoff, got ${state.storyMode?.presentation?.interstitial?.payoffLine}`,
+      `clear demo should expose Bunjamin's title claim, got ${state.storyMode?.presentation?.interstitial?.payoffLine}`,
     );
     assert(errors.length === 0, failures, `ladder clear console/page errors: ${JSON.stringify(errors)}`);
     await context.close();
@@ -1340,6 +1350,11 @@ async function runChampionshipLadderProgression(browser, url, outDir) {
       state.storyMode?.presentation?.body?.includes("Ginger Tabby Cat"),
       failures,
       "fail demo should name the rival that stopped the run",
+    );
+    assert(
+      state.storyMode?.presentation?.interstitial?.payoffLine?.includes("couch save his spot"),
+      failures,
+      `fail demo should expose Marmalade's run-end beat, got ${state.storyMode?.presentation?.interstitial?.payoffLine}`,
     );
     checkChampionshipRewardInterstitial(state, "ladder fail", "failed", "lost", "0/3", failures);
     assert(

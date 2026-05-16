@@ -1,2 +1,2 @@
 export { petFighterGameBible } from "./gameBible";
-export type { GameBibleMode, PetFighterGameBible, PlannedFighter } from "./gameBible";
+export type { FighterChampionshipStory, GameBibleMode, PetFighterGameBible, PlannedFighter } from "./gameBible";
