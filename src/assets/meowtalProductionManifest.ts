@@ -11,7 +11,13 @@ import {
 import { AUDIO_CUE_ASSET_SPECS, type ArenaAudioAssetSpec } from "../game/audio";
 
 export type MeowtalFighterId = "gray-rabbit" | "ginger-tabby-cat";
-export type MeowtalSourceOnlyFighterId = "pugilist-pug" | "ferret-noodle" | "tortoise-tofu";
+export type MeowtalSourceOnlyFighterId =
+  | "pugilist-pug"
+  | "ferret-noodle"
+  | "tortoise-tofu"
+  | "budgie-beanie"
+  | "hamster-mochi"
+  | "hedgehog-quillabelle";
 export type MeowtalStageLayerId =
   | "sky-lighting"
   | "distant-hills-city"
@@ -532,6 +538,9 @@ const sourceOnlyCanonicalSheetSourcePaths: Readonly<Record<MeowtalSourceOnlyFigh
   "pugilist-pug": "assets/source/imagegen/fighters/pugilist-pug/canonical-character-sheet.png",
   "ferret-noodle": "assets/source/imagegen/fighters/ferret-noodle/canonical-character-sheet.png",
   "tortoise-tofu": "assets/source/imagegen/fighters/tortoise-tofu/canonical-character-sheet.png",
+  "budgie-beanie": "assets/source/imagegen/fighters/budgie-beanie/canonical-character-sheet.png",
+  "hamster-mochi": "assets/source/imagegen/fighters/hamster-mochi/canonical-character-sheet.png",
+  "hedgehog-quillabelle": "assets/source/imagegen/fighters/hedgehog-quillabelle/canonical-character-sheet.png",
 };
 
 const canonicalSheetQaNotes: Readonly<Record<MeowtalFighterId, string>> = {
@@ -548,6 +557,12 @@ const sourceOnlyCanonicalSheetQaNotes: Readonly<Record<MeowtalSourceOnlyFighterI
     "Approved as source-only identity lock, not a runtime sprite. Visual QA: Noodle reads as one cute upright ferret mix-up fighter with long flexible body, tapered muzzle, mischievous face, rounded ears, ringed tail, sock-thief personality, stable warm sable/cream palette, and readable side-switch pose language across views/poses; no readable text, pseudo-text, watermark, logo, copied fighting-game costume language, extra characters, or public/runtime promotion.",
   "tortoise-tofu":
     "Approved as source-only identity lock, not a runtime sprite. Visual QA: Tofu reads as one cute upright tortoise armored grappler with domed shell mass, squat sturdy stance, calm face, gentle beak, shell plates, short limbs, green/ochre palette, and command-grab readability across views/poses; no readable text, pseudo-text, watermark, logo, copied fighting-game costume language, extra characters, or public/runtime promotion.",
+  "budgie-beanie":
+    "Approved as source-only identity lock, not a runtime sprite. Visual QA: Beanie reads as one cute upright blue budgie aerial trickster with stable curved beak, cheek spots, small wings, perch feet, blue/teal feather palette, scarf/beanie flair, and readable dive-kick pose language across views/poses; no readable text, pseudo-text, watermark, logo, copied fighting-game costume language, extra characters, or public/runtime promotion.",
+  "hamster-mochi":
+    "Approved as source-only identity lock, not a runtime sprite. Visual QA: Mochi reads as one cute upright hamster burst grappler with round cheeks, compact body, tiny limbs, crumb pouch, warm tan/cream palette, cheerful snack-fighter personality, and readable roll/throw pose language across views/poses; no readable text, pseudo-text, watermark, logo, copied fighting-game costume language, extra characters, or public/runtime promotion.",
+  "hedgehog-quillabelle":
+    "Approved as source-only identity lock, not a runtime sprite. Visual QA: Quillabelle reads as one cute upright hedgehog counter-zoner with crown-like quills, pointed snout, compact body, tiny gloves, elegant defensive stance, lavender/cream/quill palette, and readable quill-parry pose language across views/poses; no readable text, pseudo-text, watermark, logo, copied fighting-game costume language, extra characters, or public/runtime promotion.",
 };
 
 const idleRowSourcePaths: Readonly<Record<MeowtalFighterId, string>> = {
@@ -880,6 +895,33 @@ const sourceOnlyFighterDetails: Readonly<
     markings: "moss green skin, warm ochre shell plates, pale belly shell, soft cheek patches, tiny bandage wraps and shell scuffs",
     signatureTraits: "serene half-smile, shell brace, slow elbow drop pose, tiny travel-pillow belt tag, deliberate command-grab stance",
     specialEnergy: "small stone-dust impact rings and leaf-green guard glow kept attached to the character silhouette",
+  },
+  "budgie-beanie": {
+    displayName: "Beanie Beak",
+    silhouette: "upright two-legged tiny blue budgie stance, curved beak, round cheek spots, small wings, perch-ready feet, scarf and beanie flair",
+    personality: "cute, flashy, musical, overconfident, comedic but battle-ready",
+    body: "small upright biped bird body with readable wing-flick poses, compact feather mass, grounded feet, and clear aerial poke shapes",
+    markings: "blue and teal feathers, pale face, yellow beak, dark wing tips, white cheek spots, tiny scarf and beanie accent",
+    signatureTraits: "perch-hop stance, wing-flick pokes, tiny percussion charm, encore grin, dive-kick anticipation pose",
+    specialEnergy: "small rhythmic turquoise feather streaks kept attached to the character silhouette",
+  },
+  "hamster-mochi": {
+    displayName: "Mochi Munch",
+    silhouette: "upright two-legged round hamster stance, puffed cheeks, tiny ears, tiny paws, compact body, short legs, snack pouch",
+    personality: "cute, cheerful, snack-obsessed, brave, comedic but battle-ready",
+    body: "round upright biped hamster body with puffed cheeks, small quick limbs, low center of gravity, and readable burst-grappler shapes",
+    markings: "warm tan fur, cream belly and cheeks, tiny brown ear rims, crumb flecks, red bandana knot, small snack charms",
+    signatureTraits: "cheek-puff charge, rolling tackle windup, crumb trap pouch, tiny heroic stare, surprise throw stance",
+    specialEnergy: "small golden crumb bursts and soft snack-colored motion arcs kept attached to the character silhouette",
+  },
+  "hedgehog-quillabelle": {
+    displayName: "Quillabelle Prickles",
+    silhouette: "upright two-legged compact hedgehog stance, pointed snout, crown-like quills, tiny gloves, poised defensive guard",
+    personality: "cute, elegant, suspicious, prickly, comedic but battle-ready",
+    body: "compact upright biped hedgehog body with stable quill mass, short limbs, fencing-like posture, and readable counter-poke shapes",
+    markings: "cream face and belly, warm brown quills, lavender gloves, tiny lace cuff accents, small brooch highlight",
+    signatureTraits: "quill-parry fan, needlepoint guard, royal side-eye, spinning retreat stance, tiny formal glove pose",
+    specialEnergy: "small lavender quill glints and prickly guard sparks kept attached to the character silhouette",
   },
 };
 

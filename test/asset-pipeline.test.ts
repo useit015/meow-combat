@@ -82,6 +82,9 @@ describe("fighter asset manifests", () => {
       "pugilist-pug": "Pickles Pugilist",
       "ferret-noodle": "Noodle Nibbles",
       "tortoise-tofu": "Tofu Tortoise",
+      "budgie-beanie": "Beanie Beak",
+      "hamster-mochi": "Mochi Munch",
+      "hedgehog-quillabelle": "Quillabelle Prickles",
     } as const;
 
     expect(pawbreakerPlannedFighterAssetManifests.map((manifest) => manifest.id)).toEqual(Object.keys(expectedNames));

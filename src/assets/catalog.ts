@@ -282,6 +282,69 @@ export const pawbreakerPlannedFighterAssetManifests: readonly FighterAssetManife
     ),
     animations: animationSpecsFor("tortoise-tofu", sourceOnlyAnimationBlocker),
   },
+  {
+    id: "budgie-beanie",
+    displayName: "Beanie Beak",
+    engineCharacterId: "budgie-beanie",
+    archetype: "source-only aerial poke trickster with dive-kick readability",
+    designNotes: [
+      "Pawbreaker planned roster fighter: cute upright blue budgie aerial trickster with feather rhythm and tiny flashy confidence.",
+      "Keep the budgie identity locked through curved beak, round eyes, cheek spots, blue feathers, small wings, perch-ready feet, and scarf/beanie flair.",
+      "Source-only model sheet for now; do not promote to runtime or generate animation rows until a separate QA task approves the rig.",
+    ],
+    asymmetryNotes: [
+      "Wing feather tips, cheek spots, scarf folds, and tiny bell/percussion charms may be side-specific; do not mirror rows until reviewed.",
+    ],
+    identityLock: identityLockFor(),
+    productionAcceptance: fighterProductionAcceptance,
+    canonicalReference: generatedSource(
+      "budgie-beanie-canonical-character-sheet",
+      "assets/source/imagegen/fighters/budgie-beanie/canonical-character-sheet.png",
+    ),
+    animations: animationSpecsFor("budgie-beanie", sourceOnlyAnimationBlocker),
+  },
+  {
+    id: "hamster-mochi",
+    displayName: "Mochi Munch",
+    engineCharacterId: "hamster-mochi",
+    archetype: "source-only tiny burst grappler with snack-charge readability",
+    designNotes: [
+      "Pawbreaker planned roster fighter: cute upright hamster snack brawler with round body, puffed cheeks, and fast rolling tackles.",
+      "Keep the hamster identity locked through round cheeks, tiny ears, small paws, compact body, crumb pouch, short legs, and cheerful determined stare.",
+      "Source-only model sheet for now; do not promote to runtime or generate animation rows until a separate QA task approves the rig.",
+    ],
+    asymmetryNotes: [
+      "Crumb pouches, cheek crumbs, tiny bandana knot, and snack charms may be side-specific; do not mirror rows until reviewed.",
+    ],
+    identityLock: identityLockFor(),
+    productionAcceptance: fighterProductionAcceptance,
+    canonicalReference: generatedSource(
+      "hamster-mochi-canonical-character-sheet",
+      "assets/source/imagegen/fighters/hamster-mochi/canonical-character-sheet.png",
+    ),
+    animations: animationSpecsFor("hamster-mochi", sourceOnlyAnimationBlocker),
+  },
+  {
+    id: "hedgehog-quillabelle",
+    displayName: "Quillabelle Prickles",
+    engineCharacterId: "hedgehog-quillabelle",
+    archetype: "source-only counter-poke defender with quill-parry readability",
+    designNotes: [
+      "Pawbreaker planned roster fighter: cute upright hedgehog counter-poke defender with elegant quill control and defensive comedy.",
+      "Keep the hedgehog identity locked through compact body, pointed snout, bright eyes, crown-like quills, tiny gloves, and poised fencing stance.",
+      "Source-only model sheet for now; do not promote to runtime or generate animation rows until a separate QA task approves the rig.",
+    ],
+    asymmetryNotes: [
+      "Quill highlights, lace cuff shapes, tiny brooch, and glove trim may be side-specific; do not mirror rows until reviewed.",
+    ],
+    identityLock: identityLockFor(),
+    productionAcceptance: fighterProductionAcceptance,
+    canonicalReference: generatedSource(
+      "hedgehog-quillabelle-canonical-character-sheet",
+      "assets/source/imagegen/fighters/hedgehog-quillabelle/canonical-character-sheet.png",
+    ),
+    animations: animationSpecsFor("hedgehog-quillabelle", sourceOnlyAnimationBlocker),
+  },
 ];
 
 export const stageAssetManifests: readonly StageAssetManifest[] = [

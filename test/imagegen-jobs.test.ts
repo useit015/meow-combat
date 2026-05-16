@@ -97,6 +97,9 @@ describe("imagegen jobs", () => {
       "pugilist-pug:canonical-reference",
       "ferret-noodle:canonical-reference",
       "tortoise-tofu:canonical-reference",
+      "budgie-beanie:canonical-reference",
+      "hamster-mochi:canonical-reference",
+      "hedgehog-quillabelle:canonical-reference",
     ]);
     for (const job of jobs) {
       expect(job).toMatchObject({

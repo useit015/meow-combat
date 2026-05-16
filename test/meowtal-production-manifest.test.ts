@@ -21,6 +21,9 @@ describe("Meowtal production manifest", () => {
       "pugilist-pug",
       "ferret-noodle",
       "tortoise-tofu",
+      "budgie-beanie",
+      "hamster-mochi",
+      "hedgehog-quillabelle",
     ]);
     expect(meowtalProductionManifest.stage.layers.map((layer) => layer.id)).toEqual([
       "sky-lighting",
@@ -37,7 +40,7 @@ describe("Meowtal production manifest", () => {
 
     const entries = collectMeowtalProvenanceEntries();
     const runtimeEntries = entries.filter((entry) => entry.runtimePath !== null);
-    expect(entries).toHaveLength(3 + 2 + 2 * REQUIRED_FIGHTER_ANIMATIONS.length + 6 + 16 + 11);
+    expect(entries).toHaveLength(6 + 2 + 2 * REQUIRED_FIGHTER_ANIMATIONS.length + 6 + 16 + 11);
     expect(runtimeEntries.map((entry) => entry.assetId).sort()).toEqual([
       "ginger-tabby-cat:blockstun",
       "ginger-tabby-cat:crouch",
@@ -109,6 +112,9 @@ describe("Meowtal production manifest", () => {
       "pugilist-pug": "Pickles Pugilist",
       "ferret-noodle": "Noodle Nibbles",
       "tortoise-tofu": "Tofu Tortoise",
+      "budgie-beanie": "Beanie Beak",
+      "hamster-mochi": "Mochi Munch",
+      "hedgehog-quillabelle": "Quillabelle Prickles",
     } as const;
 
     for (const fighter of meowtalProductionManifest.sourceOnlyFighters) {

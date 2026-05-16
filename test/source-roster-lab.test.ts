@@ -20,6 +20,9 @@ describe("Pawbreaker source roster lab", () => {
       "pugilist-pug",
       "ferret-noodle",
       "tortoise-tofu",
+      "budgie-beanie",
+      "hamster-mochi",
+      "hedgehog-quillabelle",
     ]);
     for (const fighter of lab.sourceOnlyIdentityLocks) {
       expect(fighter.playable).toBe(false);
@@ -35,18 +38,9 @@ describe("Pawbreaker source roster lab", () => {
   it("marks ungenerated planned fighters as missing identity locks", () => {
     const lab = buildSourceRosterLab();
 
-    expect(lab.missingIdentityLocks.map((fighter) => fighter.id)).toEqual([
-      "budgie-beanie",
-      "hamster-mochi",
-      "hedgehog-quillabelle",
-    ]);
-    for (const fighter of lab.missingIdentityLocks) {
-      expect(fighter.playable).toBe(false);
-      expect(fighter.runtimeExposure).toBe("not playable");
-      expect(fighter.reviewStatus).toBe("missing identity lock");
-      expect(fighter.canonicalSheetPath).toBeNull();
-      expect(fighter.publicRuntimePath).toBeNull();
-    }
+    expect(lab.missingIdentityLocks).toEqual([]);
+    expect(lab.summary.sourceOnlyIdentityLocks).toBe(6);
+    expect(lab.summary.missingIdentityLocks).toBe(0);
   });
 
   it("keeps no-slop criteria focused on roster cohesion before runtime promotion", () => {
@@ -65,7 +59,7 @@ describe("Pawbreaker source roster lab", () => {
     const lab = buildSourceRosterLab();
     const html = renderSourceRosterLabHtml(lab);
     const outputJson = JSON.parse(
-      readFileSync(join(process.cwd(), "output/roster-lab/aaa-expansion-source-roster-lab.json"), "utf8"),
+      readFileSync(join(process.cwd(), "output/roster-lab/aaa-expansion-full-source-roster-lab.json"), "utf8"),
     );
 
     expect(outputJson.summary.totalFighters).toBe(8);
@@ -73,14 +67,23 @@ describe("Pawbreaker source roster lab", () => {
       "pugilist-pug",
       "ferret-noodle",
       "tortoise-tofu",
+      "budgie-beanie",
+      "hamster-mochi",
+      "hedgehog-quillabelle",
     ]);
     expect(html).toContain("Pickles Pugilist");
     expect(html).toContain("Noodle Nibbles");
     expect(html).toContain("Tofu Tortoise");
+    expect(html).toContain("Beanie Beak");
+    expect(html).toContain("Mochi Munch");
+    expect(html).toContain("Quillabelle Prickles");
     expect(html).toContain("source-only");
     expect(html).toContain("not playable");
     expect(html).not.toContain("/assets/generated/fighters/pugilist-pug");
     expect(html).not.toContain("/assets/generated/fighters/ferret-noodle");
     expect(html).not.toContain("/assets/generated/fighters/tortoise-tofu");
+    expect(html).not.toContain("/assets/generated/fighters/budgie-beanie");
+    expect(html).not.toContain("/assets/generated/fighters/hamster-mochi");
+    expect(html).not.toContain("/assets/generated/fighters/hedgehog-quillabelle");
   });
 });
