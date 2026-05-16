@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tofu Tortoise Animation Preflight</title>
+  <style>
+    body { margin: 0; font-family: Inter, system-ui, sans-serif; background: #f4f7f3; color: #151915; }
+    main { max-width: 1120px; margin: 0 auto; padding: 32px; }
+    h1 { font-size: 32px; margin: 0 0 8px; }
+    p { line-height: 1.5; }
+    table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #c8d8c4; }
+    th, td { padding: 10px 12px; border-bottom: 1px solid #dbe7d8; text-align: left; vertical-align: top; }
+    th { background: #24412f; color: #fff; }
+    .pill { display: inline-block; margin: 4px 8px 12px 0; border: 1px solid #b7c9ae; padding: 8px 10px; font-weight: 700; background: #fff; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Tofu Tortoise Animation Preflight</h1>
+  <p>This is the source-only production preflight for tortoise-tofu. It keeps row-generation blocked behind no-size-drift gates and does not expose the fighter as playable.</p>
+  <div>
+    <span class="pill">Status: source-only-preflight</span>
+    <span class="pill">Runtime exposure: not playable</span>
+    <span class="pill">Full AAA outcome: incomplete</span>
+  </div>
+  <h2>Required Rows</h2>
+  <table>
+    <thead><tr><th>Animation</th><th>Frames</th><th>Row brief</th><th>Motion language</th><th>Acceptance</th><th>Reject if</th></tr></thead>
+    <tbody>
+<tr>
+        <td>idle</td>
+        <td>8</td>
+        <td>Tofu Tortoise idle row-generation pass: Calm fighting stance with subtle breathing and grounded weight shift. Use only the approved canonical model sheet and preserve tortoise proportions, domed shell, squat limbs, calm face, gentle beak, shell plates, green/ochre palette, and heavy grappler stance.</td>
+        <td>patient shell-guard with calm blink, heavy feet planted, shell mass steady, gentle beak readable</td>
+        <td><ul><li>Matches the planned 8-frame timing and exact 256x256 cells.</li><li>Passes no-size-drift/no-drift review against Tofu model-sheet scale, domed shell mass, squat silhouette, calm face, gentle beak, shell plates, and sturdy limbs.</li><li>Contains transparent-background sprite frames only; no text, logo, watermark, frame number, loose effect, or UI element.</li><li>Reads as a natural fighting-game motion when scrubbed frame by frame, with no character resizing or identity mutation.</li></ul></td>
+        <td><ul><li>size drift, identity drift, warped anatomy, extra limbs, or changing face structure</li><li>generic mascot look, copied fighting-game costume language, or non-original special effect identity</li><li>cropped frame, unstable alpha bounds, baked impact effect, visible text, watermark, logo, or frame grid</li><li>motion that looks glitchy, floaty, mechanical, or inconsistent with a slow armored tortoise grappler</li></ul></td>
+      </tr>
+<tr>
+        <td>walk-forward</td>
+        <td>8</td>
+        <td>Tofu Tortoise walk-forward row-generation pass: Forward step cycle with guarded upper body and stable head height. Use only the approved canonical model sheet and preserve tortoise proportions, domed shell, squat limbs, calm face, gentle beak, shell plates, green/ochre palette, and heavy grappler stance.</td>
+        <td>slow armored steps forward, shell leading the weight, squat feet grounded, no body shrink</td>
+        <td><ul><li>Matches the planned 8-frame timing and exact 256x256 cells.</li><li>Passes no-size-drift/no-drift review against Tofu model-sheet scale, domed shell mass, squat silhouette, calm face, gentle beak, shell plates, and sturdy limbs.</li><li>Contains transparent-background sprite frames only; no text, logo, watermark, frame number, loose effect, or UI element.</li><li>Reads as a natural fighting-game motion when scrubbed frame by frame, with no character resizing or identity mutation.</li></ul></td>
+        <td><ul><li>size drift, identity drift, warped anatomy, extra limbs, or changing face structure</li><li>generic mascot look, copied fighting-game costume language, or non-original special effect identity</li><li>cropped frame, unstable alpha bounds, baked impact effect, visible text, watermark, logo, or frame grid</li><li>motion that looks glitchy, floaty, mechanical, or inconsistent with a slow armored tortoise grappler</li></ul></td>
+      </tr>
+<tr>
+        <td>walk-back</td>
+        <td>8</td>
+        <td>Tofu Tortoise walk-back row-generation pass: Backward step cycle with defensive posture and readable footwork. Use only the approved canonical model sheet and preserve tortoise proportions, domed shell, squat limbs, calm face, gentle beak, shell plates, green/ochre palette, and heavy grappler stance.</td>
+        <td>careful retreat with shell angled defensively, short limbs stable, head still calm</td>
+        <td><ul><li>Matches the planned 8-frame timing and exact 256x256 cells.</li><li>Passes no-size-drift/no-drift review against Tofu model-sheet scale, domed shell mass, squat silhouette, calm face, gentle beak, shell plates, and sturdy limbs.</li><li>Contains transparent-background sprite frames only; no text, logo, watermark, frame number, loose effect, or UI element.</li><li>Reads as a natural fighting-game motion when scrubbed frame by frame, with no character resizing or identity mutation.</li></ul></td>
+        <td><ul><li>size drift, identity drift, warped anatomy, extra limbs, or changing face structure</li><li>generic mascot look, copied fighting-game costume language, or non-original special effect identity</li><li>cropped frame, unstable alpha bounds, baked impact effect, visible text, watermark, logo, or frame grid</li><li>motion that looks glitchy, floaty, mechanical, or inconsistent with a slow armored tortoise grappler</li></ul></td>
+      </tr>
+<tr>
+        <td>crouch</td>
+        <td>4</td>
+        <td>Tofu Tortoise crouch row-generation pass: Low guarded crouch pose, compact silhouette, no floor shadow. Use only the approved canonical model sheet and preserve tortoise proportions, domed shell, squat limbs, calm face, gentle beak, shell plates, green/ochre palette, and heavy grappler stance.</td>
+        <td>low shell brace with head tucked but readable, limbs compressed without changing total mass</td>
+        <td><ul><li>Matches the planned 4-frame timing and exact 256x256 cells.</li><li>Passes no-size-drift/no-drift review against Tofu model-sheet scale, domed shell mass, squat silhouette, calm face, gentle beak, shell plates, and sturdy limbs.</li><li>Contains transparent-background sprite frames only; no text, logo, watermark, frame number, loose effect, or UI element.</li><li>Reads as a natural fighting-game motion when scrubbed frame by frame, with no character resizing or identity mutation.</li></ul></td>
+        <td><ul><li>size drift, identity drift, warped anatomy, extra limbs, or changing face structure</li><li>generic mascot look, copied fighting-game costume language, or non-original special effect identity</li><li>cropped frame, unstable alpha bounds, baked impact effect, visible text, watermark, logo, or frame grid</li><li>motion that looks glitchy, floaty, mechanical, or inconsistent with a slow armored tortoise grappler</li></ul></td>
+      </tr>
+<tr>
+        <td>jump</td>
+        <td>6</td>
+        <td>Tofu Tortoise jump row-generation pass: Vertical jump arc poses with tucked knees and controlled landing posture. Use only the approved canonical model sheet and preserve tortoise proportions, domed shell, squat limbs, calm face, gentle beak, shell plates, green/ochre palette, and heavy grappler stance.</td>
+        <td>tiny heavy hop with clear takeoff and landing, shell mass consistent, no floaty stretch</td>
+        <td><ul><li>Matches the planned 6-frame timing and exact 256x256 cells.</li><li>Passes no-size-drift/no-drift review against Tofu model-sheet scale, domed shell mass, squat silhouette, calm face, gentle beak, shell plates, and sturdy limbs.</li><li>Contains transparent-background sprite frames only; no text, logo, watermark, frame number, loose effect, or UI element.</li><li>Reads as a natural fighting-game motion when scrubbed frame by frame, with no character resizing or identity mutation.</li></ul></td>
+        <td><ul><li>size drift, identity drift, warped anatomy, extra limbs, or changing face structure</li><li>generic mascot look, copied fighting-game costume language, or non-original special effect identity</li><li>cropped frame, unstable alpha bounds, baked impact effect, visible text, watermark, logo, or frame grid</li><li>motion that looks glitchy, floaty, mechanical, or inconsistent with a slow armored tortoise grappler</li></ul></td>
+      </tr>
+<tr>
+        <td>light-punch</td>
+        <td>6</td>
+        <td>Tofu Tortoise light-punch row-generation pass: Fast jab with clear startup, active extension, and recovery frames. Use only the approved canonical model sheet and preserve tortoise proportions, domed shell, squat limbs, calm face, gentle beak, shell plates, green/ochre palette, and heavy grappler stance.</td>
+        <td>short elbow tap from a guarded shell stance, quick but heavy, no long arm mutation</td>
+        <td><ul><li>Matches the planned 6-frame timing and exact 256x256 cells.</li><li>Passes no-size-drift/no-drift review against Tofu model-sheet scale, domed shell mass, squat silhouette, calm face, gentle beak, shell plates, and sturdy limbs.</li><li>Contains transparent-background sprite frames only; no text, logo, watermark, frame number, loose effect, or UI element.</li><li>Reads as a natural fighting-game motion when scrubbed frame by frame, with no character resizing or identity mutation.</li></ul></td>
+        <td><ul><li>size drift, identity drift, warped anatomy, extra limbs, or changing face structure</li><li>generic mascot look, copied fighting-game costume language, or non-original special effect identity</li><li>cropped frame, unstable alpha bounds, baked impact effect, visible text, watermark, logo, or frame grid</li><li>motion that looks glitchy, floaty, mechanical, or inconsistent with a slow armored tortoise grappler</li></ul></td>
+      </tr>
+<tr>
+        <td>heavy-punch</td>
+        <td>8</td>
+        <td>Tofu Tortoise heavy-punch row-generation pass: Heavier committed punch with stronger shoulder rotation and recovery. Use only the approved canonical model sheet and preserve tortoise proportions, domed shell, squat limbs, calm face, gentle beak, shell plates, green/ochre palette, and heavy grappler stance.</td>
+        <td>slow shell-backed haymaker with committed torso turn, domed shell and beak intact</td>
+        <td><ul><li>Matches the planned 8-frame timing and exact 256x256 cells.</li><li>Passes no-size-drift/no-drift review against Tofu model-sheet scale, domed shell mass, squat silhouette, calm face, gentle beak, shell plates, and sturdy limbs.</li><li>Contains transparent-background sprite frames only; no text, logo, watermark, frame number, loose effect, or UI element.</li><li>Reads as a natural fighting-game motion when scrubbed frame by frame, with no character resizing or identity mutation.</li></ul></td>
+        <td><ul><li>size drift, identity drift, warped anatomy, extra limbs, or changing face structure</li><li>generic mascot look, copied fighting-game costume language, or non-original special effect identity</li><li>cropped frame, unstable alpha bounds, baked impact effect, visible text, watermark, logo, or frame grid</li><li>motion that looks glitchy, floaty, mechanical, or inconsistent with a slow armored tortoise grappler</li></ul></td>
+      </tr>
+<tr>
+        <td>light-kick</td>
+        <td>8</td>
+        <td>Tofu Tortoise light-kick row-generation pass: Quick low-to-mid kick with balanced stance and clean contact pose. Use only the approved canonical model sheet and preserve tortoise proportions, domed shell, squat limbs, calm face, gentle beak, shell plates, green/ochre palette, and heavy grappler stance.</td>
+        <td>stubby shin check from planted feet, sturdy balance, shell weight countering the leg</td>
+        <td><ul><li>Matches the planned 8-frame timing and exact 256x256 cells.</li><li>Passes no-size-drift/no-drift review against Tofu model-sheet scale, domed shell mass, squat silhouette, calm face, gentle beak, shell plates, and sturdy limbs.</li><li>Contains transparent-background sprite frames only; no text, logo, watermark, frame number, loose effect, or UI element.</li><li>Reads as a natural fighting-game motion when scrubbed frame by frame, with no character resizing or identity mutation.</li></ul></td>
+        <td><ul><li>size drift, identity drift, warped anatomy, extra limbs, or changing face structure</li><li>generic mascot look, copied fighting-game costume language, or non-original special effect identity</li><li>cropped frame, unstable alpha bounds, baked impact effect, visible text, watermark, logo, or frame grid</li><li>motion that looks glitchy, floaty, mechanical, or inconsistent with a slow armored tortoise grappler</li></ul></td>
+      </tr>
+<tr>
+        <td>special</td>
+        <td>10</td>
+        <td>Tofu Tortoise special row-generation pass: Signature character special strike pose without detached magical effects. Use only the approved canonical model sheet and preserve tortoise proportions, domed shell, squat limbs, calm face, gentle beak, shell plates, green/ochre palette, and heavy grappler stance.</td>
+        <td>armored shell receipt bump into command-grab pressure, grounded and original, no copied spin effect</td>
+        <td><ul><li>Matches the planned 10-frame timing and exact 256x256 cells.</li><li>Passes no-size-drift/no-drift review against Tofu model-sheet scale, domed shell mass, squat silhouette, calm face, gentle beak, shell plates, and sturdy limbs.</li><li>Contains transparent-background sprite frames only; no text, logo, watermark, frame number, loose effect, or UI element.</li><li>Reads as a natural fighting-game motion when scrubbed frame by frame, with no character resizing or identity mutation.</li></ul></td>
+        <td><ul><li>size drift, identity drift, warped anatomy, extra limbs, or changing face structure</li><li>generic mascot look, copied fighting-game costume language, or non-original special effect identity</li><li>cropped frame, unstable alpha bounds, baked impact effect, visible text, watermark, logo, or frame grid</li><li>motion that looks glitchy, floaty, mechanical, or inconsistent with a slow armored tortoise grappler</li></ul></td>
+      </tr>
+<tr>
+        <td>hitstun</td>
+        <td>5</td>
+        <td>Tofu Tortoise hitstun row-generation pass: Readable recoil poses from being hit, no loose impact symbols. Use only the approved canonical model sheet and preserve tortoise proportions, domed shell, squat limbs, calm face, gentle beak, shell plates, green/ochre palette, and heavy grappler stance.</td>
+        <td>sturdy recoil with shell absorbing the blow, calm face surprised but not redesigned</td>
+        <td><ul><li>Matches the planned 5-frame timing and exact 256x256 cells.</li><li>Passes no-size-drift/no-drift review against Tofu model-sheet scale, domed shell mass, squat silhouette, calm face, gentle beak, shell plates, and sturdy limbs.</li><li>Contains transparent-background sprite frames only; no text, logo, watermark, frame number, loose effect, or UI element.</li><li>Reads as a natural fighting-game motion when scrubbed frame by frame, with no character resizing or identity mutation.</li></ul></td>
+        <td><ul><li>size drift, identity drift, warped anatomy, extra limbs, or changing face structure</li><li>generic mascot look, copied fighting-game costume language, or non-original special effect identity</li><li>cropped frame, unstable alpha bounds, baked impact effect, visible text, watermark, logo, or frame grid</li><li>motion that looks glitchy, floaty, mechanical, or inconsistent with a slow armored tortoise grappler</li></ul></td>
+      </tr>
+<tr>
+        <td>blockstun</td>
+        <td>5</td>
+        <td>Tofu Tortoise blockstun row-generation pass: Guard impact recoil with arms raised, no detached sparks or text. Use only the approved canonical model sheet and preserve tortoise proportions, domed shell, squat limbs, calm face, gentle beak, shell plates, green/ochre palette, and heavy grappler stance.</td>
+        <td>shell-brace guard reaction with elbows tucked, stable silhouette, no baked spark</td>
+        <td><ul><li>Matches the planned 5-frame timing and exact 256x256 cells.</li><li>Passes no-size-drift/no-drift review against Tofu model-sheet scale, domed shell mass, squat silhouette, calm face, gentle beak, shell plates, and sturdy limbs.</li><li>Contains transparent-background sprite frames only; no text, logo, watermark, frame number, loose effect, or UI element.</li><li>Reads as a natural fighting-game motion when scrubbed frame by frame, with no character resizing or identity mutation.</li></ul></td>
+        <td><ul><li>size drift, identity drift, warped anatomy, extra limbs, or changing face structure</li><li>generic mascot look, copied fighting-game costume language, or non-original special effect identity</li><li>cropped frame, unstable alpha bounds, baked impact effect, visible text, watermark, logo, or frame grid</li><li>motion that looks glitchy, floaty, mechanical, or inconsistent with a slow armored tortoise grappler</li></ul></td>
+      </tr>
+<tr>
+        <td>knockdown</td>
+        <td>8</td>
+        <td>Tofu Tortoise knockdown row-generation pass: Fall and grounded recovery poses kept inside frame bounds. Use only the approved canonical model sheet and preserve tortoise proportions, domed shell, squat limbs, calm face, gentle beak, shell plates, green/ochre palette, and heavy grappler stance.</td>
+        <td>heavy topple and safe grounded recovery inside frame bounds, shell still full-size</td>
+        <td><ul><li>Matches the planned 8-frame timing and exact 256x256 cells.</li><li>Passes no-size-drift/no-drift review against Tofu model-sheet scale, domed shell mass, squat silhouette, calm face, gentle beak, shell plates, and sturdy limbs.</li><li>Contains transparent-background sprite frames only; no text, logo, watermark, frame number, loose effect, or UI element.</li><li>Reads as a natural fighting-game motion when scrubbed frame by frame, with no character resizing or identity mutation.</li></ul></td>
+        <td><ul><li>size drift, identity drift, warped anatomy, extra limbs, or changing face structure</li><li>generic mascot look, copied fighting-game costume language, or non-original special effect identity</li><li>cropped frame, unstable alpha bounds, baked impact effect, visible text, watermark, logo, or frame grid</li><li>motion that looks glitchy, floaty, mechanical, or inconsistent with a slow armored tortoise grappler</li></ul></td>
+      </tr>
+<tr>
+        <td>win</td>
+        <td>8</td>
+        <td>Tofu Tortoise win row-generation pass: Respectful victory stance with controlled celebratory motion. Use only the approved canonical model sheet and preserve tortoise proportions, domed shell, squat limbs, calm face, gentle beak, shell plates, green/ochre palette, and heavy grappler stance.</td>
+        <td>slow proud elbow drop pose and peaceful nod, readable shell plates, no text prop</td>
+        <td><ul><li>Matches the planned 8-frame timing and exact 256x256 cells.</li><li>Passes no-size-drift/no-drift review against Tofu model-sheet scale, domed shell mass, squat silhouette, calm face, gentle beak, shell plates, and sturdy limbs.</li><li>Contains transparent-background sprite frames only; no text, logo, watermark, frame number, loose effect, or UI element.</li><li>Reads as a natural fighting-game motion when scrubbed frame by frame, with no character resizing or identity mutation.</li></ul></td>
+        <td><ul><li>size drift, identity drift, warped anatomy, extra limbs, or changing face structure</li><li>generic mascot look, copied fighting-game costume language, or non-original special effect identity</li><li>cropped frame, unstable alpha bounds, baked impact effect, visible text, watermark, logo, or frame grid</li><li>motion that looks glitchy, floaty, mechanical, or inconsistent with a slow armored tortoise grappler</li></ul></td>
+      </tr>
+<tr>
+        <td>lose</td>
+        <td>6</td>
+        <td>Tofu Tortoise lose row-generation pass: Defeated idle pose, readable and non-comedic. Use only the approved canonical model sheet and preserve tortoise proportions, domed shell, squat limbs, calm face, gentle beak, shell plates, green/ochre palette, and heavy grappler stance.</td>
+        <td>sleepy shell slump, stylized and funny, not melted or off-model</td>
+        <td><ul><li>Matches the planned 6-frame timing and exact 256x256 cells.</li><li>Passes no-size-drift/no-drift review against Tofu model-sheet scale, domed shell mass, squat silhouette, calm face, gentle beak, shell plates, and sturdy limbs.</li><li>Contains transparent-background sprite frames only; no text, logo, watermark, frame number, loose effect, or UI element.</li><li>Reads as a natural fighting-game motion when scrubbed frame by frame, with no character resizing or identity mutation.</li></ul></td>
+        <td><ul><li>size drift, identity drift, warped anatomy, extra limbs, or changing face structure</li><li>generic mascot look, copied fighting-game costume language, or non-original special effect identity</li><li>cropped frame, unstable alpha bounds, baked impact effect, visible text, watermark, logo, or frame grid</li><li>motion that looks glitchy, floaty, mechanical, or inconsistent with a slow armored tortoise grappler</li></ul></td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>No-Drift QA Gates</h2>
+  <ul><li><strong>Scale and shell-mass no-size-drift</strong>: Tofu changes character size between frames or rows. The shell becomes a generic backpack, a different tortoise species, a human armored wrestler, or an unrelated creature.</li>
+<li><strong>Transparent sprite bounds</strong>: A frame is cropped, clipped, floating outside its 256x256 cell, or has baked effects that belong in the game effects layer. The row needs hand-waved cleanup before it can pass tests.</li>
+<li><strong>Tofu identity lock</strong>: The face, beak, shell mass, shell plates, limbs, palette, or gentle armored-grappler silhouette mutate between frames. The row borrows recognizable costume, move, logo, title, or UI language from a reference fighting game.</li>
+<li><strong>Frame dimensions and row structure</strong>: Any row uses inconsistent dimensions, missing frames, variable cell sizes, or an unreviewed frame order. The motion reads as glitchy, jittery, resized, or mechanically unnatural when scrubbed frame by frame.</li>
+<li><strong>Source and runtime provenance</strong>: A row lacks a source record, reviewer decision, or future runtime destination. Tofu source rows are copied into public runtime assets, exposed as selectable, or allowed to fall back to procedural rendering.</li></ul>
+</main>
+</body>
+</html>

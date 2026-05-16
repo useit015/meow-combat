@@ -81,6 +81,7 @@ function requireManifest(fighterId: string) {
 
 const picklesManifest = requireManifest("pugilist-pug");
 const noodleManifest = requireManifest("ferret-noodle");
+const tofuManifest = requireManifest("tortoise-tofu");
 
 const picklesRowProfile: FighterRowProfile = {
   displayName: "Pickles Pugilist",
@@ -98,6 +99,15 @@ const noodleRowProfile: FighterRowProfile = {
   noDriftTarget: "Noodle model-sheet scale, long-body silhouette, palette, face, ringed tail, sock props, and short legs",
   rejectionMotion: "a slinky ferret mix-up fighter",
   motionLanguageFor: noodleMotionLanguageFor,
+};
+
+const tofuRowProfile: FighterRowProfile = {
+  displayName: "Tofu Tortoise",
+  identityRequirements:
+    "preserve tortoise proportions, domed shell, squat limbs, calm face, gentle beak, shell plates, green/ochre palette, and heavy grappler stance",
+  noDriftTarget: "Tofu model-sheet scale, domed shell mass, squat silhouette, calm face, gentle beak, shell plates, and sturdy limbs",
+  rejectionMotion: "a slow armored tortoise grappler",
+  motionLanguageFor: tofuMotionLanguageFor,
 };
 
 export const PICKLES_ANIMATION_PREFLIGHT: FighterAnimationPreflight = {
@@ -341,12 +351,139 @@ export const NOODLE_ANIMATION_PREFLIGHT: FighterAnimationPreflight = {
   ],
 };
 
+export const TOFU_ANIMATION_PREFLIGHT: FighterAnimationPreflight = {
+  id: "tofu-tortoise-animation-preflight",
+  fighterId: "tortoise-tofu",
+  displayName: "Tofu Tortoise",
+  sourceOnly: true,
+  playable: false,
+  status: "source-only-preflight",
+  runtimeExposure: "not playable",
+  fullOutcome: "incomplete",
+  canonicalReferencePath: tofuManifest.canonicalReference.outputPath ?? "",
+  publicRuntimePath: null,
+  rowGenerationStrategy: [
+    "Use the approved Tofu Tortoise canonical model sheet as the only identity source before any row-generation pass.",
+    "Generate no animation rows until this preflight is reviewed; the first approved row must become the future scale reference before locomotion, attacks, reactions, or outcome rows proceed.",
+    "Keep Tofu upright, squat, shell-heavy, gentle-faced, short-limbed, and readable as a slow armored grappler in every normal gameplay row.",
+    "Every future row must keep exact 256x256 cells, transparent frames, stable alpha bounds, and no-size-drift evidence against the accepted idle/reference row.",
+    "Represent heavy movement through pose, squash, dust-free timing, and grounded shell weight; do not shrink the body or hide mass changes inside the shell.",
+    "Keep all candidates, QA notes, and accepted rows source-only until a separate complete source-set audit and runtime promotion task approves public assets.",
+  ],
+  requiredRows: REQUIRED_FIGHTER_ANIMATIONS.map((animationId) => rowPreflight(animationId, tofuManifest, tofuRowProfile)),
+  noDriftQaGates: [
+    {
+      id: "shell-mass-scale-bounds",
+      label: "Scale and shell-mass no-size-drift",
+      requiredEvidence: [
+        "The first accepted idle row becomes the Tofu scale reference for locomotion, attack, reaction, and K.O. rows.",
+        "Domed shell height, shell width, head size, beak shape, squat-limb length, foot footprint, and elbow-pad scale remain stable across frames and rows.",
+      ],
+      failIf: [
+        "Tofu changes character size between frames or rows.",
+        "The shell becomes a generic backpack, a different tortoise species, a human armored wrestler, or an unrelated creature.",
+      ],
+    },
+    {
+      id: "alpha-bounds",
+      label: "Transparent sprite bounds",
+      requiredEvidence: [
+        "Every future frame has an alpha channel and stable non-transparent bounds.",
+        "No detached dust, speed lines, shadows, hit sparks, text, frame numbers, grids, or UI artifacts are baked into a row.",
+      ],
+      failIf: [
+        "A frame is cropped, clipped, floating outside its 256x256 cell, or has baked effects that belong in the game effects layer.",
+        "The row needs hand-waved cleanup before it can pass tests.",
+      ],
+    },
+    {
+      id: "identity-traits",
+      label: "Tofu identity lock",
+      requiredEvidence: [
+        "Domed shell, squat sturdy stance, calm face, gentle beak, shell plates, short limbs, green/ochre palette, and command-grab readability survive every row.",
+        "Any shell chips, bandage wraps, plate markings, or elbow-pad scuffs are tracked as intentional source notes, not accidental frame drift.",
+      ],
+      failIf: [
+        "The face, beak, shell mass, shell plates, limbs, palette, or gentle armored-grappler silhouette mutate between frames.",
+        "The row borrows recognizable costume, move, logo, title, or UI language from a reference fighting game.",
+      ],
+    },
+    {
+      id: "frame-dimensions",
+      label: "Frame dimensions and row structure",
+      requiredEvidence: [
+        "Each accepted row has the planned frame count and exact 256x256 cell dimensions.",
+        "Spritesheet width equals frameCount * 256 and spritesheet height equals 256.",
+      ],
+      failIf: [
+        "Any row uses inconsistent dimensions, missing frames, variable cell sizes, or an unreviewed frame order.",
+        "The motion reads as glitchy, jittery, resized, or mechanically unnatural when scrubbed frame by frame.",
+      ],
+    },
+    {
+      id: "provenance",
+      label: "Source and runtime provenance",
+      requiredEvidence: [
+        "Source prompt, canonical-reference path, candidate path, QA decision, accepted source path, and future runtime path are recorded before promotion.",
+        "Manifest entries remain blocked until generation, QA, source-set audit, and a separate runtime promotion receipt explicitly promote each row.",
+      ],
+      failIf: [
+        "A row lacks a source record, reviewer decision, or future runtime destination.",
+        "Tofu source rows are copied into public runtime assets, exposed as selectable, or allowed to fall back to procedural rendering.",
+      ],
+    },
+  ],
+  runtimePromotionTests: [
+    {
+      id: "preflight-unit",
+      command: "npm test -- test/fighter-animation-preflight.test.ts",
+      proves: "The Tofu source-only preflight covers every required row while keeping the fighter not playable.",
+    },
+    {
+      id: "asset-pipeline-source-only",
+      command: "npm test -- test/asset-pipeline.test.ts test/meowtal-production-manifest.test.ts",
+      proves: "The planned manifest and production manifest keep Tofu source-only with blocked animation rows.",
+    },
+    {
+      id: "public-path-block",
+      command: "test ! -e public/assets/generated/fighters/tortoise-tofu",
+      proves: "No public/runtime tortoise-tofu folder exists during preflight.",
+    },
+    {
+      id: "future-smoke",
+      command:
+        "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/tofu-runtime-promotion",
+      proves: "Only a future runtime promotion may prove browser gameplay, roster state, sprite loading, and no fallback rows for Tofu.",
+    },
+  ],
+  browserSmokeRequirements: [
+    {
+      id: "current-roster-unchanged",
+      expectedEvidence: "Current smoke must show Tofu Tortoise is not selectable and remains outside the runtime roster.",
+    },
+    {
+      id: "public-runtime-absent",
+      expectedEvidence:
+        "Preflight evidence must show tortoise-tofu remains absent from public runtime fighter assets.",
+    },
+    {
+      id: "future-no-fallback-rows",
+      expectedEvidence:
+        "Future promotion smoke must show approved Tofu sprite rows, exact 256x256 cells, and no procedural or missing-output fallback.",
+    },
+  ],
+};
+
 export function buildPicklesAnimationPreflight(): FighterAnimationPreflight {
   return PICKLES_ANIMATION_PREFLIGHT;
 }
 
 export function buildNoodleAnimationPreflight(): FighterAnimationPreflight {
   return NOODLE_ANIMATION_PREFLIGHT;
+}
+
+export function buildTofuAnimationPreflight(): FighterAnimationPreflight {
+  return TOFU_ANIMATION_PREFLIGHT;
 }
 
 export function validateFighterAnimationPreflight(plan: FighterAnimationPreflight): readonly string[] {
@@ -471,6 +608,10 @@ export function renderNoodleAnimationPreflightHtml(plan: FighterAnimationPreflig
   return renderAnimationPreflightHtml(plan);
 }
 
+export function renderTofuAnimationPreflightHtml(plan: FighterAnimationPreflight = TOFU_ANIMATION_PREFLIGHT): string {
+  return renderAnimationPreflightHtml(plan);
+}
+
 function rowPreflight(
   animationId: FighterAnimationId,
   manifest: { animations: readonly FighterAnimationSpec[] },
@@ -567,6 +708,39 @@ function noodleMotionLanguageFor(animationId: FighterAnimationId): string {
       return "sly sock-trophy flourish, readable grin, no text prop";
     case "lose":
       return "dramatic sock-pile slump, stylized and funny, not melted or off-model";
+  }
+}
+
+function tofuMotionLanguageFor(animationId: FighterAnimationId): string {
+  switch (animationId) {
+    case "idle":
+      return "patient shell-guard with calm blink, heavy feet planted, shell mass steady, gentle beak readable";
+    case "walk-forward":
+      return "slow armored steps forward, shell leading the weight, squat feet grounded, no body shrink";
+    case "walk-back":
+      return "careful retreat with shell angled defensively, short limbs stable, head still calm";
+    case "crouch":
+      return "low shell brace with head tucked but readable, limbs compressed without changing total mass";
+    case "jump":
+      return "tiny heavy hop with clear takeoff and landing, shell mass consistent, no floaty stretch";
+    case "light-punch":
+      return "short elbow tap from a guarded shell stance, quick but heavy, no long arm mutation";
+    case "heavy-punch":
+      return "slow shell-backed haymaker with committed torso turn, domed shell and beak intact";
+    case "light-kick":
+      return "stubby shin check from planted feet, sturdy balance, shell weight countering the leg";
+    case "special":
+      return "armored shell receipt bump into command-grab pressure, grounded and original, no copied spin effect";
+    case "hitstun":
+      return "sturdy recoil with shell absorbing the blow, calm face surprised but not redesigned";
+    case "blockstun":
+      return "shell-brace guard reaction with elbows tucked, stable silhouette, no baked spark";
+    case "knockdown":
+      return "heavy topple and safe grounded recovery inside frame bounds, shell still full-size";
+    case "win":
+      return "slow proud elbow drop pose and peaceful nod, readable shell plates, no text prop";
+    case "lose":
+      return "sleepy shell slump, stylized and funny, not melted or off-model";
   }
 }
 

@@ -7,10 +7,12 @@ import {
   REQUIRED_FIGHTER_ANIMATIONS,
   buildNoodleAnimationPreflight,
   buildPicklesAnimationPreflight,
+  buildTofuAnimationPreflight,
   pawbreakerPlannedFighterAssetManifests,
   renderNoodleAnimationPreflightHtml,
   meowtalFighterAssetManifests,
   renderPicklesAnimationPreflightHtml,
+  renderTofuAnimationPreflightHtml,
   validateFighterAnimationPreflight,
 } from "../src/assets";
 import { meowtalKombatConfig } from "../src/game/gameConfig";
@@ -475,6 +477,108 @@ describe("Noodle Nibbles animation preflight", () => {
     expect(blockstunBounds.every((frame) => frame.height >= 200 && frame.height <= 240)).toBe(true);
     expect(blockstunBounds.every((frame) => frame.opaquePixels >= 18_000)).toBe(true);
     expect(existsSync(join(process.cwd(), "public/assets/generated/fighters/ferret-noodle"))).toBe(true);
+  });
+});
+
+describe("Tofu Tortoise animation preflight", () => {
+  it("records Tofu as source-only and not playable before row production", () => {
+    const plan = buildTofuAnimationPreflight();
+
+    expect(plan).toMatchObject({
+      fighterId: "tortoise-tofu",
+      displayName: "Tofu Tortoise",
+      sourceOnly: true,
+      playable: false,
+      runtimeExposure: "not playable",
+      status: "source-only-preflight",
+      fullOutcome: "incomplete",
+      publicRuntimePath: null,
+    });
+    expect(plan.canonicalReferencePath).toBe("assets/source/imagegen/fighters/tortoise-tofu/canonical-character-sheet.png");
+    expect(existsSync(join(process.cwd(), plan.canonicalReferencePath))).toBe(true);
+    expect(existsSync(join(process.cwd(), "public/assets/generated/fighters/tortoise-tofu"))).toBe(false);
+    expect(meowtalKombatConfig.roster.map((fighter) => fighter.id)).not.toContain("tortoise-tofu");
+    expect(meowtalFighterAssetManifests.map((fighter) => fighter.id)).not.toContain("tortoise-tofu");
+    expect(pawbreakerPlannedFighterAssetManifests.map((fighter) => fighter.id)).toContain("tortoise-tofu");
+  });
+
+  it("covers every required Tofu row with source-only no-size-drift gates", () => {
+    const plan = buildTofuAnimationPreflight();
+    const errors = validateFighterAnimationPreflight(plan);
+
+    expect(errors).toEqual([]);
+    expect(plan.requiredRows.map((row) => row.animationId)).toEqual(REQUIRED_FIGHTER_ANIMATIONS);
+    for (const row of plan.requiredRows) {
+      expect(row.cellSize).toEqual(DEFAULT_FIGHTER_CELL_SIZE);
+      expect(row.facing).toBe("right");
+      expect(row.rowGenerationBrief).toContain("Tofu Tortoise");
+      expect(row.rowGenerationBrief).toContain("row-generation");
+      expect(row.rowGenerationBrief).toContain("domed shell");
+      expect(row.acceptanceCriteria.join(" ")).toContain("no-size-drift");
+      expect(row.acceptanceCriteria.join(" ")).toContain("no-drift");
+      expect(row.acceptanceCriteria.join(" ")).toContain("transparent-background");
+      expect(row.rejectionTriggers.join(" ")).toContain("size drift");
+      expect(row.rejectionTriggers.join(" ")).toContain("identity drift");
+    }
+
+    const gateText = plan.noDriftQaGates.map((gate) => `${gate.id} ${gate.label} ${gate.requiredEvidence.join(" ")} ${gate.failIf.join(" ")}`).join(" ");
+    const promotionCommands = plan.runtimePromotionTests.map((test) => test.command).join(" ");
+    const smokeText = plan.browserSmokeRequirements.map((requirement) => requirement.expectedEvidence).join(" ");
+
+    expect(gateText).toContain("shell-mass");
+    expect(gateText).toContain("alpha-bounds");
+    expect(gateText).toContain("identity-traits");
+    expect(gateText).toContain("256x256");
+    expect(gateText).toContain("provenance");
+    expect(promotionCommands).toContain("test ! -e public/assets/generated/fighters/tortoise-tofu");
+    expect(promotionCommands).toContain("smoke:meowtal");
+    expect(smokeText).toContain("not selectable");
+    expect(smokeText).toContain("tortoise-tofu remains absent");
+    expect(smokeText).toContain("no procedural or missing-output fallback");
+  });
+
+  it("renders source-only review artifacts without claiming runtime readiness", () => {
+    const plan = buildTofuAnimationPreflight();
+    const html = renderTofuAnimationPreflightHtml(plan);
+    const outputJson = JSON.parse(
+      readFileSync(join(process.cwd(), "output/animation-preflight/tofu-tortoise-animation-preflight.json"), "utf8"),
+    ) as typeof plan;
+    const outputHtml = readFileSync(
+      join(process.cwd(), "output/animation-preflight/tofu-tortoise-animation-preflight.html"),
+      "utf8",
+    );
+
+    expect(outputJson.fighterId).toBe("tortoise-tofu");
+    expect(outputJson.sourceOnly).toBe(true);
+    expect(outputJson.playable).toBe(false);
+    expect(outputJson.publicRuntimePath).toBeNull();
+    expect(outputJson.requiredRows.map((row) => row.animationId)).toEqual(REQUIRED_FIGHTER_ANIMATIONS);
+    expect(outputJson.requiredRows).toEqual(plan.requiredRows);
+    expect(outputJson.noDriftQaGates).toEqual(plan.noDriftQaGates);
+    expect(outputJson.runtimePromotionTests).toEqual(plan.runtimePromotionTests);
+    expect(outputJson.browserSmokeRequirements).toEqual(plan.browserSmokeRequirements);
+
+    const idleRow = plan.requiredRows.find((row) => row.animationId === "idle");
+    expect(idleRow).toBeDefined();
+    expect(idleRow?.rowGenerationBrief).toContain("Tofu Tortoise idle row-generation pass");
+    expect(idleRow?.motionLanguage).toContain("patient shell-guard");
+    expect(idleRow?.acceptanceCriteria.join(" ")).toContain("no-size-drift/no-drift");
+    expect(idleRow?.rejectionTriggers.join(" ")).toContain("size drift");
+
+    expect(html).toContain("Tofu Tortoise");
+    expect(html).toContain("source-only production preflight");
+    expect(html).toContain("not playable");
+    expect(html).toContain("no-size-drift");
+    expect(html).toContain("Tofu Tortoise idle row-generation pass");
+    expect(html).toContain("patient shell-guard");
+    expect(html).toContain("Reject if");
+    expect(html).not.toContain("<script");
+    expect(outputHtml).toContain("Tofu Tortoise");
+    expect(outputHtml).toContain("source-only production preflight");
+    expect(outputHtml).toContain("Tofu Tortoise idle row-generation pass");
+    expect(outputHtml).toContain("patient shell-guard");
+    expect(outputHtml).toContain("Reject if");
+    expect(outputHtml).toContain("size drift, identity drift");
   });
 });
 
