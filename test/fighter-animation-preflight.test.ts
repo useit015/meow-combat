@@ -594,6 +594,31 @@ describe("Tofu Tortoise animation preflight", () => {
     expect(average(opaquePixels)).toBeGreaterThanOrEqual(27_000);
     expect(existsSync(join(process.cwd(), "public/assets/generated/fighters/tortoise-tofu"))).toBe(false);
   });
+
+  it("keeps generated Tofu locomotion rows source-only against the idle baseline", () => {
+    const idleBounds = alphaBoundsByFrame("assets/source/imagegen/fighters/tortoise-tofu/idle.png", 8);
+    const rows = [
+      alphaBoundsByFrame("assets/source/imagegen/fighters/tortoise-tofu/walk-forward.png", 8),
+      alphaBoundsByFrame("assets/source/imagegen/fighters/tortoise-tofu/walk-back.png", 8),
+    ];
+    const idleAverageHeight = average(idleBounds.map((frame) => frame.height));
+
+    for (const bounds of rows) {
+      const widths = bounds.map((frame) => frame.width);
+      const heights = bounds.map((frame) => frame.height);
+      const opaquePixels = bounds.map((frame) => frame.opaquePixels);
+
+      expect(widths.every((width) => width >= 150 && width <= 170)).toBe(true);
+      expect(heights.every((height) => height >= 214 && height <= 224)).toBe(true);
+      expect(Math.max(...heights) - Math.min(...heights)).toBeLessThanOrEqual(10);
+      expect(Math.max(...widths) - Math.min(...widths)).toBeLessThanOrEqual(14);
+      expect(average(heights)).toBeGreaterThanOrEqual(idleAverageHeight - 16);
+      expect(average(heights)).toBeLessThanOrEqual(idleAverageHeight);
+      expect(average(opaquePixels)).toBeGreaterThanOrEqual(22_000);
+    }
+
+    expect(existsSync(join(process.cwd(), "public/assets/generated/fighters/tortoise-tofu"))).toBe(false);
+  });
 });
 
 function alphaBoundsByFrame(relativePath: string, frameCount: number) {

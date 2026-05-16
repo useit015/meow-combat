@@ -118,10 +118,13 @@ describe("fighter asset manifests", () => {
       expect(validateFighterManifest(manifest)).toEqual({ ok: true, errors: [] });
       expect(manifest.animations).toHaveLength(REQUIRED_FIGHTER_ANIMATIONS.length);
       for (const animation of manifest.animations) {
-        if (manifest.id === "tortoise-tofu" && animation.id === "idle") {
+        if (
+          manifest.id === "tortoise-tofu" &&
+          (animation.id === "idle" || animation.id === "walk-forward" || animation.id === "walk-back")
+        ) {
           expect(animation.source).toMatchObject({
             status: "generated",
-            outputPath: "assets/source/imagegen/fighters/tortoise-tofu/idle.png",
+            outputPath: `assets/source/imagegen/fighters/tortoise-tofu/${animation.id}.png`,
           });
           continue;
         }

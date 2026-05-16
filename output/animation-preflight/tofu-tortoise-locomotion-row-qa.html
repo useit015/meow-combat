@@ -1,0 +1,16 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Tofu Tortoise Locomotion Row QA</title><style>body{font-family:Inter,system-ui,sans-serif;margin:32px;line-height:1.5;color:#151915}table{border-collapse:collapse;width:100%;margin-top:16px}th,td{border:1px solid #c8d8c4;padding:8px 10px;text-align:left}th{background:#24412f;color:white}.pass{font-weight:700;color:#166534}</style></head><body><main><h1>Tofu Tortoise Locomotion Row QA</h1><p class="pass">Verdict: accepted source-only walk-forward and walk-back rows. Tofu remains not playable.</p><p>Idle baseline: assets/source/imagegen/fighters/tortoise-tofu/idle.png</p><p>Accepted sources: assets/source/imagegen/fighters/tortoise-tofu/walk-forward.png; assets/source/imagegen/fighters/tortoise-tofu/walk-back.png</p><h2>Frame Bounds</h2><table><thead><tr><th>Row</th><th>Frame</th><th>Alpha bounds</th><th>Opaque pixels</th><th>Visible green spill pixels</th></tr></thead><tbody><tr><td>walk-forward</td><td>1</td><td>154x222</td><td>25103</td><td>0</td></tr>
+<tr><td>walk-forward</td><td>2</td><td>165x221</td><td>25247</td><td>0</td></tr>
+<tr><td>walk-forward</td><td>3</td><td>154x222</td><td>25237</td><td>0</td></tr>
+<tr><td>walk-forward</td><td>4</td><td>157x222</td><td>25422</td><td>0</td></tr>
+<tr><td>walk-forward</td><td>5</td><td>154x221</td><td>25279</td><td>0</td></tr>
+<tr><td>walk-forward</td><td>6</td><td>167x221</td><td>25331</td><td>0</td></tr>
+<tr><td>walk-forward</td><td>7</td><td>154x223</td><td>24398</td><td>0</td></tr>
+<tr><td>walk-forward</td><td>8</td><td>155x221</td><td>25327</td><td>0</td></tr>
+<tr><td>walk-back</td><td>1</td><td>153x217</td><td>24272</td><td>0</td></tr>
+<tr><td>walk-back</td><td>2</td><td>160x218</td><td>24330</td><td>0</td></tr>
+<tr><td>walk-back</td><td>3</td><td>160x214</td><td>24443</td><td>0</td></tr>
+<tr><td>walk-back</td><td>4</td><td>159x219</td><td>23063</td><td>0</td></tr>
+<tr><td>walk-back</td><td>5</td><td>158x218</td><td>24180</td><td>0</td></tr>
+<tr><td>walk-back</td><td>6</td><td>159x218</td><td>24566</td><td>0</td></tr>
+<tr><td>walk-back</td><td>7</td><td>157x216</td><td>22617</td><td>0</td></tr>
+<tr><td>walk-back</td><td>8</td><td>156x214</td><td>23821</td><td>0</td></tr></tbody></table><h2>Checks</h2><ul><li><strong>frame-dimensions</strong>: pass - Both accepted source rows and normalized proofs are exact 2048x256 alpha PNGs with eight 256x256 cells.</li><li><strong>identity-lock</strong>: pass - Both rows preserve Tofu shell mass, small head, warm face, spiral shell markings, cream belly plates, belt pouch, squat legs, and guarded arms.</li><li><strong>idle-baseline-lock</strong>: pass - Walk rows stay within the accepted lower-body motion range against the T101 idle baseline; no frame exceeds 170px width or drops below 214px alpha height.</li><li><strong>alpha-cleanup</strong>: pass - Visible green spill pixels are zero in every accepted frame.</li><li><strong>source-only</strong>: pass - public/assets/generated/fighters/tortoise-tofu exists: false. Tofu remains absent from runtime public assets.</li></ul></main></body></html>

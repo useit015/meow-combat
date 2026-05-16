@@ -1,0 +1,304 @@
+{
+  "id": "tofu-tortoise-locomotion-row-qa",
+  "fighterId": "tortoise-tofu",
+  "displayName": "Tofu Tortoise",
+  "animationIds": [
+    "walk-forward",
+    "walk-back"
+  ],
+  "result": "accepted",
+  "runtimeExposure": "source-only / not playable",
+  "generatedWith": "built-in Codex imagegen",
+  "sourceContract": {
+    "frameCount": 8,
+    "cellSize": {
+      "width": 256,
+      "height": 256
+    },
+    "expectedDimensions": {
+      "width": 2048,
+      "height": 256
+    },
+    "idleBaselinePath": "assets/source/imagegen/fighters/tortoise-tofu/idle.png",
+    "motionLanguage": "grounded shell-heavy shuffle, small foot steps, guard held high, stable shell mass and head height"
+  },
+  "rows": {
+    "walk-forward": {
+      "animationId": "walk-forward",
+      "assets": {
+        "candidate": {
+          "path": "assets/source/imagegen/fighters/tortoise-tofu/candidates/walk-forward-codex-01.png",
+          "sha256": "566db378e16212399dc122fffaba8ab4cadea0ffef1b7a2b91c295c1d99d2349",
+          "dimensions": {
+            "width": 2172,
+            "height": 724,
+            "hasAlpha": false
+          }
+        },
+        "normalizationInput": {
+          "path": "output/imagegen/tortoise-tofu-walk-forward.png",
+          "sha256": "984b2134af4374cd572f1ac2d9deb3ac20c770a726ec696f9911a020231e5b09",
+          "dimensions": {
+            "width": 2172,
+            "height": 724,
+            "hasAlpha": true
+          }
+        },
+        "normalized": {
+          "path": "output/imagegen/tortoise-tofu-walk-forward-normalized.png",
+          "sha256": "5bdc274115a56bf84706d09b7dd1aa3da2b35e79b4d53691441c4eea64acf147",
+          "dimensions": {
+            "width": 2048,
+            "height": 256,
+            "hasAlpha": true
+          }
+        },
+        "acceptedSource": {
+          "path": "assets/source/imagegen/fighters/tortoise-tofu/walk-forward.png",
+          "sha256": "5bdc274115a56bf84706d09b7dd1aa3da2b35e79b4d53691441c4eea64acf147",
+          "dimensions": {
+            "width": 2048,
+            "height": 256,
+            "hasAlpha": true
+          }
+        }
+      },
+      "frameBounds": [
+        {
+          "frame": 1,
+          "width": 154,
+          "height": 222,
+          "opaquePixels": 25103,
+          "greenSpillPixels": 0
+        },
+        {
+          "frame": 2,
+          "width": 165,
+          "height": 221,
+          "opaquePixels": 25247,
+          "greenSpillPixels": 0
+        },
+        {
+          "frame": 3,
+          "width": 154,
+          "height": 222,
+          "opaquePixels": 25237,
+          "greenSpillPixels": 0
+        },
+        {
+          "frame": 4,
+          "width": 157,
+          "height": 222,
+          "opaquePixels": 25422,
+          "greenSpillPixels": 0
+        },
+        {
+          "frame": 5,
+          "width": 154,
+          "height": 221,
+          "opaquePixels": 25279,
+          "greenSpillPixels": 0
+        },
+        {
+          "frame": 6,
+          "width": 167,
+          "height": 221,
+          "opaquePixels": 25331,
+          "greenSpillPixels": 0
+        },
+        {
+          "frame": 7,
+          "width": 154,
+          "height": 223,
+          "opaquePixels": 24398,
+          "greenSpillPixels": 0
+        },
+        {
+          "frame": 8,
+          "width": 155,
+          "height": 221,
+          "opaquePixels": 25327,
+          "greenSpillPixels": 0
+        }
+      ],
+      "baselineComparison": {
+        "idleAverageHeight": 230,
+        "averageHeight": 221.625,
+        "averageOpaquePixels": 25168,
+        "maxGreenSpillPixels": 0,
+        "widthRange": [
+          154,
+          167
+        ],
+        "heightRange": [
+          221,
+          223
+        ]
+      }
+    },
+    "walk-back": {
+      "animationId": "walk-back",
+      "assets": {
+        "candidate": {
+          "path": "assets/source/imagegen/fighters/tortoise-tofu/candidates/walk-back-codex-01.png",
+          "sha256": "a46d8e56b432c1c73bfbdb26a1175563053854521401ae413db44174987dacb6",
+          "dimensions": {
+            "width": 2172,
+            "height": 724,
+            "hasAlpha": false
+          }
+        },
+        "normalizationInput": {
+          "path": "output/imagegen/tortoise-tofu-walk-back.png",
+          "sha256": "57a65c939fc957f4965150006a5418b877e5e8f7492714b5dbd270f7e82af0a2",
+          "dimensions": {
+            "width": 2172,
+            "height": 724,
+            "hasAlpha": true
+          }
+        },
+        "normalized": {
+          "path": "output/imagegen/tortoise-tofu-walk-back-normalized.png",
+          "sha256": "87ddb3594d7b51891e4c35637fa7ff70e5be20b64e388bcb19405b6f6b7f8048",
+          "dimensions": {
+            "width": 2048,
+            "height": 256,
+            "hasAlpha": true
+          }
+        },
+        "acceptedSource": {
+          "path": "assets/source/imagegen/fighters/tortoise-tofu/walk-back.png",
+          "sha256": "87ddb3594d7b51891e4c35637fa7ff70e5be20b64e388bcb19405b6f6b7f8048",
+          "dimensions": {
+            "width": 2048,
+            "height": 256,
+            "hasAlpha": true
+          }
+        }
+      },
+      "frameBounds": [
+        {
+          "frame": 1,
+          "width": 153,
+          "height": 217,
+          "opaquePixels": 24272,
+          "greenSpillPixels": 0
+        },
+        {
+          "frame": 2,
+          "width": 160,
+          "height": 218,
+          "opaquePixels": 24330,
+          "greenSpillPixels": 0
+        },
+        {
+          "frame": 3,
+          "width": 160,
+          "height": 214,
+          "opaquePixels": 24443,
+          "greenSpillPixels": 0
+        },
+        {
+          "frame": 4,
+          "width": 159,
+          "height": 219,
+          "opaquePixels": 23063,
+          "greenSpillPixels": 0
+        },
+        {
+          "frame": 5,
+          "width": 158,
+          "height": 218,
+          "opaquePixels": 24180,
+          "greenSpillPixels": 0
+        },
+        {
+          "frame": 6,
+          "width": 159,
+          "height": 218,
+          "opaquePixels": 24566,
+          "greenSpillPixels": 0
+        },
+        {
+          "frame": 7,
+          "width": 157,
+          "height": 216,
+          "opaquePixels": 22617,
+          "greenSpillPixels": 0
+        },
+        {
+          "frame": 8,
+          "width": 156,
+          "height": 214,
+          "opaquePixels": 23821,
+          "greenSpillPixels": 0
+        }
+      ],
+      "baselineComparison": {
+        "idleAverageHeight": 230,
+        "averageHeight": 216.75,
+        "averageOpaquePixels": 23911.5,
+        "maxGreenSpillPixels": 0,
+        "widthRange": [
+          153,
+          160
+        ],
+        "heightRange": [
+          214,
+          219
+        ]
+      }
+    }
+  },
+  "pipeline": [
+    {
+      "id": "built-in-imagegen",
+      "command": "Built-in Codex imagegen generated one accepted candidate each for walk-forward and walk-back.",
+      "result": "pass"
+    },
+    {
+      "id": "chroma-key",
+      "command": "remove_chroma_key.py was run on both green-background rows, then the accepted keyed mattes were copied to output/imagegen/tortoise-tofu-walk-forward.png and output/imagegen/tortoise-tofu-walk-back.png for normalization.",
+      "result": "pass"
+    },
+    {
+      "id": "normalize-forward",
+      "command": "node scripts/normalize-fighter-rows.mjs --animation walk-forward --fighters tortoise-tofu",
+      "result": "pass"
+    },
+    {
+      "id": "normalize-back",
+      "command": "node scripts/normalize-fighter-rows.mjs --animation walk-back --fighters tortoise-tofu",
+      "result": "pass"
+    }
+  ],
+  "checks": [
+    {
+      "id": "frame-dimensions",
+      "result": "pass",
+      "evidence": "Both accepted source rows and normalized proofs are exact 2048x256 alpha PNGs with eight 256x256 cells."
+    },
+    {
+      "id": "identity-lock",
+      "result": "pass",
+      "evidence": "Both rows preserve Tofu shell mass, small head, warm face, spiral shell markings, cream belly plates, belt pouch, squat legs, and guarded arms."
+    },
+    {
+      "id": "idle-baseline-lock",
+      "result": "pass",
+      "evidence": "Walk rows stay within the accepted lower-body motion range against the T101 idle baseline; no frame exceeds 170px width or drops below 214px alpha height."
+    },
+    {
+      "id": "alpha-cleanup",
+      "result": "pass",
+      "evidence": "Visible green spill pixels are zero in every accepted frame."
+    },
+    {
+      "id": "source-only",
+      "result": "pass",
+      "evidence": "public/assets/generated/fighters/tortoise-tofu exists: false. Tofu remains absent from runtime public assets."
+    }
+  ],
+  "rejectedCandidates": [],
+  "verdict": "Accepted as source-only Tofu grounded locomotion rows. Keep Tofu blocked from runtime promotion until every required row passes later QA and review."
+}

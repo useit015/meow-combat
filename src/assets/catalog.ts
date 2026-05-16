@@ -192,6 +192,8 @@ const generatedAnimationRows: Record<string, Partial<Record<FighterAnimationSpec
   },
   "tortoise-tofu": {
     idle: "assets/source/imagegen/fighters/tortoise-tofu/idle.png",
+    "walk-forward": "assets/source/imagegen/fighters/tortoise-tofu/walk-forward.png",
+    "walk-back": "assets/source/imagegen/fighters/tortoise-tofu/walk-back.png",
   },
 };
 
