@@ -340,6 +340,28 @@ describe("Noodle Nibbles animation preflight", () => {
     expect(average(opaquePixels)).toBeGreaterThanOrEqual(16_000);
     expect(existsSync(join(process.cwd(), "public/assets/generated/fighters/ferret-noodle"))).toBe(false);
   });
+
+  it("keeps generated Noodle locomotion rows source-only and scale-stable against idle", () => {
+    const idleBounds = alphaBoundsByFrame("assets/source/imagegen/fighters/ferret-noodle/idle.png", 8);
+    const idleWidth = average(idleBounds.map((frame) => frame.width));
+    const idleHeight = average(idleBounds.map((frame) => frame.height));
+
+    for (const row of ["walk-forward", "walk-back"]) {
+      const bounds = alphaBoundsByFrame(`assets/source/imagegen/fighters/ferret-noodle/${row}.png`, 8);
+      const widths = bounds.map((frame) => frame.width);
+      const heights = bounds.map((frame) => frame.height);
+      const opaquePixels = bounds.map((frame) => frame.opaquePixels);
+
+      expect(Math.min(...widths)).toBeGreaterThanOrEqual(Math.round(idleWidth * 1.1));
+      expect(Math.max(...widths)).toBeLessThanOrEqual(Math.round(idleWidth * 1.75));
+      expect(average(heights)).toBeGreaterThanOrEqual(idleHeight * 0.94);
+      expect(average(heights)).toBeLessThanOrEqual(idleHeight * 1.05);
+      expect(Math.max(...heights) - Math.min(...heights)).toBeLessThanOrEqual(12);
+      expect(average(opaquePixels)).toBeGreaterThanOrEqual(15_000);
+    }
+
+    expect(existsSync(join(process.cwd(), "public/assets/generated/fighters/ferret-noodle"))).toBe(false);
+  });
 });
 
 function alphaBoundsByFrame(relativePath: string, frameCount: number) {

@@ -117,7 +117,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T073
+active_task: T074
 
 tasks:
   - id: T001
@@ -4703,7 +4703,7 @@ tasks:
   - id: T073
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: medium
     objective: "Generate and QA exactly two source-only Noodle Nibbles / ferret-noodle locomotion rows: walk-forward and walk-back, using built-in imagegen only. Normalize both to exact 2048x256 transparent spritesheets, compare both against assets/source/imagegen/fighters/ferret-noodle/idle.png, update only source/planned manifests and focused tests, and prove Noodle remains not playable with no public/runtime assets."
     inputs:
@@ -4768,18 +4768,114 @@ tasks:
       - "public/assets/generated/fighters/ferret-noodle remains absent."
       - "Noodle remains not playable."
       - "Tests and verification pass."
+    receipt:
+      result: done
+      note: notes/T073-noodle-locomotion-row-production.md
+      full_outcome_complete: false
+      changed_files:
+        - "assets/source/imagegen/fighters/ferret-noodle/candidates/walk-forward-codex-01.png"
+        - "assets/source/imagegen/fighters/ferret-noodle/candidates/walk-forward-codex-02.png"
+        - "assets/source/imagegen/fighters/ferret-noodle/candidates/walk-back-codex-01.png"
+        - "assets/source/imagegen/fighters/ferret-noodle/walk-forward.png"
+        - "assets/source/imagegen/fighters/ferret-noodle/walk-back.png"
+        - "output/imagegen/ferret-noodle-walk-forward.png"
+        - "output/imagegen/ferret-noodle-walk-forward-normalized.png"
+        - "output/imagegen/ferret-noodle-walk-back.png"
+        - "output/imagegen/ferret-noodle-walk-back-normalized.png"
+        - "output/animation-preflight/noodle-nibbles-locomotion-row-qa.json"
+        - "output/animation-preflight/noodle-nibbles-locomotion-row-qa.html"
+        - "src/assets/catalog.ts"
+        - "test/asset-pipeline.test.ts"
+        - "test/asset-qa.test.ts"
+        - "test/fighter-animation-preflight.test.ts"
+        - "docs/goals/aaa-game-expansion/notes/T073-noodle-locomotion-row-production.md"
+        - "docs/goals/aaa-game-expansion/state.yaml"
+      commands:
+        - cmd: "built-in Codex imagegen for source-only Noodle walk-forward candidate 01"
+          result: rejected
+          evidence: "Rejected because tight frame packing pulled tail fragments into neighboring cells during normalization."
+        - cmd: "built-in Codex imagegen for source-only Noodle walk-forward candidate 02"
+          result: pass
+        - cmd: "built-in Codex imagegen for source-only Noodle walk-back candidate 01"
+          result: pass
+        - cmd: "bundled remove_chroma_key.py cleanup on output/imagegen/ferret-noodle-walk-forward.png and output/imagegen/ferret-noodle-walk-back.png"
+          result: pass
+          evidence: "Raw project copies became alpha PNGs before normalization."
+        - cmd: "node scripts/normalize-fighter-rows.mjs --animation walk-forward --fighters ferret-noodle"
+          result: pass
+        - cmd: "node scripts/normalize-fighter-rows.mjs --animation walk-back --fighters ferret-noodle"
+          result: pass
+        - cmd: "bundled remove_chroma_key.py cleanup on both normalized rows"
+          result: pass
+        - cmd: "npm run typecheck"
+          result: pass
+        - cmd: "npm test -- test/fighter-animation-preflight.test.ts test/asset-pipeline.test.ts test/source-roster-lab.test.ts test/game-config.test.ts test/imagegen-jobs.test.ts test/asset-qa.test.ts"
+          result: pass
+          evidence: "6 test files, 39 tests passed."
+        - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha assets/source/imagegen/fighters/ferret-noodle/walk-forward.png assets/source/imagegen/fighters/ferret-noodle/walk-back.png output/imagegen/ferret-noodle-walk-forward-normalized.png output/imagegen/ferret-noodle-walk-back-normalized.png"
+          result: pass
+          evidence: "All four PNGs are 2048x256 with alpha."
+        - cmd: "node scripts/asset-qa.mjs --json"
+          result: pass
+          evidence: "146 checked, 90 runtime-ready, 56 needing normalization; ferret-noodle idle/walk-forward/walk-back source and normalized rows are runtime-ready dimensions."
+        - cmd: "test ! -e public/assets/generated/fighters/ferret-noodle"
+          result: pass
+        - cmd: "npm run verify"
+          result: pass
+          evidence: "Typecheck, 31 test files / 223 tests, and production build passed."
+        - cmd: "git diff --name-only -- public/assets/generated/fighters package.json package-lock.json src/game/audio.ts public/assets/audio assets/source/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts src/core/frameData.ts"
+          result: pass
+          evidence: "No changed files."
+        - cmd: "rg -n \"Noodle Nibbles|ferret-noodle|walk-forward|walk-back|no-size-drift|row-generation|not playable|source-only\" src/assets/catalog.ts src/assets/fighterAnimationPreflight.ts test/fighter-animation-preflight.test.ts test/asset-pipeline.test.ts test/asset-qa.test.ts docs/goals/aaa-game-expansion/notes/T073-noodle-locomotion-row-production.md output/animation-preflight/noodle-nibbles-locomotion-row-qa.json"
+          result: pass
+      summary: "Generated exactly two accepted source-only Noodle locomotion rows, walk-forward and walk-back, using built-in Codex imagegen only. Rejected the first forward candidate for frame overlap, accepted a second isolated forward candidate, normalized both accepted rows to exact 2048x256 alpha PNGs, updated the source/planned manifest and focused tests, recorded QA evidence, and proved Noodle remains not playable with no public/runtime ferret-noodle folder. Full verify passed."
+      spawned_tasks:
+        - T074
+  - id: T074
+    type: judge
+    assignee: Judge
+    status: active
+    reasoning_hint: high
+    objective: "Review the accepted Noodle Nibbles idle plus locomotion source rows and decide the next safe row-production package without risking character-size drift, identity drift, or motion slop."
+    inputs:
+      - "T071 accepted idle row and QA."
+      - "T073 accepted walk-forward/walk-back rows, rejected-candidate evidence, QA JSON/HTML, note, tests, and verification receipt."
+      - "Hardened Noodle preflight artifacts."
+      - "Original owner constraints: no glitchy animations, no size drift, no identity drift, natural movement, quality-first generation."
+    constraints:
+      - "Read-only."
+      - "Do not run imagegen."
+      - "Do not edit files."
+      - "Do not change generated assets, public runtime assets, runtime roster/select/combat, sprite sizing, frame data, hitboxes, damage, pushback, movement, audio, dependencies, or lockfiles."
+      - "Treat the full AAA outcome as incomplete."
+      - "Decide whether the locomotion rows are good enough to continue source-only row production or whether repair is needed."
+      - "If proceeding, choose the largest safe next Worker slice: crouch/jump mobility, starter attacks, defense/reaction rows, or another bounded package."
+      - "Do not approve playable promotion."
+    expected_output:
+      - "Decision: proceed_with_worker | require_repair | require_audit | ask_owner | pause"
+      - "Rationale and rejected alternatives."
+      - "Exact next Worker objective if approved."
+      - "Allowed files, verification commands, stop conditions, and acceptance criteria."
+      - "Parallel-safety decision."
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T072
+    task: T073
     commands:
-      - "view_image assets/source/imagegen/fighters/ferret-noodle/idle.png"
-      - "view_image assets/source/imagegen/fighters/ferret-noodle/canonical-character-sheet.png"
-      - "sed -n '1,220p' output/animation-preflight/noodle-nibbles-idle-row-qa.json"
+      - "built-in Codex imagegen for source-only Noodle walk-forward candidate 01, walk-forward candidate 02, and walk-back candidate 01"
+      - "node scripts/normalize-fighter-rows.mjs --animation walk-forward --fighters ferret-noodle"
+      - "node scripts/normalize-fighter-rows.mjs --animation walk-back --fighters ferret-noodle"
+      - "bundled remove_chroma_key.py cleanup on raw and normalized Noodle locomotion rows"
+      - "npm run typecheck"
+      - "npm test -- test/fighter-animation-preflight.test.ts test/asset-pipeline.test.ts test/source-roster-lab.test.ts test/game-config.test.ts test/imagegen-jobs.test.ts test/asset-qa.test.ts"
+      - "sips -g pixelWidth -g pixelHeight -g hasAlpha assets/source/imagegen/fighters/ferret-noodle/walk-forward.png assets/source/imagegen/fighters/ferret-noodle/walk-back.png output/imagegen/ferret-noodle-walk-forward-normalized.png output/imagegen/ferret-noodle-walk-back-normalized.png"
+      - "node scripts/asset-qa.mjs --json"
       - "test ! -e public/assets/generated/fighters/ferret-noodle"
-      - "rg -n \"walk-forward|walk-back|locomotion|motionLanguage|ferret-noodle|Noodle Nibbles\" src/assets/fighterAnimationPreflight.ts output/animation-preflight/noodle-nibbles-animation-plan.json docs/goals/aaa-game-expansion/notes/T070-noodle-idle-judge.md docs/goals/aaa-game-expansion/notes/T071-noodle-idle-row-production.md"
+      - "npm run verify"
+      - "git diff --name-only -- public/assets/generated/fighters package.json package-lock.json src/game/audio.ts public/assets/audio assets/source/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts src/core/frameData.ts"
+      - "rg -n \"Noodle Nibbles|ferret-noodle|walk-forward|walk-back|no-size-drift|row-generation|not playable|source-only\" src/assets/catalog.ts src/assets/fighterAnimationPreflight.ts test/fighter-animation-preflight.test.ts test/asset-pipeline.test.ts test/asset-qa.test.ts docs/goals/aaa-game-expansion/notes/T073-noodle-locomotion-row-production.md output/animation-preflight/noodle-nibbles-locomotion-row-qa.json"
   t021_verification:
     result: pass
     task: T021

@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Noodle Nibbles Locomotion Row QA</title>
+  </head>
+  <body>
+    <main>
+      <h1>Noodle Nibbles Locomotion Row QA</h1>
+      <p>Result: accepted. Runtime exposure: source-only / not playable.</p>
+      <p>Accepted rows: ferret-noodle walk-forward and walk-back. Both are exact 2048x256 alpha PNGs with 8 cells at 256x256.</p>
+      <p>Rejected candidate: walk-forward-codex-01, because tight frame packing pulled tail fragments into neighboring cells during normalization.</p>
+      <p>No-size-drift evidence: walk-forward height range 217-224px; walk-back height range 222-228px; idle baseline height range 228-230px.</p>
+      <p>Source-only gate: public/assets/generated/fighters/ferret-noodle remains absent, and Noodle Nibbles is not playable.</p>
+    </main>
+  </body>
+</html>

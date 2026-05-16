@@ -150,8 +150,8 @@ describe("imagegen asset QA command", () => {
     });
     const summary = JSON.parse(output) as AssetQaSummary;
 
-    expect(summary.checked).toBe(142);
-    expect(summary.runtimeReady).toBe(86);
+    expect(summary.checked).toBe(146);
+    expect(summary.runtimeReady).toBe(90);
     expect(summary.needsNormalization).toBe(56);
     expect(summary.rows.map((row) => `${row.kind}:${row.fighterId}:${row.animationId}`).sort()).toEqual([
       "normalized-candidate:atlas-lion:blockstun",
@@ -169,6 +169,8 @@ describe("imagegen asset QA command", () => {
       "normalized-candidate:atlas-lion:walk-forward",
       "normalized-candidate:atlas-lion:win",
       "normalized-candidate:ferret-noodle:idle",
+      "normalized-candidate:ferret-noodle:walk-back",
+      "normalized-candidate:ferret-noodle:walk-forward",
       "normalized-candidate:ginger-tabby-cat:blockstun",
       "normalized-candidate:ginger-tabby-cat:crouch",
       "normalized-candidate:ginger-tabby-cat:heavy-punch",
@@ -240,6 +242,8 @@ describe("imagegen asset QA command", () => {
       "source:atlas-lion:walk-forward",
       "source:atlas-lion:win",
       "source:ferret-noodle:idle",
+      "source:ferret-noodle:walk-back",
+      "source:ferret-noodle:walk-forward",
       "source:ginger-tabby-cat:blockstun",
       "source:ginger-tabby-cat:crouch",
       "source:ginger-tabby-cat:heavy-punch",
@@ -315,6 +319,8 @@ describe("imagegen asset QA command", () => {
       "atlas-lion:walk-forward",
       "atlas-lion:win",
       "ferret-noodle:idle",
+      "ferret-noodle:walk-back",
+      "ferret-noodle:walk-forward",
       "ginger-tabby-cat:blockstun",
       "ginger-tabby-cat:crouch",
       "ginger-tabby-cat:heavy-punch",
@@ -397,7 +403,7 @@ describe("imagegen asset QA command", () => {
     }
 
     const normalizedRows = summary.rows.filter((row) => row.kind === "normalized-candidate");
-    expect(normalizedRows).toHaveLength(71);
+    expect(normalizedRows).toHaveLength(73);
     for (const row of normalizedRows) {
       expect(row.expected).toEqual({ width: row.frameCount * 256, height: 256 });
       expect(row.dimensions).toEqual(row.expected);

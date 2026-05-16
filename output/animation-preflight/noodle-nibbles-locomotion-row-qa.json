@@ -1,0 +1,174 @@
+{
+  "id": "noodle-nibbles-locomotion-row-qa",
+  "fighterId": "ferret-noodle",
+  "displayName": "Noodle Nibbles",
+  "animationIds": ["walk-forward", "walk-back"],
+  "result": "accepted",
+  "runtimeExposure": "source-only / not playable",
+  "generatedWith": "built-in Codex imagegen",
+  "sourceContract": {
+    "frameCount": 8,
+    "cellSize": {
+      "width": 256,
+      "height": 256
+    },
+    "expectedDimensions": {
+      "width": 2048,
+      "height": 256
+    },
+    "baseline": "assets/source/imagegen/fighters/ferret-noodle/idle.png",
+    "rowGenerationBriefs": {
+      "walk-forward": "Noodle Nibbles walk-forward row-generation pass: Forward step cycle with guarded upper body and stable head height.",
+      "walk-back": "Noodle Nibbles walk-back row-generation pass: Backward step cycle with defensive posture and readable footwork."
+    },
+    "motionLanguage": {
+      "walk-forward": "slinky forward steps with long torso held together, short legs grounded, tail rings stable",
+      "walk-back": "quick retreat shuffle with sneaky shoulder angle, no body-length shrink"
+    }
+  },
+  "assets": {
+    "walk-forward": {
+      "rejectedCandidates": [
+        {
+          "path": "assets/source/imagegen/fighters/ferret-noodle/candidates/walk-forward-codex-01.png",
+          "sha256": "b452ef942c3b6ebf15545c635dc51b88fe0395adb645dcbdd3669a6c07116497",
+          "reason": "Rejected because the frames were packed too tightly and normalization pulled tail fragments into neighboring cells."
+        }
+      ],
+      "candidate": {
+        "path": "assets/source/imagegen/fighters/ferret-noodle/candidates/walk-forward-codex-02.png",
+        "sha256": "db8ee5cb30e58ee559794ed83b8975e97cc044c2c1934f4ed9376b53801e61e4",
+        "dimensions": {
+          "width": 2172,
+          "height": 724,
+          "hasAlpha": false
+        }
+      },
+      "rawOutput": {
+        "path": "output/imagegen/ferret-noodle-walk-forward.png",
+        "sha256": "2f4214964d5b1541b485d894757f21460d8a347f8b7cd9a44dbdb008275b9af2",
+        "dimensions": {
+          "width": 2172,
+          "height": 724,
+          "hasAlpha": true
+        }
+      },
+      "normalized": {
+        "path": "output/imagegen/ferret-noodle-walk-forward-normalized.png",
+        "sha256": "83dc8d936baa753d55dedbb353417ff68216c8659a737165800407b3f203c068",
+        "dimensions": {
+          "width": 2048,
+          "height": 256,
+          "hasAlpha": true
+        }
+      },
+      "acceptedSource": {
+        "path": "assets/source/imagegen/fighters/ferret-noodle/walk-forward.png",
+        "sha256": "83dc8d936baa753d55dedbb353417ff68216c8659a737165800407b3f203c068",
+        "dimensions": {
+          "width": 2048,
+          "height": 256,
+          "hasAlpha": true
+        }
+      }
+    },
+    "walk-back": {
+      "candidate": {
+        "path": "assets/source/imagegen/fighters/ferret-noodle/candidates/walk-back-codex-01.png",
+        "sha256": "c78dab5becf8fe43cf3f563a9e69bd17c6bdef9a073f34a065bcf1a794263280",
+        "dimensions": {
+          "width": 2172,
+          "height": 724,
+          "hasAlpha": false
+        }
+      },
+      "rawOutput": {
+        "path": "output/imagegen/ferret-noodle-walk-back.png",
+        "sha256": "47c687d0dc0bc0e0461ec772ffcd026af8a356d16dfa300bad066e0ed2b17817",
+        "dimensions": {
+          "width": 2172,
+          "height": 724,
+          "hasAlpha": true
+        }
+      },
+      "normalized": {
+        "path": "output/imagegen/ferret-noodle-walk-back-normalized.png",
+        "sha256": "ca18a30755750294628f801b261760392144e557e17e67c6e60b9b532f515a37",
+        "dimensions": {
+          "width": 2048,
+          "height": 256,
+          "hasAlpha": true
+        }
+      },
+      "acceptedSource": {
+        "path": "assets/source/imagegen/fighters/ferret-noodle/walk-back.png",
+        "sha256": "ca18a30755750294628f801b261760392144e557e17e67c6e60b9b532f515a37",
+        "dimensions": {
+          "width": 2048,
+          "height": 256,
+          "hasAlpha": true
+        }
+      }
+    }
+  },
+  "checks": [
+    {
+      "id": "frame-dimensions",
+      "result": "pass",
+      "evidence": "Both accepted sources and normalized proofs are exact 2048x256 alpha PNGs, eight 256x256 cells each."
+    },
+    {
+      "id": "identity-lock",
+      "result": "pass",
+      "evidence": "Both rows preserve Noodle face, tapered muzzle, rounded ears, teal scarf, belt, sock props, long body, short legs, and ringed tail."
+    },
+    {
+      "id": "no-size-drift",
+      "result": "pass",
+      "evidence": "Walk-forward frame heights stay within 217-224px and walk-back frame heights stay within 222-228px against the 228-230px idle baseline."
+    },
+    {
+      "id": "alpha-cleanup",
+      "result": "pass",
+      "evidence": "Chroma-key backgrounds were removed before final source acceptance; residual green-threshold edge pixels are at or below 5 per frame with no visible key field."
+    },
+    {
+      "id": "source-only",
+      "result": "pass",
+      "evidence": "No public/assets/generated/fighters/ferret-noodle runtime folder was created."
+    }
+  ],
+  "frameBounds": {
+    "idleBaseline": [
+      { "frame": 1, "width": 127, "height": 228, "opaquePixels": 16539, "greenSpillPixels": 0 },
+      { "frame": 2, "width": 130, "height": 228, "opaquePixels": 16125, "greenSpillPixels": 0 },
+      { "frame": 3, "width": 116, "height": 228, "opaquePixels": 15283, "greenSpillPixels": 0 },
+      { "frame": 4, "width": 127, "height": 228, "opaquePixels": 15930, "greenSpillPixels": 0 },
+      { "frame": 5, "width": 116, "height": 228, "opaquePixels": 15250, "greenSpillPixels": 0 },
+      { "frame": 6, "width": 125, "height": 228, "opaquePixels": 15692, "greenSpillPixels": 0 },
+      { "frame": 7, "width": 122, "height": 228, "opaquePixels": 15669, "greenSpillPixels": 0 },
+      { "frame": 8, "width": 127, "height": 230, "opaquePixels": 15963, "greenSpillPixels": 0 }
+    ],
+    "walkForward": [
+      { "frame": 1, "width": 184, "height": 224, "opaquePixels": 16002, "greenSpillPixels": 3 },
+      { "frame": 2, "width": 194, "height": 222, "opaquePixels": 16474, "greenSpillPixels": 1 },
+      { "frame": 3, "width": 191, "height": 221, "opaquePixels": 15731, "greenSpillPixels": 2 },
+      { "frame": 4, "width": 182, "height": 221, "opaquePixels": 15778, "greenSpillPixels": 1 },
+      { "frame": 5, "width": 192, "height": 219, "opaquePixels": 15840, "greenSpillPixels": 3 },
+      { "frame": 6, "width": 196, "height": 219, "opaquePixels": 16528, "greenSpillPixels": 5 },
+      { "frame": 7, "width": 187, "height": 222, "opaquePixels": 15551, "greenSpillPixels": 1 },
+      { "frame": 8, "width": 194, "height": 217, "opaquePixels": 16251, "greenSpillPixels": 0 }
+    ],
+    "walkBack": [
+      { "frame": 1, "width": 144, "height": 228, "opaquePixels": 15762, "greenSpillPixels": 1 },
+      { "frame": 2, "width": 170, "height": 222, "opaquePixels": 15672, "greenSpillPixels": 2 },
+      { "frame": 3, "width": 163, "height": 223, "opaquePixels": 16538, "greenSpillPixels": 1 },
+      { "frame": 4, "width": 169, "height": 222, "opaquePixels": 15644, "greenSpillPixels": 2 },
+      { "frame": 5, "width": 158, "height": 222, "opaquePixels": 15973, "greenSpillPixels": 0 },
+      { "frame": 6, "width": 162, "height": 223, "opaquePixels": 15973, "greenSpillPixels": 1 },
+      { "frame": 7, "width": 167, "height": 223, "opaquePixels": 16198, "greenSpillPixels": 1 },
+      { "frame": 8, "width": 147, "height": 228, "opaquePixels": 15840, "greenSpillPixels": 1 }
+    ]
+  },
+  "verdict": "Accepted as source-only Noodle locomotion rows. Do not use for runtime promotion until all required rows pass later QA and smoke."
+}

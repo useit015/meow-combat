@@ -101,6 +101,11 @@ describe("fighter asset manifests", () => {
     } as const;
 
     expect(pawbreakerPlannedFighterAssetManifests.map((manifest) => manifest.id)).toEqual(Object.keys(expectedNames));
+    const generatedNoodleRows = new Map([
+      ["idle", "assets/source/imagegen/fighters/ferret-noodle/idle.png"],
+      ["walk-forward", "assets/source/imagegen/fighters/ferret-noodle/walk-forward.png"],
+      ["walk-back", "assets/source/imagegen/fighters/ferret-noodle/walk-back.png"],
+    ]);
 
     for (const manifest of pawbreakerPlannedFighterAssetManifests) {
       expect(manifest.displayName).toBe(expectedNames[manifest.id as keyof typeof expectedNames]);
@@ -112,9 +117,10 @@ describe("fighter asset manifests", () => {
       expect(validateFighterManifest(manifest)).toEqual({ ok: true, errors: [] });
       expect(manifest.animations).toHaveLength(REQUIRED_FIGHTER_ANIMATIONS.length);
       for (const animation of manifest.animations) {
-        if (manifest.id === "ferret-noodle" && animation.id === "idle") {
+        const generatedOutputPath = manifest.id === "ferret-noodle" ? generatedNoodleRows.get(animation.id) : undefined;
+        if (generatedOutputPath) {
           expect(animation.source.status).toBe("generated");
-          expect(animation.source.outputPath).toBe("assets/source/imagegen/fighters/ferret-noodle/idle.png");
+          expect(animation.source.outputPath).toBe(generatedOutputPath);
           expect(existsSync(animation.source.outputPath ?? "")).toBe(true);
         } else {
           expect(animation.source.status).toBe("blocked");
