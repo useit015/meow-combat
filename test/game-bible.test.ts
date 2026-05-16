@@ -41,6 +41,15 @@ describe("pet fighter game bible", () => {
     expect(petFighterGameBible.fighters.filter((fighter) => fighter.runtime.status === "planned")).toHaveLength(5);
   });
 
+  it("keeps championship-facing copy aligned with all runtime fighters", () => {
+    for (const runtimeFighterId of petFighterGameBible.runtimeFighterIds) {
+      const fighter = petFighterGameBible.fighters.find((candidate) => candidate.id === runtimeFighterId);
+      expect(fighter?.storyHook).toBeTruthy();
+      expect(fighter?.trainingTip).toBeTruthy();
+      expect(petFighterGameBible.championship.firstStoryBeat).toContain(fighter?.name);
+    }
+  });
+
   it("locks keyboard-first browser v1, landscape layout, and touch-mobile v2", () => {
     expect(petFighterGameBible.platformPlan.browserV1.controls).toBe("keyboard-first");
     expect(petFighterGameBible.platformPlan.browserV1.orientation).toBe("landscape");

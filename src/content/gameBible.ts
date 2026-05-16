@@ -106,7 +106,7 @@ export const petFighterGameBible: PetFighterGameBible = {
     premise:
       "In normal 2026, a citywide pet wellness fair accidentally becomes a televised prize fight after every animal discovers the winner gets a lifetime treat dispenser and naming rights to the good couch.",
     firstStoryBeat:
-      "In 2026, Gray Rabbit and Ginger Tabby Cat crash the opening weigh-in after a delivery drone drops the championship treat belt into the courtyard and every pet declares legal ownership by licking it first.",
+      "In 2026, Bunjamin Thump, Marmalade Mayhem, and Pickles Pugilist crash the opening weigh-in after a delivery drone drops the championship treat belt into the courtyard and every pet declares legal ownership by licking it first.",
   },
   fighters: [
     {

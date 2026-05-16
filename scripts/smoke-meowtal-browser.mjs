@@ -469,6 +469,177 @@ async function runTrainingDemo(browser, url, outDir) {
   return { name: "training-demo", failures, errors, screenshots, state };
 }
 
+async function runThreeFighterRuntimePolish(browser, url, outDir) {
+  const failures = [];
+  const screenshots = [];
+  const states = {};
+  const rosterCases = [
+    {
+      name: "rabbit-cat",
+      p1Index: 0,
+      p2Index: 1,
+      p1Id: "gray-rabbit",
+      p2Id: "ginger-tabby-cat",
+      p1StaticSlot: "rabbit-portrait",
+      p2StaticSlot: "cat-portrait",
+    },
+    {
+      name: "pickles-rabbit",
+      p1Index: 2,
+      p2Index: 0,
+      p1Id: "pugilist-pug",
+      p2Id: "gray-rabbit",
+      p1StaticSlot: null,
+      p2StaticSlot: null,
+    },
+    {
+      name: "cat-pickles",
+      p1Index: 1,
+      p2Index: 2,
+      p1Id: "ginger-tabby-cat",
+      p2Id: "pugilist-pug",
+      p1StaticSlot: null,
+      p2StaticSlot: null,
+    },
+  ];
+
+  for (const rosterCase of rosterCases) {
+    const { context, page, errors } = await openScenario(browser, url, {
+      viewport: { width: 1024, height: 576 },
+    });
+
+    await pressKey(page, "Space");
+    await pressKey(page, "KeyD");
+    await pressKey(page, "KeyD");
+    let state = await readState(page);
+    assert(state.shellPhase === "mode-select", failures, `${rosterCase.name} expected mode-select, got ${state.shellPhase}`);
+    assert(state.playMode === "championship", failures, `${rosterCase.name} expected championship mode, got ${state.playMode}`);
+    assert(
+      state.playModeLabel === "CHAMPIONSHIP",
+      failures,
+      `${rosterCase.name} expected CHAMPIONSHIP label, got ${state.playModeLabel}`,
+    );
+
+    await pressKey(page, "Space");
+    for (let index = 0; index < rosterCase.p1Index; index += 1) {
+      await pressKey(page, "KeyD");
+    }
+    const p2Steps = (rosterCase.p2Index - 1 + 3) % 3;
+    for (let index = 0; index < p2Steps; index += 1) {
+      await pressKey(page, "ArrowRight");
+    }
+    state = await readState(page);
+    states[`${rosterCase.name}-select`] = state;
+    screenshots.push(await screenshot(page, outDir, `three-fighter-${rosterCase.name}-select`));
+    checkThreeFighterRosterState(state, `${rosterCase.name} select`, failures);
+    assert(
+      state.selectedFighterDetails?.p1?.fighterId === rosterCase.p1Id,
+      failures,
+      `${rosterCase.name} select expected P1 ${rosterCase.p1Id}, got ${state.selectedFighterDetails?.p1?.fighterId}`,
+    );
+    assert(
+      state.selectedFighterDetails?.p2?.fighterId === rosterCase.p2Id,
+      failures,
+      `${rosterCase.name} select expected P2 ${rosterCase.p2Id}, got ${state.selectedFighterDetails?.p2?.fighterId}`,
+    );
+
+    await pressKey(page, "Space");
+    await waitFrames(page, 54);
+    state = await readState(page);
+    states[`${rosterCase.name}-fight`] = state;
+    screenshots.push(await screenshot(page, outDir, `three-fighter-${rosterCase.name}-fight`));
+    assert(state.shellPhase === "fighting", failures, `${rosterCase.name} expected fighting, got ${state.shellPhase}`);
+    assert(state.playMode === "championship", failures, `${rosterCase.name} fight expected championship, got ${state.playMode}`);
+    assert(state.p2Mode === "cpu", failures, `${rosterCase.name} fight expected CPU opponent, got ${state.p2Mode}`);
+    assert(
+      state.cpuOpponent?.fighterId === rosterCase.p2Id,
+      failures,
+      `${rosterCase.name} expected CPU opponent ${rosterCase.p2Id}, got ${state.cpuOpponent?.fighterId}`,
+    );
+    assert(
+      state.storyMode?.firstBeat?.includes("Pickles Pugilist"),
+      failures,
+      `${rosterCase.name} championship beat should include Pickles Pugilist`,
+    );
+    assert(
+      state.storyMode?.selectedRivals?.map((fighter) => fighter.fighterId).join(",") ===
+        `${rosterCase.p1Id},${rosterCase.p2Id}`,
+      failures,
+      `${rosterCase.name} story rivals should match selected fighters`,
+    );
+    assert(
+      state.runtimeVisuals?.p1?.fighterId === rosterCase.p1Id,
+      failures,
+      `${rosterCase.name} runtime P1 expected ${rosterCase.p1Id}, got ${state.runtimeVisuals?.p1?.fighterId}`,
+    );
+    assert(
+      state.runtimeVisuals?.p2?.fighterId === rosterCase.p2Id,
+      failures,
+      `${rosterCase.name} runtime P2 expected ${rosterCase.p2Id}, got ${state.runtimeVisuals?.p2?.fighterId}`,
+    );
+    assert(
+      state.assetReadiness?.runtimeFallbacks?.fighterAnimations === 0,
+      failures,
+      `${rosterCase.name} expected zero fighter fallbacks, got ${state.assetReadiness?.runtimeFallbacks?.fighterAnimations}`,
+    );
+    checkRuntimeUiLoaded(state, `${rosterCase.name} fight`, failures);
+    checkHudPortrait(state, "p1", rosterCase.p1Id, rosterCase.p1StaticSlot, `${rosterCase.name} P1`, failures);
+    checkHudPortrait(state, "p2", rosterCase.p2Id, rosterCase.p2StaticSlot, `${rosterCase.name} P2`, failures);
+    assert(errors.length === 0, failures, `${rosterCase.name} console/page errors: ${JSON.stringify(errors)}`);
+    await context.close();
+  }
+
+  return { name: "three-fighter-runtime-polish", failures, errors: [], screenshots, states };
+}
+
+function checkThreeFighterRosterState(state, scenario, failures) {
+  const rosterIds = Array.isArray(state.runtimeRoster)
+    ? state.runtimeRoster.map((fighter) => fighter.fighterId)
+    : [];
+  assert(
+    rosterIds.join(",") === "gray-rabbit,ginger-tabby-cat,pugilist-pug",
+    failures,
+    `${scenario} expected three-fighter runtime roster, got ${rosterIds.join(",")}`,
+  );
+  for (const player of ["p1", "p2"]) {
+    assert(
+      typeof state.selectedFighterDetails?.[player]?.storyHook === "string",
+      failures,
+      `${scenario} ${player} should expose a story hook`,
+    );
+    assert(
+      typeof state.selectedFighterDetails?.[player]?.trainingTip === "string",
+      failures,
+      `${scenario} ${player} should expose a training tip`,
+    );
+  }
+}
+
+function checkHudPortrait(state, player, fighterId, staticSlot, scenario, failures) {
+  const portrait = state.runtimeUi?.hudPortraits?.[player];
+  const visibleSlots = visibleRuntimeUiSlots(state);
+  assert(portrait?.fighterId === fighterId, failures, `${scenario} HUD expected ${fighterId}, got ${portrait?.fighterId}`);
+  assert(
+    portrait?.staticSlot === staticSlot,
+    failures,
+    `${scenario} HUD static slot expected ${staticSlot}, got ${portrait?.staticSlot}`,
+  );
+  if (staticSlot) {
+    assert(visibleSlots.includes(staticSlot), failures, `${scenario} expected visible static slot ${staticSlot}`);
+    assert(portrait?.dynamicVisible === false, failures, `${scenario} static portrait should not show a dynamic sprite`);
+  } else {
+    assert(
+      portrait?.dynamicAssetKey === `${fighterId}:idle`,
+      failures,
+      `${scenario} dynamic portrait expected ${fighterId}:idle, got ${portrait?.dynamicAssetKey}`,
+    );
+    assert(portrait?.dynamicVisible === true, failures, `${scenario} dynamic portrait should be visible`);
+    assert(portrait?.usesFallback === false, failures, `${scenario} dynamic portrait should not use fallback`);
+    assert(!visibleSlots.includes("rabbit-portrait"), failures, `${scenario} should not expose rabbit portrait slot`);
+    assert(!visibleSlots.includes("cat-portrait"), failures, `${scenario} should not expose cat portrait slot`);
+  }
+}
+
 async function runGamepad(browser, url, outDir) {
   const failures = [];
   const screenshots = [];
@@ -809,6 +980,7 @@ async function main() {
   try {
     results.push(await runDesktop(browser, args.url, args.outDir));
     results.push(await runTrainingDemo(browser, args.url, args.outDir));
+    results.push(await runThreeFighterRuntimePolish(browser, args.url, args.outDir));
     results.push(await runGamepad(browser, args.url, args.outDir));
     results.push(await runRollDemo(browser, args.url, args.outDir));
     results.push(await runEndgameDemo(browser, args.url, args.outDir));

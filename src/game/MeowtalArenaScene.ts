@@ -60,7 +60,6 @@ import {
   playModeUsesCpu,
   reduceShellState,
   selectedPlayMode,
-  shellModeDescription,
   shellModeLabel,
   type ShellState,
 } from "./shellFlow";
@@ -391,6 +390,10 @@ export class MeowtalArenaScene extends Phaser.Scene {
       p1: this.runtimeAssetFor("p1"),
       p2: this.runtimeAssetFor("p2"),
     };
+    const selectedFighterDetails = {
+      p1: this.selectedFighterProfile("p1"),
+      p2: this.selectedFighterProfile("p2"),
+    };
 
     return JSON.stringify({
       coordinateSystem: "origin top-left, x right, y down",
@@ -417,7 +420,10 @@ export class MeowtalArenaScene extends Phaser.Scene {
         selectedPlayMode(this.shell) === "championship"
           ? {
               status: "planned-shell",
-              firstBeat: shellModeDescription(this.shell),
+              championshipName: GAME_CONFIG.contentSpine.championship.name,
+              premise: GAME_CONFIG.contentSpine.championship.premise,
+              firstBeat: GAME_CONFIG.contentSpine.championship.firstStoryBeat,
+              selectedRivals: [selectedFighterDetails.p1, selectedFighterDetails.p2],
             }
           : null,
       training: {
@@ -426,10 +432,13 @@ export class MeowtalArenaScene extends Phaser.Scene {
         dummy: selectedPlayMode(this.shell) === "training" ? "manual idle sparring dummy" : null,
       },
       cpuDifficulty: this.cpuDifficulty,
+      cpuOpponent: this.p2CpuEnabled ? selectedFighterDetails.p2 : null,
+      runtimeRoster: this.runtimeRosterState(),
       selectedFighters: {
-        p1: selectedFighter(this.selectedFighterIndex.p1).displayName,
-        p2: selectedFighter(this.selectedFighterIndex.p2).displayName,
+        p1: selectedFighterDetails.p1.displayName,
+        p2: selectedFighterDetails.p2.displayName,
       },
+      selectedFighterDetails,
       visuals: {
         p1: renderAssetForState(manifestForCharacter(this.snapshot.p1.character), visualStateForSnapshot(this.snapshot.p1)),
         p2: renderAssetForState(manifestForCharacter(this.snapshot.p2.character), visualStateForSnapshot(this.snapshot.p2)),
@@ -2045,8 +2054,38 @@ export class MeowtalArenaScene extends Phaser.Scene {
     return null;
   }
 
+  private selectedFighterProfile(player: "p1" | "p2") {
+    const rosterIndex = this.selectedFighterIndex[player];
+    const fighter = selectedFighter(rosterIndex);
+    const content = GAME_CONFIG.contentSpine.fighters.find((candidate) => candidate.id === fighter.id);
+
+    return {
+      fighterId: fighter.id,
+      displayName: fighter.displayName,
+      rosterIndex,
+      storyHook: content?.storyHook ?? null,
+      trainingTip: content?.trainingTip ?? null,
+      signatureMove: content?.signatureMove ?? null,
+      superMove: content?.superMove ?? null,
+    };
+  }
+
+  private runtimeRosterState() {
+    return FIGHTER_ROSTER.map((fighter, index) => {
+      const content = GAME_CONFIG.contentSpine.fighters.find((candidate) => candidate.id === fighter.id);
+      return {
+        fighterId: fighter.id,
+        displayName: fighter.displayName,
+        rosterIndex: index,
+        storyHook: content?.storyHook ?? null,
+        trainingTip: content?.trainingTip ?? null,
+      };
+    });
+  }
+
   private selectionLabel(): string {
-    return `P1 ${selectedFighter(this.selectedFighterIndex.p1).displayName}  |  P2 ${
+    const p2Role = playModeUsesCpu(this.shell) ? "CPU" : "P2";
+    return `P1 ${selectedFighter(this.selectedFighterIndex.p1).displayName}  |  ${p2Role} ${
       selectedFighter(this.selectedFighterIndex.p2).displayName
     }`;
   }
@@ -2165,7 +2204,7 @@ function shellHelp(shell: ShellState, selectionLabel: string, controlFallbackLin
     return `A/D or arrows: mode  |  Enter: character select  |  R: reset\n${controlFallbackLine}`;
   }
   if (shell.phase === "select") {
-    return `${selectionLabel}\n${shellModeLabel(shell)}\nA/D or B: P1 fighter  |  Arrow keys: P2 fighter\nEnter: fight  |  R: reset`;
+    return `${selectionLabel}\n${shellModeLabel(shell)}\nA/D or B: P1 fighter  |  Arrow keys: CPU/P2 fighter\nEnter: fight  |  R: reset`;
   }
   if (shell.phase === "round-over") {
     return "Enter: next round\nR: reset to ready";
@@ -2180,14 +2219,14 @@ function shellHelp(shell: ShellState, selectionLabel: string, controlFallbackLin
     return "Training: endless timer and dummy sparring  |  Space/J light  |  I kick  |  K heavy  |  L special  |  P pause  |  R reset";
   }
   if (selectedPlayMode(shell) === "championship") {
-    return "Championship shell: story CPU fight  |  Space/J light  |  I kick  |  K heavy  |  L special  |  S,D,L super  |  P pause  |  R reset";
+    return "Championship: Snackbelt CPU rival fight  |  Space/J light  |  I kick  |  K heavy  |  L special  |  S,D,L super  |  P pause  |  R reset";
   }
   return "Double-tap D/B run  |  W+dir hop  |  Space/J light  |  I kick  |  K heavy  |  L special  |  S,D,L super  |  C CPU  |  V level  |  P pause  |  F full";
 }
 
 function modeSelectText(shell: ShellState, cpuDifficulty: CpuDifficulty): string {
   if (selectedPlayMode(shell) === "training") return "TRAINING\nENDLESS SPARRING";
-  if (selectedPlayMode(shell) === "championship") return "CHAMPIONSHIP\n2026 STORY SHELL";
+  if (selectedPlayMode(shell) === "championship") return "CHAMPIONSHIP\nSNACKBELT OPENING";
   return `1 VS CPU\n${cpuDifficulty.toUpperCase()}`;
 }
 
