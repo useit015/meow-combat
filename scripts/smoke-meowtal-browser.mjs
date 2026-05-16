@@ -592,6 +592,109 @@ async function runThreeFighterRuntimePolish(browser, url, outDir) {
   return { name: "three-fighter-runtime-polish", failures, errors: [], screenshots, states };
 }
 
+async function runChampionshipLadderProgression(browser, url, outDir) {
+  const failures = [];
+  const screenshots = [];
+  const states = {};
+
+  {
+    const { context, page, errors } = await openScenario(browser, urlWithDemo(url, "championship-ladder-advance"), {
+      viewport: { width: 1024, height: 576 },
+    });
+    let state = await readState(page);
+    states["advance-match-over"] = state;
+    screenshots.push(await screenshot(page, outDir, "championship-ladder-advance-match-over"));
+    assert(state.shellPhase === "match-over", failures, `advance demo expected match-over, got ${state.shellPhase}`);
+    assert(state.playMode === "championship", failures, `advance demo expected championship, got ${state.playMode}`);
+    assert(
+      state.storyMode?.ladder?.status === "in-progress",
+      failures,
+      `advance demo expected in-progress ladder, got ${state.storyMode?.ladder?.status}`,
+    );
+    assert(
+      state.storyMode?.ladder?.completedOpponents?.map((fighter) => fighter.fighterId).join(",") === "ginger-tabby-cat",
+      failures,
+      "advance demo should record the first defeated opponent",
+    );
+    assert(
+      state.storyMode?.ladder?.currentOpponent?.fighterId === "pugilist-pug",
+      failures,
+      `advance demo expected Pickles next, got ${state.storyMode?.ladder?.currentOpponent?.fighterId}`,
+    );
+    assert(state.storyMode?.ladder?.totalOpponents === 2, failures, "advance demo should expose two-opponent ladder");
+
+    await pressKey(page, "Space");
+    await waitFrames(page, 24);
+    state = await readState(page);
+    states["advance-next-fight"] = state;
+    screenshots.push(await screenshot(page, outDir, "championship-ladder-next-fight"));
+    assert(state.shellPhase === "fighting", failures, `ladder advance expected fighting, got ${state.shellPhase}`);
+    assert(
+      state.runtimeVisuals?.p2?.fighterId === "pugilist-pug",
+      failures,
+      `ladder advance expected Pickles as next CPU, got ${state.runtimeVisuals?.p2?.fighterId}`,
+    );
+    assert(
+      state.cpuOpponent?.fighterId === "pugilist-pug",
+      failures,
+      `ladder advance expected CPU opponent Pickles, got ${state.cpuOpponent?.fighterId}`,
+    );
+    assert(
+      state.storyMode?.ladder?.currentOpponentNumber === 2,
+      failures,
+      `ladder advance expected opponent 2, got ${state.storyMode?.ladder?.currentOpponentNumber}`,
+    );
+    assert(
+      state.storyMode?.ladder?.completedOpponents?.map((fighter) => fighter.fighterId).join(",") === "ginger-tabby-cat",
+      failures,
+      "ladder advance should preserve completed opponent after next fight starts",
+    );
+    assert(
+      state.assetReadiness?.runtimeFallbacks?.fighterAnimations === 0,
+      failures,
+      `ladder advance expected zero fighter fallbacks, got ${state.assetReadiness?.runtimeFallbacks?.fighterAnimations}`,
+    );
+    checkRuntimeUiLoaded(state, "ladder advance next fight", failures);
+    assert(errors.length === 0, failures, `ladder advance console/page errors: ${JSON.stringify(errors)}`);
+    await context.close();
+  }
+
+  {
+    const { context, page, errors } = await openScenario(browser, urlWithDemo(url, "championship-ladder-clear"), {
+      viewport: { width: 1024, height: 576 },
+    });
+    const state = await readState(page);
+    states["clear-match-over"] = state;
+    screenshots.push(await screenshot(page, outDir, "championship-ladder-clear-match-over"));
+    assert(state.shellPhase === "match-over", failures, `clear demo expected match-over, got ${state.shellPhase}`);
+    assert(
+      state.storyMode?.ladder?.status === "complete",
+      failures,
+      `clear demo expected complete ladder, got ${state.storyMode?.ladder?.status}`,
+    );
+    assert(
+      state.storyMode?.ladder?.result === "cleared",
+      failures,
+      `clear demo expected cleared result, got ${state.storyMode?.ladder?.result}`,
+    );
+    assert(
+      state.storyMode?.ladder?.completedOpponents?.map((fighter) => fighter.fighterId).join(",") ===
+        "ginger-tabby-cat,pugilist-pug",
+      failures,
+      "clear demo should record both defeated runtime opponents",
+    );
+    assert(
+      state.storyMode?.ladder?.remainingOpponents?.length === 0,
+      failures,
+      "clear demo should have no remaining opponents",
+    );
+    assert(errors.length === 0, failures, `ladder clear console/page errors: ${JSON.stringify(errors)}`);
+    await context.close();
+  }
+
+  return { name: "championship-ladder", failures, errors: [], screenshots, states };
+}
+
 function checkThreeFighterRosterState(state, scenario, failures) {
   const rosterIds = Array.isArray(state.runtimeRoster)
     ? state.runtimeRoster.map((fighter) => fighter.fighterId)
@@ -981,6 +1084,7 @@ async function main() {
     results.push(await runDesktop(browser, args.url, args.outDir));
     results.push(await runTrainingDemo(browser, args.url, args.outDir));
     results.push(await runThreeFighterRuntimePolish(browser, args.url, args.outDir));
+    results.push(await runChampionshipLadderProgression(browser, args.url, args.outDir));
     results.push(await runGamepad(browser, args.url, args.outDir));
     results.push(await runRollDemo(browser, args.url, args.outDir));
     results.push(await runEndgameDemo(browser, args.url, args.outDir));

@@ -85,6 +85,16 @@ import { meterFillPlan, touchControlChrome, type TouchControlChrome } from "./ui
 type KeyMap = Record<string, Phaser.Input.Keyboard.Key>;
 type ImpactFlash = { color: number; alpha: number; remainingFrames: number; totalFrames: number };
 type StageLayerImage = { layer: StageRuntimeLayer; image: Phaser.GameObjects.Image };
+type ChampionshipLadderStatus = "inactive" | "in-progress" | "complete";
+type ChampionshipLadderResult = "cleared" | "failed" | null;
+interface ChampionshipLadderState {
+  status: ChampionshipLadderStatus;
+  result: ChampionshipLadderResult;
+  playerFighterId: string | null;
+  opponentIds: readonly string[];
+  opponentIndex: number;
+  completedOpponentIds: readonly string[];
+}
 const GAME_CONFIG = meowtalKombatConfig;
 const GAME_TITLE = GAME_CONFIG.title;
 const GAME_SUBTITLE = GAME_CONFIG.subtitle;
@@ -102,6 +112,7 @@ export class MeowtalArenaScene extends Phaser.Scene {
   private framePacing = createFramePacingState();
   private snapshot: MatchSnapshot = this.simulation.snapshot();
   private matchSet: MatchSetState = createMatchSet();
+  private championshipLadder: ChampionshipLadderState = inactiveChampionshipLadder();
   private p2CpuEnabled = true;
   private cpuDifficulty: CpuDifficulty = "normal";
   private readonly assetReadiness = buildAssetReadinessSummary(FIGHTER_ASSET_MANIFESTS, [GAME_CONFIG.stage]);
@@ -424,6 +435,7 @@ export class MeowtalArenaScene extends Phaser.Scene {
               premise: GAME_CONFIG.contentSpine.championship.premise,
               firstBeat: GAME_CONFIG.contentSpine.championship.firstStoryBeat,
               selectedRivals: [selectedFighterDetails.p1, selectedFighterDetails.p2],
+              ladder: this.championshipLadderTextState(),
             }
           : null,
       training: {
@@ -620,7 +632,15 @@ export class MeowtalArenaScene extends Phaser.Scene {
         matchSetStatus: this.matchSet.status,
       });
 
-      if (resetPressed || (this.shell.phase === "match-over" && nextShell.phase === "fighting")) {
+      const advancingFromMatchOver = this.shell.phase === "match-over" && nextShell.phase === "fighting";
+      if (resetPressed) {
+        this.championshipLadder = inactiveChampionshipLadder();
+      }
+      if (advancingFromMatchOver && selectedPlayMode(this.shell) === "championship") {
+        this.prepareChampionshipNextMatch();
+      }
+
+      if (resetPressed || advancingFromMatchOver) {
         this.matchSet = createMatchSet();
       }
 
@@ -694,6 +714,9 @@ export class MeowtalArenaScene extends Phaser.Scene {
 
       if (wasFighting && this.snapshot.status === "round-over") {
         this.matchSet = recordRoundOutcome(this.matchSet, this.snapshot.winner);
+        if (this.matchSet.status === "complete") {
+          this.recordChampionshipMatchOutcome();
+        }
       }
       this.audio.play(
         audioCueForMatchTransition(wasFighting ? "fighting" : this.snapshot.status, this.snapshot.status, this.matchSet),
@@ -780,9 +803,9 @@ export class MeowtalArenaScene extends Phaser.Scene {
       this.modeText
         .setText(
           selectedPlayMode(this.shell) === "training"
-            ? "TRAINING MODE"
+              ? "TRAINING MODE"
             : selectedPlayMode(this.shell) === "championship"
-              ? "CHAMPIONSHIP"
+              ? this.championshipModeText()
             : this.p2CpuEnabled
               ? `1 VS CPU ${this.cpuDifficulty.toUpperCase()}`
               : "P2 MANUAL",
@@ -1177,6 +1200,15 @@ export class MeowtalArenaScene extends Phaser.Scene {
     if (options.syncCpuToMode ?? true) {
       this.p2CpuEnabled = playModeUsesCpu(this.shell);
     }
+    if (selectedPlayMode(this.shell) === "championship") {
+      if (this.championshipLadder.status !== "in-progress") {
+        this.startChampionshipLadder();
+      }
+      this.syncChampionshipOpponentSelection();
+      this.p2CpuEnabled = true;
+    } else {
+      this.championshipLadder = inactiveChampionshipLadder();
+    }
     this.simulation = this.createSimulation();
     this.snapshot = this.simulation.snapshot();
     this.matchSet = createMatchSet();
@@ -1328,8 +1360,102 @@ export class MeowtalArenaScene extends Phaser.Scene {
   private cycleSelectedFighter(player: "p1" | "p2", direction: -1 | 1): void {
     const next = this.selectedFighterIndex[player] + direction;
     this.selectedFighterIndex[player] = (next + FIGHTER_ROSTER.length) % FIGHTER_ROSTER.length;
+    this.championshipLadder = inactiveChampionshipLadder();
     this.simulation = this.createSimulation();
     this.snapshot = this.simulation.snapshot();
+  }
+
+  private startChampionshipLadder(): void {
+    const playerFighterId = selectedFighter(this.selectedFighterIndex.p1).id;
+    const selectedOpponentId = selectedFighter(this.selectedFighterIndex.p2).id;
+    const remainingOpponentIds = FIGHTER_ROSTER.map((fighter) => fighter.id).filter((fighterId) => fighterId !== playerFighterId);
+    const opponentIds =
+      selectedOpponentId !== playerFighterId && remainingOpponentIds.includes(selectedOpponentId)
+        ? [selectedOpponentId, ...remainingOpponentIds.filter((fighterId) => fighterId !== selectedOpponentId)]
+        : remainingOpponentIds;
+
+    this.championshipLadder = {
+      status: opponentIds.length > 0 ? "in-progress" : "complete",
+      result: opponentIds.length > 0 ? null : "cleared",
+      playerFighterId,
+      opponentIds,
+      opponentIndex: 0,
+      completedOpponentIds: [],
+    };
+  }
+
+  private recordChampionshipMatchOutcome(): void {
+    if (selectedPlayMode(this.shell) !== "championship" || this.championshipLadder.status !== "in-progress") return;
+
+    const currentOpponentId = this.championshipCurrentOpponentId();
+    if (this.matchSet.matchWinner !== "p1") {
+      this.championshipLadder = {
+        ...this.championshipLadder,
+        status: "complete",
+        result: "failed",
+      };
+      return;
+    }
+
+    const completedOpponentIds = currentOpponentId
+      ? [...this.championshipLadder.completedOpponentIds, currentOpponentId]
+      : [...this.championshipLadder.completedOpponentIds];
+    const nextOpponentIndex = this.championshipLadder.opponentIndex + 1;
+    const ladderCleared = nextOpponentIndex >= this.championshipLadder.opponentIds.length;
+    this.championshipLadder = {
+      ...this.championshipLadder,
+      status: ladderCleared ? "complete" : "in-progress",
+      result: ladderCleared ? "cleared" : null,
+      opponentIndex: ladderCleared ? this.championshipLadder.opponentIndex : nextOpponentIndex,
+      completedOpponentIds,
+    };
+  }
+
+  private prepareChampionshipNextMatch(): void {
+    if (this.championshipLadder.status !== "in-progress") {
+      this.startChampionshipLadder();
+    }
+    this.syncChampionshipOpponentSelection();
+    this.simulation = this.createSimulation();
+    this.p2CpuEnabled = true;
+  }
+
+  private syncChampionshipOpponentSelection(): void {
+    const opponentId = this.championshipCurrentOpponentId();
+    if (!opponentId) return;
+
+    this.selectedFighterIndex.p2 = fighterRosterIndex(opponentId);
+  }
+
+  private championshipCurrentOpponentId(): string | null {
+    if (this.championshipLadder.status !== "in-progress") return null;
+    return this.championshipLadder.opponentIds[this.championshipLadder.opponentIndex] ?? null;
+  }
+
+  private championshipLadderTextState() {
+    const currentOpponentId = this.championshipCurrentOpponentId();
+    const completed = this.championshipLadder.completedOpponentIds.map((fighterId) => fighterSummary(fighterId));
+    const opponents = this.championshipLadder.opponentIds.map((fighterId) => fighterSummary(fighterId));
+    const remaining = this.championshipLadder.opponentIds
+      .slice(this.championshipLadder.status === "in-progress" ? this.championshipLadder.opponentIndex : this.championshipLadder.opponentIds.length)
+      .map((fighterId) => fighterSummary(fighterId));
+
+    return {
+      status: this.championshipLadder.status,
+      result: this.championshipLadder.result,
+      player: this.championshipLadder.playerFighterId ? fighterSummary(this.championshipLadder.playerFighterId) : null,
+      currentOpponent: currentOpponentId ? fighterSummary(currentOpponentId) : null,
+      currentOpponentNumber: this.championshipLadder.status === "in-progress" ? this.championshipLadder.opponentIndex + 1 : null,
+      totalOpponents: this.championshipLadder.opponentIds.length,
+      completedOpponents: completed,
+      remainingOpponents: remaining,
+      opponentOrder: opponents,
+      label: championshipLadderLabel(this.championshipLadder, currentOpponentId),
+    };
+  }
+
+  private championshipModeText(): string {
+    return championshipLadderLabel(this.championshipLadder, this.championshipCurrentOpponentId()).toUpperCase();
   }
 
   private playerTwoInput(frame: number) {
@@ -1446,6 +1572,8 @@ export class MeowtalArenaScene extends Phaser.Scene {
       this.demoMode !== "ko" &&
       this.demoMode !== "win" &&
       this.demoMode !== "cat-win" &&
+      this.demoMode !== "championship-ladder-advance" &&
+      this.demoMode !== "championship-ladder-clear" &&
       this.demoMode !== "hud-low"
     ) {
       return;
@@ -1486,9 +1614,77 @@ export class MeowtalArenaScene extends Phaser.Scene {
       this.primeWinDemo("p1");
     } else if (this.demoMode === "cat-win") {
       this.primeWinDemo("p2");
+    } else if (this.demoMode === "championship-ladder-advance") {
+      this.primeChampionshipLadderAdvanceDemo();
+    } else if (this.demoMode === "championship-ladder-clear") {
+      this.primeChampionshipLadderClearDemo();
     } else if (this.demoMode === "hud-low") {
       this.primeHudLowDemo();
     }
+  }
+
+  private primeChampionshipLadderAdvanceDemo(): void {
+    this.selectedFighterIndex = { p1: fighterRosterIndex("gray-rabbit"), p2: fighterRosterIndex("ginger-tabby-cat") };
+    this.shell = { phase: "fighting", selectedMode: "championship" };
+    this.startSelectedMatch({ syncCpuToMode: true });
+    this.forceChampionshipMatchOver("p1", "ginger-tabby-cat");
+    this.recordChampionshipMatchOutcome();
+  }
+
+  private primeChampionshipLadderClearDemo(): void {
+    this.selectedFighterIndex = { p1: fighterRosterIndex("gray-rabbit"), p2: fighterRosterIndex("pugilist-pug") };
+    this.shell = { phase: "fighting", selectedMode: "championship" };
+    this.championshipLadder = {
+      status: "in-progress",
+      result: null,
+      playerFighterId: "gray-rabbit",
+      opponentIds: ["ginger-tabby-cat", "pugilist-pug"],
+      opponentIndex: 1,
+      completedOpponentIds: ["ginger-tabby-cat"],
+    };
+    this.startSelectedMatch({ syncCpuToMode: true });
+    this.forceChampionshipMatchOver("p1", "pugilist-pug");
+    this.recordChampionshipMatchOutcome();
+  }
+
+  private forceChampionshipMatchOver(winner: "p1" | "p2", opponentId: string): void {
+    this.selectedFighterIndex.p2 = fighterRosterIndex(opponentId);
+    this.simulation = this.createSimulation();
+    const snapshot = this.simulation.snapshot();
+    this.matchSet = {
+      ...createMatchSet(),
+      round: 2,
+      wins: winner === "p1" ? { p1: 2, p2: 0 } : { p1: 0, p2: 2 },
+      lastRoundWinner: winner,
+      matchWinner: winner,
+      status: "complete",
+    };
+    this.shell = { phase: "match-over", selectedMode: "championship" };
+    this.shellPhaseFrame = 72;
+    this.snapshot = {
+      ...snapshot,
+      frame: 900,
+      status: "round-over",
+      winner,
+      p1: {
+        ...snapshot.p1,
+        x: winner === "p1" ? 500 : 360,
+        meter: winner === "p1" ? POWER_METER_STOCK : Math.floor(POWER_METER_STOCK / 3),
+        state: winner === "p1" ? "idle" : "knockdown",
+        stateFrame: winner === "p1" ? 40 : 36,
+        hitstop: 0,
+        health: winner === "p1" ? 740 : 0,
+      },
+      p2: {
+        ...snapshot.p2,
+        x: winner === "p1" ? 710 : 560,
+        meter: winner === "p1" ? Math.floor(POWER_METER_STOCK / 3) : POWER_METER_STOCK,
+        state: winner === "p1" ? "knockdown" : "idle",
+        stateFrame: winner === "p1" ? 36 : 40,
+        hitstop: 0,
+        health: winner === "p1" ? 0 : 760,
+      },
+    };
   }
 
   private primeHeavyPunchDemo(): void {
@@ -2236,6 +2432,46 @@ function nextCpuDifficulty(current: CpuDifficulty): CpuDifficulty {
 
 function selectedFighter(index: number) {
   return selectedFighterFromConfig(GAME_CONFIG, index);
+}
+
+function fighterRosterIndex(fighterId: string): number {
+  const index = FIGHTER_ROSTER.findIndex((fighter) => fighter.id === fighterId);
+  if (index < 0) {
+    throw new Error(`Missing runtime fighter ${fighterId}.`);
+  }
+  return index;
+}
+
+function fighterSummary(fighterId: string) {
+  const fighter = FIGHTER_ROSTER[fighterRosterIndex(fighterId)];
+  return {
+    fighterId: fighter.id,
+    displayName: fighter.displayName,
+  };
+}
+
+function inactiveChampionshipLadder(): ChampionshipLadderState {
+  return {
+    status: "inactive",
+    result: null,
+    playerFighterId: null,
+    opponentIds: [],
+    opponentIndex: 0,
+    completedOpponentIds: [],
+  };
+}
+
+function championshipLadderLabel(ladder: ChampionshipLadderState, currentOpponentId: string | null): string {
+  if (ladder.status === "complete") {
+    return ladder.result === "cleared" ? "Championship cleared" : "Championship run ended";
+  }
+  if (ladder.status !== "in-progress" || !currentOpponentId) {
+    return "Championship ladder";
+  }
+
+  return `Championship ${ladder.opponentIndex + 1}/${ladder.opponentIds.length}: ${
+    fighterSummary(currentOpponentId).displayName
+  }`;
 }
 
 function runtimeUiAssetConfig(id: RuntimeUiAssetId): RuntimeUiAssetConfig {

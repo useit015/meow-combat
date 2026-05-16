@@ -117,7 +117,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T050
+active_task: T051
 
 tasks:
   - id: T001
@@ -3232,7 +3232,7 @@ tasks:
   - id: T050
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: medium
     objective: "Turn championship from a single polished CPU fight shell into a minimal three-fighter ladder progression using the current runtime roster and existing assets only."
     allowed_files:
@@ -3262,20 +3262,83 @@ tasks:
       - "No generated fighter rows, sprite scales, cell sizes, dependencies, or audio are changed."
       - "Focused tests, full verify, and championship ladder smoke pass."
       - "Full AAA outcome remains explicitly incomplete."
+    receipt:
+      result: done
+      decision: accept_championship_ladder
+      full_outcome_complete: false
+      note: notes/T050-championship-three-fighter-ladder.md
+      summary: "Turned championship mode into a minimal three-fighter ladder over the current runtime roster. The ladder records completed opponents, advances from Ginger Tabby Cat to Pickles Pugilist, syncs P2/CPU to the next opponent, exposes ladder state through runtime text, and records cleared/failed results without touching fighter rows, generated assets, sprite scale, cell size, dependencies, or audio."
+      changed_files:
+        - "src/game/MeowtalArenaScene.ts"
+        - "scripts/smoke-meowtal-browser.mjs"
+        - "docs/goals/aaa-game-expansion/notes/T050-championship-three-fighter-ladder.md"
+        - "docs/goals/aaa-game-expansion/state.yaml"
+      evidence:
+        - "No diffs under assets/source/imagegen/fighters, public/assets/generated/fighters, or output/imagegen."
+        - "Pickles source/public rows compare byte-identical for all 14 rows."
+        - "Smoke report output/web-game/championship-three-fighter-ladder/report.json has failures=[]."
+        - "Championship ladder smoke proved Gray Rabbit defeats Ginger Tabby Cat, advances to Pickles Pugilist, starts the next fight with Pickles as P2/CPU, and clears the ladder after both runtime opponents."
+        - "Visual screenshots output/web-game/championship-three-fighter-ladder/championship-ladder-next-fight.png and output/web-game/championship-three-fighter-ladder/championship-ladder-clear-match-over.png show stable character proportions and no visible size drift."
+      verification:
+        result: pass
+        commands:
+          - "git diff --name-only -- assets/source/imagegen/fighters public/assets/generated/fighters output/imagegen"
+          - "for row in idle walk-forward walk-back crouch jump light-punch heavy-punch light-kick special hitstun blockstun knockdown win lose; do cmp -s assets/source/imagegen/fighters/pugilist-pug/$row.png public/assets/generated/fighters/pugilist-pug/$row.png; done"
+          - "npm test -- test/game-bible.test.ts test/character-select.test.ts test/combat-core.test.ts"
+          - "npm run typecheck"
+          - "npm run verify"
+          - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/championship-three-fighter-ladder"
+      residual_risks:
+        - "Championship progression is now functional but still lacks richer story interstitials, bracket presentation, save/continue, and completion rewards."
+        - "Broad AAA goal remains incomplete."
+      judge_review:
+        decision: approved
+        summary: "Judge accepted T050 with no blockers, confirmed no fighter rows/generated assets/scale logic/dependencies/audio changed, and recommended a bounded championship/UI polish selection or post-T050 audit before further expansion."
+      spawned_tasks:
+        - T051
+  - id: T051
+    type: judge
+    assignee: Judge
+    status: active
+    reasoning_hint: high
+    objective: "Choose the next highest-leverage safe package after the three-fighter championship ladder. Decide between bounded championship/UI polish, story interstitials, training/mode depth, post-T050 audit, or another non-asset gameplay slice while preserving the hard no-size-change rule."
+    inputs:
+      - "T048 three-fighter runtime polish receipt"
+      - "T050 championship ladder receipt"
+      - "docs/goals/aaa-game-expansion/goal.md"
+      - "Current project files and smoke reports"
+      - "Owner hard rule: character size should not change"
+    constraints:
+      - "Read-only."
+      - "Do not implement."
+      - "Do not generate or edit image/audio assets."
+      - "Do not approve fighter row regeneration, resizing, normalization, sprite scale changes, cell size changes, or generated asset churn."
+      - "Do not expand into a fourth-fighter playable promotion unless a later task explicitly proves all animation/QA gates."
+      - "Prefer a coherent playable improvement with exact allowed_files, verification commands, stop_if conditions, and acceptance criteria."
+      - "Keep the broad AAA outcome explicitly incomplete unless a final audit proves otherwise."
+    expected_output:
+      - "Decision: proceed_with_worker | require_scout | require_audit | ask_owner"
+      - "Rationale and rejected alternatives"
+      - "Exact next Worker/Judge/Scout objective"
+      - "allowed_files"
+      - "verify"
+      - "stop_if"
+      - "acceptance checklist"
+      - "Parallelization safety notes"
     receipt: null
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T048
+    task: T050
     commands:
       - "git diff --name-only -- assets/source/imagegen/fighters public/assets/generated/fighters output/imagegen"
       - "for row in idle walk-forward walk-back crouch jump light-punch heavy-punch light-kick special hitstun blockstun knockdown win lose; do cmp -s assets/source/imagegen/fighters/pugilist-pug/$row.png public/assets/generated/fighters/pugilist-pug/$row.png; done"
-      - "npm test -- test/game-config.test.ts test/game-bible.test.ts test/character-select.test.ts test/combat-core.test.ts test/combat-effects.test.ts"
+      - "npm test -- test/game-bible.test.ts test/character-select.test.ts test/combat-core.test.ts"
       - "npm run typecheck"
       - "npm run verify"
-      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/three-fighter-runtime-polish"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/championship-three-fighter-ladder"
   t021_verification:
     result: pass
     task: T021
