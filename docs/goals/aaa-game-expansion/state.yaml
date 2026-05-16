@@ -117,7 +117,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T068
+active_task: T069
 
 tasks:
   - id: T001
@@ -4408,7 +4408,7 @@ tasks:
   - id: T068
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Review the T067 Noodle Nibbles animation preflight and decide whether the next safe roster-production Worker should create only the source-only Noodle idle row as the future scale baseline."
     inputs:
@@ -4429,6 +4429,64 @@ tasks:
       - "Exact next Worker objective if approved."
       - "Allowed files, verification commands, stop conditions, and acceptance criteria."
       - "Parallel-safety decision."
+    receipt:
+      result: done
+      decision: revise_preflight
+      full_outcome_complete: false
+      note: notes/T068-noodle-preflight-judge.md
+      summary: "Rejected immediate Noodle idle-row imagegen because the TypeScript preflight is strong but the source-controlled JSON/HTML review artifacts omit row-generation briefs, motion language, full acceptance criteria, and rejection triggers. Approved a bounded non-raster artifact-hardening Worker before any idle-row production."
+      rejected_alternatives:
+        - "approve_idle_worker: the artifacts are too weak to serve as the complete production prompt contract."
+        - "ask_owner: no new owner decision is needed because this is a local no-slop QA gap."
+        - "pause: safe local artifact/test hardening remains available."
+      evidence:
+        - "src/assets/fighterAnimationPreflight.ts contains rowGenerationBrief, motionLanguage, acceptanceCriteria, and rejectionTriggers for Noodle rows."
+        - "output/animation-preflight/noodle-nibbles-animation-plan.json omits those row-level production fields."
+        - "output/animation-preflight/noodle-nibbles-animation-plan.html omits row-generation brief and rejection-trigger detail."
+        - "test ! -e public/assets/generated/fighters/ferret-noodle remains the required public-runtime absence guard."
+      spawned_tasks:
+        - T069
+  - id: T069
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: medium
+    objective: "Harden the Noodle Nibbles / ferret-noodle animation preflight review artifacts so the source-controlled JSON/HTML preserve the full row-production contract, including row-generation briefs, motion language, acceptance criteria, and rejection triggers. Add tests that fail if those artifact fields disappear again."
+    inputs:
+      - "T068 Judge receipt."
+      - "T067 Noodle animation preflight."
+      - "Existing Noodle JSON/HTML review artifacts."
+      - "Existing artifact rendering/tests."
+    constraints:
+      - "Do not run imagegen."
+      - "Do not create, regenerate, resize, normalize, crop, repack, or pixel-edit any raster asset or fighter row."
+      - "Do not create or modify any public/assets/generated/fighters/ferret-noodle files."
+      - "Do not change runtime roster, select screen, championship ladder, combat frame data, hitboxes, damage, pushback, movement, sprite scale, placement, frame size, dependencies, audio, source records, or lockfiles."
+      - "Preserve character size contract: exact 256x256 cells and no-size-drift/no-drift gates must remain explicit."
+      - "Do not mark the full AAA outcome complete."
+    allowed_files:
+      - "src/assets/fighterAnimationPreflight.ts"
+      - "test/fighter-animation-preflight.test.ts"
+      - "output/animation-preflight/noodle-nibbles-animation-plan.json"
+      - "output/animation-preflight/noodle-nibbles-animation-plan.html"
+      - "docs/goals/aaa-game-expansion/notes/T069-noodle-preflight-artifacts.md"
+      - "docs/goals/aaa-game-expansion/state.yaml"
+    verify:
+      - "npm test -- test/fighter-animation-preflight.test.ts test/imagegen-jobs.test.ts test/source-roster-lab.test.ts test/game-config.test.ts"
+      - "npm run typecheck"
+      - "test ! -e public/assets/generated/fighters/ferret-noodle"
+      - "rg -n \"rowGenerationBrief|motionLanguage|acceptanceCriteria|rejectionTriggers|Noodle Nibbles idle|long-body guard sway|no-size-drift|not playable\" output/animation-preflight/noodle-nibbles-animation-plan.json output/animation-preflight/noodle-nibbles-animation-plan.html test/fighter-animation-preflight.test.ts src/assets/fighterAnimationPreflight.ts"
+      - "git diff --name-only -- assets/source/imagegen/fighters public/assets/generated/fighters output/imagegen package.json package-lock.json src/game/audio.ts public/assets/audio assets/source/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts src/core/frameData.ts"
+    stop_if:
+      - "The implementation requires generating or editing raster assets."
+      - "The implementation requires runtime roster/select/combat/public asset/audio/dependency/sprite sizing/frame-data changes."
+      - "The artifacts cannot preserve full row-level production fields without introducing a larger asset pipeline change."
+      - "Verification fails twice."
+    acceptance:
+      - "The Noodle JSON artifact includes rowGenerationBrief, motionLanguage, acceptanceCriteria, and rejectionTriggers for the idle row and all other required rows."
+      - "The Noodle HTML artifact exposes enough row-level contract detail to review idle-row production without reading TypeScript."
+      - "Tests assert the output artifacts include those fields and still do not claim Noodle is playable."
+      - "No generated assets, fighter rows, public runtime assets, audio, dependencies, sprite sizing, placement, or frame-data files changed."
 
 checks:
   dirty_fingerprint: unknown
