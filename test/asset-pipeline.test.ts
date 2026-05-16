@@ -108,6 +108,7 @@ describe("fighter asset manifests", () => {
       ["crouch", "assets/source/imagegen/fighters/ferret-noodle/crouch.png"],
       ["jump", "assets/source/imagegen/fighters/ferret-noodle/jump.png"],
       ["light-punch", "assets/source/imagegen/fighters/ferret-noodle/light-punch.png"],
+      ["heavy-punch", "assets/source/imagegen/fighters/ferret-noodle/heavy-punch.png"],
       ["light-kick", "assets/source/imagegen/fighters/ferret-noodle/light-kick.png"],
       ["hitstun", "assets/source/imagegen/fighters/ferret-noodle/hitstun.png"],
       ["blockstun", "assets/source/imagegen/fighters/ferret-noodle/blockstun.png"],

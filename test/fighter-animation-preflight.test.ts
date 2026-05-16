@@ -394,6 +394,16 @@ describe("Noodle Nibbles animation preflight", () => {
     expect(existsSync(join(process.cwd(), "public/assets/generated/fighters/ferret-noodle"))).toBe(false);
   });
 
+  it("keeps generated Noodle heavy-punch source-only with no-size-drift body twist", () => {
+    const heavyPunchBounds = alphaBoundsByFrame("assets/source/imagegen/fighters/ferret-noodle/heavy-punch.png", 8);
+
+    expect(heavyPunchBounds.every((frame) => frame.width >= 150 && frame.width <= 210)).toBe(true);
+    expect(Math.max(...heavyPunchBounds.map((frame) => frame.width))).toBeGreaterThanOrEqual(205);
+    expect(heavyPunchBounds.every((frame) => frame.height >= 210 && frame.height <= 230)).toBe(true);
+    expect(heavyPunchBounds.every((frame) => frame.opaquePixels >= 17_800)).toBe(true);
+    expect(existsSync(join(process.cwd(), "public/assets/generated/fighters/ferret-noodle"))).toBe(false);
+  });
+
   it("keeps generated Noodle defense reactions source-only with compact recoil poses", () => {
     const hitstunBounds = alphaBoundsByFrame("assets/source/imagegen/fighters/ferret-noodle/hitstun.png", 5);
     const blockstunBounds = alphaBoundsByFrame("assets/source/imagegen/fighters/ferret-noodle/blockstun.png", 5);

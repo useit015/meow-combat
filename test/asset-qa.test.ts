@@ -150,8 +150,8 @@ describe("imagegen asset QA command", () => {
     });
     const summary = JSON.parse(output) as AssetQaSummary;
 
-    expect(summary.checked).toBe(158);
-    expect(summary.runtimeReady).toBe(102);
+    expect(summary.checked).toBe(160);
+    expect(summary.runtimeReady).toBe(104);
     expect(summary.needsNormalization).toBe(56);
     expect(summary.rows.map((row) => `${row.kind}:${row.fighterId}:${row.animationId}`).sort()).toEqual([
       "normalized-candidate:atlas-lion:blockstun",
@@ -170,6 +170,7 @@ describe("imagegen asset QA command", () => {
       "normalized-candidate:atlas-lion:win",
       "normalized-candidate:ferret-noodle:blockstun",
       "normalized-candidate:ferret-noodle:crouch",
+      "normalized-candidate:ferret-noodle:heavy-punch",
       "normalized-candidate:ferret-noodle:hitstun",
       "normalized-candidate:ferret-noodle:idle",
       "normalized-candidate:ferret-noodle:jump",
@@ -249,6 +250,7 @@ describe("imagegen asset QA command", () => {
       "source:atlas-lion:win",
       "source:ferret-noodle:blockstun",
       "source:ferret-noodle:crouch",
+      "source:ferret-noodle:heavy-punch",
       "source:ferret-noodle:hitstun",
       "source:ferret-noodle:idle",
       "source:ferret-noodle:jump",
@@ -332,6 +334,7 @@ describe("imagegen asset QA command", () => {
       "atlas-lion:win",
       "ferret-noodle:blockstun",
       "ferret-noodle:crouch",
+      "ferret-noodle:heavy-punch",
       "ferret-noodle:hitstun",
       "ferret-noodle:idle",
       "ferret-noodle:jump",
@@ -421,7 +424,7 @@ describe("imagegen asset QA command", () => {
     }
 
     const normalizedRows = summary.rows.filter((row) => row.kind === "normalized-candidate");
-    expect(normalizedRows).toHaveLength(79);
+    expect(normalizedRows).toHaveLength(80);
     for (const row of normalizedRows) {
       expect(row.expected).toEqual({ width: row.frameCount * 256, height: 256 });
       expect(row.dimensions).toEqual(row.expected);
