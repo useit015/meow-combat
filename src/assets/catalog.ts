@@ -132,6 +132,8 @@ const generatedAnimationRows: Record<string, Partial<Record<FighterAnimationSpec
     "walk-back": "assets/source/imagegen/fighters/pugilist-pug/walk-back.png",
     crouch: "assets/source/imagegen/fighters/pugilist-pug/crouch.png",
     jump: "assets/source/imagegen/fighters/pugilist-pug/jump.png",
+    "light-punch": "assets/source/imagegen/fighters/pugilist-pug/light-punch.png",
+    "light-kick": "assets/source/imagegen/fighters/pugilist-pug/light-kick.png",
   },
 };
 

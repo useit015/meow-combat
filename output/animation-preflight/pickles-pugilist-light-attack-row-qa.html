@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Pickles Pugilist Light Attack Row QA</title>
+    <style>
+      body { font-family: system-ui, sans-serif; margin: 24px; background: #111; color: #f5f5f5; }
+      img { display: block; max-width: 100%; margin: 12px 0 24px; background: #0f0; image-rendering: auto; }
+      code { color: #ffe08a; }
+      .pass { color: #7dff9f; }
+    </style>
+  </head>
+  <body>
+    <h1>Pickles Pugilist Light Attack Row QA</h1>
+    <p class="pass">PASS: source-only <code>light-punch</code> and <code>light-kick</code> rows accepted for T034.</p>
+    <h2>Light Punch</h2>
+    <p>Exact <code>1536x256</code> alpha spritesheet. Compact jab, stable guard, no heavy/special read, no baked effects.</p>
+    <img src="../imagegen/pugilist-pug-light-punch-normalized.png" alt="Pickles Pugilist light-punch normalized source row" />
+    <h2>Light Kick</h2>
+    <p>Exact <code>2048x256</code> alpha spritesheet. Controlled low-to-mid starter kick, non-acrobatic, stable pug traits.</p>
+    <img src="../imagegen/pugilist-pug-light-kick-normalized.png" alt="Pickles Pugilist light-kick normalized source row" />
+    <h2>Size Audit</h2>
+    <p>Idle body height is <code>228px</code>. Light-punch body heights are <code>201-227px</code> because the jab pose tucks the body; light-kick body heights are <code>212-222px</code>. The earlier jump row is flagged for corrective replacement because it shrinks to <code>144-158px</code>.</p>
+    <h2>Runtime Gate</h2>
+    <p>No <code>public/assets/generated/fighters/pugilist-pug</code> folder is introduced; Pickles remains non-playable.</p>
+  </body>
+</html>

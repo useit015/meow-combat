@@ -1,0 +1,90 @@
+{
+  "task": "T034",
+  "fighterId": "pugilist-pug",
+  "displayName": "Pickles Pugilist",
+  "status": "pass",
+  "sourceOnly": true,
+  "publicRuntimePromotion": false,
+  "referenceRows": [
+    "assets/source/imagegen/fighters/pugilist-pug/idle.png",
+    "assets/source/imagegen/fighters/pugilist-pug/walk-forward.png",
+    "assets/source/imagegen/fighters/pugilist-pug/walk-back.png",
+    "assets/source/imagegen/fighters/pugilist-pug/crouch.png",
+    "assets/source/imagegen/fighters/pugilist-pug/jump.png"
+  ],
+  "sizeAudit": {
+    "rule": "Character body scale must not shrink or grow between animation rows. Pose silhouette may change, but head/glove/body scale must remain anchored to idle and grounded rows.",
+    "idleBodyHeightPx": 228,
+    "acceptedLightAttackBodyHeightsPx": {
+      "light-punch": [227, 222, 201, 209, 227, 227],
+      "light-kick": [215, 222, 215, 213, 212, 217, 214, 215]
+    },
+    "knownCorrectiveFollowUp": "The previously accepted jump row has 144-158px body height and must be replaced before heavier attacks, reactions, or playable promotion."
+  },
+  "rows": [
+    {
+      "animationId": "light-punch",
+      "verdict": "pass",
+      "candidatePath": "assets/source/imagegen/fighters/pugilist-pug/candidates/light-punch-codex-01.png",
+      "candidateSha256": "e74eaa4b3cbb899791c310c1744e535357674696d2b987fc4794eccf9eeaeba3",
+      "acceptedPath": "assets/source/imagegen/fighters/pugilist-pug/light-punch.png",
+      "acceptedSha256": "670e9cbf334dd63db01f50315e33ff1bde9ddfd73df7844d8d9d99f511d47de6",
+      "normalizedProofPath": "output/imagegen/pugilist-pug-light-punch-normalized.png",
+      "dimensions": {
+        "candidate": { "width": 2172, "height": 724, "hasAlpha": false },
+        "accepted": { "width": 1536, "height": 256, "hasAlpha": true },
+        "expected": { "width": 1536, "height": 256 }
+      },
+      "detectedFrames": [
+        { "x": 11, "y": 186, "width": 298, "height": 341 },
+        { "x": 358, "y": 186, "width": 348, "height": 341 },
+        { "x": 715, "y": 186, "width": 381, "height": 341 },
+        { "x": 1107, "y": 186, "width": 362, "height": 341 },
+        { "x": 1476, "y": 186, "width": 295, "height": 341 },
+        { "x": 1824, "y": 186, "width": 297, "height": 341 }
+      ],
+      "qa": {
+        "identity": "pass",
+        "scale": "pass",
+        "motion": "pass",
+        "alpha": "pass",
+        "notes": "Quick jab reads as a starter punch, not a heavy or special. Pickles stays grounded, compact, two-legged, and consistent in gloves, muzzle, ears, belt, tail curl, palette, and silhouette. Attack-extension frames reduce silhouette height through pose, not global shrink."
+      }
+    },
+    {
+      "animationId": "light-kick",
+      "verdict": "pass",
+      "candidatePath": "assets/source/imagegen/fighters/pugilist-pug/candidates/light-kick-codex-01.png",
+      "candidateSha256": "05de74f66ef41f19dc2092f3e7531500ac716999f4dd3bb388011615968def09",
+      "acceptedPath": "assets/source/imagegen/fighters/pugilist-pug/light-kick.png",
+      "acceptedSha256": "09b02e271701156363a976002aec19c40949bd22a1021cc209637b2ac26739d3",
+      "normalizedProofPath": "output/imagegen/pugilist-pug-light-kick-normalized.png",
+      "dimensions": {
+        "candidate": { "width": 2172, "height": 724, "hasAlpha": false },
+        "accepted": { "width": 2048, "height": 256, "hasAlpha": true },
+        "expected": { "width": 2048, "height": 256 }
+      },
+      "detectedFrames": [
+        { "x": 19, "y": 201, "width": 239, "height": 302 },
+        { "x": 295, "y": 201, "width": 232, "height": 302 },
+        { "x": 548, "y": 201, "width": 253, "height": 302 },
+        { "x": 801, "y": 201, "width": 283, "height": 302 },
+        { "x": 1084, "y": 201, "width": 269, "height": 302 },
+        { "x": 1354, "y": 201, "width": 234, "height": 302 },
+        { "x": 1611, "y": 201, "width": 239, "height": 302 },
+        { "x": 1881, "y": 201, "width": 238, "height": 302 }
+      ],
+      "qa": {
+        "identity": "pass",
+        "scale": "pass",
+        "motion": "pass",
+        "alpha": "pass",
+        "notes": "Low-to-mid kick remains controlled and non-acrobatic. Foot scale is readable without becoming a giant-foot gag; head, gloves, muzzle, ears, belt, and tail remain stable. Body height stays close to idle/grounded scale."
+      }
+    }
+  ],
+  "runtimeProof": {
+    "publicPathAbsent": "public/assets/generated/fighters/pugilist-pug",
+    "playablePromotion": "blocked"
+  }
+}

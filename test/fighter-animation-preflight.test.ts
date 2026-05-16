@@ -58,7 +58,7 @@ describe("Pickles Pugilist animation preflight", () => {
       outputPath: "assets/source/imagegen/fighters/pugilist-pug/idle.png",
     });
     expect(plannedManifest?.animations.filter((animation) => animation.source.status === "generated").map((animation) => animation.id)).toEqual(
-      ["idle", "walk-forward", "walk-back", "crouch", "jump"],
+      ["idle", "walk-forward", "walk-back", "crouch", "jump", "light-punch", "light-kick"],
     );
   });
 
