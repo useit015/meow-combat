@@ -78,20 +78,28 @@ describe("fighter asset manifests", () => {
   });
 
   it("keeps planned Pawbreaker roster additions source-only until full animation approval", () => {
-    const pug = pawbreakerPlannedFighterAssetManifests.find((manifest) => manifest.id === "pugilist-pug");
+    const expectedNames = {
+      "pugilist-pug": "Pickles Pugilist",
+      "ferret-noodle": "Noodle Nibbles",
+      "tortoise-tofu": "Tofu Tortoise",
+    } as const;
 
-    expect(pug?.displayName).toBe("Pickles Pugilist");
-    expect(pug?.canonicalReference).toMatchObject({
-      status: "generated",
-      outputPath: "assets/source/imagegen/fighters/pugilist-pug/canonical-character-sheet.png",
-    });
-    expect(existsSync(pug?.canonicalReference.outputPath ?? "")).toBe(true);
-    expect(validateFighterManifest(pug!)).toEqual({ ok: true, errors: [] });
-    expect(pug?.animations).toHaveLength(REQUIRED_FIGHTER_ANIMATIONS.length);
-    for (const animation of pug?.animations ?? []) {
-      expect(animation.source.status).toBe("blocked");
-      expect(animation.source.outputPath).toBeNull();
-      expect(animation.source.blocker).toContain("source-only model sheet");
+    expect(pawbreakerPlannedFighterAssetManifests.map((manifest) => manifest.id)).toEqual(Object.keys(expectedNames));
+
+    for (const manifest of pawbreakerPlannedFighterAssetManifests) {
+      expect(manifest.displayName).toBe(expectedNames[manifest.id as keyof typeof expectedNames]);
+      expect(manifest.canonicalReference).toMatchObject({
+        status: "generated",
+        outputPath: `assets/source/imagegen/fighters/${manifest.id}/canonical-character-sheet.png`,
+      });
+      expect(existsSync(manifest.canonicalReference.outputPath ?? "")).toBe(true);
+      expect(validateFighterManifest(manifest)).toEqual({ ok: true, errors: [] });
+      expect(manifest.animations).toHaveLength(REQUIRED_FIGHTER_ANIMATIONS.length);
+      for (const animation of manifest.animations) {
+        expect(animation.source.status).toBe("blocked");
+        expect(animation.source.outputPath).toBeNull();
+        expect(animation.source.blocker).toContain("source-only model sheet");
+      }
     }
   });
 });

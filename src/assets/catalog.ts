@@ -240,6 +240,48 @@ export const pawbreakerPlannedFighterAssetManifests: readonly FighterAssetManife
     ),
     animations: animationSpecsFor("pugilist-pug", sourceOnlyAnimationBlocker),
   },
+  {
+    id: "ferret-noodle",
+    displayName: "Noodle Nibbles",
+    engineCharacterId: "ferret-noodle",
+    archetype: "source-only mix-up and side-switch specialist",
+    designNotes: [
+      "Pawbreaker planned roster fighter: cute upright ferret sock thief with long flexible body and readable trickster silhouettes.",
+      "Keep the ferret identity locked through tapered muzzle, bright mischievous eyes, rounded ears, long torso, short legs, ringed tail, and sock-belt gag.",
+      "Source-only model sheet for now; do not promote to runtime or generate animation rows until a separate QA task approves the rig.",
+    ],
+    asymmetryNotes: [
+      "Sock props, mask markings, tail rings, and belt pouches may be side-specific; do not mirror rows until reviewed.",
+    ],
+    identityLock: identityLockFor(),
+    productionAcceptance: fighterProductionAcceptance,
+    canonicalReference: generatedSource(
+      "ferret-noodle-canonical-character-sheet",
+      "assets/source/imagegen/fighters/ferret-noodle/canonical-character-sheet.png",
+    ),
+    animations: animationSpecsFor("ferret-noodle", sourceOnlyAnimationBlocker),
+  },
+  {
+    id: "tortoise-tofu",
+    displayName: "Tofu Tortoise",
+    engineCharacterId: "tortoise-tofu",
+    archetype: "source-only armored grappler with slow command-grab readability",
+    designNotes: [
+      "Pawbreaker planned roster fighter: cute upright tortoise armored grappler with calm face, huge shell mass, and funny heavy landings.",
+      "Keep the tortoise identity locked through domed shell, squat limbs, gentle beak, sturdy stance, shell plates, and slow patient pose language.",
+      "Source-only model sheet for now; do not promote to runtime or generate animation rows until a separate QA task approves the rig.",
+    ],
+    asymmetryNotes: [
+      "Shell chips, bandage wraps, plate markings, and elbow-pad scuffs may be side-specific; do not mirror rows until reviewed.",
+    ],
+    identityLock: identityLockFor(),
+    productionAcceptance: fighterProductionAcceptance,
+    canonicalReference: generatedSource(
+      "tortoise-tofu-canonical-character-sheet",
+      "assets/source/imagegen/fighters/tortoise-tofu/canonical-character-sheet.png",
+    ),
+    animations: animationSpecsFor("tortoise-tofu", sourceOnlyAnimationBlocker),
+  },
 ];
 
 export const stageAssetManifests: readonly StageAssetManifest[] = [

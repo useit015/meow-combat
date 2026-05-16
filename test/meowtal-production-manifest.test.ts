@@ -17,7 +17,11 @@ describe("Meowtal production manifest", () => {
       "gray-rabbit",
       "ginger-tabby-cat",
     ]);
-    expect(meowtalProductionManifest.sourceOnlyFighters.map((fighter) => fighter.id)).toEqual(["pugilist-pug"]);
+    expect(meowtalProductionManifest.sourceOnlyFighters.map((fighter) => fighter.id)).toEqual([
+      "pugilist-pug",
+      "ferret-noodle",
+      "tortoise-tofu",
+    ]);
     expect(meowtalProductionManifest.stage.layers.map((layer) => layer.id)).toEqual([
       "sky-lighting",
       "distant-hills-city",
@@ -33,7 +37,7 @@ describe("Meowtal production manifest", () => {
 
     const entries = collectMeowtalProvenanceEntries();
     const runtimeEntries = entries.filter((entry) => entry.runtimePath !== null);
-    expect(entries).toHaveLength(1 + 2 + 2 * REQUIRED_FIGHTER_ANIMATIONS.length + 6 + 16 + 11);
+    expect(entries).toHaveLength(3 + 2 + 2 * REQUIRED_FIGHTER_ANIMATIONS.length + 6 + 16 + 11);
     expect(runtimeEntries.map((entry) => entry.assetId).sort()).toEqual([
       "ginger-tabby-cat:blockstun",
       "ginger-tabby-cat:crouch",
@@ -100,36 +104,43 @@ describe("Meowtal production manifest", () => {
     expect(runtimeEntries.every((entry) => entry.status === "approved")).toBe(true);
   });
 
-  it("tracks Pickles Pugilist as a source-only model sheet, not playable runtime content", () => {
-    const pug = meowtalProductionManifest.sourceOnlyFighters[0];
-    const provenance = pug?.canonicalSheet.provenance;
+  it("tracks planned Pawbreaker model sheets as source-only, not playable runtime content", () => {
+    const expectedNames = {
+      "pugilist-pug": "Pickles Pugilist",
+      "ferret-noodle": "Noodle Nibbles",
+      "tortoise-tofu": "Tofu Tortoise",
+    } as const;
 
-    expect(pug).toMatchObject({
-      id: "pugilist-pug",
-      displayName: "Pickles Pugilist",
-      engineCharacterId: null,
-      sourceOnly: true,
-    });
-    expect(pug?.animationRows).toEqual([]);
-    expect(pug?.canonicalSheet).toMatchObject({
-      requiredBeforeAnimationRows: true,
-      styleLockApproved: true,
-    });
-    expect(provenance).toMatchObject({
-      assetId: "pugilist-pug:canonical-character-sheet",
-      status: "generated",
-      sourceKind: "codex-imagegen",
-      sourcePath: "assets/source/imagegen/fighters/pugilist-pug/canonical-character-sheet.png",
-      runtimePath: null,
-      createdOrDownloadedOn: "2026-05-16",
-      blocker: null,
-    });
-    expect(provenance?.approvalNotes).toContain("source-only identity lock");
-    expect(provenance?.approvalNotes).toContain("not a runtime sprite");
-    expect(existsSync(join(process.cwd(), provenance?.sourcePath ?? ""))).toBe(true);
-    expect(existsSync(join(process.cwd(), "public/assets/generated/fighters/pugilist-pug/canonical-character-sheet.png"))).toBe(
-      false,
-    );
+    for (const fighter of meowtalProductionManifest.sourceOnlyFighters) {
+      const provenance = fighter.canonicalSheet.provenance;
+
+      expect(fighter).toMatchObject({
+        id: fighter.id,
+        displayName: expectedNames[fighter.id],
+        engineCharacterId: null,
+        sourceOnly: true,
+      });
+      expect(fighter.animationRows).toEqual([]);
+      expect(fighter.canonicalSheet).toMatchObject({
+        requiredBeforeAnimationRows: true,
+        styleLockApproved: true,
+      });
+      expect(provenance).toMatchObject({
+        assetId: `${fighter.id}:canonical-character-sheet`,
+        status: "generated",
+        sourceKind: "codex-imagegen",
+        sourcePath: `assets/source/imagegen/fighters/${fighter.id}/canonical-character-sheet.png`,
+        runtimePath: null,
+        createdOrDownloadedOn: "2026-05-16",
+        blocker: null,
+      });
+      expect(provenance.approvalNotes).toContain("source-only identity lock");
+      expect(provenance.approvalNotes).toContain("not a runtime sprite");
+      expect(existsSync(join(process.cwd(), provenance.sourcePath ?? ""))).toBe(true);
+      expect(existsSync(join(process.cwd(), `public/assets/generated/fighters/${fighter.id}/canonical-character-sheet.png`))).toBe(
+        false,
+      );
+    }
   });
 
   it("tracks approved runtime parallax courtyard layers", () => {

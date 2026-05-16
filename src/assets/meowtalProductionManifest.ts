@@ -11,7 +11,7 @@ import {
 import { AUDIO_CUE_ASSET_SPECS, type ArenaAudioAssetSpec } from "../game/audio";
 
 export type MeowtalFighterId = "gray-rabbit" | "ginger-tabby-cat";
-export type MeowtalSourceOnlyFighterId = "pugilist-pug";
+export type MeowtalSourceOnlyFighterId = "pugilist-pug" | "ferret-noodle" | "tortoise-tofu";
 export type MeowtalStageLayerId =
   | "sky-lighting"
   | "distant-hills-city"
@@ -530,6 +530,8 @@ const canonicalSheetSourcePaths: Readonly<Record<MeowtalFighterId, string>> = {
 
 const sourceOnlyCanonicalSheetSourcePaths: Readonly<Record<MeowtalSourceOnlyFighterId, string>> = {
   "pugilist-pug": "assets/source/imagegen/fighters/pugilist-pug/canonical-character-sheet.png",
+  "ferret-noodle": "assets/source/imagegen/fighters/ferret-noodle/canonical-character-sheet.png",
+  "tortoise-tofu": "assets/source/imagegen/fighters/tortoise-tofu/canonical-character-sheet.png",
 };
 
 const canonicalSheetQaNotes: Readonly<Record<MeowtalFighterId, string>> = {
@@ -542,6 +544,10 @@ const canonicalSheetQaNotes: Readonly<Record<MeowtalFighterId, string>> = {
 const sourceOnlyCanonicalSheetQaNotes: Readonly<Record<MeowtalSourceOnlyFighterId, string>> = {
   "pugilist-pug":
     "Approved as source-only identity lock, not a runtime sprite. Visual QA: Pickles reads as one cute upright pug pressure-boxer with consistent wrinkles, round muzzle, folded ears, curled tail, short limbs, warm fawn/dark muzzle palette, toy boxing gloves, and compact silhouette across views/poses; no readable text, pseudo-text, watermark, logo, copied fighting-game costume language, extra characters, or public/runtime promotion.",
+  "ferret-noodle":
+    "Approved as source-only identity lock, not a runtime sprite. Visual QA: Noodle reads as one cute upright ferret mix-up fighter with long flexible body, tapered muzzle, mischievous face, rounded ears, ringed tail, sock-thief personality, stable warm sable/cream palette, and readable side-switch pose language across views/poses; no readable text, pseudo-text, watermark, logo, copied fighting-game costume language, extra characters, or public/runtime promotion.",
+  "tortoise-tofu":
+    "Approved as source-only identity lock, not a runtime sprite. Visual QA: Tofu reads as one cute upright tortoise armored grappler with domed shell mass, squat sturdy stance, calm face, gentle beak, shell plates, short limbs, green/ochre palette, and command-grab readability across views/poses; no readable text, pseudo-text, watermark, logo, copied fighting-game costume language, extra characters, or public/runtime promotion.",
 };
 
 const idleRowSourcePaths: Readonly<Record<MeowtalFighterId, string>> = {
@@ -856,6 +862,24 @@ const sourceOnlyFighterDetails: Readonly<
     markings: "warm fawn coat, dark muzzle, soft wrinkle folds, black folded ears, pale belly patch, small curled tail",
     signatureTraits: "peekaboo guard, stubby glove jabs, shoulder bumps, treat-belt medallion, funny over-serious stare",
     specialEnergy: "small golden treat-belt spark effects kept attached to the character silhouette",
+  },
+  "ferret-noodle": {
+    displayName: "Noodle Nibbles",
+    silhouette: "upright two-legged long flexible ferret stance, tapered muzzle, rounded ears, ringed tail, sock-belt props, sneaky low guard",
+    personality: "cute, mischievous, slippery, smug, comedic but battle-ready",
+    body: "long upright biped ferret body with flexible spine, compact paws, low center of gravity, and readable mix-up side-switch shapes",
+    markings: "warm sable mask, cream belly, soft brown back, ringed tail bands, pale muzzle, small sock charms on the belt",
+    signatureTraits: "sock-thief grin, laundry-basket belt pouches, slide-ready stance, sudden behind-you gesture, tiny ankle-nip feints",
+    specialEnergy: "small teal-and-laundry-white motion ribbons kept attached to the character silhouette",
+  },
+  "tortoise-tofu": {
+    displayName: "Tofu Tortoise",
+    silhouette: "upright two-legged squat tortoise grappler stance, big domed shell, short sturdy limbs, calm head, wide command-grab arms",
+    personality: "cute, patient, ancient, gentle, absurdly determined, comedic but battle-ready",
+    body: "stocky upright biped tortoise body with heavy shell mass, grounded feet, strong elbows, and readable armored grappler shapes",
+    markings: "moss green skin, warm ochre shell plates, pale belly shell, soft cheek patches, tiny bandage wraps and shell scuffs",
+    signatureTraits: "serene half-smile, shell brace, slow elbow drop pose, tiny travel-pillow belt tag, deliberate command-grab stance",
+    specialEnergy: "small stone-dust impact rings and leaf-green guard glow kept attached to the character silhouette",
   },
 };
 
