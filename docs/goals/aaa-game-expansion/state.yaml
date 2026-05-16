@@ -117,7 +117,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T088
+active_task: T089
 
 tasks:
   - id: T001
@@ -6119,7 +6119,7 @@ tasks:
   - id: T088
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Review the complete source-only Noodle animation set and decide whether the next safe package is source-set audit, repair, or runtime promotion prep."
     inputs:
@@ -6140,6 +6140,79 @@ tasks:
       - "Exact next Worker objective if approved."
       - "Allowed files, verification commands, stop conditions, and acceptance criteria."
       - "Parallel-safety decision."
+    receipt:
+      result: done
+      decision: proceed_with_worker
+      full_outcome_complete: false
+      note: notes/T088-noodle-source-set-review.md
+      rationale: "The complete Noodle source-only row set is mechanically ready for audit because every required row exists at exact expected dimensions with alpha, the catalog now marks the full generated source set, focused tests and full verify passed in T087, and public/assets/generated/fighters/ferret-noodle remains absent. Direct runtime promotion is still rejected until a dedicated source-set audit/readiness receipt confirms consistency, promotion inputs, and smoke requirements."
+      rejected_alternatives:
+        - "Repair first: rejected for now because the full source set passes dimensions, alpha, focused tests, full verify, and source-only public-folder gates."
+        - "Direct runtime promotion: rejected because promotion should be a separate audited package with explicit source-set consistency, public asset, roster, and smoke-test acceptance."
+        - "Parallel promotion prep and runtime wiring: rejected because runtime exposure should follow one completed source-set audit receipt."
+        - "Mark full AAA complete: rejected because this only finishes one planned fighter's source row production."
+      next_task: T089
+      commands:
+        - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha assets/source/imagegen/fighters/ferret-noodle/idle.png assets/source/imagegen/fighters/ferret-noodle/walk-forward.png assets/source/imagegen/fighters/ferret-noodle/walk-back.png assets/source/imagegen/fighters/ferret-noodle/crouch.png assets/source/imagegen/fighters/ferret-noodle/jump.png assets/source/imagegen/fighters/ferret-noodle/light-punch.png assets/source/imagegen/fighters/ferret-noodle/heavy-punch.png assets/source/imagegen/fighters/ferret-noodle/light-kick.png assets/source/imagegen/fighters/ferret-noodle/special.png assets/source/imagegen/fighters/ferret-noodle/hitstun.png assets/source/imagegen/fighters/ferret-noodle/blockstun.png assets/source/imagegen/fighters/ferret-noodle/knockdown.png assets/source/imagegen/fighters/ferret-noodle/win.png assets/source/imagegen/fighters/ferret-noodle/lose.png"
+          result: pass
+        - cmd: "sed -n '1,180p' docs/goals/aaa-game-expansion/notes/T087-noodle-outcome-row-production.md"
+          result: pass
+        - cmd: "test ! -e public/assets/generated/fighters/ferret-noodle"
+          result: pass
+        - cmd: "rg -n \"ferret-noodle|Noodle Nibbles|runtimeExposure|not playable|source-only|win|lose|knockdown\" src/assets/catalog.ts src/assets/fighterAnimationPreflight.ts test/fighter-animation-preflight.test.ts test/asset-pipeline.test.ts docs/goals/aaa-game-expansion/state.yaml"
+          result: pass
+        - cmd: "node -e 'import { readFileSync } from \"node:fs\"; JSON.parse(readFileSync(\"output/animation-preflight/noodle-nibbles-outcome-row-qa.json\", \"utf8\")); console.log(\"outcome qa json ok\");'"
+          result: pass
+        - cmd: "ruby -e 'require \"yaml\"; YAML.load_file(\"docs/goals/aaa-game-expansion/state.yaml\"); puts \"state yaml ok\"'"
+          result: pass
+      summary: "Reviewed the complete source-only Noodle row set. Approved a bounded source-set audit/readiness Worker before any runtime promotion, while keeping public/runtime assets and full AAA completion blocked."
+      spawned_tasks:
+        - T089
+  - id: T089
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: medium
+    objective: "Produce a Noodle Nibbles source-set audit/readiness package for the complete source-only ferret-noodle animation set. Do not generate assets or promote runtime files. Verify every required source row, catalog/test truthfulness, absent public runtime exposure, and next-step readiness for a later runtime promotion task."
+    inputs:
+      - "T088 Judge receipt."
+      - "All accepted Noodle source row receipts from T071/T073/T075/T077/T079/T081/T083/T085/T087."
+      - "assets/source/imagegen/fighters/ferret-noodle/"
+      - "src/assets/catalog.ts"
+      - "test/asset-pipeline.test.ts"
+      - "test/fighter-animation-preflight.test.ts"
+      - "output/animation-preflight/noodle-nibbles-outcome-row-qa.json"
+    constraints:
+      - "Read-only for assets/source and source code except the audit receipt files and GoalBuddy state."
+      - "Do not generate or edit image assets."
+      - "Do not create or modify public/assets/generated/fighters/ferret-noodle files."
+      - "Do not modify runtime roster/select/championship/combat/frame-data/hitboxes/damage/pushback/movement/sprite scale/placement/frame size/dependencies/audio/source records."
+      - "Do not mark Noodle playable."
+      - "Do not mark the full AAA outcome complete."
+    allowed_files:
+      - "docs/goals/aaa-game-expansion/notes/T089-noodle-source-set-audit.md"
+      - "output/animation-preflight/noodle-nibbles-source-set-audit.json"
+      - "output/animation-preflight/noodle-nibbles-source-set-audit.html"
+      - "docs/goals/aaa-game-expansion/state.yaml"
+    verification:
+      - "sips -g pixelWidth -g pixelHeight -g hasAlpha over all 14 ferret-noodle source rows"
+      - "node scripts/asset-qa.mjs --json"
+      - "test ! -e public/assets/generated/fighters/ferret-noodle"
+      - "npm run verify"
+      - "git diff --name-only -- public/assets/generated/fighters package.json package-lock.json src/game/audio.ts public/assets/audio assets/source/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts src/core/frameData.ts src/assets/catalog.ts test/asset-pipeline.test.ts test/fighter-animation-preflight.test.ts test/asset-qa.test.ts"
+      - "rg -n \"Noodle Nibbles|ferret-noodle|source-only|not playable|runtime promotion|readiness|audit\" docs/goals/aaa-game-expansion/notes/T089-noodle-source-set-audit.md output/animation-preflight/noodle-nibbles-source-set-audit.json docs/goals/aaa-game-expansion/state.yaml"
+    stop_conditions:
+      - "Any source row is missing, has wrong dimensions, lacks alpha, or is not cataloged as generated source."
+      - "Any public/runtime ferret-noodle asset or playable roster exposure appears."
+      - "Any dependency, lockfile, runtime combat, frame-data, audio, source asset, or unrelated source/test diff appears."
+      - "Asset QA or full verify fails."
+    acceptance_criteria:
+      - "Audit receipt confirms all 14 required Noodle source rows exist with exact dimensions and alpha."
+      - "Audit receipt confirms catalog/test truthfulness: source-only generated rows, not runtime-playable rows."
+      - "public/assets/generated/fighters/ferret-noodle remains absent."
+      - "Noodle remains not playable."
+      - "The next task recommendation is explicit: repair first or runtime promotion prep."
+      - "The full AAA outcome remains active and incomplete."
 
 checks:
   dirty_fingerprint: unknown
