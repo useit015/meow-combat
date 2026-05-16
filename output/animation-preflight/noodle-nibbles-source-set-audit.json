@@ -1,0 +1,443 @@
+{
+  "task": "T089",
+  "fighterId": "ferret-noodle",
+  "displayName": "Noodle Nibbles",
+  "status": "ready-for-runtime-promotion-prep",
+  "runtimeStatus": "source-only",
+  "playabilityGate": "not playable",
+  "publicRuntimeFolder": {
+    "path": "public/assets/generated/fighters/ferret-noodle",
+    "exists": false
+  },
+  "catalogTruthfulness": {
+    "plannedManifestPresent": true,
+    "sourceOnlyBlockerApplied": true,
+    "generatedSourceRows": 14,
+    "totalRequiredRows": 14
+  },
+  "testTruthfulness": {
+    "assetPipelineGeneratedSourceRows": 14,
+    "preflightSourceOnlyRowsCovered": 14,
+    "preflightPublicAbsenceGuard": true,
+    "runtimeRosterExpectation": true
+  },
+  "sourceRows": [
+    {
+      "animationId": "idle",
+      "path": "assets/source/imagegen/fighters/ferret-noodle/idle.png",
+      "frames": 8,
+      "expected": {
+        "width": 2048,
+        "height": 256,
+        "hasAlpha": true,
+        "frames": 8,
+        "cellSize": 256
+      },
+      "actual": {
+        "width": 2048,
+        "height": 256,
+        "hasAlpha": true,
+        "colorType": 6
+      },
+      "sha256": "53a597097f3a687e9778fbd459d8a5fd7351cf4e2d34f16630d4c833b454eb19",
+      "checks": {
+        "exists": true,
+        "dimensionsMatch": true,
+        "alphaPresent": true,
+        "catalogGeneratedSource": true,
+        "assetPipelineExpectation": true,
+        "preflightSourceOnlyGate": true
+      }
+    },
+    {
+      "animationId": "walk-forward",
+      "path": "assets/source/imagegen/fighters/ferret-noodle/walk-forward.png",
+      "frames": 8,
+      "expected": {
+        "width": 2048,
+        "height": 256,
+        "hasAlpha": true,
+        "frames": 8,
+        "cellSize": 256
+      },
+      "actual": {
+        "width": 2048,
+        "height": 256,
+        "hasAlpha": true,
+        "colorType": 6
+      },
+      "sha256": "83dc8d936baa753d55dedbb353417ff68216c8659a737165800407b3f203c068",
+      "checks": {
+        "exists": true,
+        "dimensionsMatch": true,
+        "alphaPresent": true,
+        "catalogGeneratedSource": true,
+        "assetPipelineExpectation": true,
+        "preflightSourceOnlyGate": true
+      }
+    },
+    {
+      "animationId": "walk-back",
+      "path": "assets/source/imagegen/fighters/ferret-noodle/walk-back.png",
+      "frames": 8,
+      "expected": {
+        "width": 2048,
+        "height": 256,
+        "hasAlpha": true,
+        "frames": 8,
+        "cellSize": 256
+      },
+      "actual": {
+        "width": 2048,
+        "height": 256,
+        "hasAlpha": true,
+        "colorType": 6
+      },
+      "sha256": "ca18a30755750294628f801b261760392144e557e17e67c6e60b9b532f515a37",
+      "checks": {
+        "exists": true,
+        "dimensionsMatch": true,
+        "alphaPresent": true,
+        "catalogGeneratedSource": true,
+        "assetPipelineExpectation": true,
+        "preflightSourceOnlyGate": true
+      }
+    },
+    {
+      "animationId": "crouch",
+      "path": "assets/source/imagegen/fighters/ferret-noodle/crouch.png",
+      "frames": 4,
+      "expected": {
+        "width": 1024,
+        "height": 256,
+        "hasAlpha": true,
+        "frames": 4,
+        "cellSize": 256
+      },
+      "actual": {
+        "width": 1024,
+        "height": 256,
+        "hasAlpha": true,
+        "colorType": 6
+      },
+      "sha256": "0c2f355d5610200ae4f0535db1bfe7ec0612410453cbc1bf075d016caa1e191a",
+      "checks": {
+        "exists": true,
+        "dimensionsMatch": true,
+        "alphaPresent": true,
+        "catalogGeneratedSource": true,
+        "assetPipelineExpectation": true,
+        "preflightSourceOnlyGate": true
+      }
+    },
+    {
+      "animationId": "jump",
+      "path": "assets/source/imagegen/fighters/ferret-noodle/jump.png",
+      "frames": 6,
+      "expected": {
+        "width": 1536,
+        "height": 256,
+        "hasAlpha": true,
+        "frames": 6,
+        "cellSize": 256
+      },
+      "actual": {
+        "width": 1536,
+        "height": 256,
+        "hasAlpha": true,
+        "colorType": 6
+      },
+      "sha256": "4155304b8aad9d3c9a19e6d0e1be07605c4ca83b5ac7a5abea53a58ad7096933",
+      "checks": {
+        "exists": true,
+        "dimensionsMatch": true,
+        "alphaPresent": true,
+        "catalogGeneratedSource": true,
+        "assetPipelineExpectation": true,
+        "preflightSourceOnlyGate": true
+      }
+    },
+    {
+      "animationId": "light-punch",
+      "path": "assets/source/imagegen/fighters/ferret-noodle/light-punch.png",
+      "frames": 6,
+      "expected": {
+        "width": 1536,
+        "height": 256,
+        "hasAlpha": true,
+        "frames": 6,
+        "cellSize": 256
+      },
+      "actual": {
+        "width": 1536,
+        "height": 256,
+        "hasAlpha": true,
+        "colorType": 6
+      },
+      "sha256": "2f51c117f8f07b3f9cf7d9d90a575a9e8ad2659ab294906f584c5cca8ce13259",
+      "checks": {
+        "exists": true,
+        "dimensionsMatch": true,
+        "alphaPresent": true,
+        "catalogGeneratedSource": true,
+        "assetPipelineExpectation": true,
+        "preflightSourceOnlyGate": true
+      }
+    },
+    {
+      "animationId": "heavy-punch",
+      "path": "assets/source/imagegen/fighters/ferret-noodle/heavy-punch.png",
+      "frames": 8,
+      "expected": {
+        "width": 2048,
+        "height": 256,
+        "hasAlpha": true,
+        "frames": 8,
+        "cellSize": 256
+      },
+      "actual": {
+        "width": 2048,
+        "height": 256,
+        "hasAlpha": true,
+        "colorType": 6
+      },
+      "sha256": "2f3a5d72bd19ec51cdac562b5334d4ad4f3af29532e8c964d1213f3653d2d7d0",
+      "checks": {
+        "exists": true,
+        "dimensionsMatch": true,
+        "alphaPresent": true,
+        "catalogGeneratedSource": true,
+        "assetPipelineExpectation": true,
+        "preflightSourceOnlyGate": true
+      }
+    },
+    {
+      "animationId": "light-kick",
+      "path": "assets/source/imagegen/fighters/ferret-noodle/light-kick.png",
+      "frames": 8,
+      "expected": {
+        "width": 2048,
+        "height": 256,
+        "hasAlpha": true,
+        "frames": 8,
+        "cellSize": 256
+      },
+      "actual": {
+        "width": 2048,
+        "height": 256,
+        "hasAlpha": true,
+        "colorType": 6
+      },
+      "sha256": "24b43be6bb906f91dfc02dd4e9592cb517ac846798f97c8eed9d58b034c1824f",
+      "checks": {
+        "exists": true,
+        "dimensionsMatch": true,
+        "alphaPresent": true,
+        "catalogGeneratedSource": true,
+        "assetPipelineExpectation": true,
+        "preflightSourceOnlyGate": true
+      }
+    },
+    {
+      "animationId": "special",
+      "path": "assets/source/imagegen/fighters/ferret-noodle/special.png",
+      "frames": 10,
+      "expected": {
+        "width": 2560,
+        "height": 256,
+        "hasAlpha": true,
+        "frames": 10,
+        "cellSize": 256
+      },
+      "actual": {
+        "width": 2560,
+        "height": 256,
+        "hasAlpha": true,
+        "colorType": 6
+      },
+      "sha256": "3bb313ff5e856cafc63e10780b2fc4d37bb5a7f819bfbbcfc9de7c349aeedd8c",
+      "checks": {
+        "exists": true,
+        "dimensionsMatch": true,
+        "alphaPresent": true,
+        "catalogGeneratedSource": true,
+        "assetPipelineExpectation": true,
+        "preflightSourceOnlyGate": true
+      }
+    },
+    {
+      "animationId": "hitstun",
+      "path": "assets/source/imagegen/fighters/ferret-noodle/hitstun.png",
+      "frames": 5,
+      "expected": {
+        "width": 1280,
+        "height": 256,
+        "hasAlpha": true,
+        "frames": 5,
+        "cellSize": 256
+      },
+      "actual": {
+        "width": 1280,
+        "height": 256,
+        "hasAlpha": true,
+        "colorType": 6
+      },
+      "sha256": "312aea1faf6b636870c4e9273dfcc5adca0f06b0d45511aeef07dc6bc83860c7",
+      "checks": {
+        "exists": true,
+        "dimensionsMatch": true,
+        "alphaPresent": true,
+        "catalogGeneratedSource": true,
+        "assetPipelineExpectation": true,
+        "preflightSourceOnlyGate": true
+      }
+    },
+    {
+      "animationId": "blockstun",
+      "path": "assets/source/imagegen/fighters/ferret-noodle/blockstun.png",
+      "frames": 5,
+      "expected": {
+        "width": 1280,
+        "height": 256,
+        "hasAlpha": true,
+        "frames": 5,
+        "cellSize": 256
+      },
+      "actual": {
+        "width": 1280,
+        "height": 256,
+        "hasAlpha": true,
+        "colorType": 6
+      },
+      "sha256": "dde796d27c35c471e98a8f884c19d2e2eb82a5ad2fcc77a92bc622e29a13abaa",
+      "checks": {
+        "exists": true,
+        "dimensionsMatch": true,
+        "alphaPresent": true,
+        "catalogGeneratedSource": true,
+        "assetPipelineExpectation": true,
+        "preflightSourceOnlyGate": true
+      }
+    },
+    {
+      "animationId": "knockdown",
+      "path": "assets/source/imagegen/fighters/ferret-noodle/knockdown.png",
+      "frames": 8,
+      "expected": {
+        "width": 2048,
+        "height": 256,
+        "hasAlpha": true,
+        "frames": 8,
+        "cellSize": 256
+      },
+      "actual": {
+        "width": 2048,
+        "height": 256,
+        "hasAlpha": true,
+        "colorType": 6
+      },
+      "sha256": "d00e5025e85bd56cc5b2eff7f6c391f9649a3bac1f193d56a908a644957805a8",
+      "checks": {
+        "exists": true,
+        "dimensionsMatch": true,
+        "alphaPresent": true,
+        "catalogGeneratedSource": true,
+        "assetPipelineExpectation": true,
+        "preflightSourceOnlyGate": true
+      }
+    },
+    {
+      "animationId": "win",
+      "path": "assets/source/imagegen/fighters/ferret-noodle/win.png",
+      "frames": 8,
+      "expected": {
+        "width": 2048,
+        "height": 256,
+        "hasAlpha": true,
+        "frames": 8,
+        "cellSize": 256
+      },
+      "actual": {
+        "width": 2048,
+        "height": 256,
+        "hasAlpha": true,
+        "colorType": 6
+      },
+      "sha256": "1017f847b85767e2b1404367d5e41ccaa8a7a130a608c1fa11c53bff2a2f5051",
+      "checks": {
+        "exists": true,
+        "dimensionsMatch": true,
+        "alphaPresent": true,
+        "catalogGeneratedSource": true,
+        "assetPipelineExpectation": true,
+        "preflightSourceOnlyGate": true
+      }
+    },
+    {
+      "animationId": "lose",
+      "path": "assets/source/imagegen/fighters/ferret-noodle/lose.png",
+      "frames": 6,
+      "expected": {
+        "width": 1536,
+        "height": 256,
+        "hasAlpha": true,
+        "frames": 6,
+        "cellSize": 256
+      },
+      "actual": {
+        "width": 1536,
+        "height": 256,
+        "hasAlpha": true,
+        "colorType": 6
+      },
+      "sha256": "a5f2175276bf06dff6fa6a44f6dbb702a592928f09ad92b976cf6a99c6f82fab",
+      "checks": {
+        "exists": true,
+        "dimensionsMatch": true,
+        "alphaPresent": true,
+        "catalogGeneratedSource": true,
+        "assetPipelineExpectation": true,
+        "preflightSourceOnlyGate": true
+      }
+    }
+  ],
+  "nextTaskRecommendation": "runtime promotion prep",
+  "acceptanceSummary": {
+    "allRequiredRows": 14,
+    "exactDimensionsAndAlpha": true,
+    "sourceOnlyCatalogAndTests": true,
+    "publicRuntimeAbsent": true,
+    "noodlePlayable": false,
+    "fullAaaOutcomeComplete": false
+  },
+  "commands": [
+    {
+      "cmd": "sips -g pixelWidth -g pixelHeight -g hasAlpha over all 14 ferret-noodle source rows",
+      "result": "pass",
+      "summary": "All 14 rows reported expected dimensions and hasAlpha: yes."
+    },
+    {
+      "cmd": "node scripts/asset-qa.mjs --json",
+      "result": "pass",
+      "summary": {
+        "checked": 168,
+        "runtimeReady": 112,
+        "needsNormalization": 56
+      }
+    },
+    {
+      "cmd": "test ! -e public/assets/generated/fighters/ferret-noodle",
+      "result": "pass"
+    },
+    {
+      "cmd": "npm run verify",
+      "result": "pass",
+      "summary": "31 test files / 230 tests passed; production build passed."
+    },
+    {
+      "cmd": "git diff --name-only -- public/assets/generated/fighters package.json package-lock.json src/game/audio.ts public/assets/audio assets/source/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts src/core/frameData.ts src/assets/catalog.ts test/asset-pipeline.test.ts test/fighter-animation-preflight.test.ts test/asset-qa.test.ts",
+      "result": "pass",
+      "summary": "No forbidden diffs."
+    }
+  ]
+}
