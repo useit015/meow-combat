@@ -117,7 +117,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T025
+active_task: T027
 
 tasks:
   - id: T001
@@ -1376,7 +1376,7 @@ tasks:
   - id: T025
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Decide the next highest-leverage AAA expansion package after all non-loop runtime cues have sample primaries."
     inputs:
@@ -1407,21 +1407,144 @@ tasks:
       - "stop_if"
       - "acceptance checklist"
       - "Whether parallel agents are safe for the next package"
+    receipt:
+      result: done
+      decision: "proceed_with_worker"
+      full_outcome_complete: false
+      rationale: "After the non-loop sample primary audio pass, the largest safe useful AAA package is a Pickles Pugilist animation-production preflight. This unlocks the path from the 2-fighter slice toward the 8-fighter roster without violating the owner’s no-drift animation rule. Music-loop work, story depth, roster/select UX, visual audit, and playable promotion were deferred because they are lower leverage or riskier before a candidate animation gate exists."
+      inspected_files:
+        - "docs/goals/aaa-game-expansion/state.yaml"
+        - "docs/goals/aaa-game-expansion/goal.md"
+        - "docs/goals/aaa-game-expansion/notes/T013-tranche-inventory-checklist.md"
+        - "docs/goals/aaa-game-expansion/notes/T017-source-roster-lab.md"
+        - "docs/goals/aaa-game-expansion/notes/T021-audio-source-license-scout.md"
+        - "docs/goals/aaa-game-expansion/notes/T022-audio-batch.md"
+        - "docs/goals/aaa-game-expansion/notes/T024-audio-special-stinger-batch.md"
+        - "src/content/gameBible.ts"
+        - "src/game/shellFlow.ts"
+        - "src/game/gameConfig.ts"
+        - "src/game/audio.ts"
+        - "src/game/MeowtalArenaScene.ts"
+        - "src/assets/types.ts"
+        - "src/assets/catalog.ts"
+        - "src/assets/sourceRosterLab.ts"
+        - "src/assets/index.ts"
+        - "scripts/smoke-meowtal-browser.mjs"
+        - "package.json"
+      rejected_alternatives:
+        - "music-loop: defer until a specific loop/source has bounded Content ID and platform-claim risk."
+        - "championship/story depth: useful but lower leverage than unlocking the safe playable-expansion path."
+        - "runtime select/roster UX: defer because it could advertise non-playable fighters before animation gates exist."
+        - "visual polish audit: useful later but not the biggest product gap."
+        - "phase-level review: premature while safe local follow-up remains."
+        - "playable roster promotion: blocked until animation plan, full generated rows, QA, tests, and smoke are defined and then executed."
+      next_task: T026
+      summary: "Approved a single-worker Pickles Pugilist animation-production preflight, not playable promotion. The Worker must create a source-controlled plan for every required animation row, row-generation strategy, no-drift QA, runtime promotion tests, and smoke requirements without imagegen, animation rows, public assets, roster/select changes, runtime promotion, audio, APIs, .env, or dependencies."
+  - id: T026
+    type: worker
+    assignee: Worker
+    status: done
+    reasoning_hint: medium
+    objective: "Create a source-controlled animation-production preflight for source-only fighter pugilist-pug / Pickles Pugilist covering every required fighter animation row, row-generation strategy, no-drift QA, runtime promotion tests, and smoke requirements. This is not playable promotion: do not run imagegen, do not generate animation rows, do not add public fighter assets, and do not change runtime roster/select/combat."
+    allowed_files:
+      - "src/assets/fighterAnimationPreflight.ts"
+      - "src/assets/index.ts"
+      - "test/fighter-animation-preflight.test.ts"
+      - "docs/goals/aaa-game-expansion/notes/T026-pickles-animation-preflight.md"
+      - "output/animation-preflight/pickles-pugilist-animation-plan.json"
+      - "output/animation-preflight/pickles-pugilist-animation-plan.html"
+    verify:
+      - "npm run typecheck"
+      - "npm test -- test/fighter-animation-preflight.test.ts test/asset-pipeline.test.ts test/source-roster-lab.test.ts test/game-config.test.ts"
+      - "npm run verify"
+      - "rg -n \"Pickles Pugilist|pugilist-pug|no-drift|row-generation|runtime promotion|smoke|not playable\" src/assets/fighterAnimationPreflight.ts test/fighter-animation-preflight.test.ts docs/goals/aaa-game-expansion/notes/T026-pickles-animation-preflight.md"
+      - "test ! -e public/assets/generated/fighters/pugilist-pug"
+    stop_if:
+      - "Any image generation, audio acquisition, API use, .env, or new dependency is needed."
+      - "Any runtime roster, select UI, public fighter asset, combat, scene flow, or playable promotion change is needed."
+      - "The plan does not cover every REQUIRED_FIGHTER_ANIMATIONS row."
+      - "No-drift QA lacks concrete checks for scale, alpha bounds, identity traits, frame dimensions, and source/runtime provenance."
+      - "Runtime promotion tests or smoke requirements are vague."
+      - "Wording claims Pickles is playable or runtime-ready."
+    acceptance:
+      - "Pickles is selected as the first playable-candidate preflight only."
+      - "All required animation rows have generation briefs and row acceptance criteria."
+      - "Full row-generation/no-drift QA strategy is documented."
+      - "Runtime promotion test matrix is explicit."
+      - "Browser smoke requirements are explicit."
+      - "Existing runtime roster remains only Gray Rabbit and Ginger Tabby Cat."
+      - "Full AAA outcome remains explicitly incomplete."
+    receipt:
+      result: done
+      note: notes/T026-pickles-animation-preflight.md
+      changed_files:
+        - "src/assets/fighterAnimationPreflight.ts"
+        - "src/assets/index.ts"
+        - "test/fighter-animation-preflight.test.ts"
+        - "docs/goals/aaa-game-expansion/notes/T026-pickles-animation-preflight.md"
+        - "output/animation-preflight/pickles-pugilist-animation-plan.json"
+        - "output/animation-preflight/pickles-pugilist-animation-plan.html"
+      commands:
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm test -- test/fighter-animation-preflight.test.ts test/asset-pipeline.test.ts test/source-roster-lab.test.ts test/game-config.test.ts"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "rg -n \"Pickles Pugilist|pugilist-pug|no-drift|row-generation|runtime promotion|smoke|not playable\" src/assets/fighterAnimationPreflight.ts test/fighter-animation-preflight.test.ts docs/goals/aaa-game-expansion/notes/T026-pickles-animation-preflight.md"
+          status: pass
+        - cmd: "test ! -e public/assets/generated/fighters/pugilist-pug"
+          status: pass
+        - cmd: "test -s output/animation-preflight/pickles-pugilist-animation-plan.json && test -s output/animation-preflight/pickles-pugilist-animation-plan.html"
+          status: pass
+      summary: "Created a typed Pickles Pugilist animation-production preflight, exported it through the asset API, covered every required row with row-generation briefs, no-drift QA gates, runtime promotion tests, browser smoke requirements, and local JSON/HTML review artifacts. Pickles remains source-only and not playable; no imagegen, animation rows, public fighter assets, roster/select/combat changes, audio, APIs, .env, or dependencies were used."
+      full_outcome_complete: false
+      spawned_tasks:
+        - T027
+  - id: T027
+    type: judge
+    assignee: Judge
+    status: active
+    reasoning_hint: high
+    objective: "Decide whether the project is ready to start actual Pickles Pugilist imagegen row production after T026, and if so define the largest safe next Worker slice."
+    inputs:
+      - "Original user constraints, especially no glitchy animation, no character size drift, no identity drift, natural movement, keyboard-first browser v1, landscape, and quality-first asset generation."
+      - "T026 Pickles animation-production preflight"
+      - "Current imagegen source assets and asset manifest"
+      - "Current tests and smoke strategy"
+    constraints:
+      - "Read-only."
+      - "Do not implement."
+      - "Do not run imagegen."
+      - "Do not edit runtime roster/select/combat, public fighter assets, generated rows, audio, dependencies, or .env."
+      - "Treat the full AAA outcome as incomplete."
+      - "Challenge whether one row, a small row group, or all rows is the largest safe next package."
+      - "If approving imagegen, require built-in imagegen, exact allowed files, candidate/source/public separation, no-drift QA, tests, and smoke/proof boundaries."
+      - "Do not approve playable promotion unless all required rows, normalization, provenance, manifest updates, tests, and smoke can be completed within the Worker."
+      - "Reject any plan likely to produce inconsistent, glitchy, resized, or off-model frames."
+    expected_output:
+      - "Decision: proceed_with_worker | require_scout | require_audit | ask_owner | defer_imagegen"
+      - "Rationale and rejected alternatives"
+      - "Exact next Worker/Scout objective"
+      - "allowed_files"
+      - "verify"
+      - "stop_if"
+      - "acceptance checklist"
+      - "Whether parallel agents are safe"
     receipt: null
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T024
+    task: T026
     commands:
-      - "npm test -- test/presentation.test.ts test/meowtal-production-manifest.test.ts"
       - "npm run typecheck"
+      - "npm test -- test/fighter-animation-preflight.test.ts test/asset-pipeline.test.ts test/source-roster-lab.test.ts test/game-config.test.ts"
       - "npm run verify"
-      - "rg -n \"fight-announcer|rabbit-tornado|cat-aura-blast|victory-sting|Pixabay|commercial|attribution|Content ID|platform-claim|snapshot|non-speech|non-vocal\" docs/goals/aaa-game-expansion/notes/T024-audio-special-stinger-batch.md src/assets/meowtalProductionManifest.ts"
-      - "test -s public/assets/generated/audio/fight-announcer.ogg && test -s public/assets/generated/audio/rabbit-tornado.ogg && test -s public/assets/generated/audio/cat-aura-blast.ogg && test -s public/assets/generated/audio/victory-sting.ogg"
-      - "for file in public/assets/generated/audio/fight-announcer.ogg public/assets/generated/audio/rabbit-tornado.ogg public/assets/generated/audio/cat-aura-blast.ogg public/assets/generated/audio/victory-sting.ogg; do ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1 \"$file\"; done"
-      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/aaa-expansion-special-stinger-audio"
+      - "rg -n \"Pickles Pugilist|pugilist-pug|no-drift|row-generation|runtime promotion|smoke|not playable\" src/assets/fighterAnimationPreflight.ts test/fighter-animation-preflight.test.ts docs/goals/aaa-game-expansion/notes/T026-pickles-animation-preflight.md"
+      - "test ! -e public/assets/generated/fighters/pugilist-pug"
+      - "test -s output/animation-preflight/pickles-pugilist-animation-plan.json && test -s output/animation-preflight/pickles-pugilist-animation-plan.html"
   t021_verification:
     result: pass
     task: T021

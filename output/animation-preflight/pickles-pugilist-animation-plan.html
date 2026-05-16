@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pickles Pugilist Animation Preflight</title>
+  <style>
+    body { margin: 0; font-family: Inter, system-ui, sans-serif; background: #f4f7f3; color: #151915; }
+    main { max-width: 1120px; margin: 0 auto; padding: 32px; }
+    h1 { font-size: 32px; margin: 0 0 8px; }
+    p { line-height: 1.5; }
+    table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #c8d8c4; }
+    th, td { padding: 10px 12px; border-bottom: 1px solid #dbe7d8; text-align: left; vertical-align: top; }
+    th { background: #24412f; color: #fff; }
+    .pill { display: inline-block; margin: 4px 8px 12px 0; border: 1px solid #b7c9ae; padding: 8px 10px; font-weight: 700; background: #fff; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Pickles Pugilist Animation Preflight</h1>
+  <p>This is a source-only no-drift row-generation plan for pugilist-pug. Pickles Pugilist is not playable, not runtime-ready, and not approved for runtime promotion.</p>
+  <div>
+    <span class="pill">Status: preflight-only</span>
+    <span class="pill">Runtime exposure: not playable</span>
+    <span class="pill">Full AAA outcome: incomplete</span>
+  </div>
+  <h2>Required Rows</h2>
+  <table>
+    <thead><tr><th>Animation</th><th>Frames</th><th>Requirement</th></tr></thead>
+    <tbody>
+      <tr><td>idle</td><td>8</td><td>no-drift scale reference row</td></tr>
+      <tr><td>walk-forward</td><td>8</td><td>stable short pressure steps</td></tr>
+      <tr><td>walk-back</td><td>8</td><td>stable defensive shuffle</td></tr>
+      <tr><td>crouch</td><td>4</td><td>compact low guard</td></tr>
+      <tr><td>jump</td><td>6</td><td>stubby-limb hop arc</td></tr>
+      <tr><td>light-punch</td><td>6</td><td>quick jab from cheek guard</td></tr>
+      <tr><td>heavy-punch</td><td>8</td><td>committed overhand punch</td></tr>
+      <tr><td>light-kick</td><td>8</td><td>short balanced kick</td></tr>
+      <tr><td>special</td><td>10</td><td>original snack-belt corkscrew body blow</td></tr>
+      <tr><td>hitstun</td><td>5</td><td>funny squished recoil without identity drift</td></tr>
+      <tr><td>blockstun</td><td>5</td><td>gloves absorb impact without baked sparks</td></tr>
+      <tr><td>knockdown</td><td>8</td><td>safe fall inside frame bounds</td></tr>
+      <tr><td>win</td><td>8</td><td>tiny glove raise, no readable text prop</td></tr>
+      <tr><td>lose</td><td>6</td><td>dizzy seated slump, stylized and off-model-free</td></tr>
+    </tbody>
+  </table>
+  <h2>No-Drift QA Gates</h2>
+  <ul>
+    <li>Scale and silhouette bounds</li>
+    <li>Transparent alpha bounds</li>
+    <li>Pickles identity traits</li>
+    <li>Exact 256x256 frame dimensions</li>
+    <li>Source and runtime provenance before promotion</li>
+    <li>Future browser smoke must prove roster state and no fallback rows</li>
+  </ul>
+</main>
+</body>
+</html>

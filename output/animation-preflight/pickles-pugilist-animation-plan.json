@@ -1,0 +1,41 @@
+{
+  "id": "pickles-pugilist-animation-preflight",
+  "fighterId": "pugilist-pug",
+  "displayName": "Pickles Pugilist",
+  "sourceOnly": true,
+  "playable": false,
+  "status": "preflight-only",
+  "runtimeExposure": "not playable",
+  "fullOutcome": "incomplete",
+  "canonicalReferencePath": "assets/source/imagegen/fighters/pugilist-pug/canonical-character-sheet.png",
+  "summary": "Source-only no-drift row-generation plan. This artifact is not playable promotion and does not create public/runtime Pickles assets.",
+  "requiredRows": [
+    { "animationId": "idle", "frameCount": 8, "cellSize": { "width": 256, "height": 256 } },
+    { "animationId": "walk-forward", "frameCount": 8, "cellSize": { "width": 256, "height": 256 } },
+    { "animationId": "walk-back", "frameCount": 8, "cellSize": { "width": 256, "height": 256 } },
+    { "animationId": "crouch", "frameCount": 4, "cellSize": { "width": 256, "height": 256 } },
+    { "animationId": "jump", "frameCount": 6, "cellSize": { "width": 256, "height": 256 } },
+    { "animationId": "light-punch", "frameCount": 6, "cellSize": { "width": 256, "height": 256 } },
+    { "animationId": "heavy-punch", "frameCount": 8, "cellSize": { "width": 256, "height": 256 } },
+    { "animationId": "light-kick", "frameCount": 8, "cellSize": { "width": 256, "height": 256 } },
+    { "animationId": "special", "frameCount": 10, "cellSize": { "width": 256, "height": 256 } },
+    { "animationId": "hitstun", "frameCount": 5, "cellSize": { "width": 256, "height": 256 } },
+    { "animationId": "blockstun", "frameCount": 5, "cellSize": { "width": 256, "height": 256 } },
+    { "animationId": "knockdown", "frameCount": 8, "cellSize": { "width": 256, "height": 256 } },
+    { "animationId": "win", "frameCount": 8, "cellSize": { "width": 256, "height": 256 } },
+    { "animationId": "lose", "frameCount": 6, "cellSize": { "width": 256, "height": 256 } }
+  ],
+  "noDriftQaGates": [
+    "scale-bounds",
+    "alpha-bounds",
+    "identity-traits",
+    "frame-dimensions",
+    "provenance"
+  ],
+  "runtimePromotionRequiredProof": [
+    "Every row has exact 256x256 cells and planned frame counts.",
+    "Every row passes no-drift QA against Pickles identity traits.",
+    "No public/runtime pugilist-pug folder exists during preflight.",
+    "Future smoke proves explicit runtime roster state and no fallback rows."
+  ]
+}

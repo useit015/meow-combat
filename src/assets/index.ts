@@ -1,5 +1,6 @@
 export * from "./animationMap";
 export * from "./catalog";
+export * from "./fighterAnimationPreflight";
 export * from "./imagegenJobs";
 export type * from "./meowtalProductionManifest";
 export type * from "./provenance";
