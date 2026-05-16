@@ -1,0 +1,631 @@
+# GoalBuddy v2 state.yaml
+# Board truth lives here. goal.md is the editable charter; notes/ holds long receipts only.
+
+version: 2
+
+goal:
+  title: "AAA Game Expansion"
+  slug: "aaa-game-expansion"
+  kind: open_ended
+  tranche: "Phased AAA-grade milestone program. Tranche 1 proves a polished 2-fighter browser vertical slice standard before scaling toward the 8-fighter full-game direction."
+  status: active
+  intake:
+    original_request: "Make this into a full AAA game with richer characters, scenes, settings, controls, moves, stories, and more."
+    interpreted_outcome: "Transform the current project into a polished original browser fighting game: cute pet fighters in a KOF-style championship with funny story, AAA-quality ambition, AI-generated but carefully curated assets, and no slop."
+    input_shape: vague
+    audience: player and project owner
+    authority: requested
+    proof_type: demo
+    completion_proof: "A playable polished local demo, a concrete content milestone inventory, and a before/after review checklist all show richer visuals, audio, UX, scenes/content, presentation, characters, controls, moves, settings, and story surface."
+    likely_misfire: "Producing only a plan, superficial polish, scattered content, or isolated assets instead of cohesive playable improvements."
+    blind_spots_considered:
+      - "AAA scope must be translated into achievable local milestones."
+      - "The first tranche needs evidence from the existing project before implementation."
+      - "Success means a polished original fighting game direction: KOF-style fighting structure and impact, Street Fighter/Mortal Kombat gameplay inspiration, and Pokemon-like cute pet character appeal."
+      - "The owner selected production polish and content scale as the first major improvement target."
+      - "The owner dislikes procedural sounds; audio work should evaluate authored or sample-based programmatic alternatives."
+      - "Completion requires all three proof surfaces: playable demo, content milestone, and before/after review checklist."
+      - "The owner chose no preselected scope limits; Scout/Judge should inspect first and set evidence-led boundaries."
+      - "The owner explicitly requested imagegen for image asset generation."
+      - "The owner asked whether Pixabay, ElevenLabs, or similar services can be used for music and SFX; they are candidate sources subject to license verification."
+      - "The owner explicitly asked to review and challenge the plan before execution because this should be treated as a real AAA-game effort."
+      - "A true AAA game is a production standard, not a single local patch; the first tranche must define a credible milestone strategy and reject shallow substitutions."
+      - "Reference games must be treated as inspiration only; the project needs original IP-safe characters, names, moves, story, audio, UI, and assets."
+      - "No AI slop is a hard quality bar for every generated image/audio/content asset."
+      - "The owner wants about 8 original pet fighters, not only cat and rabbit."
+      - "The owner revised controls to keyboard-first for the first browser version; touch/mobile can come in v2."
+      - "The owner wants all core modes plus single-player training and brutal/funny tone with funny gore allowed."
+      - "The owner approved use of ELEVENLABS_API_KEY and PIXABAY_KEY from .env, including normal quota/credit use."
+      - "The owner grants PM/Judge creative freedom for visuals, names, voices, music, and story as long as the final game is good enough."
+      - "The owner asked how to speed implementation using multiple agents/subagents and what skills/resources are needed."
+      - "The owner forbids glitchy animations, character size drift, weird frame-to-frame appearance changes, inconsistent character identity, and unnatural movement."
+      - "The owner wants landscape orientation and quality-first generation/API use."
+    existing_plan_facts:
+      - "Requested richer characters."
+      - "Requested richer scenes and settings."
+      - "Requested richer controls and moves."
+      - "Requested richer stories."
+      - "Genre: KOF-style fighting game with cute pet characters, described as Pokemon meets KOF."
+      - "Gameplay references: King of Fighters, Street Fighter, and Mortal Kombat for fighting/gameplay feel."
+      - "Character reference: Pokemon for cute pet appeal."
+      - "Player fantasy: fighting Pokemon-like pets."
+      - "Hard negative: avoid AI slop."
+      - "Camera/view: KOF-style fighting presentation."
+      - "Main loop: championship with story behind it; moment-to-moment fighting."
+      - "Moves: KOF-style attacks that fit each original pet character."
+      - "Initial characters: cat and rabbit; PM/Judge may choose funny names."
+      - "Roster target: about 8 original cute pet fighters."
+      - "World/setting: normal 2026 with a fun twist."
+      - "Central conflict: PM/Judge may invent something funny."
+      - "Tone: brutal/funny."
+      - "Gore/violence: okay when funny, stylized, and tone-appropriate."
+      - "First milestone preference: full AAA-game ambition."
+      - "Platform: browser now, mobile later."
+      - "Controls: keyboard-first for browser v1; touch/mobile can come in v2."
+      - "Mobile orientation: landscape."
+      - "Modes: all core fighting modes plus single-player training mode; include championship/story mode."
+      - "Performance/visual target: visuals should be perfect while maintaining decent performance."
+      - "Asset policy: AI-generated assets are acceptable as final assets only if highly polished and not sloppy."
+      - "Animation/character consistency policy: never ship glitchy animations, character size drift, weird frame-to-frame appearance changes, inconsistent character identity, or unnatural movement."
+      - "Attribution/credits: okay for Pixabay-style assets."
+      - "Environment: owner reports ELEVENLABS_API_KEY and PIXABAY_KEY are present in .env and approves using them, including normal quota/credit use."
+      - "Generation/API budget posture: quality-first, not cost-conservative."
+      - "Visual format: PM/Judge may choose whatever looks best after inspecting repo capabilities and performance constraints."
+      - "Voice acting: PM/Judge may choose."
+      - "Music vibe: PM/Judge may choose."
+      - "Character names and story details: PM/Judge have total creative freedom as long as quality is high."
+      - "Acceleration preference: use multiple agents/subagents where safe, especially parallel read-only discovery and disjoint Worker slices."
+      - "Initial target preference: production polish and content scale."
+      - "Audio preference: avoid procedural sound synthesis as the primary direction."
+      - "Scope handling preference: do not pre-limit this tranche; let Scout/Judge decide boundaries after inspecting the project."
+      - "Image asset generation preference: use imagegen for generated raster image assets."
+      - "Audio source preference: Pixabay, ElevenLabs, or similar services are acceptable candidates if current terms, attribution, plan/tier limits, prohibited uses, and Content ID/platform-claim risks are checked first."
+      - "Planning preference: challenge the plan before Scout/Worker execution; do not rush into assets or implementation."
+
+rules:
+  pm_owns_state: true
+  one_active_task: true
+  max_write_workers: 1
+  no_implementation_without_worker_or_pm_task: true
+  no_completion_without_judge_or_pm_audit: true
+  planning_is_not_completion: true
+  queued_required_worker_blocks_completion: true
+  continuous_until_full_outcome: true
+  missing_input_or_credentials_do_not_stop_goal: true
+  preserve_and_validate_existing_plan: true
+  intake_misfire_must_be_audited: true
+  slice_policy:
+    max_consecutive_tiny_tasks: 2
+    prefer_vertical_slices: true
+    judge_picks_largest_safe_slice: true
+    worker_completes_whole_slice: true
+
+agents:
+  scout: installed
+  worker: installed
+  judge: installed
+
+visual_board:
+  selected: local
+  local:
+    status: live
+    url: "http://goalbuddy.localhost:41737/aaa-game-expansion/"
+    command: "npx goalbuddy board docs/goals/aaa-game-expansion"
+  github_projects:
+    status: not_requested
+    url: null
+    command: "npx goalbuddy extend github-projects"
+    missing: []
+
+active_task: T011
+
+tasks:
+  - id: T001
+    type: judge
+    assignee: Judge
+    status: done
+    reasoning_hint: high
+    objective: "Challenge the AAA-game plan before execution and define the minimum credible production standard for this goal."
+    inputs:
+      - "Original request"
+      - "Diagnostic intake answers"
+      - "Current charter and board"
+    constraints:
+      - "Read-only."
+      - "Do not inspect implementation files yet."
+      - "Do not generate assets."
+      - "Do not implement."
+      - "Be skeptical about scope, proof, production risk, and shallow substitutions."
+      - "Distinguish a true shipped AAA game from a credible AAA-grade local milestone program."
+      - "Treat KOF, Street Fighter, Mortal Kombat, and Pokemon as inspiration only; require original IP-safe characters, names, moves, story, audio, UI, and assets."
+      - "Challenge any plan that would produce generic AI-looking assets, inconsistent art direction, or superficial content volume."
+      - "Challenge whether an 8-character roster, keyboard-first browser controls, multiple modes, and polished AI-generated assets can be delivered in one tranche; if not, propose a phased plan without diluting the final standard."
+      - "Do not allow the full outcome to be marked complete from only a two-character proof unless the owner explicitly accepts a narrower milestone."
+      - "Set a character consistency and animation acceptance standard strict enough to prevent AI-looking motion glitches."
+      - "Define which domains can be safely parallelized and which must stay sequential because they share architecture, schema, design standards, or verification."
+    expected_output:
+      - "Top plan risks and likely failure modes"
+      - "What AAA must mean for this project before execution proceeds"
+      - "Original creative pillars for the cute-pet fighting game"
+      - "A credible roster/modes/control phasing strategy for an 8-character keyboard-first browser fighting game with touch/mobile v2 path"
+      - "Animation and character consistency acceptance criteria"
+      - "Parallelization strategy: Scout domains, Worker domains, unsafe-to-parallelize domains, and needed skills/resources"
+      - "Missing owner decisions, if any"
+      - "Minimum credible proof package for the first tranche"
+      - "Recommended changes to Scout/Judge/Worker sequencing"
+      - "Decision: proceed_to_scout | ask_owner | revise_board"
+    receipt:
+      result: done
+      decision: rejected
+      routing_decision: revise_board
+      full_outcome_complete: false
+      note: notes/T001-plan-challenge.md
+      summary: "Rejected broad one-tranche execution as likely to produce shallow AI-slop. Required a phased Scout-first plan with Tranche 1 proving a polished 2-fighter browser vertical slice, strict animation consistency, source/license manifests, and verified playable proof before scaling toward 8 fighters and all modes."
+      spawned_tasks:
+        - T002
+        - T003
+        - T004
+        - T999
+  - id: T002
+    type: scout
+    assignee: Scout
+    status: done
+    reasoning_hint: default
+    objective: "Run parallel read-only discovery across project architecture, fighting controls, asset pipeline, audio licensing, creative/data model, and verification strategy for Tranche 1."
+    inputs:
+      - "Project root"
+      - "Existing game files"
+      - "Existing docs and package manifests"
+      - "T001 plan-challenge receipt"
+    constraints:
+      - "Read-only."
+      - "Do not edit implementation files."
+      - "Do not generate image or audio assets."
+      - "Do not use ElevenLabs or Pixabay APIs yet."
+      - "Prefer concrete file-path evidence over generic advice."
+      - "Use the T001 plan standard to judge the current game honestly."
+      - "Parallel read-only Scout agents may inspect independent domains and return receipts to be aggregated by PM."
+      - "Identify playable vertical-slice opportunities, not just planning tasks."
+      - "Map whether the current project can support KOF-style fighting presentation, character selection, responsive controls, hit reactions, round/championship flow, and browser performance."
+      - "Map what is required for an 8-fighter roster, keyboard-first browser controls, landscape layout, championship/story mode, versus/core modes, and single-player training mode."
+      - "Identify the safest asset/animation pipeline for consistent character proportions, identity, and natural movement across frames."
+      - "Identify non-procedural programmatic audio options such as authored samples, layered stems, adaptive mixes, loops, and event-driven playback."
+      - "Evaluate Pixabay, ElevenLabs, and similar services as candidate audio sources, including commercial-use terms, attribution requirements, plan/tier restrictions, and Content ID/platform-claim risks."
+      - "Recommend an audio source record format covering provider, creator/model, source URL or generation prompt, license/terms snapshot date, attribution requirement, and runtime destination path."
+      - "Identify where generated raster image assets would materially improve production polish/content scale and where repo-native assets would be more appropriate."
+      - "Break findings into independent work domains suitable for parallel agents, including files likely owned by each domain."
+    expected_output:
+      - "Repo/game map"
+      - "Run and verification commands"
+      - "Current gameplay/content inventory"
+      - "Architecture and game-loop feasibility findings"
+      - "Keyboard fighting controls and mode feasibility findings"
+      - "Asset pipeline and animation consistency recommendations"
+      - "Audio source/license workflow recommendations"
+      - "Creative bible/data model recommendations"
+      - "Verification/performance strategy"
+      - "Independent work domains with candidate file ownership"
+      - "Candidate next tasks with evidence"
+    receipt:
+      result: done
+      note: notes/T002-scout-aggregate.md
+      summary: "Parallel Scout discovery found the repo is already a mature Vite/TypeScript/Phaser fighting game with 2 runtime fighters, Training/1 VS CPU, generated assets, tests, manifests, and smoke scripts. Highest-leverage next work is scaling through original creative/data modeling, championship/story structure, authored/sample-based audio, no-slop asset QA, and verification gates rather than basic foundation."
+      evidence:
+        - "package.json"
+        - "README.md"
+        - "src/core/simulation.ts"
+        - "src/game/MeowtalArenaScene.ts"
+        - "src/game/gameConfig.ts"
+        - "src/assets/catalog.ts"
+        - "src/assets/meowtalProductionManifest.ts"
+        - "scripts/smoke-meowtal-browser.mjs"
+        - "test/"
+      spawned_tasks:
+        - T003
+  - id: T003
+    type: judge
+    assignee: Judge
+    status: done
+    reasoning_hint: high
+    objective: "Integrate Scout findings and approve the first largest safe useful Tranche 1 implementation slice."
+    inputs:
+      - "T001 receipt"
+      - "T002 receipt"
+      - "Original request"
+      - "Diagnostic intake answers"
+    constraints:
+      - "Do not implement."
+      - "Pick a coherent playable slice, not a tiny helper or pure plan."
+      - "Prefer a slice that proves the pet-fighter identity through controls, character presentation, impact, one story/championship beat, visual polish, and audio polish."
+      - "Ensure the chosen slice fits the broader target of 8 fighters, keyboard-first browser controls, all core modes, training mode, and touch/mobile v2 extensibility instead of becoming throwaway prototype work."
+      - "Reject any asset/animation plan that cannot preserve character consistency across frames."
+      - "Define allowed_files, verify commands, and stop conditions."
+      - "Set practical scope boundaries from evidence rather than intake assumptions."
+      - "Approve dependency or asset-pipeline changes only when evidence shows they are necessary for the selected slice."
+      - "Route generated raster image assets through imagegen unless the selected slice clearly requires repo-native vector/code assets."
+      - "Approve audio assets only when source/license records are available or the Worker slice includes creating those records before consuming the assets."
+      - "Reject direct cloning of reference games; require original IP-safe output."
+      - "Reject broad 8-fighter or all-modes implementation until Tranche 1 proof is green."
+    expected_output:
+      - "Decision"
+      - "Exact Worker objective"
+      - "allowed_files"
+      - "verify"
+      - "stop_if"
+      - "Deferred risks and follow-up candidates"
+      - "Parallel Worker plan if safe: disjoint allowed_files, verification, and stop conditions for each Worker"
+    receipt:
+      result: done
+      decision: approve_first_worker_slice
+      full_outcome_complete: false
+      note: notes/T003-slice-decision.md
+      summary: "Approved T004 as the first implementation slice: add an original source-controlled content spine with IP-safe working title, 8-fighter bible, story/mode/audio/asset standards, while preserving the existing 2-fighter runtime roster and avoiding asset generation or API calls."
+      evidence:
+        - "notes/T001-plan-challenge.md"
+        - "notes/T002-scout-aggregate.md"
+        - "src/game/gameConfig.ts"
+        - "src/game/audio.ts"
+        - "src/game/shellFlow.ts"
+      spawned_tasks:
+        - T004
+  - id: T004
+    type: worker
+    assignee: Worker
+    status: done
+    reasoning_hint: medium
+    objective: "Add an expansion-ready, source-controlled original content spine for the game: IP-safe working title, 8 original pet-fighter bible, move-language hooks, first championship/story beat, mode metadata, keyboard-first/browser-v1 and touch/mobile-v2 notes, audio direction requiring sample/authored primary cues with procedural fallback marked dev-only, and visual production/model-sheet acceptance rules. Keep only Gray Rabbit and Ginger Tabby Cat in the runtime roster. Do not generate assets, acquire audio, or expand runtime fighters."
+    allowed_files:
+      - "src/content/gameBible.ts"
+      - "src/content/index.ts"
+      - "test/game-bible.test.ts"
+      - "src/game/gameConfig.ts"
+      - "test/game-config.test.ts"
+    verify:
+      - "npm run typecheck"
+      - "npm test -- test/game-bible.test.ts test/game-config.test.ts"
+      - "npm run verify"
+    stop_if:
+      - "Need files outside allowed_files."
+      - "Need generated image/audio assets, external APIs, .env, public/assets, assets/source, or output files."
+      - "Need dependency changes."
+      - "Need to add more than the existing 2 fighters to runtime roster."
+      - "Need to modify combat, rendering scene flow, shellFlow, asset manifests, or audio playback implementation."
+      - "Any proposed fighter, title, move, story beat, announcer line, or mode copies or sound-alikes Pokemon/KOF/Mortal Kombat/Street Fighter references."
+      - "Cannot keep procedural audio explicitly dev-only/fallback in the new content contract."
+      - "Verification fails twice."
+    receipt:
+      result: done
+      changed_files:
+        - "src/content/gameBible.ts"
+        - "src/content/index.ts"
+        - "src/game/gameConfig.ts"
+        - "test/game-bible.test.ts"
+        - "test/game-config.test.ts"
+      commands:
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm test -- test/game-bible.test.ts test/game-config.test.ts"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+      summary: "Added the Pawbreaker League source-controlled content spine: IP-safe working title, 8 original pet-fighter bible, runtime-vs-planned fighter status, first 2026 Snackbelt story beat, mode roadmap, keyboard-first/landscape browser v1 plan, touch/mobile v2 plan, sample/authored audio policy with procedural dev-only fallback, and strict no-slop animation/model-sheet acceptance rules. Linked it through gameConfig without expanding the 2-fighter runtime roster."
+  - id: T005
+    type: worker
+    assignee: Worker
+    status: done
+    reasoning_hint: medium
+    objective: "Introduce a manifest-backed authored/sample audio contract behind the existing cue mapping: define cue asset specs, source/license requirements, missing-asset behavior, and procedural fallback as dev-only. Do not acquire audio, call external APIs, or change gameplay/rendering behavior."
+    allowed_files:
+      - "src/game/audio.ts"
+      - "src/assets/provenance.ts"
+      - "src/assets/meowtalProductionManifest.ts"
+      - "test/presentation.test.ts"
+      - "test/meowtal-production-manifest.test.ts"
+    verify:
+      - "npm run typecheck"
+      - "npm test -- test/presentation.test.ts test/meowtal-production-manifest.test.ts"
+      - "npm run verify"
+    stop_if:
+      - "Need files outside allowed_files."
+      - "Need generated/downloaded audio assets, external APIs, .env, public/assets, assets/source, or output files."
+      - "Need dependency changes."
+      - "Need to change gameplay, rendering scene flow, input, or shellFlow."
+      - "Need to make procedural audio the primary shipped direction."
+      - "ElevenLabs Music, cloned voices, or Pixabay assets would be consumed before Judge-approved source/license records."
+      - "Verification fails twice."
+    receipt:
+      result: done
+      changed_files:
+        - "src/game/audio.ts"
+        - "src/assets/meowtalProductionManifest.ts"
+        - "test/presentation.test.ts"
+        - "test/meowtal-production-manifest.test.ts"
+      commands:
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm test -- test/presentation.test.ts test/meowtal-production-manifest.test.ts"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+      summary: "Added authored/sample audio asset specs for every current cue, including planned runtime paths, required source/license records, allowed source kinds, and explicit dev-only procedural fallback. Wired the specs into the production manifest so procedural WebAudio remains documented as fallback rather than the primary shipped direction."
+  - id: T006
+    type: worker
+    assignee: Worker
+    status: done
+    reasoning_hint: medium
+    objective: "Harden the generated fighter asset contract for no-slop roster expansion: add identity-lock/model-sheet acceptance metadata to fighter asset manifests and tests so future generated rows require stable proportions, markings, pose language, alpha/dimension contracts, and no copied text/logos before runtime promotion. Do not generate assets or modify runtime rendering."
+    allowed_files:
+      - "src/assets/types.ts"
+      - "src/assets/catalog.ts"
+      - "test/asset-pipeline.test.ts"
+      - "test/asset-runtime.test.ts"
+    verify:
+      - "npm run typecheck"
+      - "npm test -- test/asset-pipeline.test.ts test/asset-runtime.test.ts"
+      - "npm run verify"
+    stop_if:
+      - "Need files outside allowed_files."
+      - "Need generated image/audio assets, external APIs, .env, public/assets, assets/source, output files, or dependency changes."
+      - "Need to change runtime rendering, gameConfig, combat, or image normalization scripts."
+      - "Need to approve or reject actual visual assets without browser/image QA evidence."
+      - "The contract cannot preserve current approved runtime asset tests."
+      - "Verification fails twice."
+    receipt:
+      result: done
+      changed_files:
+        - "src/assets/types.ts"
+        - "src/assets/catalog.ts"
+        - "test/asset-pipeline.test.ts"
+        - "test/asset-runtime.test.ts"
+      commands:
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm test -- test/asset-pipeline.test.ts test/asset-runtime.test.ts"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+      summary: "Added identity-lock and no-slop production acceptance metadata to fighter asset manifests. Future runtime promotion now carries model-sheet-first requirements, locked traits, forbidden drift, exact frame-cell/alpha/provenance checks, and rejection reasons for generic or copied output while preserving all current runtime asset tests."
+  - id: T007
+    type: worker
+    assignee: Worker
+    status: done
+    reasoning_hint: medium
+    objective: "Add a non-final championship/story mode option using existing fight flow and content-spine story text. Keep combat, assets, and roster unchanged; championship should behave as a CPU fight mode for now while clearly exposing that story/championship is planned and data-driven."
+    allowed_files:
+      - "src/game/shellFlow.ts"
+      - "src/game/MeowtalArenaScene.ts"
+      - "test/shell-flow.test.ts"
+    verify:
+      - "npm run typecheck"
+      - "npm test -- test/shell-flow.test.ts"
+      - "npm run verify"
+    stop_if:
+      - "Need files outside allowed_files."
+      - "Need generated assets, external APIs, .env, public/assets, assets/source, output files, or dependency changes."
+      - "Need to alter combat simulation, fighter definitions, asset manifests, or audio playback."
+      - "Need to add new playable fighters or new final story assets."
+      - "The championship shell cannot remain clearly non-final/data-driven."
+      - "Verification fails twice."
+    receipt:
+      result: done
+      changed_files:
+        - "src/game/shellFlow.ts"
+        - "src/game/MeowtalArenaScene.ts"
+        - "test/shell-flow.test.ts"
+      commands:
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm test -- test/shell-flow.test.ts"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/aaa-expansion-t007-championship"
+          status: pass
+      summary: "Added a non-final Championship mode to the shell loop. The mode cycles after Training, uses the content-spine 2026 story beat for description/debug state, starts as CPU-backed story-shell combat, and preserves existing fighter roster, assets, combat, and training behavior. Production preview smoke passed with desktop, training, and landscape screenshot evidence."
+  - id: T008
+    type: worker
+    assignee: Worker
+    status: done
+    reasoning_hint: medium
+    objective: "Convert runtime audio from procedural-only to sample-first: attempt to load/decode authored sample assets from the approved audio spec paths, play samples when available, expose sample/fallback runtime status for verification, and keep existing WebAudio synthesis only as a dev-only fallback. Do not acquire/download audio assets, call provider APIs, change cue mapping, or edit generated assets."
+    allowed_files:
+      - "src/game/audio.ts"
+      - "test/presentation.test.ts"
+    verify:
+      - "npm run typecheck"
+      - "npm test -- test/presentation.test.ts"
+      - "npm run verify"
+    stop_if:
+      - "Need files outside allowed_files."
+      - "Need generated audio assets, external APIs, .env, public/assets, assets/source, output files, or dependency changes."
+      - "Need to change combat simulation, cue mapping semantics, generated manifests, or scene rendering."
+      - "Sample-first support cannot preserve current procedural fallback behavior while assets are missing."
+      - "Verification fails twice."
+    receipt:
+      result: done
+      changed_files:
+        - "src/game/audio.ts"
+        - "test/presentation.test.ts"
+      commands:
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm test -- test/presentation.test.ts"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/aaa-expansion-t008-sample-audio"
+          status: pass
+      summary: "Converted ArenaAudio from procedural-only runtime behavior to sample-first playback. The runtime now attempts to fetch and decode authored/sample assets from /assets/generated/audio/*.ogg, plays decoded samples before synthesis, exposes per-cue sample status for verification, and keeps the existing WebAudio cues only as dev-only fallback when samples are missing."
+  - id: T009
+    type: judge
+    assignee: Judge
+    status: done
+    reasoning_hint: high
+    objective: "Select the next safe visual rebrand slice for Pawbreaker League, including whether to use built-in imagegen now for a new title/presentation bitmap, what exact asset(s) are allowed, the no-slop acceptance criteria, and the Worker allowed_files/verify/stop_if. Challenge IP risk from visible Meowtal Kombat branding and avoid any generated asset that depends on unreliable in-image text."
+    inputs:
+      - "T004 content-spine receipt"
+      - "T006 no-slop asset contract"
+      - "Current runtime presentation still reports MEOWTAL KOMBAT"
+      - "User required imagegen for image asset generation"
+      - "Existing generated UI title logo may contain old branding"
+      - "Current dirty diff and committed T004-T008 code"
+    constraints:
+      - "Do not implement or generate images."
+      - "Prefer code-native text for exact title words if bitmap text quality would be risky."
+      - "Keep generated-art scope small enough for QA, source/runtime provenance, and browser smoke."
+      - "Do not require external credentials for image generation unless the selected path explicitly records the blocker."
+      - "Preserve existing playable demo if a generated asset is rejected."
+    expected_output:
+      - "Decision: proceed_with_worker | defer_generated_art | require_scout"
+      - "Rationale"
+      - "Exact Worker objective"
+      - "allowed_files"
+      - "verify"
+      - "stop_if"
+      - "no-slop acceptance checklist"
+    receipt:
+      result: done
+      decision: "proceed_with_worker"
+      rationale: "Visible MEOWTAL KOMBAT is an IP/sound-alike risk and conflicts with the Pawbreaker League content spine. Proceed with imagegen only for one textless decorative crest/backplate; exact title words must be Phaser/code-native text because generated lettering is unreliable."
+      next_task: T010
+      blocked_tasks:
+        - "Broad repo/package/class rename."
+        - "New fighter/stage/animation generation."
+        - "Any logo/title bitmap that depends on generated text."
+      summary: "Approved a narrow Pawbreaker visual rebrand Worker: replace player-facing title presentation with code-native PAWBREAKER LEAGUE and promote at most one textless generated crest/backplate with no old branding, copied marks, pseudo-text, watermark, or malformed pet art."
+  - id: T010
+    type: worker
+    assignee: Worker
+    status: done
+    reasoning_hint: medium
+    objective: "Replace player-facing title presentation with PAWBREAKER LEAGUE while preserving the playable 2-fighter demo. Generate/promote exactly one textless Pawbreaker title crest/backplate bitmap via built-in imagegen, route it behind code-native title text, update runtime/debug presentation and provenance, and reject the bitmap if it contains readable letters, logos, watermark, copied fighting-game marks, malformed pets, or off-style artifacts."
+    allowed_files:
+      - "src/game/gameConfig.ts"
+      - "src/game/MeowtalArenaScene.ts"
+      - "src/assets/meowtalProductionManifest.ts"
+      - "src/assets/imagegenJobs.ts"
+      - "test/game-config.test.ts"
+      - "test/meowtal-production-manifest.test.ts"
+      - "test/imagegen-jobs.test.ts"
+      - "test/asset-runtime.test.ts"
+      - "assets/source/imagegen/ui/pawbreaker/title-crest.png"
+      - "assets/source/imagegen/ui/pawbreaker/candidates/title-crest-codex-01.png"
+      - "public/assets/generated/ui/pawbreaker/title-crest.png"
+      - "output/imagegen/pawbreaker-title-crest.png"
+      - "output/web-game/aaa-expansion-visual-rebrand/"
+    verify:
+      - "npm run typecheck"
+      - "npm test -- test/game-config.test.ts test/meowtal-production-manifest.test.ts"
+      - "npm run verify"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/aaa-expansion-visual-rebrand"
+      - "Browser/debug state must report presentation.title === \"PAWBREAKER LEAGUE\" and must not report \"MEOWTAL KOMBAT\"."
+    stop_if:
+      - "Need files outside allowed_files."
+      - "Need to rename classes/package/project internals broadly."
+      - "Need more than one generated bitmap."
+      - "Generated bitmap includes readable text, pseudo-text, MK, Meowtal, Kombat, watermarks, real logos, copied fighting-game symbols, or direct Mortal Kombat-style dragon/brand language."
+      - "Generated bitmap becomes the source of exact title words."
+      - "Runtime cannot preserve title/mode/select/fight flow."
+      - "Existing generated old title logo remains visible in browser title/mode/select screens."
+      - "Verification fails twice."
+    acceptance:
+      - "Exact title words are rendered as code-native text: PAWBREAKER LEAGUE."
+      - "Bitmap is textless decorative art only."
+      - "No visible Meowtal Kombat, Meowtal, Kombat, Mortal Kombat, MK, watermark, or copied logo in runtime presentation."
+      - "Asset has source and runtime provenance as owned Codex imagegen output."
+      - "Transparent/crop-safe layout works at ready, mode-select, and select screens."
+      - "Browser smoke screenshots show non-overlapping title, help text, fighters, and UI."
+      - "If the bitmap is rejected, Worker still leaves a clean code-native Pawbreaker title path and does not promote the bad asset."
+    receipt:
+      result: done
+      changed_files:
+        - "src/game/gameConfig.ts"
+        - "src/game/MeowtalArenaScene.ts"
+        - "src/assets/meowtalProductionManifest.ts"
+        - "src/assets/imagegenJobs.ts"
+        - "test/game-config.test.ts"
+        - "test/meowtal-production-manifest.test.ts"
+        - "test/imagegen-jobs.test.ts"
+        - "test/asset-runtime.test.ts"
+        - "assets/source/imagegen/ui/pawbreaker/title-crest.png"
+        - "assets/source/imagegen/ui/pawbreaker/candidates/title-crest-codex-01.png"
+        - "public/assets/generated/ui/pawbreaker/title-crest.png"
+        - "output/imagegen/pawbreaker-title-crest.png"
+        - "output/web-game/aaa-expansion-visual-rebrand/"
+      commands:
+        - cmd: "python3 imagegen chroma-key helper via bundled runtime for title crest alpha extraction"
+          status: pass
+        - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha assets/source/imagegen/ui/pawbreaker/candidates/title-crest-codex-01.png output/imagegen/pawbreaker-title-crest.png public/assets/generated/ui/pawbreaker/title-crest.png"
+          status: pass
+        - cmd: "npm test -- test/game-config.test.ts test/meowtal-production-manifest.test.ts test/imagegen-jobs.test.ts test/asset-runtime.test.ts"
+          status: pass
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/aaa-expansion-visual-rebrand"
+          status: pass
+      summary: "Rebranded the visible title presentation to Pawbreaker League. Generated exactly one textless Codex imagegen crest/backplate, removed chroma key to alpha, promoted it to source/runtime Pawbreaker UI paths, routed it behind code-native PAWBREAKER LEAGUE text, removed the old Meowtal title logo from runtime UI routing, updated provenance/job metadata, and fixed a ready-screen helper overlap found in smoke screenshots. Browser smoke reported zero failures and debug presentation.title is PAWBREAKER LEAGUE."
+  - id: T011
+    type: judge
+    assignee: Judge
+    status: active
+    reasoning_hint: high
+    objective: "Choose the next safe roster-expansion slice toward the 8-fighter goal. Challenge whether to generate one source-only canonical model sheet now, add non-playable roster preview data, or improve select UX first; prioritize no animation drift, no playable roster overclaiming, and browser-demo stability."
+    inputs:
+      - "T004 content spine with 8 planned fighters"
+      - "T006 identity-lock/no-slop asset acceptance"
+      - "T010 imagegen rebrand receipt and smoke evidence"
+      - "User explicitly asked for around 8 cute pet fighters but forbade glitchy/inconsistent animations"
+      - "Current runtime has only Gray Rabbit and Ginger Tabby Cat playable"
+    constraints:
+      - "Do not implement or generate images."
+      - "Prefer source-only canonical/model-sheet work before animation or playable runtime promotion."
+      - "Do not expand playable roster unless there are complete approved animation rows."
+      - "If imagegen is selected, scope to one new character asset and require rejection criteria."
+      - "Preserve keyboard-first playable browser demo and existing smoke coverage."
+    expected_output:
+      - "Decision: proceed_with_worker | defer_roster_assets | require_scout"
+      - "Rationale"
+      - "Exact Worker objective"
+      - "allowed_files"
+      - "verify"
+      - "stop_if"
+      - "no-slop acceptance checklist"
+    receipt: null
+  - id: T999
+    type: judge
+    assignee: Judge
+    status: queued
+    reasoning_hint: high
+    objective: "Audit whether the implemented tranche satisfies the original AAA-style expansion outcome."
+    inputs:
+      - "All done task receipts"
+      - "Last verification"
+      - "Current dirty diff"
+      - "Playable demo evidence"
+      - "Content milestone inventory"
+      - "Before/after review checklist"
+    constraints:
+      - "Do not implement."
+      - "Reject completion if required Worker work is still queued or active."
+      - "Reject completion if the broader original outcome still has safe local follow-up slices."
+      - "Reject completion if there is no playable/demo evidence."
+      - "Reject completion if content inventory or review checklist evidence is missing."
+    expected_output:
+      - "complete | not_complete"
+      - "full_outcome_complete: true | false"
+      - "missing evidence"
+      - "next task if not complete"
+    receipt: null
+
+checks:
+  dirty_fingerprint: unknown
+  last_verification:
+    result: pass
+    task: T010
+    commands:
+      - "npm run typecheck"
+      - "npm test -- test/game-config.test.ts test/meowtal-production-manifest.test.ts test/imagegen-jobs.test.ts test/asset-runtime.test.ts"
+      - "npm run verify"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/aaa-expansion-visual-rebrand"
