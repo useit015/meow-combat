@@ -75,7 +75,7 @@ describe("pet fighter game bible", () => {
     expect(petFighterGameBible.visualProduction.rejectionReasons).toContain("generic AI-looking output");
   });
 
-  it("defines modes without claiming unfinished modes are implemented", () => {
+  it("tracks implemented and planned modes without overclaiming the rest", () => {
     expect(petFighterGameBible.modes.map((mode) => mode.id)).toEqual([
       "versus-cpu",
       "training",
@@ -83,7 +83,9 @@ describe("pet fighter game bible", () => {
       "local-versus",
       "roster-lab",
     ]);
-    expect(petFighterGameBible.modes.find((mode) => mode.id === "championship")?.status).toBe("planned");
+    const championship = petFighterGameBible.modes.find((mode) => mode.id === "championship");
+    expect(championship?.status).toBe("implemented");
+    expect(championship?.purpose).toContain("Three-fighter story ladder");
     expect(petFighterGameBible.championship.firstStoryBeat).toContain("2026");
   });
 });

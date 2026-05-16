@@ -60,7 +60,7 @@ describe("shell flow", () => {
     expect(selectedPlayMode(training)).toBe("training");
   });
 
-  it("treats championship as a CPU-backed story shell until full mode implementation", () => {
+  it("treats championship as a CPU-backed story ladder mode", () => {
     expect(playModeUsesCpu({ selectedMode: "championship" })).toBe(true);
     expect(playModeUsesCpu({ selectedMode: "versus-cpu" })).toBe(true);
     expect(playModeUsesCpu({ selectedMode: "training" })).toBe(false);

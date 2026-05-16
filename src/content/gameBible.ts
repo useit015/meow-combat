@@ -238,8 +238,8 @@ export const petFighterGameBible: PetFighterGameBible = {
     {
       id: "championship",
       label: "Snackbelt Championship",
-      status: "planned",
-      purpose: "Data-driven story ladder with funny rival beats and controlled roster progression.",
+      status: "implemented",
+      purpose: "Three-fighter story ladder with funny rival beats and controlled roster progression.",
     },
     {
       id: "local-versus",

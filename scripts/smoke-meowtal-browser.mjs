@@ -622,6 +622,22 @@ async function runChampionshipLadderProgression(browser, url, outDir) {
       `advance demo expected Pickles next, got ${state.storyMode?.ladder?.currentOpponent?.fighterId}`,
     );
     assert(state.storyMode?.ladder?.totalOpponents === 2, failures, "advance demo should expose two-opponent ladder");
+    assert(
+      state.storyMode?.presentation?.headline === "ADVANCE TO NEXT RIVAL",
+      failures,
+      `advance demo expected advance headline, got ${state.storyMode?.presentation?.headline}`,
+    );
+    assert(
+      state.storyMode?.presentation?.body?.includes("Pickles Pugilist"),
+      failures,
+      "advance demo should name Pickles in presentation copy",
+    );
+    assert(
+      state.storyMode?.presentation?.opponentOrderLabel?.includes("DONE Ginger Tabby Cat") &&
+        state.storyMode?.presentation?.opponentOrderLabel?.includes("NEXT Pickles Pugilist"),
+      failures,
+      `advance demo expected DONE/NEXT opponent order, got ${state.storyMode?.presentation?.opponentOrderLabel}`,
+    );
 
     await pressKey(page, "Space");
     await waitFrames(page, 24);
@@ -648,6 +664,21 @@ async function runChampionshipLadderProgression(browser, url, outDir) {
       state.storyMode?.ladder?.completedOpponents?.map((fighter) => fighter.fighterId).join(",") === "ginger-tabby-cat",
       failures,
       "ladder advance should preserve completed opponent after next fight starts",
+    );
+    assert(
+      state.storyMode?.presentation?.headline === "SNACKBELT LADDER 2/2",
+      failures,
+      `ladder advance expected 2/2 headline, got ${state.storyMode?.presentation?.headline}`,
+    );
+    assert(
+      state.storyMode?.presentation?.currentRival?.fighterId === "pugilist-pug",
+      failures,
+      `ladder advance expected Pickles current rival, got ${state.storyMode?.presentation?.currentRival?.fighterId}`,
+    );
+    assert(
+      state.storyMode?.presentation?.body?.includes("trophy was edible"),
+      failures,
+      "ladder advance should surface Pickles story hook",
     );
     assert(
       state.assetReadiness?.runtimeFallbacks?.fighterAnimations === 0,
@@ -688,7 +719,49 @@ async function runChampionshipLadderProgression(browser, url, outDir) {
       failures,
       "clear demo should have no remaining opponents",
     );
+    assert(
+      state.storyMode?.presentation?.headline === "SNACKBELT CLEARED",
+      failures,
+      `clear demo expected cleared presentation, got ${state.storyMode?.presentation?.headline}`,
+    );
+    assert(
+      state.storyMode?.presentation?.callToAction === "Enter: restart ladder",
+      failures,
+      `clear demo expected restart CTA, got ${state.storyMode?.presentation?.callToAction}`,
+    );
     assert(errors.length === 0, failures, `ladder clear console/page errors: ${JSON.stringify(errors)}`);
+    await context.close();
+  }
+
+  {
+    const { context, page, errors } = await openScenario(browser, urlWithDemo(url, "championship-ladder-fail"), {
+      viewport: { width: 1024, height: 576 },
+    });
+    const state = await readState(page);
+    states["fail-match-over"] = state;
+    screenshots.push(await screenshot(page, outDir, "championship-ladder-fail-match-over"));
+    assert(state.shellPhase === "match-over", failures, `fail demo expected match-over, got ${state.shellPhase}`);
+    assert(
+      state.storyMode?.ladder?.status === "complete",
+      failures,
+      `fail demo expected complete ladder, got ${state.storyMode?.ladder?.status}`,
+    );
+    assert(
+      state.storyMode?.ladder?.result === "failed",
+      failures,
+      `fail demo expected failed result, got ${state.storyMode?.ladder?.result}`,
+    );
+    assert(
+      state.storyMode?.presentation?.headline === "SNACKBELT RUN ENDED",
+      failures,
+      `fail demo expected failed presentation, got ${state.storyMode?.presentation?.headline}`,
+    );
+    assert(
+      state.storyMode?.presentation?.body?.includes("Ginger Tabby Cat"),
+      failures,
+      "fail demo should name the rival that stopped the run",
+    );
+    assert(errors.length === 0, failures, `ladder fail console/page errors: ${JSON.stringify(errors)}`);
     await context.close();
   }
 

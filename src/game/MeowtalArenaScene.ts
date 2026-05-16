@@ -149,6 +149,8 @@ export class MeowtalArenaScene extends Phaser.Scene {
   private titleText!: Phaser.GameObjects.Text;
   private helpText!: Phaser.GameObjects.Text;
   private versusText!: Phaser.GameObjects.Text;
+  private championshipTitleText!: Phaser.GameObjects.Text;
+  private championshipBodyText!: Phaser.GameObjects.Text;
   private conceptPreviews!: Record<"p1" | "p2", Phaser.GameObjects.Image | null>;
   private runtimeUiImages!: Record<RuntimeUiImageSlot, Phaser.GameObjects.Image>;
   private hudPortraitSprites!: Record<"p1" | "p2", Phaser.GameObjects.Sprite>;
@@ -338,6 +340,31 @@ export class MeowtalArenaScene extends Phaser.Scene {
       .setShadow(0, 2, "#000000", 5, true, true)
       .setDepth(101)
       .setVisible(false);
+    this.championshipTitleText = this.add
+      .text(512, 106, "", {
+        align: "center",
+        color: "#fff1a8",
+        fontFamily: "Inter, Arial, sans-serif",
+        fontSize: "13px",
+        fontStyle: "900",
+      })
+      .setOrigin(0.5, 0)
+      .setShadow(0, 2, "#000000", 4, true, true)
+      .setDepth(103)
+      .setVisible(false);
+    this.championshipBodyText = this.add
+      .text(512, 126, "", {
+        align: "center",
+        color: "#f8f5e9",
+        fontFamily: "Inter, Arial, sans-serif",
+        fontSize: "11px",
+        lineSpacing: 2,
+        wordWrap: { width: 590 },
+      })
+      .setOrigin(0.5, 0)
+      .setShadow(0, 2, "#000000", 4, true, true)
+      .setDepth(103)
+      .setVisible(false);
     this.conceptPreviews = {
       p1: this.createConceptPreview("p1"),
       p2: this.createConceptPreview("p2"),
@@ -430,12 +457,13 @@ export class MeowtalArenaScene extends Phaser.Scene {
       storyMode:
         selectedPlayMode(this.shell) === "championship"
           ? {
-              status: "planned-shell",
+              status: "implemented-ladder",
               championshipName: GAME_CONFIG.contentSpine.championship.name,
               premise: GAME_CONFIG.contentSpine.championship.premise,
               firstBeat: GAME_CONFIG.contentSpine.championship.firstStoryBeat,
               selectedRivals: [selectedFighterDetails.p1, selectedFighterDetails.p2],
               ladder: this.championshipLadderTextState(),
+              presentation: this.championshipPresentationState(),
             }
           : null,
       training: {
@@ -831,6 +859,7 @@ export class MeowtalArenaScene extends Phaser.Scene {
       .setVisible(showFightLayer);
     this.renderComboText(this.snapshot);
     this.renderShellText();
+    this.renderChampionshipPresentation();
     this.renderReadinessText();
     this.renderConceptArt();
     this.renderSelectSprites();
@@ -942,6 +971,9 @@ export class MeowtalArenaScene extends Phaser.Scene {
     }
 
     g.clear();
+    if (this.championshipPresentationState().visible) {
+      drawChampionshipPresentationPanel(g);
+    }
     if (this.shell.phase === "paused") {
       drawPauseOptionsPanel(g);
     }
@@ -1454,6 +1486,133 @@ export class MeowtalArenaScene extends Phaser.Scene {
     };
   }
 
+  private championshipPresentationState() {
+    const visible =
+      selectedPlayMode(this.shell) === "championship" &&
+      (this.shell.phase === "fighting" || this.shell.phase === "round-over" || this.shell.phase === "match-over");
+    const currentOpponentId = this.championshipCurrentOpponentId();
+    const currentRival = currentOpponentId ? fighterStorySummary(currentOpponentId) : null;
+    const player = this.championshipLadder.playerFighterId
+      ? fighterStorySummary(this.championshipLadder.playerFighterId)
+      : fighterStorySummary(selectedFighter(this.selectedFighterIndex.p1).id);
+    const completedRivals = this.championshipLadder.completedOpponentIds.map((fighterId) => fighterStorySummary(fighterId));
+    const lastCompletedRival = completedRivals[completedRivals.length - 1] ?? null;
+    const opponentOrder = this.championshipLadder.opponentIds.map((fighterId, index) => {
+      const rival = fighterStorySummary(fighterId);
+      const marker = this.championshipLadder.completedOpponentIds.includes(fighterId)
+        ? "DONE"
+        : fighterId === currentOpponentId
+          ? "NEXT"
+          : `R${index + 1}`;
+      return {
+        ...rival,
+        marker,
+      };
+    });
+    const opponentOrderLabel =
+      opponentOrder.length > 0
+        ? `Order: ${opponentOrder.map((opponent) => `${opponent.marker} ${opponent.displayName}`).join(" > ")}`
+        : "";
+
+    if (!visible) {
+      return {
+        visible: false,
+        headline: "",
+        body: "",
+        callToAction: "",
+        opponentOrderLabel,
+        player,
+        currentRival,
+        completedRivals,
+        lastCompletedRival,
+        opponentOrder,
+        result: this.championshipLadder.result,
+      };
+    }
+
+    if (this.championshipLadder.status === "complete" && this.championshipLadder.result === "cleared") {
+      return {
+        visible,
+        headline: "SNACKBELT CLEARED",
+        body: `${player.displayName} survives ${completedRivals.map((rival) => rival.displayName).join(" and ")}. The treat belt is now legally theirs until somebody licks the paperwork.`,
+        callToAction: "Enter: restart ladder",
+        opponentOrderLabel,
+        player,
+        currentRival: null,
+        completedRivals,
+        lastCompletedRival,
+        opponentOrder,
+        result: this.championshipLadder.result,
+      };
+    }
+
+    if (this.championshipLadder.status === "complete" && this.championshipLadder.result === "failed") {
+      const winner = this.snapshot.winner && this.snapshot.winner !== "draw" ? selectedFighter(this.selectedFighterIndex[this.snapshot.winner]).id : null;
+      const spoiler = winner ? fighterStorySummary(winner) : null;
+      return {
+        visible,
+        headline: "SNACKBELT RUN ENDED",
+        body: spoiler
+          ? `${spoiler.displayName} stops the run. ${spoiler.storyHook ?? "The bracket refuses to elaborate."}`
+          : "The bracket stops the run in deeply suspicious circumstances.",
+        callToAction: "Enter: retry ladder",
+        opponentOrderLabel,
+        player,
+        currentRival: null,
+        completedRivals,
+        lastCompletedRival,
+        opponentOrder,
+        result: this.championshipLadder.result,
+      };
+    }
+
+    if (this.shell.phase === "match-over" && lastCompletedRival && currentRival) {
+      return {
+        visible,
+        headline: "ADVANCE TO NEXT RIVAL",
+        body: `${lastCompletedRival.displayName} is down. Next: ${currentRival.displayName} - ${currentRival.storyHook ?? "The bracket has chosen chaos."}`,
+        callToAction: "Enter: next fight",
+        opponentOrderLabel,
+        player,
+        currentRival,
+        completedRivals,
+        lastCompletedRival,
+        opponentOrder,
+        result: this.championshipLadder.result,
+      };
+    }
+
+    if (currentRival) {
+      return {
+        visible,
+        headline: `SNACKBELT LADDER ${this.championshipLadder.opponentIndex + 1}/${this.championshipLadder.opponentIds.length}`,
+        body: `Current rival: ${currentRival.displayName} - ${currentRival.storyHook ?? "The bracket has chosen chaos."}`,
+        callToAction: "Win the set to advance",
+        opponentOrderLabel,
+        player,
+        currentRival,
+        completedRivals,
+        lastCompletedRival,
+        opponentOrder,
+        result: this.championshipLadder.result,
+      };
+    }
+
+    return {
+      visible,
+      headline: "SNACKBELT LADDER",
+      body: GAME_CONFIG.contentSpine.championship.premise,
+      callToAction: "Enter: fight",
+      opponentOrderLabel,
+      player,
+      currentRival,
+      completedRivals,
+      lastCompletedRival,
+      opponentOrder,
+      result: this.championshipLadder.result,
+    };
+  }
+
   private championshipModeText(): string {
     return championshipLadderLabel(this.championshipLadder, this.championshipCurrentOpponentId()).toUpperCase();
   }
@@ -1574,6 +1733,7 @@ export class MeowtalArenaScene extends Phaser.Scene {
       this.demoMode !== "cat-win" &&
       this.demoMode !== "championship-ladder-advance" &&
       this.demoMode !== "championship-ladder-clear" &&
+      this.demoMode !== "championship-ladder-fail" &&
       this.demoMode !== "hud-low"
     ) {
       return;
@@ -1618,6 +1778,8 @@ export class MeowtalArenaScene extends Phaser.Scene {
       this.primeChampionshipLadderAdvanceDemo();
     } else if (this.demoMode === "championship-ladder-clear") {
       this.primeChampionshipLadderClearDemo();
+    } else if (this.demoMode === "championship-ladder-fail") {
+      this.primeChampionshipLadderFailDemo();
     } else if (this.demoMode === "hud-low") {
       this.primeHudLowDemo();
     }
@@ -1644,6 +1806,14 @@ export class MeowtalArenaScene extends Phaser.Scene {
     };
     this.startSelectedMatch({ syncCpuToMode: true });
     this.forceChampionshipMatchOver("p1", "pugilist-pug");
+    this.recordChampionshipMatchOutcome();
+  }
+
+  private primeChampionshipLadderFailDemo(): void {
+    this.selectedFighterIndex = { p1: fighterRosterIndex("gray-rabbit"), p2: fighterRosterIndex("ginger-tabby-cat") };
+    this.shell = { phase: "fighting", selectedMode: "championship" };
+    this.startSelectedMatch({ syncCpuToMode: true });
+    this.forceChampionshipMatchOver("p2", "ginger-tabby-cat");
     this.recordChampionshipMatchOutcome();
   }
 
@@ -2136,6 +2306,27 @@ export class MeowtalArenaScene extends Phaser.Scene {
     }
   }
 
+  private renderChampionshipPresentation(): void {
+    const presentation = this.championshipPresentationState();
+    if (!presentation.visible) {
+      this.championshipTitleText.setVisible(false);
+      this.championshipBodyText.setVisible(false);
+      return;
+    }
+
+    const body = [presentation.body, presentation.opponentOrderLabel, presentation.callToAction]
+      .filter((line) => line.length > 0)
+      .join("\n");
+    this.championshipTitleText
+      .setText(presentation.headline)
+      .setPosition(512, 106)
+      .setVisible(true);
+    this.championshipBodyText
+      .setText(body)
+      .setPosition(512, 126)
+      .setVisible(true);
+  }
+
   private renderReadinessText(): void {
     if (this.shell.phase !== "select") {
       this.readinessText.setVisible(false);
@@ -2422,7 +2613,7 @@ function shellHelp(shell: ShellState, selectionLabel: string, controlFallbackLin
 
 function modeSelectText(shell: ShellState, cpuDifficulty: CpuDifficulty): string {
   if (selectedPlayMode(shell) === "training") return "TRAINING\nENDLESS SPARRING";
-  if (selectedPlayMode(shell) === "championship") return "CHAMPIONSHIP\nSNACKBELT OPENING";
+  if (selectedPlayMode(shell) === "championship") return "CHAMPIONSHIP\nSNACKBELT LADDER";
   return `1 VS CPU\n${cpuDifficulty.toUpperCase()}`;
 }
 
@@ -2447,6 +2638,18 @@ function fighterSummary(fighterId: string) {
   return {
     fighterId: fighter.id,
     displayName: fighter.displayName,
+  };
+}
+
+function fighterStorySummary(fighterId: string) {
+  const fighter = FIGHTER_ROSTER[fighterRosterIndex(fighterId)];
+  const content = GAME_CONFIG.contentSpine.fighters.find((candidate) => candidate.id === fighterId);
+  return {
+    fighterId: fighter.id,
+    displayName: fighter.displayName,
+    storyHook: content?.storyHook ?? null,
+    signatureMove: content?.signatureMove ?? null,
+    superMove: content?.superMove ?? null,
   };
 }
 
@@ -2771,6 +2974,18 @@ function drawZelligeRail(g: Phaser.GameObjects.Graphics, y: number, alpha: numbe
     g.fillTriangle(x, y + 24, x + 20, y + 6, x + 40, y + 24);
   }
   g.fillStyle(0x2ec4b6, 0.78).fillRect(0, y + 22, 1024, 2);
+}
+
+function drawChampionshipPresentationPanel(g: Phaser.GameObjects.Graphics): void {
+  drawNotchedPanel(g, 244, 96, 536, 98, {
+    fill: 0x071312,
+    accent: 0xf2cf7d,
+    fillAlpha: 0.74,
+    strokeAlpha: 0.86,
+    cut: 14,
+  });
+  g.fillStyle(0x2ec4b6, 0.78).fillRect(270, 112, 92, 3);
+  g.fillStyle(0xff9f1c, 0.78).fillRect(662, 112, 92, 3);
 }
 
 function drawPauseOptionsPanel(g: Phaser.GameObjects.Graphics): void {
