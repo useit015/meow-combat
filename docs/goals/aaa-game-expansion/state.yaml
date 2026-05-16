@@ -117,7 +117,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T096
+active_task: T097
 
 tasks:
   - id: T001
@@ -6701,7 +6701,7 @@ tasks:
   - id: T096
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Review the T095 four-fighter combat/readability polish and decide whether the next largest safe useful package should be championship/story polish, audio production, another roster lane, or a final not-complete tranche audit."
     inputs:
@@ -6729,18 +6729,76 @@ tasks:
       - "Decision is explicit: approve next safe Worker, require repair, ask owner, or run final not-complete audit."
       - "Decision addresses how the next package moves toward the original AAA outcome rather than only maintaining existing coverage."
       - "The full AAA outcome remains active and incomplete unless directly proven otherwise."
+    receipt:
+      result: done
+      decision: approve_next_worker
+      full_outcome_complete: false
+      note: notes/T096-four-fighter-combat-review.md
+      summary: "Approved a bounded championship/story polish Worker. T095 is consistent with its zero-failure smoke report, protected diffs are empty, and the current highest-value package is enriching the implemented four-fighter Snackbelt ladder before adding more roster volume, audio production, or a final not-complete audit."
+      commands:
+        - cmd: "sed -n '1,220p' docs/goals/aaa-game-expansion/notes/T095-four-fighter-combat-polish.md"
+          result: pass
+        - cmd: "node -e 'const r=require(\"./output/web-game/four-fighter-combat-polish/report.json\"); console.log(JSON.stringify({failures:r.failures.length,resultNames:r.results.map(x=>x.name),hasTraining:r.results.some(x=>x.name===\"training-demo\"),hasLocalVersus:r.results.some(x=>x.name===\"local-versus-demo\"),hasFourFighter:r.results.some(x=>x.name===\"four-fighter-runtime-promotion\"),hasChampionship:r.results.some(x=>x.name===\"championship-ladder\")}, null, 2)); if (r.failures.length || !r.results.some(x=>x.name===\"training-demo\") || !r.results.some(x=>x.name===\"local-versus-demo\") || !r.results.some(x=>x.name===\"four-fighter-runtime-promotion\") || !r.results.some(x=>x.name===\"championship-ladder\")) process.exit(1);'"
+          result: pass
+          summary: "failures=0 and Training, Local Versus, Championship, and four-fighter promotion results are present."
+        - cmd: "git diff --name-only -- public/assets/generated/fighters assets/source/imagegen/fighters package.json package-lock.json src/game/audio.ts public/assets/audio assets/source/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts"
+          result: pass
+          summary: "No protected diffs."
+      spawned_tasks:
+        - T097
+  - id: T097
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: medium
+    objective: "Run a bounded championship/story polish slice for the existing four-fighter Snackbelt ladder. Enrich fighter-specific rival beats, ladder interstitial readability, shell/story copy, smoke assertions, and focused tests so Gray Rabbit, Ginger Tabby Cat, Pickles, and Noodle have a more memorable campaign wrapper without adding assets, audio, dependencies, or planned-fighter promotion."
+    inputs:
+      - "T095 four-fighter combat/readability polish receipt."
+      - "T096 four-fighter combat review."
+      - "Current active roster: gray-rabbit, ginger-tabby-cat, pugilist-pug, ferret-noodle."
+      - "Existing championship ladder, game bible, shell flow, and browser smoke coverage."
+    constraints:
+      - "Do not generate or edit image assets."
+      - "Do not generate, download, or edit audio assets."
+      - "Do not edit public/source fighter PNGs, stage art, title/UI art, source records, dependencies, sprite cell size, or sprite visual sizing."
+      - "Do not promote any planned fighter."
+      - "Keep story polish bounded to existing active fighters and existing implemented modes."
+      - "Do not mark the full AAA outcome complete."
+    allowed_files:
+      - "src/content/gameBible.ts"
+      - "src/game/MeowtalArenaScene.ts"
+      - "src/game/shellFlow.ts"
+      - "scripts/smoke-meowtal-browser.mjs"
+      - "test/game-bible.test.ts"
+      - "test/shell-flow.test.ts"
+      - "test/championship-story.test.ts"
+      - "output/web-game/championship-story-polish/*"
+      - "docs/goals/aaa-game-expansion/notes/T097-championship-story-polish.md"
+      - "docs/goals/aaa-game-expansion/state.yaml"
+    verification:
+      - "npm test -- test/game-bible.test.ts test/shell-flow.test.ts test/championship-story.test.ts"
+      - "npm run verify"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4174/ --out-dir output/web-game/championship-story-polish"
+      - "git diff --name-only -- public/assets/generated/fighters assets/source/imagegen/fighters package.json package-lock.json src/game/audio.ts public/assets/audio assets/source/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts"
+    stop_conditions:
+      - "Story polish requires image/audio generation, asset pixel edits, dependency changes, sprite cell changes, or sprite visual sizing changes."
+      - "A richer championship presentation requires a broad UI redesign rather than bounded copy/state/test work."
+      - "Runtime roster truth, no-fallback loading, Training, Local Versus, Championship, or four-fighter smoke coverage regresses."
+    acceptance_criteria:
+      - "All four active fighters have distinct championship-facing story/rival beats aligned with the game bible."
+      - "Championship interstitials expose clear current rival, progress, payoff/reward, and next action in debug text and visible presentation."
+      - "Shell/story copy remains keyboard-first, browser-v1, and four-fighter accurate."
+      - "Focused tests, full verify, and browser smoke pass."
+      - "Protected diff check shows no generated/source image, dependency, audio, source-record, sprite-cell, or sprite-visual-sizing changes."
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T095
+    task: T096
     commands:
-      - "node --check scripts/smoke-meowtal-browser.mjs"
-      - "git diff --check"
-      - "npm test -- test/combat.test.ts test/match-flow.test.ts test/character-select.test.ts test/game-config.test.ts test/game-bible.test.ts"
-      - "npm run verify"
-      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4174/ --out-dir output/web-game/four-fighter-combat-polish"
+      - "sed -n '1,220p' docs/goals/aaa-game-expansion/notes/T095-four-fighter-combat-polish.md"
+      - "node -e 'const r=require(\"./output/web-game/four-fighter-combat-polish/report.json\"); console.log(JSON.stringify({failures:r.failures.length,resultNames:r.results.map(x=>x.name),hasTraining:r.results.some(x=>x.name===\"training-demo\"),hasLocalVersus:r.results.some(x=>x.name===\"local-versus-demo\"),hasFourFighter:r.results.some(x=>x.name===\"four-fighter-runtime-promotion\"),hasChampionship:r.results.some(x=>x.name===\"championship-ladder\")}, null, 2)); if (r.failures.length || !r.results.some(x=>x.name===\"training-demo\") || !r.results.some(x=>x.name===\"local-versus-demo\") || !r.results.some(x=>x.name===\"four-fighter-runtime-promotion\") || !r.results.some(x=>x.name===\"championship-ladder\")) process.exit(1);'"
       - "git diff --name-only -- public/assets/generated/fighters assets/source/imagegen/fighters package.json package-lock.json src/game/audio.ts public/assets/audio assets/source/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts"
   t021_verification:
     result: pass
