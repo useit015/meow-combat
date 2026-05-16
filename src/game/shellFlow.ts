@@ -3,7 +3,7 @@ import type { MatchSetStatus } from "../core";
 import { petFighterGameBible } from "../content";
 
 export type ShellPhase = "ready" | "mode-select" | "select" | "fighting" | "paused" | "round-over" | "match-over";
-export type ArcadePlayMode = "versus-cpu" | "training" | "championship";
+export type ArcadePlayMode = "versus-cpu" | "training" | "championship" | "local-versus";
 
 export interface ShellState {
   phase: ShellPhase;
@@ -20,7 +20,7 @@ export interface ShellInput {
   matchSetStatus?: MatchSetStatus;
 }
 
-const PLAY_MODES = ["versus-cpu", "training", "championship"] as const satisfies readonly ArcadePlayMode[];
+const PLAY_MODES = ["versus-cpu", "training", "championship", "local-versus"] as const satisfies readonly ArcadePlayMode[];
 const DEFAULT_PLAY_MODE: ArcadePlayMode = "versus-cpu";
 
 export const initialShellState: ShellState = {
@@ -85,6 +85,7 @@ export function shellModeLabel(state: Pick<ShellState, "selectedMode">): string 
   const mode = selectedPlayMode(state);
   if (mode === "training") return "TRAINING";
   if (mode === "championship") return "CHAMPIONSHIP";
+  if (mode === "local-versus") return "LOCAL VERSUS";
   return "1 VS CPU";
 }
 
@@ -92,11 +93,12 @@ export function shellModeDescription(state: Pick<ShellState, "selectedMode">): s
   const mode = selectedPlayMode(state);
   if (mode === "training") return "Endless practice lab for timing, spacing, combo feedback, and dummy status.";
   if (mode === "championship") return petFighterGameBible.championship.firstStoryBeat;
+  if (mode === "local-versus") return "Same-keyboard PvP fight for two local players using the current runtime roster.";
   return "Best-of-three CPU fight using the current roster and difficulty setting.";
 }
 
 export function playModeUsesCpu(state: Pick<ShellState, "selectedMode">): boolean {
-  return selectedPlayMode(state) !== "training";
+  return selectedPlayMode(state) !== "training" && selectedPlayMode(state) !== "local-versus";
 }
 
 function withSelectedMode(state: ShellState): ShellState {

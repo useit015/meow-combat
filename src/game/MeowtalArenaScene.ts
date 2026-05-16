@@ -536,6 +536,7 @@ export class MeowtalArenaScene extends Phaser.Scene {
       training: {
         ...this.trainingTextState(),
       },
+      localVersus: this.localVersusTextState(selectedFighterDetails),
       cpuDifficulty: this.cpuDifficulty,
       cpuOpponent: this.p2CpuEnabled ? selectedFighterDetails.p2 : null,
       runtimeRoster: this.runtimeRosterState(),
@@ -697,7 +698,7 @@ export class MeowtalArenaScene extends Phaser.Scene {
         gamepadPressed("pause");
       const fullscreenPressed = Phaser.Input.Keyboard.JustDown(this.keys.fullscreen);
       if (Phaser.Input.Keyboard.JustDown(this.keys.cpuToggle) || touchPressed("cpu")) {
-        this.p2CpuEnabled = !this.p2CpuEnabled;
+        this.p2CpuEnabled = selectedPlayMode(this.shell) === "local-versus" ? false : !this.p2CpuEnabled;
       }
       if (Phaser.Input.Keyboard.JustDown(this.keys.cpuDifficulty) || touchPressed("difficulty")) {
         this.cpuDifficulty = nextCpuDifficulty(this.cpuDifficulty);
@@ -916,6 +917,8 @@ export class MeowtalArenaScene extends Phaser.Scene {
               ? "TRAINING MODE"
             : selectedPlayMode(this.shell) === "championship"
               ? this.championshipModeText()
+            : selectedPlayMode(this.shell) === "local-versus"
+              ? "LOCAL VERSUS"
             : this.p2CpuEnabled
               ? `1 VS CPU ${this.cpuDifficulty.toUpperCase()}`
               : "P2 MANUAL",
@@ -1759,6 +1762,24 @@ export class MeowtalArenaScene extends Phaser.Scene {
         inputHints: ["Space/J light", "I kick", "K heavy", "L special", "S,D,L super"],
       },
       presentation: this.trainingPresentationState(),
+    };
+  }
+
+  private localVersusTextState(selectedFighterDetails: { p1: SelectedFighterTextProfile; p2: SelectedFighterTextProfile }) {
+    const enabled = selectedPlayMode(this.shell) === "local-versus";
+    return {
+      enabled,
+      controlPlan: "same-keyboard",
+      p2Mode: enabled ? (this.p2CpuEnabled ? "unexpected-cpu" : "manual") : null,
+      runtimeRosterTruth: selectFooterLine(this.assetReadiness),
+      p1: enabled ? selectedFighterDetails.p1 : null,
+      p2: enabled ? selectedFighterDetails.p2 : null,
+      inputHints: enabled
+        ? {
+            p1: ["A/D move", "W jump", "S crouch", "J/I/K/L attacks"],
+            p2: ["Arrows move", "Numpad 1/4/2/3 attacks"],
+          }
+        : null,
     };
   }
 
@@ -2967,6 +2988,9 @@ function shellHelp(
   if (selectedPlayMode(shell) === "championship") {
     return "Snackbelt rival fight  |  Space/J light  |  I kick  |  K heavy  |  L special  |  S,D,L super  |  P pause  |  R reset";
   }
+  if (selectedPlayMode(shell) === "local-versus") {
+    return "Local Versus  |  P1 WASD + JIKL  |  P2 arrows + Numpad 1/4/2/3  |  P pause  |  R reset";
+  }
   return "Double-tap D/B run  |  W+dir hop  |  Space/J light  |  I kick  |  K heavy  |  L special  |  S,D,L super  |  C CPU  |  V level  |  P pause  |  F full";
 }
 
@@ -3094,6 +3118,7 @@ function shellModeDetailLines(shell: ShellState, cpuDifficulty: CpuDifficulty): 
   const mode = selectedPlayMode(shell);
   if (mode === "training") return ["ENDLESS LAB", "TIMING + COMBO FEEDBACK"];
   if (mode === "championship") return ["SNACKBELT LADDER", "2 CPU RIVALS"];
+  if (mode === "local-versus") return ["SAME KEYBOARD PVP", "P1 VS P2 MANUAL"];
   return ["BEST OF THREE", `CPU ${cpuDifficulty.toUpperCase()}`];
 }
 

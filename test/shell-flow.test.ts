@@ -22,7 +22,7 @@ describe("shell flow", () => {
     ).toEqual({ phase: "mode-select", selectedMode: "versus-cpu" });
   });
 
-  it("selects training, championship, or 1 vs CPU before fighter select", () => {
+  it("selects training, championship, local versus, or 1 vs CPU before fighter select", () => {
     const modeSelect = reduceShellState(initialShellState, {
       startPressed: true,
       matchStatus: "fighting",
@@ -44,12 +44,27 @@ describe("shell flow", () => {
     expect(shellModeLabel(championship)).toBe("CHAMPIONSHIP");
     expect(shellModeDescription(championship)).toContain("2026");
 
+    const localVersus = reduceShellState(championship, {
+      modeNextPressed: true,
+      matchStatus: "fighting",
+    });
+    expect(localVersus).toEqual({ phase: "mode-select", selectedMode: "local-versus" });
+    expect(shellModeLabel(localVersus)).toBe("LOCAL VERSUS");
+    expect(shellModeDescription(localVersus)).toContain("Same-keyboard PvP");
+
     expect(
-      reduceShellState(championship, {
+      reduceShellState(localVersus, {
         modeNextPressed: true,
         matchStatus: "fighting",
       }),
     ).toEqual({ phase: "mode-select", selectedMode: "versus-cpu" });
+
+    expect(
+      reduceShellState(championship, {
+        modePreviousPressed: true,
+        matchStatus: "fighting",
+      }),
+    ).toEqual({ phase: "mode-select", selectedMode: "training" });
 
     expect(
       reduceShellState(training, {
@@ -65,6 +80,7 @@ describe("shell flow", () => {
     expect(playModeUsesCpu({ selectedMode: "championship" })).toBe(true);
     expect(playModeUsesCpu({ selectedMode: "versus-cpu" })).toBe(true);
     expect(playModeUsesCpu({ selectedMode: "training" })).toBe(false);
+    expect(playModeUsesCpu({ selectedMode: "local-versus" })).toBe(false);
 
     expect(
       reduceShellState(

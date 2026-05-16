@@ -117,7 +117,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T063
+active_task: T064
 
 tasks:
   - id: T001
@@ -4060,7 +4060,7 @@ tasks:
   - id: T063
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: medium
     objective: "Promote Local Versus from planned to implemented using current runtime assets only: add it to mode select, keep P1/P2 as manual keyboard fighters, expose smoke-verifiable runtime state/copy, and preserve existing 1 VS CPU, Training, and Championship behavior without changing fighter size, fighter rows, generated assets, audio, dependencies, sprite scale, cell size, placement rules, or gameplay frame data."
     allowed_files:
@@ -4096,20 +4096,87 @@ tasks:
       - "No fighter rows, generated assets, audio, dependencies, sprite scale, cell sizes, frame sizes, placement rules, character-size logic, or frame data are changed."
       - "Focused tests, typecheck, full verify, protected diff guard, Pickles row byte-compare, and Local Versus smoke pass."
       - "Receipt states full_outcome_complete=false."
+    receipt:
+      result: done
+      decision: approved_by_judge
+      full_outcome_complete: false
+      note: notes/T063-local-versus-mode.md
+      summary: "Promoted Local Versus from planned to implemented using current runtime assets only. Mode select now exposes Local Versus as same-keyboard PvP, starting it creates manual P1 vs manual P2, render_game_to_text exposes localVersus state, and the CPU toggle is ignored in Local Versus so P2 cannot drift into CPU control."
+      files_changed:
+        - "src/game/shellFlow.ts"
+        - "src/game/MeowtalArenaScene.ts"
+        - "src/content/gameBible.ts"
+        - "scripts/smoke-meowtal-browser.mjs"
+        - "test/game-bible.test.ts"
+        - "test/shell-flow.test.ts"
+        - "docs/goals/aaa-game-expansion/notes/T063-local-versus-mode.md"
+        - "docs/goals/aaa-game-expansion/state.yaml"
+      evidence:
+        - "Local Versus appears in mode select after Championship and loops back to 1 VS CPU."
+        - "playModeUsesCpu returns false for Local Versus and startSelectedMatch syncs P2 to manual for that mode."
+        - "MeowtalArenaScene CPU toggle now forces p2CpuEnabled=false when Local Versus is selected."
+        - "Smoke asserts Local Versus fight has p2Mode=manual, cpuOpponent=null, localVersus.enabled=true, same-keyboard control plan, and P2 keyboard hints."
+        - "Smoke presses KeyC during Local Versus and confirms P2 remains manual."
+        - "Smoke moves P2 with ArrowLeft to prove existing manual P2 keyboard input works."
+        - "No diffs under assets/source/imagegen/fighters, public/assets/generated/fighters, output/imagegen, package.json, package-lock.json, src/game/audio.ts, public/assets/audio, src/game/spriteFrame.ts, src/game/spriteVisualSizing.ts, or src/core/frameData.ts."
+        - "Pickles source/public rows compare byte-identical for all 14 rows."
+        - "Focused tests passed: 4 files, 46 tests."
+        - "npm run typecheck passed."
+        - "npm run verify passed: 31 files, 218 tests, plus production build."
+        - "Local Versus smoke report output/web-game/local-versus-mode/report.json has failures=[]."
+        - "GoalBuddy Judge approved T063 after the CPU-toggle blocker was fixed."
+      verification:
+        result: pass
+        commands:
+          - "git diff --name-only -- assets/source/imagegen/fighters public/assets/generated/fighters output/imagegen package.json package-lock.json src/game/audio.ts public/assets/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts src/core/frameData.ts"
+          - "for row in idle walk-forward walk-back crouch jump light-punch heavy-punch light-kick special hitstun blockstun knockdown win lose; do cmp -s assets/source/imagegen/fighters/pugilist-pug/$row.png public/assets/generated/fighters/pugilist-pug/$row.png || exit 1; done"
+          - "npm test -- test/game-bible.test.ts test/shell-flow.test.ts test/character-select.test.ts test/combat-core.test.ts"
+          - "npm run typecheck"
+          - "npm run verify"
+          - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/local-versus-mode"
+      residual_risks:
+        - "Local Versus is same-keyboard PvP only; online play and touch/mobile v2 are out of scope."
+        - "This adds a core mode but remains far short of the full AAA target."
+      spawned_tasks:
+        - T064
+  - id: T064
+    type: judge
+    assignee: Judge
+    status: active
+    reasoning_hint: high
+    objective: "Audit the post-Local-Versus browser milestone and decide the next safe package or ask_owner if the next meaningful step requires audio or generated asset work."
+    inputs:
+      - "T063 Local Versus receipt"
+      - "Current goal charter"
+      - "Hard no-size/no-slop constraints"
+      - "Recent smoke and verification receipts"
+    constraints:
+      - "Read-only."
+      - "Do not implement."
+      - "Do not generate assets or audio."
+      - "Do not change fighter rows, generated assets, audio, dependencies, sprite sizing, placement, or frame data."
+      - "Do not mark the full AAA outcome complete."
+      - "If the best next step requires audio assets, generated art, or roster production, return ask_owner with exact options and risks."
+    expected_output:
+      - "Post-T063 assessment"
+      - "Ranked remaining gaps"
+      - "Next package or owner question"
+      - "Allowed files, verification, stop_if, and acceptance if proceeding"
+      - "Decision: proceed_with_worker | require_audit | ask_owner"
     receipt: null
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T061
+    task: T063
     commands:
       - "git diff --name-only -- assets/source/imagegen/fighters public/assets/generated/fighters output/imagegen package.json package-lock.json src/game/audio.ts public/assets/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts src/core/frameData.ts"
       - "for row in idle walk-forward walk-back crouch jump light-punch heavy-punch light-kick special hitstun blockstun knockdown win lose; do cmp -s assets/source/imagegen/fighters/pugilist-pug/$row.png public/assets/generated/fighters/pugilist-pug/$row.png || exit 1; done"
-      - "npm test -- test/game-bible.test.ts test/shell-flow.test.ts test/character-select.test.ts"
+      - "npm test -- test/game-bible.test.ts test/shell-flow.test.ts test/character-select.test.ts test/combat-core.test.ts"
       - "npm run typecheck"
       - "npm run verify"
-      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/championship-rewards-interstitials"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/local-versus-mode"
   t021_verification:
     result: pass
     task: T021

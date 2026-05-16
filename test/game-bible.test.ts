@@ -86,6 +86,9 @@ describe("pet fighter game bible", () => {
     const championship = petFighterGameBible.modes.find((mode) => mode.id === "championship");
     expect(championship?.status).toBe("implemented");
     expect(championship?.purpose).toContain("Three-fighter story ladder");
+    const localVersus = petFighterGameBible.modes.find((mode) => mode.id === "local-versus");
+    expect(localVersus?.status).toBe("implemented");
+    expect(localVersus?.purpose).toContain("Same-keyboard");
     expect(petFighterGameBible.modes.find((mode) => mode.id === "training")?.purpose).toContain(
       "input/combo practice feedback",
     );

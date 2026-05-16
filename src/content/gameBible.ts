@@ -244,8 +244,8 @@ export const petFighterGameBible: PetFighterGameBible = {
     {
       id: "local-versus",
       label: "Local Versus",
-      status: "planned",
-      purpose: "Same-device PvP once roster scale and control prompts are ready.",
+      status: "implemented",
+      purpose: "Same-keyboard browser v1 PvP using the current three-fighter runtime roster and manual P1/P2 controls.",
     },
     {
       id: "roster-lab",

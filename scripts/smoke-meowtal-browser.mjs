@@ -682,6 +682,93 @@ async function runTrainingDemo(browser, url, outDir) {
   return { name: "training-demo", failures, errors, screenshots, state };
 }
 
+async function runLocalVersusDemo(browser, url, outDir) {
+  const failures = [];
+  const screenshots = [];
+  const { context, page, errors } = await openScenario(browser, url, {
+    viewport: { width: 1024, height: 576 },
+  });
+
+  await pressKey(page, "Space");
+  for (let index = 0; index < 3; index += 1) {
+    await pressKey(page, "KeyD");
+  }
+  let state = await readState(page);
+  screenshots.push(await screenshot(page, outDir, "local-versus-mode-selected"));
+  assert(state.shellPhase === "mode-select", failures, `local versus expected mode-select phase, got ${state.shellPhase}`);
+  assert(state.playMode === "local-versus", failures, `local versus mode cycle expected local-versus, got ${state.playMode}`);
+  assert(state.playModeLabel === "LOCAL VERSUS", failures, `local versus label expected LOCAL VERSUS, got ${state.playModeLabel}`);
+  checkModeShellPresentation(state, "local-versus mode-select", "local-versus", "LOCAL VERSUS", "Same-keyboard", failures);
+  assert(
+    state.shellPresentation?.mode?.panelLines?.includes("P1 VS P2 MANUAL"),
+    failures,
+    `local versus panel should expose manual P1/P2, got ${state.shellPresentation?.mode?.panelLines}`,
+  );
+
+  await pressKey(page, "Space");
+  state = await readState(page);
+  screenshots.push(await screenshot(page, outDir, "local-versus-character-select"));
+  assert(state.shellPhase === "select", failures, `local versus select expected select, got ${state.shellPhase}`);
+  assert(state.playMode === "local-versus", failures, `local versus select expected local-versus, got ${state.playMode}`);
+  checkSelectShellPresentation(state, "local-versus character-select", failures);
+  assert(
+    state.shellPresentation?.selectedFighters?.p2?.role === "P2",
+    failures,
+    `local versus select should label second player P2, got ${state.shellPresentation?.selectedFighters?.p2?.role}`,
+  );
+
+  await pressKey(page, "Space");
+  await waitFrames(page, 20);
+  state = await readState(page);
+  screenshots.push(await screenshot(page, outDir, "local-versus-fight"));
+  assert(state.shellPhase === "fighting", failures, `local versus fight expected fighting, got ${state.shellPhase}`);
+  assert(state.playMode === "local-versus", failures, `local versus fight expected local-versus, got ${state.playMode}`);
+  assert(state.p2Mode === "manual", failures, `local versus fight expected manual P2, got ${state.p2Mode}`);
+  assert(state.cpuOpponent === null, failures, `local versus should not expose CPU opponent, got ${JSON.stringify(state.cpuOpponent)}`);
+  assert(state.localVersus?.enabled === true, failures, "local versus should expose localVersus.enabled=true");
+  assert(state.localVersus?.p2Mode === "manual", failures, `local versus state expected manual P2, got ${state.localVersus?.p2Mode}`);
+  assert(
+    state.localVersus?.controlPlan === "same-keyboard",
+    failures,
+    `local versus state expected same-keyboard plan, got ${state.localVersus?.controlPlan}`,
+  );
+  assert(
+    state.localVersus?.inputHints?.p2?.some((hint) => hint.includes("Numpad")),
+    failures,
+    `local versus should expose P2 keyboard hints, got ${JSON.stringify(state.localVersus?.inputHints)}`,
+  );
+  checkRuntimeUiLoaded(state, "local versus fight", failures);
+  checkVisibleRuntimeUiSlots(state, "local versus fight", FIGHT_UI_SLOTS, failures);
+
+  await pressKey(page, "KeyC");
+  state = await readState(page);
+  screenshots.push(await screenshot(page, outDir, "local-versus-cpu-toggle-ignored"));
+  assert(state.playMode === "local-versus", failures, `local versus CPU toggle should stay local-versus, got ${state.playMode}`);
+  assert(state.p2Mode === "manual", failures, `local versus CPU toggle should keep manual P2, got ${state.p2Mode}`);
+  assert(state.cpuOpponent === null, failures, `local versus CPU toggle should not expose CPU opponent, got ${JSON.stringify(state.cpuOpponent)}`);
+  assert(
+    state.localVersus?.p2Mode === "manual",
+    failures,
+    `local versus CPU toggle should keep localVersus.p2Mode manual, got ${state.localVersus?.p2Mode}`,
+  );
+
+  const p2StartX = state.fighters?.p2?.x;
+  state = await holdKey(page, "ArrowLeft", 12);
+  screenshots.push(await screenshot(page, outDir, "local-versus-p2-move"));
+  assert(state.shellPhase === "fighting", failures, `local versus P2 move expected fighting, got ${state.shellPhase}`);
+  assert(state.p2Mode === "manual", failures, `local versus P2 move expected manual P2, got ${state.p2Mode}`);
+  assert(state.fighters?.p2?.x < p2StartX, failures, `local versus ArrowLeft should move P2 left from ${p2StartX}, got ${state.fighters?.p2?.x}`);
+  assert(
+    ["walkForward", "runForward", "walkBack"].includes(state.fighters?.p2?.state),
+    failures,
+    `local versus ArrowLeft should drive P2 movement, got ${state.fighters?.p2?.state}`,
+  );
+  assert(errors.length === 0, failures, `local versus console/page errors: ${JSON.stringify(errors)}`);
+
+  await context.close();
+  return { name: "local-versus-demo", failures, errors, screenshots, state };
+}
+
 async function runThreeFighterRuntimePolish(browser, url, outDir) {
   const failures = [];
   const screenshots = [];
@@ -1411,6 +1498,7 @@ async function main() {
     results.push(await runDesktop(browser, args.url, args.outDir));
     results.push(await runCombatReadabilityDemo(browser, args.url, args.outDir));
     results.push(await runTrainingDemo(browser, args.url, args.outDir));
+    results.push(await runLocalVersusDemo(browser, args.url, args.outDir));
     results.push(await runThreeFighterRuntimePolish(browser, args.url, args.outDir));
     results.push(await runChampionshipLadderProgression(browser, args.url, args.outDir));
     results.push(await runGamepad(browser, args.url, args.outDir));
