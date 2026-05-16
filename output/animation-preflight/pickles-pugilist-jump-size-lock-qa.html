@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Pickles Pugilist Jump Size Lock QA</title>
+    <style>
+      body { font-family: system-ui, sans-serif; margin: 24px; background: #111; color: #f5f5f5; }
+      img { display: block; max-width: 100%; margin: 12px 0 24px; background: #0f0; image-rendering: auto; }
+      code { color: #ffe08a; }
+      .pass { color: #7dff9f; }
+    </style>
+  </head>
+  <body>
+    <h1>Pickles Pugilist Jump Size Lock QA</h1>
+    <p class="pass">PASS: source-only replacement <code>jump</code> row accepted for T035.</p>
+    <h2>Replacement Jump</h2>
+    <p>Exact <code>1536x256</code> alpha spritesheet. Pickles stays near idle scale; motion is pose-local and does not shrink him into a smaller character.</p>
+    <img src="../imagegen/pugilist-pug-jump-normalized.png" alt="Pickles Pugilist size-locked jump normalized source row" />
+    <h2>Size Audit</h2>
+    <p>Idle height: <code>228px</code>. Previous jump height: <code>144-158px</code>. Replacement jump height: <code>190-212px</code> with tucked-knee poses and stable head/glove scale.</p>
+    <h2>Runtime Gate</h2>
+    <p>No <code>public/assets/generated/fighters/pugilist-pug</code> folder is introduced; Pickles remains non-playable.</p>
+  </body>
+</html>

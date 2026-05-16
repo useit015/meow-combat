@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -105,4 +106,70 @@ describe("Pickles Pugilist animation preflight", () => {
     expect(outputHtml).toContain("not playable");
     expect(outputHtml).not.toContain("/assets/generated/fighters/pugilist-pug");
   });
+
+  it("keeps generated Pickles jump frames at the same character scale as idle", () => {
+    const idleBounds = alphaBoundsByFrame("assets/source/imagegen/fighters/pugilist-pug/idle.png", 8);
+    const jumpBounds = alphaBoundsByFrame("assets/source/imagegen/fighters/pugilist-pug/jump.png", 6);
+    const idleWidth = Math.round(average(idleBounds.map((bounds) => bounds.width)));
+    const idleHeight = Math.round(average(idleBounds.map((bounds) => bounds.height)));
+    const jumpWidths = jumpBounds.map((bounds) => bounds.width);
+    const jumpHeights = jumpBounds.map((bounds) => bounds.height);
+
+    expect(Math.min(...jumpWidths)).toBeGreaterThanOrEqual(Math.round(idleWidth * 0.9));
+    expect(Math.min(...jumpHeights)).toBeGreaterThanOrEqual(Math.round(idleHeight * 0.8));
+    expect(Math.max(...jumpHeights)).toBeGreaterThanOrEqual(Math.round(idleHeight * 0.92));
+  });
 });
+
+function alphaBoundsByFrame(relativePath: string, frameCount: number) {
+  const path = join(process.cwd(), relativePath);
+  const dimensions = readPngDimensions(path);
+  const pixels = execFileSync("ffmpeg", ["-v", "error", "-i", path, "-f", "rawvideo", "-pix_fmt", "rgba", "-"], {
+    maxBuffer: dimensions.width * dimensions.height * 4 + 1024,
+  });
+  const frameWidth = dimensions.width / frameCount;
+
+  return Array.from({ length: frameCount }, (_, frameIndex) => {
+    const minCellX = Math.floor(frameIndex * frameWidth);
+    const maxCellX = Math.floor((frameIndex + 1) * frameWidth) - 1;
+    let minX = frameWidth - 1;
+    let maxX = 0;
+    let minY = dimensions.height - 1;
+    let maxY = 0;
+    let found = false;
+
+    for (let y = 0; y < dimensions.height; y += 1) {
+      for (let x = minCellX; x <= maxCellX; x += 1) {
+        const pixelIndex = (y * dimensions.width + x) * 4;
+        if (pixels[pixelIndex + 3] <= 16) continue;
+
+        const localX = x - minCellX;
+        minX = Math.min(minX, localX);
+        maxX = Math.max(maxX, localX);
+        minY = Math.min(minY, y);
+        maxY = Math.max(maxY, y);
+        found = true;
+      }
+    }
+
+    if (!found) throw new Error(`${relativePath} frame ${frameIndex + 1} has no opaque pixels`);
+
+    return {
+      width: maxX - minX + 1,
+      height: maxY - minY + 1,
+    };
+  });
+}
+
+function readPngDimensions(path: string) {
+  const output = execFileSync("sips", ["-g", "pixelWidth", "-g", "pixelHeight", path], { encoding: "utf8" });
+
+  return {
+    width: Number(output.match(/pixelWidth: (\d+)/)?.[1]),
+    height: Number(output.match(/pixelHeight: (\d+)/)?.[1]),
+  };
+}
+
+function average(values: readonly number[]) {
+  return values.reduce((total, value) => total + value, 0) / values.length;
+}

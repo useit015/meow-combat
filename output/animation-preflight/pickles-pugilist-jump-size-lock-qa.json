@@ -1,0 +1,65 @@
+{
+  "task": "T035",
+  "fighterId": "pugilist-pug",
+  "displayName": "Pickles Pugilist",
+  "status": "pass",
+  "sourceOnly": true,
+  "publicRuntimePromotion": false,
+  "reason": "Owner clarified that character size should not change. The previous jump row shrank Pickles globally, so it was replaced before heavier rows or runtime promotion.",
+  "referenceRows": [
+    "assets/source/imagegen/fighters/pugilist-pug/idle.png",
+    "assets/source/imagegen/fighters/pugilist-pug/walk-forward.png",
+    "assets/source/imagegen/fighters/pugilist-pug/walk-back.png",
+    "assets/source/imagegen/fighters/pugilist-pug/crouch.png",
+    "assets/source/imagegen/fighters/pugilist-pug/light-punch.png",
+    "assets/source/imagegen/fighters/pugilist-pug/light-kick.png"
+  ],
+  "rejectedCandidates": [
+    {
+      "candidatePath": "assets/source/imagegen/fighters/pugilist-pug/candidates/jump-size-lock-codex-01.png",
+      "candidateSha256": "8d7d57c2a0dd67b8c5b443e385e9c45ae66fb583ecbeee7a9ff6658e90acfd98",
+      "reason": "Normalized body scale improved but remained too small: 142-155px wide and 174-198px tall versus idle 166-168px wide and 228px tall."
+    }
+  ],
+  "accepted": {
+    "animationId": "jump",
+    "candidatePath": "assets/source/imagegen/fighters/pugilist-pug/candidates/jump-size-lock-codex-02.png",
+    "candidateSha256": "7ec300104def12a74bb637ac98fa2b3d89897e7f0ae9369fe23d1645dccee874",
+    "acceptedPath": "assets/source/imagegen/fighters/pugilist-pug/jump.png",
+    "acceptedSha256": "33e41b2cc670507d71d7d78d87e66bd041170feb90082914dbcbecc0840a145c",
+    "normalizedProofPath": "output/imagegen/pugilist-pug-jump-normalized.png",
+    "dimensions": {
+      "candidate": { "width": 2172, "height": 724, "hasAlpha": false },
+      "accepted": { "width": 1536, "height": 256, "hasAlpha": true },
+      "expected": { "width": 1536, "height": 256 }
+    },
+    "detectedFrames": [
+      { "x": 21, "y": 160, "width": 296, "height": 398 },
+      { "x": 379, "y": 160, "width": 281, "height": 398 },
+      { "x": 730, "y": 160, "width": 284, "height": 398 },
+      { "x": 1100, "y": 160, "width": 285, "height": 398 },
+      { "x": 1463, "y": 160, "width": 278, "height": 398 },
+      { "x": 1812, "y": 160, "width": 290, "height": 398 }
+    ],
+    "sizeAudit": {
+      "idleWidthPx": [167, 166, 166, 168, 166, 168, 168, 167],
+      "idleHeightPx": [228, 228, 228, 228, 228, 228, 228, 228],
+      "previousJumpWidthPx": [117, 113, 117, 116, 115, 117],
+      "previousJumpHeightPx": [144, 150, 148, 149, 158, 151],
+      "replacementJumpWidthPx": [163, 154, 156, 156, 153, 161],
+      "replacementJumpHeightPx": [196, 212, 190, 190, 211, 197],
+      "verdict": "pass"
+    },
+    "qa": {
+      "identity": "pass",
+      "scale": "pass",
+      "motion": "pass",
+      "alpha": "pass",
+      "notes": "Replacement keeps Pickles near idle scale while pose height changes naturally for knee dip/tuck. The row no longer globally shrinks Pickles like the prior jump sheet."
+    }
+  },
+  "runtimeProof": {
+    "publicPathAbsent": "public/assets/generated/fighters/pugilist-pug",
+    "playablePromotion": "blocked"
+  }
+}
