@@ -117,7 +117,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T058
+active_task: T059
 
 tasks:
   - id: T001
@@ -3733,7 +3733,7 @@ tasks:
   - id: T058
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Run a read-only post-T056 vertical-slice audit of the current three-fighter browser milestone. Map T050/T052/T054/T056 against the tranche proof, inspect current code/tests/smoke screenshots, verify the hard no-size-change invariant, identify regressions or overclaims, rank remaining gaps, and recommend the next largest safe package with allowed_files, verify, stop_if, and acceptance."
     allowed_files:
@@ -3774,20 +3774,94 @@ tasks:
       - "Audit explicitly states full_outcome_complete=false."
       - "Audit ranks remaining gaps and chooses exactly one next largest safe package."
       - "Audit defines that next package with allowed_files, verify commands, stop_if conditions, and acceptance criteria."
+    receipt:
+      result: done
+      decision: proceed_with_worker
+      full_outcome_complete: false
+      note: notes/T058-vertical-slice-audit.md
+      summary: "Audited the current three-fighter browser milestone after T056. Fresh tests, typecheck, full verify, protected asset/sizing/frame-data guards, Pickles row byte-compare, and vertical-slice smoke all passed. The audit found no receipt contradiction or size-rule violation, and ranked keyboard-first landscape shell UX polish as the next largest safe package because ready/mode-select/select/pause/end presentation remains more prototype-like than the now-improved fight, championship, Training, and combat feedback surfaces."
+      evidence:
+        - "Only local untracked .codex/, .env, and docs/goals/aaa-game-expansion/.goalbuddy-board/ were present before the audit receipt."
+        - "No diffs under assets/source/imagegen/fighters, public/assets/generated/fighters, output/imagegen, package.json, package-lock.json, src/game/audio.ts, public/assets/audio, src/game/spriteFrame.ts, src/game/spriteVisualSizing.ts, or src/core/frameData.ts."
+        - "Pickles source/public rows compare byte-identical for all 14 rows."
+        - "Focused audit tests passed: 7 files, 66 tests."
+        - "Full verify passed: 31 files, 217 tests, plus production build."
+        - "Vertical-slice smoke report output/web-game/vertical-slice-audit/report.json has failures=[]."
+        - "Reviewed representative screenshots for desktop fight, championship ladder, Training, combat readability, Pickles runtime, landscape, portrait, mode select, and character select."
+      ranked_gaps:
+        - "Keyboard-first landscape shell UX polish: ready, mode-select, character-select, pause, and end-state copy/presentation should better communicate modes, controls, runtime roster, fighter story hooks, and next action without advertising phone touch as a v1 desktop path."
+        - "Championship rewards and short interstitial flavor: useful after shell clarity, but lower leverage until the current shell better frames the three existing modes."
+        - "Authored/sample-based audio integration: important for AAA feel, but should be a separate asset/source-record task with license and source metadata."
+        - "Fourth fighter or broader roster asset work: unsafe until a dedicated asset/animation consistency gate is explicitly scoped."
+      verification:
+        result: pass
+        commands:
+          - "git status --short"
+          - "git diff --name-only -- assets/source/imagegen/fighters public/assets/generated/fighters output/imagegen package.json package-lock.json src/game/audio.ts public/assets/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts src/core/frameData.ts"
+          - "for row in idle walk-forward walk-back crouch jump light-punch heavy-punch light-kick special hitstun blockstun knockdown win lose; do cmp -s assets/source/imagegen/fighters/pugilist-pug/$row.png public/assets/generated/fighters/pugilist-pug/$row.png || exit 1; done"
+          - "npm test -- test/game-bible.test.ts test/shell-flow.test.ts test/character-select.test.ts test/combat-core.test.ts test/combat-effects.test.ts test/presentation.test.ts test/match-flow.test.ts"
+          - "npm run typecheck"
+          - "npm run verify"
+          - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/vertical-slice-audit"
+      residual_risks:
+        - "Current tranche is a stronger browser milestone but still not a full AAA game."
+        - "Shell/select polish remains needed before another story, audio, or roster expansion slice."
+      spawned_tasks:
+        - T059
+  - id: T059
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: medium
+    objective: "Polish the keyboard-first landscape shell UX using current assets only: improve ready, mode-select, character-select, pause, and end-state presentation/copy so the browser v1 clearly communicates modes, controls, current runtime roster, fighter story hooks, and next actions without changing fighter size, fighter rows, generated assets, audio, dependencies, sprite scale, cell size, frame size, placement rules, or gameplay frame data."
+    allowed_files:
+      - "src/game/MeowtalArenaScene.ts"
+      - "src/game/shellFlow.ts"
+      - "src/content/gameBible.ts"
+      - "scripts/smoke-meowtal-browser.mjs"
+      - "test/game-bible.test.ts"
+      - "test/shell-flow.test.ts"
+      - "test/character-select.test.ts"
+      - "output/web-game/shell-ux-polish/*"
+      - "docs/goals/aaa-game-expansion/notes/T059-shell-ux-polish.md"
+      - "docs/goals/aaa-game-expansion/state.yaml"
+    verify:
+      - "git diff --name-only -- assets/source/imagegen/fighters public/assets/generated/fighters output/imagegen package.json package-lock.json src/game/audio.ts public/assets/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts src/core/frameData.ts"
+      - "for row in idle walk-forward walk-back crouch jump light-punch heavy-punch light-kick special hitstun blockstun knockdown win lose; do cmp -s assets/source/imagegen/fighters/pugilist-pug/$row.png public/assets/generated/fighters/pugilist-pug/$row.png || exit 1; done"
+      - "npm test -- test/game-bible.test.ts test/shell-flow.test.ts test/character-select.test.ts"
+      - "npm run typecheck"
+      - "npm run verify"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/shell-ux-polish"
+    stop_if:
+      - "Any fighter row would be regenerated, normalized, resized, cropped, repacked, or pixel-edited."
+      - "Any sprite scale, cell size, frame size, placement rule, or character-size logic change is needed."
+      - "Any generated asset churn, imagegen output, dependency, package lock, audio, or gameplay frame-data change is needed."
+      - "The work expands into touch/mobile v2 redesign, championship rewards/interstitials, authored audio integration, fourth-fighter promotion, asset production, or broad all-modes completion."
+      - "Smoke shows runtime fighter fallbacks, misleading HUD portraits, obscured fighter bodies/HUD, visible character size drift, or desktop shell copy that still presents phone touch as a v1 path."
+    acceptance:
+      - "Ready, mode-select, character-select, pause, and end-state presentation read as a keyboard-first browser v1 shell rather than prototype copy."
+      - "Mode select clearly distinguishes 1 VS CPU, Training, and Championship using current game-bible truth."
+      - "Character select surfaces the three runtime fighters' identity/story/move information without claiming the planned five are playable."
+      - "render_game_to_text exposes enough shell presentation state for smoke assertions."
+      - "Existing Training, championship ladder, combat readability, 1 VS CPU, gamepad, endgame, and landscape smoke remain intact."
+      - "No fighter rows, sprite scale, cell sizes, frame sizes, placement rules, generated assets, dependencies, audio, or frame data are changed."
+      - "Focused tests, full verify, and shell UX smoke pass."
+      - "Receipt states full_outcome_complete=false."
     receipt: null
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T056
+    task: T058
     commands:
+      - "git status --short"
       - "git diff --name-only -- assets/source/imagegen/fighters public/assets/generated/fighters output/imagegen package.json package-lock.json src/game/audio.ts public/assets/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts src/core/frameData.ts"
       - "for row in idle walk-forward walk-back crouch jump light-punch heavy-punch light-kick special hitstun blockstun knockdown win lose; do cmp -s assets/source/imagegen/fighters/pugilist-pug/$row.png public/assets/generated/fighters/pugilist-pug/$row.png || exit 1; done"
-      - "npm test -- test/combat-effects.test.ts test/presentation.test.ts test/combat-core.test.ts"
+      - "npm test -- test/game-bible.test.ts test/shell-flow.test.ts test/character-select.test.ts test/combat-core.test.ts test/combat-effects.test.ts test/presentation.test.ts test/match-flow.test.ts"
       - "npm run typecheck"
       - "npm run verify"
-      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/combat-readability"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/vertical-slice-audit"
   t021_verification:
     result: pass
     task: T021
