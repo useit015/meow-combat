@@ -117,7 +117,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T040
+active_task: T041
 
 tasks:
   - id: T001
@@ -2567,7 +2567,7 @@ tasks:
   - id: T040
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Define a stricter no-size-change rubric for Pickles' remaining collapsed/end-state rows and decide the next safe row-production package."
     inputs:
@@ -2591,6 +2591,74 @@ tasks:
       - "Next Worker objective, allowed_files, verify commands, stop_if, and acceptance criteria if safe"
       - "Explicit blocked tasks"
       - "Full outcome completion decision"
+    receipt:
+      result: done
+      decision: approve_worker
+      full_outcome_complete: false
+      note: notes/T040-collapsed-row-rubric.md
+      summary: "Approved exactly one cautious next Worker for Pickles lose row production. Knockdown remains blocked until lose passes and a fresh Judge review approves a true-prone rubric."
+      evidence:
+        - "Accepted Pickles rows remain source-only alpha 256px-cell sheets."
+        - "No public/assets/generated/fighters/pugilist-pug path exists."
+        - "Current scale evidence: idle 166-168w x 228h, corrected jump 153-163w x 190-212h, defense 161-218w x 220-237h, win 155-167w x 221-226h."
+        - "T039 accepted win but flagged knockdown and lose as higher risk because collapsed/prone poses can hide size drift."
+      rubric:
+        hard_rule: "Pickles must not globally shrink or enlarge. A collapsed pose cannot justify a smaller head, muzzle, gloves, torso mass, tail curl, or pug identity."
+        required_metrics: "Every candidate QA must record per-frame alpha bounds, opaque-pixel counts, dimensions, hashes, rejected-candidate reasons, and visual notes comparing head/glove/muzzle/body mass against idle, jump, defense, and win."
+        lose: "Keep lose as standing, seated, or kneeling defeated slump; reject prone, sleeping, crawling, flattened, or tiny-in-frame poses. Bounds must stay 150-210px wide, no frame below 195px tall, average height at least 205px, opaque pixels at least 20000 per frame, average opaque pixels at least 22500."
+        future_knockdown: "Require a separate Judge gate after lose. At least two frames must anchor full-size falling/upright scale; any prone frame must preserve visible full-size head, gloves, torso mass, feet, and tail, with horizontal body length proving rotation rather than shrink. No dust clouds, floor shadows, props, camera zoom, cropping, or effects may hide size."
+      blocked_tasks:
+        - "knockdown generation until lose passes and a fresh Judge review approves the true-prone rubric"
+        - "generating knockdown and lose together"
+        - "public/runtime Pickles asset promotion"
+        - "playable roster/select/combat integration for Pickles"
+        - "global shrink/enlarge, prone flattening, crop tricks, props/effects, or camera tricks to fake size consistency"
+      spawned_tasks:
+        - T041
+  - id: T041
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: medium
+    objective: "Generate and QA exactly one source-only Pickles Pugilist lose row using built-in imagegen only. Normalize it to exact 1536x256 alpha, compare against all twelve accepted Pickles rows, update source/planned manifests/tests/QA note, and prove Pickles remains non-playable with no public/runtime assets."
+    allowed_files:
+      - "assets/source/imagegen/fighters/pugilist-pug/candidates/lose-codex-01.png"
+      - "assets/source/imagegen/fighters/pugilist-pug/candidates/lose-codex-02.png"
+      - "assets/source/imagegen/fighters/pugilist-pug/candidates/lose-codex-03.png"
+      - "assets/source/imagegen/fighters/pugilist-pug/lose.png"
+      - "output/imagegen/pugilist-pug-lose.png"
+      - "output/imagegen/pugilist-pug-lose-normalized.png"
+      - "output/animation-preflight/pickles-pugilist-lose-row-qa.json"
+      - "output/animation-preflight/pickles-pugilist-lose-row-qa.html"
+      - "output/web-game/pickles-lose-source-row/"
+      - "src/assets/catalog.ts"
+      - "test/fighter-animation-preflight.test.ts"
+      - "test/asset-pipeline.test.ts"
+      - "test/asset-qa.test.ts"
+      - "docs/goals/aaa-game-expansion/notes/T041-pickles-lose-row-production.md"
+    verify:
+      - "node scripts/normalize-fighter-rows.mjs --animation lose --fighters pugilist-pug"
+      - "sips -g pixelWidth -g pixelHeight -g hasAlpha assets/source/imagegen/fighters/pugilist-pug/lose.png output/imagegen/pugilist-pug-lose-normalized.png"
+      - "npm test -- test/fighter-animation-preflight.test.ts test/asset-pipeline.test.ts test/asset-qa.test.ts test/game-config.test.ts"
+      - "node scripts/asset-qa.mjs --json"
+      - "test ! -e public/assets/generated/fighters/pugilist-pug"
+      - "npm run typecheck"
+      - "npm run build"
+      - "npm run verify"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/pickles-lose-source-row"
+    stop_if:
+      - "Need files outside allowed_files."
+      - "Need public/runtime assets, roster/select/combat/input changes, dependencies, APIs, audio, or playable promotion."
+      - "Any frame violates the lose size thresholds: 150-210px wide, no frame below 195px tall, average height at least 205px, opaque pixels at least 20000 per frame, average opaque pixels at least 22500."
+      - "Any pose becomes prone, flat, sleeping, crawling, or hides scale through crop, prop, effect, camera zoom, or empty canvas."
+      - "Three candidates fail the rubric."
+    acceptance:
+      - "Exactly one accepted source-only lose row."
+      - "lose is exact 1536x256 alpha, 6 frames of 256x256."
+      - "Catalog marks exactly thirteen generated Pickles rows; knockdown remains blocked."
+      - "QA JSON/HTML records metrics, hashes, rejected candidates, and no-size-change rationale."
+      - "Pickles remains source-only and non-playable."
+      - "Tests, build, verify, asset QA, and smoke pass."
     receipt: null
 
 checks:
