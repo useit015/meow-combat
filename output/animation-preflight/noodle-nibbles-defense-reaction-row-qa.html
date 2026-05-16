@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Noodle Nibbles Defense Reaction Row QA</title>
+  <style>
+    body { margin: 0; font-family: Inter, system-ui, sans-serif; background: #f5f7f2; color: #151915; }
+    main { max-width: 960px; margin: 0 auto; padding: 32px; }
+    h1 { margin: 0 0 8px; font-size: 30px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 18px; background: #fff; border: 1px solid #c9d8c4; }
+    th, td { padding: 10px 12px; border-bottom: 1px solid #dce7d7; text-align: left; vertical-align: top; }
+    th { background: #21412e; color: #fff; }
+    .pill { display: inline-block; margin: 6px 8px 6px 0; padding: 8px 10px; background: #fff; border: 1px solid #b9ccb0; font-weight: 700; }
+    code { background: #eaf0e5; padding: 2px 4px; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Noodle Nibbles Defense Reaction Row QA</h1>
+  <p>Source-only review for <code>ferret-noodle</code>. The accepted rows are not playable runtime assets.</p>
+  <span class="pill">Result: accepted</span>
+  <span class="pill">Runtime exposure: source-only / not playable</span>
+  <span class="pill">Full AAA outcome: incomplete</span>
+  <table>
+    <thead>
+      <tr><th>Row</th><th>Candidate</th><th>Accepted source</th><th>QA summary</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>hitstun</code></td>
+        <td><code>assets/source/imagegen/fighters/ferret-noodle/candidates/hitstun-codex-01.png</code></td>
+        <td><code>assets/source/imagegen/fighters/ferret-noodle/hitstun.png</code></td>
+        <td>Exact <code>1280x256</code> alpha row; frame bounds stay <code>139-192px</code> wide and <code>205-236px</code> high with 0 green-spill pixels.</td>
+      </tr>
+      <tr>
+        <td><code>blockstun</code></td>
+        <td><code>assets/source/imagegen/fighters/ferret-noodle/candidates/blockstun-codex-01.png</code></td>
+        <td><code>assets/source/imagegen/fighters/ferret-noodle/blockstun.png</code></td>
+        <td>Exact <code>1280x256</code> alpha row; frame bounds stay <code>145-160px</code> wide and <code>202-237px</code> high with 0 green-spill pixels.</td>
+      </tr>
+    </tbody>
+  </table>
+  <p>Rejected runtime promotion: Noodle still lacks <code>heavy-punch</code>, <code>special</code>, <code>knockdown</code>, <code>win</code>, and <code>lose</code>.</p>
+</main>
+</body>
+</html>

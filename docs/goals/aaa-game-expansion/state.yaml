@@ -117,7 +117,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T079
+active_task: T080
 
 tasks:
   - id: T001
@@ -5284,7 +5284,7 @@ tasks:
   - id: T079
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: medium
     objective: "Generate and QA exactly two source-only Noodle Nibbles / ferret-noodle defense/reaction rows: hitstun and blockstun, using built-in imagegen only. Normalize both to exact 1280x256 transparent spritesheet form, compare both against the accepted idle/walk-forward/walk-back/crouch/jump/light-punch/light-kick rows, update only source/planned manifests and focused tests, and prove Noodle remains not playable with no public/runtime assets."
     inputs:
@@ -5351,20 +5351,118 @@ tasks:
       - "public/assets/generated/fighters/ferret-noodle remains absent."
       - "Noodle remains not playable."
       - "Tests and verification pass."
+    receipt:
+      result: done
+      full_outcome_complete: false
+      note: notes/T079-noodle-defense-reaction-row-production.md
+      generated_with: "built-in Codex imagegen"
+      accepted_rows:
+        - animation: hitstun
+          candidate: "assets/source/imagegen/fighters/ferret-noodle/candidates/hitstun-codex-01.png"
+          source: "assets/source/imagegen/fighters/ferret-noodle/hitstun.png"
+          normalized: "output/imagegen/ferret-noodle-hitstun-normalized.png"
+          dimensions: "1280x256 alpha"
+        - animation: blockstun
+          candidate: "assets/source/imagegen/fighters/ferret-noodle/candidates/blockstun-codex-01.png"
+          source: "assets/source/imagegen/fighters/ferret-noodle/blockstun.png"
+          normalized: "output/imagegen/ferret-noodle-blockstun-normalized.png"
+          dimensions: "1280x256 alpha"
+      qa_artifacts:
+        - "output/animation-preflight/noodle-nibbles-defense-reaction-row-qa.json"
+        - "output/animation-preflight/noodle-nibbles-defense-reaction-row-qa.html"
+      summary: "Generated exactly two accepted source-only Noodle defense/reaction rows, hitstun and blockstun, using built-in Codex imagegen only. Accepted the first candidate for each row, removed the chroma-key background, normalized both rows to exact 1280x256 alpha PNGs, updated the source/planned manifest and focused tests, recorded QA evidence, and proved Noodle remains not playable with no public/runtime ferret-noodle folder. Full verify passed."
+      commands:
+        - cmd: "built-in Codex imagegen for source-only Noodle hitstun candidate 01"
+          result: pass
+        - cmd: "built-in Codex imagegen for source-only Noodle blockstun candidate 01"
+          result: pass
+        - cmd: "/Users/oussmustaine/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 /Users/oussmustaine/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py --input assets/source/imagegen/fighters/ferret-noodle/candidates/hitstun-codex-01.png --out output/imagegen/ferret-noodle-hitstun.png --auto-key border --soft-matte --transparent-threshold 12 --opaque-threshold 220 --despill"
+          result: pass
+        - cmd: "/Users/oussmustaine/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 /Users/oussmustaine/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py --input assets/source/imagegen/fighters/ferret-noodle/candidates/blockstun-codex-01.png --out output/imagegen/ferret-noodle-blockstun.png --auto-key border --soft-matte --transparent-threshold 12 --opaque-threshold 220 --despill"
+          result: pass
+        - cmd: "node scripts/normalize-fighter-rows.mjs --animation hitstun --fighters ferret-noodle"
+          result: pass
+        - cmd: "node scripts/normalize-fighter-rows.mjs --animation blockstun --fighters ferret-noodle"
+          result: pass
+        - cmd: "npm run typecheck"
+          result: pass
+        - cmd: "npm test -- test/fighter-animation-preflight.test.ts test/asset-pipeline.test.ts test/source-roster-lab.test.ts test/game-config.test.ts test/imagegen-jobs.test.ts test/asset-qa.test.ts"
+          result: pass
+        - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha assets/source/imagegen/fighters/ferret-noodle/hitstun.png assets/source/imagegen/fighters/ferret-noodle/blockstun.png output/imagegen/ferret-noodle-hitstun-normalized.png output/imagegen/ferret-noodle-blockstun-normalized.png"
+          result: pass
+        - cmd: "node scripts/asset-qa.mjs --json"
+          result: pass
+        - cmd: "test ! -e public/assets/generated/fighters/ferret-noodle"
+          result: pass
+        - cmd: "npm run verify"
+          result: pass
+        - cmd: "git diff --name-only -- public/assets/generated/fighters package.json package-lock.json src/game/audio.ts public/assets/audio assets/source/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts src/core/frameData.ts"
+          result: pass
+        - cmd: "rg -n \"Noodle Nibbles|ferret-noodle|hitstun|blockstun|no-size-drift|row-generation|not playable|source-only\" src/assets/catalog.ts src/assets/fighterAnimationPreflight.ts test/fighter-animation-preflight.test.ts test/asset-pipeline.test.ts test/asset-qa.test.ts docs/goals/aaa-game-expansion/notes/T079-noodle-defense-reaction-row-production.md output/animation-preflight/noodle-nibbles-defense-reaction-row-qa.json"
+          result: pass
+      spawned_tasks:
+        - T080
+  - id: T080
+    type: judge
+    assignee: Judge
+    status: active
+    reasoning_hint: high
+    objective: "Review the accepted Noodle Nibbles idle, locomotion, mobility, starter attack, and defense/reaction source rows and decide the next safe row-production package without risking character-size drift, identity drift, reaction/attack slop, or premature runtime promotion."
+    inputs:
+      - "T071 accepted Noodle idle row and QA."
+      - "T073 accepted Noodle locomotion rows and QA."
+      - "T075 accepted Noodle mobility rows and QA."
+      - "T077 accepted Noodle starter attack rows and QA."
+      - "T079 accepted Noodle defense/reaction rows and QA."
+      - "Current source/planned manifest and focused tests."
+    constraints:
+      - "Do not generate images."
+      - "Do not edit runtime roster, select screen, public assets, combat data, frame data, hitboxes, audio, dependencies, or lockfiles."
+      - "Do not approve runtime promotion while heavy-punch, special, knockdown, win, and lose remain missing."
+      - "Do not mark the full AAA outcome complete."
+      - "Prefer the largest safe next source-only Worker slice, but require a single coherent QA risk profile."
+    allowed_files:
+      - "docs/goals/aaa-game-expansion/notes/T080-noodle-defense-reaction-review.md"
+      - "docs/goals/aaa-game-expansion/state.yaml"
+    verify:
+      - "view_image assets/source/imagegen/fighters/ferret-noodle/idle.png"
+      - "view_image assets/source/imagegen/fighters/ferret-noodle/light-punch.png"
+      - "view_image assets/source/imagegen/fighters/ferret-noodle/light-kick.png"
+      - "view_image assets/source/imagegen/fighters/ferret-noodle/hitstun.png"
+      - "view_image assets/source/imagegen/fighters/ferret-noodle/blockstun.png"
+      - "sed -n '1,230p' output/animation-preflight/noodle-nibbles-defense-reaction-row-qa.json"
+      - "sed -n '1,120p' docs/goals/aaa-game-expansion/notes/T079-noodle-defense-reaction-row-production.md"
+      - "test ! -e public/assets/generated/fighters/ferret-noodle"
+      - "rg -n \"heavy-punch|special|knockdown|win|lose|ferret-noodle|source-only|not playable\" src/assets/catalog.ts src/assets/fighterAnimationPreflight.ts"
+      - "ruby -e 'require \"yaml\"; YAML.load_file(\"docs/goals/aaa-game-expansion/state.yaml\"); puts \"state yaml ok\"'"
+    stop_if:
+      - "The accepted defense/reaction rows show size drift, identity drift, unstable alpha, unreadable recoil, baked effects, or source/public separation risk."
+      - "Any runtime promotion would be required to proceed."
+      - "The next task would need files outside the next Worker scope."
+    acceptance:
+      - "Decision recorded as proceed_with_worker, repair_first, or pause."
+      - "Exact next Worker objective if approved."
+      - "Allowed files, verification commands, stop conditions, and acceptance criteria."
+      - "Parallel-safety decision."
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T078
+    task: T079
     commands:
-      - "view_image assets/source/imagegen/fighters/ferret-noodle/idle.png"
-      - "view_image assets/source/imagegen/fighters/ferret-noodle/light-punch.png"
-      - "view_image assets/source/imagegen/fighters/ferret-noodle/light-kick.png"
-      - "sed -n '1,230p' output/animation-preflight/noodle-nibbles-starter-attack-row-qa.json"
-      - "sed -n '1,120p' docs/goals/aaa-game-expansion/notes/T077-noodle-starter-attack-row-production.md"
+      - "built-in Codex imagegen for source-only Noodle hitstun/blockstun candidates"
+      - "bundled remove_chroma_key.py cleanup on accepted defense/reaction rows"
+      - "node scripts/normalize-fighter-rows.mjs --animation hitstun --fighters ferret-noodle"
+      - "node scripts/normalize-fighter-rows.mjs --animation blockstun --fighters ferret-noodle"
+      - "npm run typecheck"
+      - "npm test -- test/fighter-animation-preflight.test.ts test/asset-pipeline.test.ts test/source-roster-lab.test.ts test/game-config.test.ts test/imagegen-jobs.test.ts test/asset-qa.test.ts"
+      - "sips -g pixelWidth -g pixelHeight -g hasAlpha assets/source/imagegen/fighters/ferret-noodle/hitstun.png assets/source/imagegen/fighters/ferret-noodle/blockstun.png output/imagegen/ferret-noodle-hitstun-normalized.png output/imagegen/ferret-noodle-blockstun-normalized.png"
+      - "node scripts/asset-qa.mjs --json"
       - "test ! -e public/assets/generated/fighters/ferret-noodle"
-      - "rg -n \"hitstun|blockstun|heavy-punch|special|knockdown|win|lose|ferret-noodle\" src/assets/catalog.ts src/assets/fighterAnimationPreflight.ts"
+      - "npm run verify"
+      - "git diff --name-only -- public/assets/generated/fighters package.json package-lock.json src/game/audio.ts public/assets/audio assets/source/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts src/core/frameData.ts"
+      - "rg -n \"Noodle Nibbles|ferret-noodle|hitstun|blockstun|no-size-drift|row-generation|not playable|source-only\" src/assets/catalog.ts src/assets/fighterAnimationPreflight.ts test/fighter-animation-preflight.test.ts test/asset-pipeline.test.ts test/asset-qa.test.ts docs/goals/aaa-game-expansion/notes/T079-noodle-defense-reaction-row-production.md output/animation-preflight/noodle-nibbles-defense-reaction-row-qa.json"
       - "ruby -e 'require \"yaml\"; YAML.load_file(\"docs/goals/aaa-game-expansion/state.yaml\"); puts \"state yaml ok\"'"
   t021_verification:
     result: pass

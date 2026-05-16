@@ -393,6 +393,21 @@ describe("Noodle Nibbles animation preflight", () => {
     expect(lightKickBounds.every((frame) => frame.opaquePixels >= 13_500)).toBe(true);
     expect(existsSync(join(process.cwd(), "public/assets/generated/fighters/ferret-noodle"))).toBe(false);
   });
+
+  it("keeps generated Noodle defense reactions source-only with compact recoil poses", () => {
+    const hitstunBounds = alphaBoundsByFrame("assets/source/imagegen/fighters/ferret-noodle/hitstun.png", 5);
+    const blockstunBounds = alphaBoundsByFrame("assets/source/imagegen/fighters/ferret-noodle/blockstun.png", 5);
+
+    expect(hitstunBounds.every((frame) => frame.width >= 135 && frame.width <= 200)).toBe(true);
+    expect(hitstunBounds.every((frame) => frame.height >= 200 && frame.height <= 240)).toBe(true);
+    expect(hitstunBounds.every((frame) => frame.opaquePixels >= 17_000)).toBe(true);
+    expect(Math.max(...hitstunBounds.map((frame) => frame.width))).toBeGreaterThanOrEqual(185);
+
+    expect(blockstunBounds.every((frame) => frame.width >= 140 && frame.width <= 165)).toBe(true);
+    expect(blockstunBounds.every((frame) => frame.height >= 200 && frame.height <= 240)).toBe(true);
+    expect(blockstunBounds.every((frame) => frame.opaquePixels >= 18_000)).toBe(true);
+    expect(existsSync(join(process.cwd(), "public/assets/generated/fighters/ferret-noodle"))).toBe(false);
+  });
 });
 
 function alphaBoundsByFrame(relativePath: string, frameCount: number) {
