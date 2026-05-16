@@ -162,8 +162,8 @@ describe("imagegen asset QA command", () => {
     });
     const summary = JSON.parse(output) as AssetQaSummary;
 
-    expect(summary.checked).toBe(168);
-    expect(summary.runtimeReady).toBe(112);
+    expect(summary.checked).toBe(170);
+    expect(summary.runtimeReady).toBe(114);
     expect(summary.needsNormalization).toBe(56);
     expect(summary.rows.map((row) => `${row.kind}:${row.fighterId}:${row.animationId}`).sort()).toEqual([
       "normalized-candidate:atlas-lion:blockstun",
@@ -250,6 +250,7 @@ describe("imagegen asset QA command", () => {
       "normalized-candidate:sahara-viper:walk-back",
       "normalized-candidate:sahara-viper:walk-forward",
       "normalized-candidate:sahara-viper:win",
+      "normalized-candidate:tortoise-tofu:idle",
       "source:atlas-lion:blockstun",
       "source:atlas-lion:crouch",
       "source:atlas-lion:heavy-punch",
@@ -334,6 +335,7 @@ describe("imagegen asset QA command", () => {
       "source:sahara-viper:walk-back",
       "source:sahara-viper:walk-forward",
       "source:sahara-viper:win",
+      "source:tortoise-tofu:idle",
     ]);
 
     const sourceRows = summary.rows.filter((row) => row.kind === "source");
@@ -422,6 +424,7 @@ describe("imagegen asset QA command", () => {
       "sahara-viper:walk-back",
       "sahara-viper:walk-forward",
       "sahara-viper:win",
+      "tortoise-tofu:idle",
     ]);
     for (const row of sourceRows) {
       expect(row.frameCount).toBe(
@@ -436,7 +439,11 @@ describe("imagegen asset QA command", () => {
                 : 8,
       );
       expect(row.expected).toEqual({ width: row.frameCount * 256, height: 256 });
-      if (row.fighterId === "pugilist-pug" || row.fighterId === "ferret-noodle") {
+      if (
+        row.fighterId === "pugilist-pug" ||
+        row.fighterId === "ferret-noodle" ||
+        (row.fighterId === "tortoise-tofu" && row.animationId === "idle")
+      ) {
         expect(row.runtimeReady).toBe(true);
         expect(row.status).toBe("runtime-ready");
       } else {
@@ -448,7 +455,7 @@ describe("imagegen asset QA command", () => {
     }
 
     const normalizedRows = summary.rows.filter((row) => row.kind === "normalized-candidate");
-    expect(normalizedRows).toHaveLength(84);
+    expect(normalizedRows).toHaveLength(85);
     for (const row of normalizedRows) {
       expect(row.expected).toEqual({ width: row.frameCount * 256, height: 256 });
       expect(row.dimensions).toEqual(row.expected);

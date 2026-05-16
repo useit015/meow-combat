@@ -580,6 +580,20 @@ describe("Tofu Tortoise animation preflight", () => {
     expect(outputHtml).toContain("Reject if");
     expect(outputHtml).toContain("size drift, identity drift");
   });
+
+  it("keeps generated Tofu idle row source-only as the shell-mass scale baseline", () => {
+    const bounds = alphaBoundsByFrame("assets/source/imagegen/fighters/tortoise-tofu/idle.png", 8);
+    const widths = bounds.map((frame) => frame.width);
+    const heights = bounds.map((frame) => frame.height);
+    const opaquePixels = bounds.map((frame) => frame.opaquePixels);
+
+    expect(widths.every((width) => width >= 160 && width <= 170)).toBe(true);
+    expect(heights.every((height) => height >= 228 && height <= 232)).toBe(true);
+    expect(Math.max(...heights) - Math.min(...heights)).toBeLessThanOrEqual(2);
+    expect(Math.max(...widths) - Math.min(...widths)).toBeLessThanOrEqual(3);
+    expect(average(opaquePixels)).toBeGreaterThanOrEqual(27_000);
+    expect(existsSync(join(process.cwd(), "public/assets/generated/fighters/tortoise-tofu"))).toBe(false);
+  });
 });
 
 function alphaBoundsByFrame(relativePath: string, frameCount: number) {

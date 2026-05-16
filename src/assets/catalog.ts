@@ -190,6 +190,9 @@ const generatedAnimationRows: Record<string, Partial<Record<FighterAnimationSpec
     win: "assets/source/imagegen/fighters/ferret-noodle/win.png",
     lose: "assets/source/imagegen/fighters/ferret-noodle/lose.png",
   },
+  "tortoise-tofu": {
+    idle: "assets/source/imagegen/fighters/tortoise-tofu/idle.png",
+  },
 };
 
 export const fighterAssetManifests: readonly FighterAssetManifest[] = [

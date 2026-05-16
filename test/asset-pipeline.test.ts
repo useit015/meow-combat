@@ -118,6 +118,14 @@ describe("fighter asset manifests", () => {
       expect(validateFighterManifest(manifest)).toEqual({ ok: true, errors: [] });
       expect(manifest.animations).toHaveLength(REQUIRED_FIGHTER_ANIMATIONS.length);
       for (const animation of manifest.animations) {
+        if (manifest.id === "tortoise-tofu" && animation.id === "idle") {
+          expect(animation.source).toMatchObject({
+            status: "generated",
+            outputPath: "assets/source/imagegen/fighters/tortoise-tofu/idle.png",
+          });
+          continue;
+        }
+
         expect(animation.source.status).toBe("blocked");
         expect(animation.source.outputPath).toBeNull();
         expect(animation.source.blocker).toContain("source-only model sheet");

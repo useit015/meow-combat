@@ -1,0 +1,163 @@
+{
+  "id": "tofu-tortoise-idle-row-qa",
+  "fighterId": "tortoise-tofu",
+  "displayName": "Tofu Tortoise",
+  "animationId": "idle",
+  "result": "accepted",
+  "runtimeExposure": "source-only / not playable",
+  "generatedWith": "built-in Codex imagegen",
+  "sourceContract": {
+    "frameCount": 8,
+    "cellSize": {
+      "width": 256,
+      "height": 256
+    },
+    "expectedDimensions": {
+      "width": 2048,
+      "height": 256
+    },
+    "rowGenerationBrief": "Tofu Tortoise idle row-generation pass: compact heavyweight defensive guard with subtle breathing, low grounded legs, tofu-shell torso mass, small head, stubby limbs, and calm comic fighting-game confidence.",
+    "motionLanguage": "slow shell-mass guard sway, tiny head bob, low foot shuffle, stable silhouette, no limb elongation"
+  },
+  "assets": {
+    "candidate": {
+      "path": "assets/source/imagegen/fighters/tortoise-tofu/candidates/idle-codex-01.png",
+      "sha256": "f6935b4c71ca172e5aca16f02089b216bd605c58f2ea2e5414c12b78939ff6de",
+      "dimensions": {
+        "width": 2172,
+        "height": 724,
+        "hasAlpha": false
+      }
+    },
+    "normalizationInput": {
+      "path": "output/imagegen/tortoise-tofu-idle.png",
+      "sha256": "116d1cde35b18628c6fba1972ce213fe4e490ddae0de4d1218de0f988b96ad5b",
+      "dimensions": {
+        "width": 2172,
+        "height": 724,
+        "hasAlpha": true
+      }
+    },
+    "normalized": {
+      "path": "output/imagegen/tortoise-tofu-idle-normalized.png",
+      "sha256": "88a5d0a3f6e79f94d2bcc66fbb78ad5dfc1f83ac83ef92ba2d866878135c5e58",
+      "dimensions": {
+        "width": 2048,
+        "height": 256,
+        "hasAlpha": true
+      }
+    },
+    "acceptedSource": {
+      "path": "assets/source/imagegen/fighters/tortoise-tofu/idle.png",
+      "sha256": "88a5d0a3f6e79f94d2bcc66fbb78ad5dfc1f83ac83ef92ba2d866878135c5e58",
+      "dimensions": {
+        "width": 2048,
+        "height": 256,
+        "hasAlpha": true
+      }
+    }
+  },
+  "pipeline": [
+    {
+      "id": "built-in-imagegen",
+      "command": "Built-in Codex imagegen generated one idle candidate row only.",
+      "result": "pass"
+    },
+    {
+      "id": "chroma-key",
+      "command": "/Users/oussmustaine/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3 /Users/oussmustaine/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py --input output/imagegen/tortoise-tofu-idle.png --out output/imagegen/tortoise-tofu-idle-keyed.png --auto-key border --soft-matte --transparent-threshold 12 --opaque-threshold 220 --despill; accepted keyed matte copied to output/imagegen/tortoise-tofu-idle.png for normalization.",
+      "result": "pass"
+    },
+    {
+      "id": "normalize",
+      "command": "node scripts/normalize-fighter-rows.mjs --animation idle --fighters tortoise-tofu",
+      "result": "pass"
+    }
+  ],
+  "checks": [
+    {
+      "id": "frame-dimensions",
+      "result": "pass",
+      "evidence": "Accepted source and normalized proof are exact 2048x256 alpha PNGs, eight 256x256 cells."
+    },
+    {
+      "id": "identity-lock",
+      "result": "pass",
+      "evidence": "Frames preserve compact tortoise mass, tofu-shell torso, small head, stubby legs, warm cream-and-green palette, and calm guard stance."
+    },
+    {
+      "id": "shell-mass-scale-baseline",
+      "result": "pass",
+      "evidence": "Per-frame alpha bounds stay within 163-165px width and 230px height; this row becomes the future Tofu scale reference."
+    },
+    {
+      "id": "alpha-cleanup",
+      "result": "pass",
+      "evidence": "Chroma key was removed from the normalized spritesheet; accepted source has alpha and visible green spill pixels are zero in every frame."
+    },
+    {
+      "id": "source-only",
+      "result": "pass",
+      "evidence": "public/assets/generated/fighters/tortoise-tofu exists: false. Tofu remains absent from runtime public assets."
+    }
+  ],
+  "frameBounds": [
+    {
+      "frame": 1,
+      "width": 164,
+      "height": 230,
+      "opaquePixels": 27699,
+      "greenSpillPixels": 0
+    },
+    {
+      "frame": 2,
+      "width": 163,
+      "height": 230,
+      "opaquePixels": 27449,
+      "greenSpillPixels": 0
+    },
+    {
+      "frame": 3,
+      "width": 163,
+      "height": 230,
+      "opaquePixels": 27743,
+      "greenSpillPixels": 0
+    },
+    {
+      "frame": 4,
+      "width": 163,
+      "height": 230,
+      "opaquePixels": 27606,
+      "greenSpillPixels": 0
+    },
+    {
+      "frame": 5,
+      "width": 165,
+      "height": 230,
+      "opaquePixels": 27900,
+      "greenSpillPixels": 0
+    },
+    {
+      "frame": 6,
+      "width": 164,
+      "height": 230,
+      "opaquePixels": 27827,
+      "greenSpillPixels": 0
+    },
+    {
+      "frame": 7,
+      "width": 163,
+      "height": 230,
+      "opaquePixels": 27590,
+      "greenSpillPixels": 0
+    },
+    {
+      "frame": 8,
+      "width": 163,
+      "height": 230,
+      "opaquePixels": 27592,
+      "greenSpillPixels": 0
+    }
+  ],
+  "verdict": "Accepted as the source-only Tofu idle scale baseline. Do not use for runtime promotion until all required rows pass later QA and smoke."
+}
