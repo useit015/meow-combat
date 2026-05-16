@@ -559,6 +559,7 @@ async function openScenario(browser, url, scenario) {
 
   await page.goto(url, { waitUntil: "domcontentloaded" });
   await page.locator("canvas").waitFor({ state: "visible", timeout: 10000 });
+  await page.waitForFunction(() => typeof window.render_game_to_text === "function", null, { timeout: 10000 });
   await waitFrames(page, 18);
 
   return { context, page, errors };
@@ -765,6 +766,24 @@ async function runTrainingDemo(browser, url, outDir) {
     state.training?.presentation?.feedbackLine?.includes("Light punch"),
     failures,
     `training presentation should include light-punch feedback, got ${state.training?.presentation?.feedbackLine}`,
+  );
+
+  await waitFrames(page, 20);
+  await page.keyboard.down("KeyI");
+  await waitFrames(page, 5);
+  state = await readState(page);
+  screenshots.push(await screenshot(page, outDir, "training-noodle-kick-feedback"));
+  await page.keyboard.up("KeyI");
+  await waitFrames(page, 4);
+  assert(
+    state.training?.practice?.currentAction === "Light kick",
+    failures,
+    `training practice should expose current Noodle light-kick action, got ${state.training?.practice?.currentAction}`,
+  );
+  assert(
+    state.runtimeVisuals?.p1?.animationId === "light-kick",
+    failures,
+    `training Noodle light-kick should render the light-kick row, got ${state.runtimeVisuals?.p1?.animationId}`,
   );
 
   await pressKey(page, "KeyR");

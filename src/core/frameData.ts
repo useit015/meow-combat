@@ -231,7 +231,8 @@ export const NOODLE_NIBBLES: FighterDefinition = {
       duration: 21,
       damage: 52,
       hitstun: 17,
-      pushback: 13,
+      blockstun: 11,
+      pushback: 16,
       hitVolumes: [{ frameStart: 6, frameEnd: 11, rect: { x: 20, y: -48, width: 58, height: 22 } }],
     },
     heavy: {
