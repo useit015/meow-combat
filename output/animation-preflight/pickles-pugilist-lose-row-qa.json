@@ -1,0 +1,1952 @@
+{
+  "task": "T041",
+  "fighterId": "pugilist-pug",
+  "displayName": "Pickles Pugilist",
+  "status": "pass",
+  "sourceOnly": true,
+  "publicRuntimePromotion": false,
+  "reason": "Lose row uses the stricter T040 collapsed/end-state rubric to protect the owner's no-size-change rule.",
+  "candidatePolicy": {
+    "generatedWith": "built-in Codex imagegen",
+    "accepted": "assets/source/imagegen/fighters/pugilist-pug/candidates/lose-codex-02.png",
+    "rejected": [
+      {
+        "path": "assets/source/imagegen/fighters/pugilist-pug/candidates/lose-codex-01.png",
+        "sha256": "12c0022f757bf895b38dcc8cb872f333aa7a4ef345203ebf33510cee0e6f473f",
+        "reason": "Rejected despite good size because it included detached breath puff and motion/vibration marks, which T040 forbids for collapsed/end-state rows."
+      }
+    ],
+    "avoidance": [
+      "prone pose",
+      "sleeping/crawling/flattening",
+      "empty-canvas shrink",
+      "props",
+      "text",
+      "logos",
+      "detached effects",
+      "camera zoom"
+    ]
+  },
+  "assets": {
+    "rejectedCandidate": {
+      "path": "assets/source/imagegen/fighters/pugilist-pug/candidates/lose-codex-01.png",
+      "exists": true,
+      "dimensions": {
+        "width": 2172,
+        "height": 724,
+        "hasAlpha": false
+      },
+      "sha256": "12c0022f757bf895b38dcc8cb872f333aa7a4ef345203ebf33510cee0e6f473f"
+    },
+    "acceptedCandidate": {
+      "path": "assets/source/imagegen/fighters/pugilist-pug/candidates/lose-codex-02.png",
+      "exists": true,
+      "dimensions": {
+        "width": 2172,
+        "height": 724,
+        "hasAlpha": false
+      },
+      "sha256": "8dcd98ed83c364ade88e8774caddedc5c1686e509fdd58a6e880422e9b666b1c"
+    },
+    "chromaRemoved": {
+      "path": "output/imagegen/pugilist-pug-lose.png",
+      "exists": true,
+      "dimensions": {
+        "width": 2172,
+        "height": 724,
+        "hasAlpha": true
+      },
+      "sha256": "8813dd07df4d39318a018bb42c21475946f0a6e6a6a2eac89454f95da925eeae"
+    },
+    "normalizedProof": {
+      "path": "output/imagegen/pugilist-pug-lose-normalized.png",
+      "exists": true,
+      "dimensions": {
+        "width": 1536,
+        "height": 256,
+        "hasAlpha": true
+      },
+      "sha256": "09fc21e57beffc3679e5bc0b61092da0dd2b6d3b19fb7e8b964cacb7d9bcde68"
+    },
+    "accepted": {
+      "path": "assets/source/imagegen/fighters/pugilist-pug/lose.png",
+      "exists": true,
+      "dimensions": {
+        "width": 1536,
+        "height": 256,
+        "hasAlpha": true
+      },
+      "sha256": "09fc21e57beffc3679e5bc0b61092da0dd2b6d3b19fb7e8b964cacb7d9bcde68"
+    }
+  },
+  "sizeAudit": {
+    "rule": "Lose must keep Pickles standing/seated/kneeling at full character scale: 150-210px wide, no frame below 195px tall, average height >=205px, opaque pixels >=20000 per frame, average opaque pixels >=22500.",
+    "t035CorrectedJumpComparison": {
+      "idle": {
+        "widthPx": [
+          167,
+          166,
+          166,
+          168,
+          166,
+          168,
+          168,
+          167
+        ],
+        "heightPx": [
+          228,
+          228,
+          228,
+          228,
+          228,
+          228,
+          228,
+          228
+        ],
+        "opaquePixels": [
+          25140,
+          25090,
+          25116,
+          25229,
+          24948,
+          25203,
+          25228,
+          25217
+        ],
+        "minWidthPx": 166,
+        "maxWidthPx": 168,
+        "averageWidthPx": 167,
+        "minHeightPx": 228,
+        "maxHeightPx": 228,
+        "averageHeightPx": 228,
+        "minOpaquePixels": 24948,
+        "maxOpaquePixels": 25229,
+        "averageOpaquePixels": 25146
+      },
+      "correctedJump": {
+        "widthPx": [
+          163,
+          154,
+          156,
+          156,
+          153,
+          161
+        ],
+        "heightPx": [
+          196,
+          212,
+          190,
+          190,
+          211,
+          197
+        ],
+        "opaquePixels": [
+          20934,
+          21057,
+          20195,
+          20168,
+          20836,
+          20932
+        ],
+        "minWidthPx": 153,
+        "maxWidthPx": 163,
+        "averageWidthPx": 157,
+        "minHeightPx": 190,
+        "maxHeightPx": 212,
+        "averageHeightPx": 199,
+        "minOpaquePixels": 20168,
+        "maxOpaquePixels": 21057,
+        "averageOpaquePixels": 20687
+      }
+    },
+    "t037PowerComparison": {
+      "heavyPunch": {
+        "widthPx": [
+          176,
+          166,
+          164,
+          233,
+          178,
+          174,
+          171,
+          170
+        ],
+        "heightPx": [
+          222,
+          219,
+          223,
+          204,
+          219,
+          223,
+          223,
+          223
+        ],
+        "opaquePixels": [
+          21559,
+          21225,
+          23605,
+          21372,
+          22047,
+          21248,
+          21064,
+          21051
+        ],
+        "minWidthPx": 164,
+        "maxWidthPx": 233,
+        "averageWidthPx": 179,
+        "minHeightPx": 204,
+        "maxHeightPx": 223,
+        "averageHeightPx": 220,
+        "minOpaquePixels": 21051,
+        "maxOpaquePixels": 23605,
+        "averageOpaquePixels": 21646
+      },
+      "special": {
+        "widthPx": [
+          176,
+          190,
+          169,
+          152,
+          189,
+          200,
+          152,
+          182,
+          174,
+          178
+        ],
+        "heightPx": [
+          230,
+          220,
+          233,
+          231,
+          222,
+          220,
+          225,
+          225,
+          226,
+          227
+        ],
+        "opaquePixels": [
+          24204,
+          24176,
+          22537,
+          22887,
+          24137,
+          24151,
+          21878,
+          23737,
+          23513,
+          23647
+        ],
+        "minWidthPx": 152,
+        "maxWidthPx": 200,
+        "averageWidthPx": 176,
+        "minHeightPx": 220,
+        "maxHeightPx": 233,
+        "averageHeightPx": 226,
+        "minOpaquePixels": 21878,
+        "maxOpaquePixels": 24204,
+        "averageOpaquePixels": 23487
+      }
+    },
+    "t038DefenseComparison": {
+      "hitstun": {
+        "widthPx": [
+          176,
+          161,
+          190,
+          218,
+          173
+        ],
+        "heightPx": [
+          229,
+          228,
+          237,
+          220,
+          229
+        ],
+        "opaquePixels": [
+          23042,
+          23347,
+          26491,
+          24630,
+          22424
+        ],
+        "minWidthPx": 161,
+        "maxWidthPx": 218,
+        "averageWidthPx": 184,
+        "minHeightPx": 220,
+        "maxHeightPx": 237,
+        "averageHeightPx": 229,
+        "minOpaquePixels": 22424,
+        "maxOpaquePixels": 26491,
+        "averageOpaquePixels": 23987
+      },
+      "blockstun": {
+        "widthPx": [
+          176,
+          180,
+          169,
+          177,
+          177
+        ],
+        "heightPx": [
+          231,
+          228,
+          231,
+          227,
+          231
+        ],
+        "opaquePixels": [
+          23609,
+          24214,
+          24287,
+          23296,
+          23381
+        ],
+        "minWidthPx": 169,
+        "maxWidthPx": 180,
+        "averageWidthPx": 176,
+        "minHeightPx": 227,
+        "maxHeightPx": 231,
+        "averageHeightPx": 230,
+        "minOpaquePixels": 23296,
+        "maxOpaquePixels": 24287,
+        "averageOpaquePixels": 23757
+      }
+    },
+    "t039WinComparison": {
+      "win": {
+        "widthPx": [
+          167,
+          166,
+          159,
+          162,
+          155,
+          165,
+          165,
+          163
+        ],
+        "heightPx": [
+          225,
+          225,
+          226,
+          221,
+          224,
+          222,
+          225,
+          223
+        ],
+        "opaquePixels": [
+          24933,
+          24765,
+          24793,
+          24009,
+          24834,
+          24263,
+          24611,
+          24131
+        ],
+        "minWidthPx": 155,
+        "maxWidthPx": 167,
+        "averageWidthPx": 163,
+        "minHeightPx": 221,
+        "maxHeightPx": 226,
+        "averageHeightPx": 224,
+        "minOpaquePixels": 24009,
+        "maxOpaquePixels": 24933,
+        "averageOpaquePixels": 24542
+      }
+    },
+    "acceptedReferenceRows": {
+      "idle": {
+        "path": "assets/source/imagegen/fighters/pugilist-pug/idle.png",
+        "frameCount": 8,
+        "bounds": [
+          {
+            "frame": 1,
+            "width": 167,
+            "height": 228,
+            "opaquePixels": 25140,
+            "minX": 45,
+            "maxX": 211,
+            "minY": 14,
+            "maxY": 241
+          },
+          {
+            "frame": 2,
+            "width": 166,
+            "height": 228,
+            "opaquePixels": 25090,
+            "minX": 44,
+            "maxX": 209,
+            "minY": 14,
+            "maxY": 241
+          },
+          {
+            "frame": 3,
+            "width": 166,
+            "height": 228,
+            "opaquePixels": 25116,
+            "minX": 44,
+            "maxX": 209,
+            "minY": 14,
+            "maxY": 241
+          },
+          {
+            "frame": 4,
+            "width": 168,
+            "height": 228,
+            "opaquePixels": 25229,
+            "minX": 44,
+            "maxX": 211,
+            "minY": 14,
+            "maxY": 241
+          },
+          {
+            "frame": 5,
+            "width": 166,
+            "height": 228,
+            "opaquePixels": 24948,
+            "minX": 44,
+            "maxX": 209,
+            "minY": 14,
+            "maxY": 241
+          },
+          {
+            "frame": 6,
+            "width": 168,
+            "height": 228,
+            "opaquePixels": 25203,
+            "minX": 44,
+            "maxX": 211,
+            "minY": 14,
+            "maxY": 241
+          },
+          {
+            "frame": 7,
+            "width": 168,
+            "height": 228,
+            "opaquePixels": 25228,
+            "minX": 43,
+            "maxX": 210,
+            "minY": 14,
+            "maxY": 241
+          },
+          {
+            "frame": 8,
+            "width": 167,
+            "height": 228,
+            "opaquePixels": 25217,
+            "minX": 44,
+            "maxX": 210,
+            "minY": 14,
+            "maxY": 241
+          }
+        ],
+        "summary": {
+          "widthPx": [
+            167,
+            166,
+            166,
+            168,
+            166,
+            168,
+            168,
+            167
+          ],
+          "heightPx": [
+            228,
+            228,
+            228,
+            228,
+            228,
+            228,
+            228,
+            228
+          ],
+          "opaquePixels": [
+            25140,
+            25090,
+            25116,
+            25229,
+            24948,
+            25203,
+            25228,
+            25217
+          ],
+          "minWidthPx": 166,
+          "maxWidthPx": 168,
+          "averageWidthPx": 167,
+          "minHeightPx": 228,
+          "maxHeightPx": 228,
+          "averageHeightPx": 228,
+          "minOpaquePixels": 24948,
+          "maxOpaquePixels": 25229,
+          "averageOpaquePixels": 25146
+        },
+        "dimensions": {
+          "width": 2048,
+          "height": 256,
+          "hasAlpha": true
+        }
+      },
+      "walk-forward": {
+        "path": "assets/source/imagegen/fighters/pugilist-pug/walk-forward.png",
+        "frameCount": 8,
+        "bounds": [
+          {
+            "frame": 1,
+            "width": 169,
+            "height": 226,
+            "opaquePixels": 24232,
+            "minX": 45,
+            "maxX": 213,
+            "minY": 14,
+            "maxY": 239
+          },
+          {
+            "frame": 2,
+            "width": 166,
+            "height": 221,
+            "opaquePixels": 23792,
+            "minX": 43,
+            "maxX": 208,
+            "minY": 17,
+            "maxY": 237
+          },
+          {
+            "frame": 3,
+            "width": 169,
+            "height": 226,
+            "opaquePixels": 24693,
+            "minX": 42,
+            "maxX": 210,
+            "minY": 15,
+            "maxY": 240
+          },
+          {
+            "frame": 4,
+            "width": 169,
+            "height": 220,
+            "opaquePixels": 24089,
+            "minX": 43,
+            "maxX": 211,
+            "minY": 17,
+            "maxY": 236
+          },
+          {
+            "frame": 5,
+            "width": 167,
+            "height": 222,
+            "opaquePixels": 23639,
+            "minX": 44,
+            "maxX": 210,
+            "minY": 17,
+            "maxY": 238
+          },
+          {
+            "frame": 6,
+            "width": 169,
+            "height": 224,
+            "opaquePixels": 24255,
+            "minX": 43,
+            "maxX": 211,
+            "minY": 17,
+            "maxY": 240
+          },
+          {
+            "frame": 7,
+            "width": 167,
+            "height": 226,
+            "opaquePixels": 24179,
+            "minX": 44,
+            "maxX": 210,
+            "minY": 16,
+            "maxY": 241
+          },
+          {
+            "frame": 8,
+            "width": 169,
+            "height": 223,
+            "opaquePixels": 24069,
+            "minX": 43,
+            "maxX": 211,
+            "minY": 15,
+            "maxY": 237
+          }
+        ],
+        "summary": {
+          "widthPx": [
+            169,
+            166,
+            169,
+            169,
+            167,
+            169,
+            167,
+            169
+          ],
+          "heightPx": [
+            226,
+            221,
+            226,
+            220,
+            222,
+            224,
+            226,
+            223
+          ],
+          "opaquePixels": [
+            24232,
+            23792,
+            24693,
+            24089,
+            23639,
+            24255,
+            24179,
+            24069
+          ],
+          "minWidthPx": 166,
+          "maxWidthPx": 169,
+          "averageWidthPx": 168,
+          "minHeightPx": 220,
+          "maxHeightPx": 226,
+          "averageHeightPx": 224,
+          "minOpaquePixels": 23639,
+          "maxOpaquePixels": 24693,
+          "averageOpaquePixels": 24119
+        },
+        "dimensions": {
+          "width": 2048,
+          "height": 256,
+          "hasAlpha": true
+        }
+      },
+      "walk-back": {
+        "path": "assets/source/imagegen/fighters/pugilist-pug/walk-back.png",
+        "frameCount": 8,
+        "bounds": [
+          {
+            "frame": 1,
+            "width": 164,
+            "height": 221,
+            "opaquePixels": 23684,
+            "minX": 46,
+            "maxX": 209,
+            "minY": 15,
+            "maxY": 235
+          },
+          {
+            "frame": 2,
+            "width": 162,
+            "height": 228,
+            "opaquePixels": 23519,
+            "minX": 45,
+            "maxX": 206,
+            "minY": 14,
+            "maxY": 241
+          },
+          {
+            "frame": 3,
+            "width": 162,
+            "height": 222,
+            "opaquePixels": 23563,
+            "minX": 47,
+            "maxX": 208,
+            "minY": 17,
+            "maxY": 238
+          },
+          {
+            "frame": 4,
+            "width": 164,
+            "height": 228,
+            "opaquePixels": 22915,
+            "minX": 46,
+            "maxX": 209,
+            "minY": 14,
+            "maxY": 241
+          },
+          {
+            "frame": 5,
+            "width": 161,
+            "height": 227,
+            "opaquePixels": 23462,
+            "minX": 47,
+            "maxX": 207,
+            "minY": 15,
+            "maxY": 241
+          },
+          {
+            "frame": 6,
+            "width": 161,
+            "height": 222,
+            "opaquePixels": 23196,
+            "minX": 47,
+            "maxX": 207,
+            "minY": 14,
+            "maxY": 235
+          },
+          {
+            "frame": 7,
+            "width": 162,
+            "height": 224,
+            "opaquePixels": 22893,
+            "minX": 47,
+            "maxX": 208,
+            "minY": 15,
+            "maxY": 238
+          },
+          {
+            "frame": 8,
+            "width": 164,
+            "height": 221,
+            "opaquePixels": 23929,
+            "minX": 45,
+            "maxX": 208,
+            "minY": 15,
+            "maxY": 235
+          }
+        ],
+        "summary": {
+          "widthPx": [
+            164,
+            162,
+            162,
+            164,
+            161,
+            161,
+            162,
+            164
+          ],
+          "heightPx": [
+            221,
+            228,
+            222,
+            228,
+            227,
+            222,
+            224,
+            221
+          ],
+          "opaquePixels": [
+            23684,
+            23519,
+            23563,
+            22915,
+            23462,
+            23196,
+            22893,
+            23929
+          ],
+          "minWidthPx": 161,
+          "maxWidthPx": 164,
+          "averageWidthPx": 163,
+          "minHeightPx": 221,
+          "maxHeightPx": 228,
+          "averageHeightPx": 224,
+          "minOpaquePixels": 22893,
+          "maxOpaquePixels": 23929,
+          "averageOpaquePixels": 23395
+        },
+        "dimensions": {
+          "width": 2048,
+          "height": 256,
+          "hasAlpha": true
+        }
+      },
+      "crouch": {
+        "path": "assets/source/imagegen/fighters/pugilist-pug/crouch.png",
+        "frameCount": 4,
+        "bounds": [
+          {
+            "frame": 1,
+            "width": 204,
+            "height": 234,
+            "opaquePixels": 30668,
+            "minX": 25,
+            "maxX": 228,
+            "minY": 11,
+            "maxY": 244
+          },
+          {
+            "frame": 2,
+            "width": 204,
+            "height": 213,
+            "opaquePixels": 28441,
+            "minX": 26,
+            "maxX": 229,
+            "minY": 32,
+            "maxY": 244
+          },
+          {
+            "frame": 3,
+            "width": 201,
+            "height": 179,
+            "opaquePixels": 24956,
+            "minX": 27,
+            "maxX": 227,
+            "minY": 66,
+            "maxY": 244
+          },
+          {
+            "frame": 4,
+            "width": 198,
+            "height": 196,
+            "opaquePixels": 26464,
+            "minX": 29,
+            "maxX": 226,
+            "minY": 49,
+            "maxY": 244
+          }
+        ],
+        "summary": {
+          "widthPx": [
+            204,
+            204,
+            201,
+            198
+          ],
+          "heightPx": [
+            234,
+            213,
+            179,
+            196
+          ],
+          "opaquePixels": [
+            30668,
+            28441,
+            24956,
+            26464
+          ],
+          "minWidthPx": 198,
+          "maxWidthPx": 204,
+          "averageWidthPx": 202,
+          "minHeightPx": 179,
+          "maxHeightPx": 234,
+          "averageHeightPx": 206,
+          "minOpaquePixels": 24956,
+          "maxOpaquePixels": 30668,
+          "averageOpaquePixels": 27632
+        },
+        "dimensions": {
+          "width": 1024,
+          "height": 256,
+          "hasAlpha": true
+        }
+      },
+      "jump": {
+        "path": "assets/source/imagegen/fighters/pugilist-pug/jump.png",
+        "frameCount": 6,
+        "bounds": [
+          {
+            "frame": 1,
+            "width": 163,
+            "height": 196,
+            "opaquePixels": 20934,
+            "minX": 46,
+            "maxX": 208,
+            "minY": 48,
+            "maxY": 243
+          },
+          {
+            "frame": 2,
+            "width": 154,
+            "height": 212,
+            "opaquePixels": 21057,
+            "minX": 50,
+            "maxX": 203,
+            "minY": 23,
+            "maxY": 234
+          },
+          {
+            "frame": 3,
+            "width": 156,
+            "height": 190,
+            "opaquePixels": 20195,
+            "minX": 49,
+            "maxX": 204,
+            "minY": 12,
+            "maxY": 201
+          },
+          {
+            "frame": 4,
+            "width": 156,
+            "height": 190,
+            "opaquePixels": 20168,
+            "minX": 49,
+            "maxX": 204,
+            "minY": 12,
+            "maxY": 201
+          },
+          {
+            "frame": 5,
+            "width": 153,
+            "height": 211,
+            "opaquePixels": 20836,
+            "minX": 51,
+            "maxX": 203,
+            "minY": 25,
+            "maxY": 235
+          },
+          {
+            "frame": 6,
+            "width": 161,
+            "height": 197,
+            "opaquePixels": 20932,
+            "minX": 47,
+            "maxX": 207,
+            "minY": 47,
+            "maxY": 243
+          }
+        ],
+        "summary": {
+          "widthPx": [
+            163,
+            154,
+            156,
+            156,
+            153,
+            161
+          ],
+          "heightPx": [
+            196,
+            212,
+            190,
+            190,
+            211,
+            197
+          ],
+          "opaquePixels": [
+            20934,
+            21057,
+            20195,
+            20168,
+            20836,
+            20932
+          ],
+          "minWidthPx": 153,
+          "maxWidthPx": 163,
+          "averageWidthPx": 157,
+          "minHeightPx": 190,
+          "maxHeightPx": 212,
+          "averageHeightPx": 199,
+          "minOpaquePixels": 20168,
+          "maxOpaquePixels": 21057,
+          "averageOpaquePixels": 20687
+        },
+        "dimensions": {
+          "width": 1536,
+          "height": 256,
+          "hasAlpha": true
+        }
+      },
+      "light-punch": {
+        "path": "assets/source/imagegen/fighters/pugilist-pug/light-punch.png",
+        "frameCount": 6,
+        "bounds": [
+          {
+            "frame": 1,
+            "width": 194,
+            "height": 227,
+            "opaquePixels": 28283,
+            "minX": 31,
+            "maxX": 224,
+            "minY": 15,
+            "maxY": 241
+          },
+          {
+            "frame": 2,
+            "width": 226,
+            "height": 222,
+            "opaquePixels": 28264,
+            "minX": 15,
+            "maxX": 240,
+            "minY": 20,
+            "maxY": 241
+          },
+          {
+            "frame": 3,
+            "width": 228,
+            "height": 201,
+            "opaquePixels": 24027,
+            "minX": 14,
+            "maxX": 241,
+            "minY": 43,
+            "maxY": 243
+          },
+          {
+            "frame": 4,
+            "width": 227,
+            "height": 209,
+            "opaquePixels": 25715,
+            "minX": 14,
+            "maxX": 240,
+            "minY": 34,
+            "maxY": 242
+          },
+          {
+            "frame": 5,
+            "width": 191,
+            "height": 227,
+            "opaquePixels": 27662,
+            "minX": 32,
+            "maxX": 222,
+            "minY": 15,
+            "maxY": 241
+          },
+          {
+            "frame": 6,
+            "width": 192,
+            "height": 227,
+            "opaquePixels": 28066,
+            "minX": 31,
+            "maxX": 222,
+            "minY": 15,
+            "maxY": 241
+          }
+        ],
+        "summary": {
+          "widthPx": [
+            194,
+            226,
+            228,
+            227,
+            191,
+            192
+          ],
+          "heightPx": [
+            227,
+            222,
+            201,
+            209,
+            227,
+            227
+          ],
+          "opaquePixels": [
+            28283,
+            28264,
+            24027,
+            25715,
+            27662,
+            28066
+          ],
+          "minWidthPx": 191,
+          "maxWidthPx": 228,
+          "averageWidthPx": 210,
+          "minHeightPx": 201,
+          "maxHeightPx": 227,
+          "averageHeightPx": 219,
+          "minOpaquePixels": 24027,
+          "maxOpaquePixels": 28283,
+          "averageOpaquePixels": 27003
+        },
+        "dimensions": {
+          "width": 1536,
+          "height": 256,
+          "hasAlpha": true
+        }
+      },
+      "heavy-punch": {
+        "path": "assets/source/imagegen/fighters/pugilist-pug/heavy-punch.png",
+        "frameCount": 8,
+        "bounds": [
+          {
+            "frame": 1,
+            "width": 176,
+            "height": 222,
+            "opaquePixels": 21559,
+            "minX": 39,
+            "maxX": 214,
+            "minY": 17,
+            "maxY": 238
+          },
+          {
+            "frame": 2,
+            "width": 166,
+            "height": 219,
+            "opaquePixels": 21225,
+            "minX": 46,
+            "maxX": 211,
+            "minY": 21,
+            "maxY": 239
+          },
+          {
+            "frame": 3,
+            "width": 164,
+            "height": 223,
+            "opaquePixels": 23605,
+            "minX": 45,
+            "maxX": 208,
+            "minY": 17,
+            "maxY": 239
+          },
+          {
+            "frame": 4,
+            "width": 233,
+            "height": 204,
+            "opaquePixels": 21372,
+            "minX": 16,
+            "maxX": 248,
+            "minY": 37,
+            "maxY": 240
+          },
+          {
+            "frame": 5,
+            "width": 178,
+            "height": 219,
+            "opaquePixels": 22047,
+            "minX": 32,
+            "maxX": 209,
+            "minY": 21,
+            "maxY": 239
+          },
+          {
+            "frame": 6,
+            "width": 174,
+            "height": 223,
+            "opaquePixels": 21248,
+            "minX": 41,
+            "maxX": 214,
+            "minY": 17,
+            "maxY": 239
+          },
+          {
+            "frame": 7,
+            "width": 171,
+            "height": 223,
+            "opaquePixels": 21064,
+            "minX": 42,
+            "maxX": 212,
+            "minY": 17,
+            "maxY": 239
+          },
+          {
+            "frame": 8,
+            "width": 170,
+            "height": 223,
+            "opaquePixels": 21051,
+            "minX": 43,
+            "maxX": 212,
+            "minY": 17,
+            "maxY": 239
+          }
+        ],
+        "summary": {
+          "widthPx": [
+            176,
+            166,
+            164,
+            233,
+            178,
+            174,
+            171,
+            170
+          ],
+          "heightPx": [
+            222,
+            219,
+            223,
+            204,
+            219,
+            223,
+            223,
+            223
+          ],
+          "opaquePixels": [
+            21559,
+            21225,
+            23605,
+            21372,
+            22047,
+            21248,
+            21064,
+            21051
+          ],
+          "minWidthPx": 164,
+          "maxWidthPx": 233,
+          "averageWidthPx": 179,
+          "minHeightPx": 204,
+          "maxHeightPx": 223,
+          "averageHeightPx": 220,
+          "minOpaquePixels": 21051,
+          "maxOpaquePixels": 23605,
+          "averageOpaquePixels": 21646
+        },
+        "dimensions": {
+          "width": 2048,
+          "height": 256,
+          "hasAlpha": true
+        }
+      },
+      "light-kick": {
+        "path": "assets/source/imagegen/fighters/pugilist-pug/light-kick.png",
+        "frameCount": 8,
+        "bounds": [
+          {
+            "frame": 1,
+            "width": 169,
+            "height": 215,
+            "opaquePixels": 23420,
+            "minX": 43,
+            "maxX": 211,
+            "minY": 25,
+            "maxY": 239
+          },
+          {
+            "frame": 2,
+            "width": 163,
+            "height": 222,
+            "opaquePixels": 23235,
+            "minX": 46,
+            "maxX": 208,
+            "minY": 17,
+            "maxY": 238
+          },
+          {
+            "frame": 3,
+            "width": 180,
+            "height": 215,
+            "opaquePixels": 23252,
+            "minX": 38,
+            "maxX": 217,
+            "minY": 24,
+            "maxY": 238
+          },
+          {
+            "frame": 4,
+            "width": 207,
+            "height": 213,
+            "opaquePixels": 23970,
+            "minX": 25,
+            "maxX": 231,
+            "minY": 26,
+            "maxY": 238
+          },
+          {
+            "frame": 5,
+            "width": 195,
+            "height": 212,
+            "opaquePixels": 23216,
+            "minX": 30,
+            "maxX": 224,
+            "minY": 27,
+            "maxY": 238
+          },
+          {
+            "frame": 6,
+            "width": 165,
+            "height": 217,
+            "opaquePixels": 22392,
+            "minX": 45,
+            "maxX": 209,
+            "minY": 22,
+            "maxY": 238
+          },
+          {
+            "frame": 7,
+            "width": 169,
+            "height": 214,
+            "opaquePixels": 23272,
+            "minX": 43,
+            "maxX": 211,
+            "minY": 25,
+            "maxY": 238
+          },
+          {
+            "frame": 8,
+            "width": 168,
+            "height": 215,
+            "opaquePixels": 23237,
+            "minX": 44,
+            "maxX": 211,
+            "minY": 25,
+            "maxY": 239
+          }
+        ],
+        "summary": {
+          "widthPx": [
+            169,
+            163,
+            180,
+            207,
+            195,
+            165,
+            169,
+            168
+          ],
+          "heightPx": [
+            215,
+            222,
+            215,
+            213,
+            212,
+            217,
+            214,
+            215
+          ],
+          "opaquePixels": [
+            23420,
+            23235,
+            23252,
+            23970,
+            23216,
+            22392,
+            23272,
+            23237
+          ],
+          "minWidthPx": 163,
+          "maxWidthPx": 207,
+          "averageWidthPx": 177,
+          "minHeightPx": 212,
+          "maxHeightPx": 222,
+          "averageHeightPx": 215,
+          "minOpaquePixels": 22392,
+          "maxOpaquePixels": 23970,
+          "averageOpaquePixels": 23249
+        },
+        "dimensions": {
+          "width": 2048,
+          "height": 256,
+          "hasAlpha": true
+        }
+      },
+      "special": {
+        "path": "assets/source/imagegen/fighters/pugilist-pug/special.png",
+        "frameCount": 10,
+        "bounds": [
+          {
+            "frame": 1,
+            "width": 176,
+            "height": 230,
+            "opaquePixels": 24204,
+            "minX": 39,
+            "maxX": 214,
+            "minY": 21,
+            "maxY": 250
+          },
+          {
+            "frame": 2,
+            "width": 190,
+            "height": 220,
+            "opaquePixels": 24176,
+            "minX": 31,
+            "maxX": 220,
+            "minY": 30,
+            "maxY": 249
+          },
+          {
+            "frame": 3,
+            "width": 169,
+            "height": 233,
+            "opaquePixels": 22537,
+            "minX": 45,
+            "maxX": 213,
+            "minY": 18,
+            "maxY": 250
+          },
+          {
+            "frame": 4,
+            "width": 152,
+            "height": 231,
+            "opaquePixels": 22887,
+            "minX": 51,
+            "maxX": 202,
+            "minY": 21,
+            "maxY": 251
+          },
+          {
+            "frame": 5,
+            "width": 189,
+            "height": 222,
+            "opaquePixels": 24137,
+            "minX": 33,
+            "maxX": 221,
+            "minY": 29,
+            "maxY": 250
+          },
+          {
+            "frame": 6,
+            "width": 200,
+            "height": 220,
+            "opaquePixels": 24151,
+            "minX": 27,
+            "maxX": 226,
+            "minY": 32,
+            "maxY": 251
+          },
+          {
+            "frame": 7,
+            "width": 152,
+            "height": 225,
+            "opaquePixels": 21878,
+            "minX": 54,
+            "maxX": 205,
+            "minY": 26,
+            "maxY": 250
+          },
+          {
+            "frame": 8,
+            "width": 182,
+            "height": 225,
+            "opaquePixels": 23737,
+            "minX": 36,
+            "maxX": 217,
+            "minY": 26,
+            "maxY": 250
+          },
+          {
+            "frame": 9,
+            "width": 174,
+            "height": 226,
+            "opaquePixels": 23513,
+            "minX": 38,
+            "maxX": 211,
+            "minY": 25,
+            "maxY": 250
+          },
+          {
+            "frame": 10,
+            "width": 178,
+            "height": 227,
+            "opaquePixels": 23647,
+            "minX": 35,
+            "maxX": 212,
+            "minY": 24,
+            "maxY": 250
+          }
+        ],
+        "summary": {
+          "widthPx": [
+            176,
+            190,
+            169,
+            152,
+            189,
+            200,
+            152,
+            182,
+            174,
+            178
+          ],
+          "heightPx": [
+            230,
+            220,
+            233,
+            231,
+            222,
+            220,
+            225,
+            225,
+            226,
+            227
+          ],
+          "opaquePixels": [
+            24204,
+            24176,
+            22537,
+            22887,
+            24137,
+            24151,
+            21878,
+            23737,
+            23513,
+            23647
+          ],
+          "minWidthPx": 152,
+          "maxWidthPx": 200,
+          "averageWidthPx": 176,
+          "minHeightPx": 220,
+          "maxHeightPx": 233,
+          "averageHeightPx": 226,
+          "minOpaquePixels": 21878,
+          "maxOpaquePixels": 24204,
+          "averageOpaquePixels": 23487
+        },
+        "dimensions": {
+          "width": 2560,
+          "height": 256,
+          "hasAlpha": true
+        }
+      },
+      "hitstun": {
+        "path": "assets/source/imagegen/fighters/pugilist-pug/hitstun.png",
+        "frameCount": 5,
+        "bounds": [
+          {
+            "frame": 1,
+            "width": 176,
+            "height": 229,
+            "opaquePixels": 23042,
+            "minX": 40,
+            "maxX": 215,
+            "minY": 11,
+            "maxY": 239
+          },
+          {
+            "frame": 2,
+            "width": 161,
+            "height": 228,
+            "opaquePixels": 23347,
+            "minX": 48,
+            "maxX": 208,
+            "minY": 12,
+            "maxY": 239
+          },
+          {
+            "frame": 3,
+            "width": 190,
+            "height": 237,
+            "opaquePixels": 26491,
+            "minX": 33,
+            "maxX": 222,
+            "minY": 3,
+            "maxY": 239
+          },
+          {
+            "frame": 4,
+            "width": 218,
+            "height": 220,
+            "opaquePixels": 24630,
+            "minX": 19,
+            "maxX": 236,
+            "minY": 20,
+            "maxY": 239
+          },
+          {
+            "frame": 5,
+            "width": 173,
+            "height": 229,
+            "opaquePixels": 22424,
+            "minX": 41,
+            "maxX": 213,
+            "minY": 11,
+            "maxY": 239
+          }
+        ],
+        "summary": {
+          "widthPx": [
+            176,
+            161,
+            190,
+            218,
+            173
+          ],
+          "heightPx": [
+            229,
+            228,
+            237,
+            220,
+            229
+          ],
+          "opaquePixels": [
+            23042,
+            23347,
+            26491,
+            24630,
+            22424
+          ],
+          "minWidthPx": 161,
+          "maxWidthPx": 218,
+          "averageWidthPx": 184,
+          "minHeightPx": 220,
+          "maxHeightPx": 237,
+          "averageHeightPx": 229,
+          "minOpaquePixels": 22424,
+          "maxOpaquePixels": 26491,
+          "averageOpaquePixels": 23987
+        },
+        "dimensions": {
+          "width": 1280,
+          "height": 256,
+          "hasAlpha": true
+        }
+      },
+      "blockstun": {
+        "path": "assets/source/imagegen/fighters/pugilist-pug/blockstun.png",
+        "frameCount": 5,
+        "bounds": [
+          {
+            "frame": 1,
+            "width": 176,
+            "height": 231,
+            "opaquePixels": 23609,
+            "minX": 40,
+            "maxX": 215,
+            "minY": 13,
+            "maxY": 243
+          },
+          {
+            "frame": 2,
+            "width": 180,
+            "height": 228,
+            "opaquePixels": 24214,
+            "minX": 38,
+            "maxX": 217,
+            "minY": 15,
+            "maxY": 242
+          },
+          {
+            "frame": 3,
+            "width": 169,
+            "height": 231,
+            "opaquePixels": 24287,
+            "minX": 43,
+            "maxX": 211,
+            "minY": 12,
+            "maxY": 242
+          },
+          {
+            "frame": 4,
+            "width": 177,
+            "height": 227,
+            "opaquePixels": 23296,
+            "minX": 39,
+            "maxX": 215,
+            "minY": 17,
+            "maxY": 243
+          },
+          {
+            "frame": 5,
+            "width": 177,
+            "height": 231,
+            "opaquePixels": 23381,
+            "minX": 39,
+            "maxX": 215,
+            "minY": 13,
+            "maxY": 243
+          }
+        ],
+        "summary": {
+          "widthPx": [
+            176,
+            180,
+            169,
+            177,
+            177
+          ],
+          "heightPx": [
+            231,
+            228,
+            231,
+            227,
+            231
+          ],
+          "opaquePixels": [
+            23609,
+            24214,
+            24287,
+            23296,
+            23381
+          ],
+          "minWidthPx": 169,
+          "maxWidthPx": 180,
+          "averageWidthPx": 176,
+          "minHeightPx": 227,
+          "maxHeightPx": 231,
+          "averageHeightPx": 230,
+          "minOpaquePixels": 23296,
+          "maxOpaquePixels": 24287,
+          "averageOpaquePixels": 23757
+        },
+        "dimensions": {
+          "width": 1280,
+          "height": 256,
+          "hasAlpha": true
+        }
+      },
+      "win": {
+        "path": "assets/source/imagegen/fighters/pugilist-pug/win.png",
+        "frameCount": 8,
+        "bounds": [
+          {
+            "frame": 1,
+            "width": 167,
+            "height": 225,
+            "opaquePixels": 24933,
+            "minX": 44,
+            "maxX": 210,
+            "minY": 14,
+            "maxY": 238
+          },
+          {
+            "frame": 2,
+            "width": 166,
+            "height": 225,
+            "opaquePixels": 24765,
+            "minX": 45,
+            "maxX": 210,
+            "minY": 14,
+            "maxY": 238
+          },
+          {
+            "frame": 3,
+            "width": 159,
+            "height": 226,
+            "opaquePixels": 24793,
+            "minX": 48,
+            "maxX": 206,
+            "minY": 14,
+            "maxY": 239
+          },
+          {
+            "frame": 4,
+            "width": 162,
+            "height": 221,
+            "opaquePixels": 24009,
+            "minX": 47,
+            "maxX": 208,
+            "minY": 19,
+            "maxY": 239
+          },
+          {
+            "frame": 5,
+            "width": 155,
+            "height": 224,
+            "opaquePixels": 24834,
+            "minX": 50,
+            "maxX": 204,
+            "minY": 15,
+            "maxY": 238
+          },
+          {
+            "frame": 6,
+            "width": 165,
+            "height": 222,
+            "opaquePixels": 24263,
+            "minX": 46,
+            "maxX": 210,
+            "minY": 20,
+            "maxY": 241
+          },
+          {
+            "frame": 7,
+            "width": 165,
+            "height": 225,
+            "opaquePixels": 24611,
+            "minX": 44,
+            "maxX": 208,
+            "minY": 14,
+            "maxY": 238
+          },
+          {
+            "frame": 8,
+            "width": 163,
+            "height": 223,
+            "opaquePixels": 24131,
+            "minX": 45,
+            "maxX": 207,
+            "minY": 17,
+            "maxY": 239
+          }
+        ],
+        "summary": {
+          "widthPx": [
+            167,
+            166,
+            159,
+            162,
+            155,
+            165,
+            165,
+            163
+          ],
+          "heightPx": [
+            225,
+            225,
+            226,
+            221,
+            224,
+            222,
+            225,
+            223
+          ],
+          "opaquePixels": [
+            24933,
+            24765,
+            24793,
+            24009,
+            24834,
+            24263,
+            24611,
+            24131
+          ],
+          "minWidthPx": 155,
+          "maxWidthPx": 167,
+          "averageWidthPx": 163,
+          "minHeightPx": 221,
+          "maxHeightPx": 226,
+          "averageHeightPx": 224,
+          "minOpaquePixels": 24009,
+          "maxOpaquePixels": 24933,
+          "averageOpaquePixels": 24542
+        },
+        "dimensions": {
+          "width": 2048,
+          "height": 256,
+          "hasAlpha": true
+        }
+      },
+      "lose": {
+        "path": "assets/source/imagegen/fighters/pugilist-pug/lose.png",
+        "frameCount": 6,
+        "bounds": [
+          {
+            "frame": 1,
+            "width": 163,
+            "height": 232,
+            "opaquePixels": 26709,
+            "minX": 46,
+            "maxX": 208,
+            "minY": 11,
+            "maxY": 242
+          },
+          {
+            "frame": 2,
+            "width": 164,
+            "height": 229,
+            "opaquePixels": 26356,
+            "minX": 46,
+            "maxX": 209,
+            "minY": 15,
+            "maxY": 243
+          },
+          {
+            "frame": 3,
+            "width": 165,
+            "height": 230,
+            "opaquePixels": 26279,
+            "minX": 46,
+            "maxX": 210,
+            "minY": 15,
+            "maxY": 244
+          },
+          {
+            "frame": 4,
+            "width": 162,
+            "height": 229,
+            "opaquePixels": 25728,
+            "minX": 47,
+            "maxX": 208,
+            "minY": 16,
+            "maxY": 244
+          },
+          {
+            "frame": 5,
+            "width": 160,
+            "height": 225,
+            "opaquePixels": 25574,
+            "minX": 48,
+            "maxX": 207,
+            "minY": 19,
+            "maxY": 243
+          },
+          {
+            "frame": 6,
+            "width": 162,
+            "height": 231,
+            "opaquePixels": 26448,
+            "minX": 47,
+            "maxX": 208,
+            "minY": 14,
+            "maxY": 244
+          }
+        ],
+        "summary": {
+          "widthPx": [
+            163,
+            164,
+            165,
+            162,
+            160,
+            162
+          ],
+          "heightPx": [
+            232,
+            229,
+            230,
+            229,
+            225,
+            231
+          ],
+          "opaquePixels": [
+            26709,
+            26356,
+            26279,
+            25728,
+            25574,
+            26448
+          ],
+          "minWidthPx": 160,
+          "maxWidthPx": 165,
+          "averageWidthPx": 163,
+          "minHeightPx": 225,
+          "maxHeightPx": 232,
+          "averageHeightPx": 229,
+          "minOpaquePixels": 25574,
+          "maxOpaquePixels": 26709,
+          "averageOpaquePixels": 26182
+        },
+        "dimensions": {
+          "width": 1536,
+          "height": 256,
+          "hasAlpha": true
+        }
+      }
+    },
+    "loseVerdict": {
+      "row": "lose",
+      "summary": {
+        "widthPx": [
+          163,
+          164,
+          165,
+          162,
+          160,
+          162
+        ],
+        "heightPx": [
+          232,
+          229,
+          230,
+          229,
+          225,
+          231
+        ],
+        "opaquePixels": [
+          26709,
+          26356,
+          26279,
+          25728,
+          25574,
+          26448
+        ],
+        "minWidthPx": 160,
+        "maxWidthPx": 165,
+        "averageWidthPx": 163,
+        "minHeightPx": 225,
+        "maxHeightPx": 232,
+        "averageHeightPx": 229,
+        "minOpaquePixels": 25574,
+        "maxOpaquePixels": 26709,
+        "averageOpaquePixels": 26182
+      },
+      "passesWidthFloor": true,
+      "passesWidthCeiling": true,
+      "passesHeightFloor": true,
+      "passesAverageHeight": true,
+      "passesOpaqueFloor": true,
+      "passesAverageOpaque": true,
+      "visualNoSizeChangeRationale": "All frames keep Pickles upright on the same baseline with the same head, muzzle, red gloves, belt, collar, tail, feet, and torso mass. The defeated read comes from eyelids, lowered gloves, and slight shoulder slump, not shrink, flattening, props, or effects.",
+      "verdict": "pass"
+    }
+  },
+  "runtimeGate": {
+    "publicRuntimePath": "public/assets/generated/fighters/pugilist-pug",
+    "absent": true,
+    "playableRoster": [
+      "gray-rabbit",
+      "ginger-tabby-cat"
+    ]
+  }
+}

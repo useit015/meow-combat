@@ -72,6 +72,7 @@ describe("Pickles Pugilist animation preflight", () => {
         "hitstun",
         "blockstun",
         "win",
+        "lose",
       ],
     );
   });
@@ -190,6 +191,20 @@ describe("Pickles Pugilist animation preflight", () => {
     expect(Math.min(...heights)).toBeGreaterThanOrEqual(195);
     expect(average(heights)).toBeGreaterThanOrEqual(205);
   });
+
+  it("keeps generated Pickles lose row full-size under the collapsed-row rubric", () => {
+    const bounds = alphaBoundsByFrame("assets/source/imagegen/fighters/pugilist-pug/lose.png", 6);
+    const widths = bounds.map((frame) => frame.width);
+    const heights = bounds.map((frame) => frame.height);
+    const opaquePixels = bounds.map((frame) => frame.opaquePixels);
+
+    expect(Math.min(...widths)).toBeGreaterThanOrEqual(150);
+    expect(Math.max(...widths)).toBeLessThanOrEqual(210);
+    expect(Math.min(...heights)).toBeGreaterThanOrEqual(195);
+    expect(average(heights)).toBeGreaterThanOrEqual(205);
+    expect(Math.min(...opaquePixels)).toBeGreaterThanOrEqual(20_000);
+    expect(average(opaquePixels)).toBeGreaterThanOrEqual(22_500);
+  });
 });
 
 function alphaBoundsByFrame(relativePath: string, frameCount: number) {
@@ -207,6 +222,7 @@ function alphaBoundsByFrame(relativePath: string, frameCount: number) {
     let maxX = 0;
     let minY = dimensions.height - 1;
     let maxY = 0;
+    let opaquePixels = 0;
     let found = false;
 
     for (let y = 0; y < dimensions.height; y += 1) {
@@ -215,6 +231,7 @@ function alphaBoundsByFrame(relativePath: string, frameCount: number) {
         if (pixels[pixelIndex + 3] <= 16) continue;
 
         const localX = x - minCellX;
+        opaquePixels += 1;
         minX = Math.min(minX, localX);
         maxX = Math.max(maxX, localX);
         minY = Math.min(minY, y);
@@ -228,6 +245,7 @@ function alphaBoundsByFrame(relativePath: string, frameCount: number) {
     return {
       width: maxX - minX + 1,
       height: maxY - minY + 1,
+      opaquePixels,
     };
   });
 }

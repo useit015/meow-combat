@@ -139,6 +139,7 @@ const generatedAnimationRows: Record<string, Partial<Record<FighterAnimationSpec
     hitstun: "assets/source/imagegen/fighters/pugilist-pug/hitstun.png",
     blockstun: "assets/source/imagegen/fighters/pugilist-pug/blockstun.png",
     win: "assets/source/imagegen/fighters/pugilist-pug/win.png",
+    lose: "assets/source/imagegen/fighters/pugilist-pug/lose.png",
   },
 };
 
