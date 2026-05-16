@@ -426,6 +426,63 @@ async function runDesktop(browser, url, outDir) {
   return { name: "desktop", failures, errors, screenshot: shot, state };
 }
 
+async function runCombatReadabilityDemo(browser, url, outDir) {
+  const failures = [];
+  const screenshots = [];
+  const states = {};
+  const cases = [
+    { demo: "combat-readability-light", shot: "combat-readability-light-hit", kind: "hit", tier: "light", label: "HIT", damageKind: "light" },
+    { demo: "combat-readability-block", shot: "combat-readability-block", kind: "block", tier: "heavy", label: "HEAVY BLOCK", damageKind: null },
+    { demo: "combat-readability-heavy", shot: "combat-readability-heavy-hit", kind: "hit", tier: "heavy", label: "HEAVY", damageKind: "heavy" },
+    { demo: "combat-readability-special", shot: "combat-readability-special-hit", kind: "hit", tier: "special", label: "SPECIAL", damageKind: "special" },
+    { demo: "combat-readability-super", shot: "combat-readability-super-hit", kind: "hit", tier: "super", label: "SUPER", damageKind: "super" },
+  ];
+
+  for (const demoCase of cases) {
+    const { context, page, errors } = await openScenario(browser, urlWithDemo(url, demoCase.demo), {
+      viewport: { width: 1024, height: 576 },
+    });
+    const state = await readState(page);
+    screenshots.push(await screenshot(page, outDir, demoCase.shot));
+    states[demoCase.demo] = state;
+
+    assert(state.shellPhase === "fighting", failures, `${demoCase.demo} expected fighting phase, got ${state.shellPhase}`);
+    assert(state.effects?.count > 0, failures, `${demoCase.demo} expected active combat effects`);
+    assert(
+      state.effects?.active?.[0]?.kind === demoCase.kind,
+      failures,
+      `${demoCase.demo} expected ${demoCase.kind} effect, got ${state.effects?.active?.[0]?.kind}`,
+    );
+    assert(
+      state.effects?.active?.[0]?.tier === demoCase.tier,
+      failures,
+      `${demoCase.demo} expected ${demoCase.tier} feedback tier, got ${state.effects?.active?.[0]?.tier}`,
+    );
+    assert(
+      state.effects?.active?.[0]?.label === demoCase.label,
+      failures,
+      `${demoCase.demo} expected ${demoCase.label} feedback label, got ${state.effects?.active?.[0]?.label}`,
+    );
+    if (demoCase.damageKind) {
+      assert(
+        state.damageNumbers?.kinds?.includes(demoCase.damageKind),
+        failures,
+        `${demoCase.demo} expected ${demoCase.damageKind} damage number, got ${JSON.stringify(state.damageNumbers)}`,
+      );
+    } else {
+      assert(state.damageNumbers?.count === 0, failures, `${demoCase.demo} block should not create damage numbers`);
+    }
+    assert(state.runtimeVisuals?.p1?.frameWidth === 256, failures, `${demoCase.demo} p1 sprite frame width changed`);
+    assert(state.runtimeVisuals?.p2?.frameHeight === 256, failures, `${demoCase.demo} p2 sprite frame height changed`);
+    checkRuntimeUiLoaded(state, demoCase.demo, failures);
+    checkVisibleRuntimeUiSlots(state, demoCase.demo, FIGHT_UI_SLOTS, failures);
+    assert(errors.length === 0, failures, `${demoCase.demo} console/page errors: ${JSON.stringify(errors)}`);
+    await context.close();
+  }
+
+  return { name: "combat-readability-demo", failures, errors: [], screenshots, states };
+}
+
 async function runTrainingDemo(browser, url, outDir) {
   const failures = [];
   const screenshots = [];
@@ -1197,6 +1254,7 @@ async function main() {
 
   try {
     results.push(await runDesktop(browser, args.url, args.outDir));
+    results.push(await runCombatReadabilityDemo(browser, args.url, args.outDir));
     results.push(await runTrainingDemo(browser, args.url, args.outDir));
     results.push(await runThreeFighterRuntimePolish(browser, args.url, args.outDir));
     results.push(await runChampionshipLadderProgression(browser, args.url, args.outDir));

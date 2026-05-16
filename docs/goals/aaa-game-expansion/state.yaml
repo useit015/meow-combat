@@ -117,7 +117,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T056
+active_task: T057
 
 tasks:
   - id: T001
@@ -3593,7 +3593,7 @@ tasks:
   - id: T056
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: medium
     objective: "Add a non-asset combat feel/readability pass using current runtime assets only: make hit, block, heavy, special, and super feedback more readable through deterministic canvas/text/runtime-state effects and smoke coverage without changing fighter size, fighter rows, generated assets, audio, dependencies, sprite scale, cell size, frame size, placement rules, or gameplay frame data."
     allowed_files:
@@ -3629,20 +3629,90 @@ tasks:
       - "No fighter rows, sprite scale, cell sizes, frame sizes, placement rules, generated assets, dependencies, audio, or frame data are changed."
       - "Focused tests, full verify, and combat-readability smoke pass."
       - "Receipt states full_outcome_complete=false."
+    receipt:
+      result: done
+      decision: accept_combat_readability
+      full_outcome_complete: false
+      note: notes/T056-combat-readability.md
+      summary: "Added a non-asset combat readability pass using current runtime assets only. Hit, block, heavy, special, and super feedback now have deterministic tiers, labels, canvas effect styling, impact flash/shake tuning, runtime text state, and smoke coverage without changing fighter rows, generated assets, sprite scale logic, cell sizes, frame sizes, placement rules, gameplay frame data, dependencies, or audio."
+      changed_files:
+        - "src/game/effects.ts"
+        - "src/game/presentation.ts"
+        - "src/game/MeowtalArenaScene.ts"
+        - "scripts/smoke-meowtal-browser.mjs"
+        - "test/combat-effects.test.ts"
+        - "test/presentation.test.ts"
+        - "docs/goals/aaa-game-expansion/notes/T056-combat-readability.md"
+        - "docs/goals/aaa-game-expansion/state.yaml"
+      evidence:
+        - "No diffs under assets/source/imagegen/fighters, public/assets/generated/fighters, output/imagegen, package.json, package-lock.json, src/game/audio.ts, public/assets/audio, src/game/spriteFrame.ts, src/game/spriteVisualSizing.ts, or src/core/frameData.ts."
+        - "Pickles source/public rows compare byte-identical for all 14 rows."
+        - "Smoke report output/web-game/combat-readability/report.json has failures=[]."
+        - "Combat-readability smoke asserted effect labels HIT, HEAVY BLOCK, HEAVY, SPECIAL, and SUPER, plus damage-number behavior and 256x256 frame dimensions."
+        - "Combat-readability demo states use stable idle fighter rows and stable runtime sprite scale: p1Scale 0.97, p2Scale 1.02."
+        - "Visual screenshots show readable effects without obscuring HUD or fighter bodies, and character proportions remain stable."
+      verification:
+        result: pass
+        commands:
+          - "git diff --name-only -- assets/source/imagegen/fighters public/assets/generated/fighters output/imagegen package.json package-lock.json src/game/audio.ts public/assets/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts src/core/frameData.ts"
+          - "for row in idle walk-forward walk-back crouch jump light-punch heavy-punch light-kick special hitstun blockstun knockdown win lose; do cmp -s assets/source/imagegen/fighters/pugilist-pug/$row.png public/assets/generated/fighters/pugilist-pug/$row.png || exit 1; done"
+          - "npm test -- test/combat-effects.test.ts test/presentation.test.ts test/combat-core.test.ts"
+          - "npm run typecheck"
+          - "npm run verify"
+          - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/combat-readability"
+      residual_risks:
+        - "This improves visual feedback/readability only; authored SFX, advanced camera direction, and deeper gameplay tuning remain future tasks."
+        - "Broad AAA goal remains incomplete."
+      judge_review:
+        decision: approved
+        summary: "Judge accepted T056 with no findings, confirmed the patch stayed inside the non-asset combat readability scope, and found no size, asset, audio, dependency, sprite scale, cell/frame size, placement-rule, or gameplay frame-data boundary violation."
+      spawned_tasks:
+        - T057
+  - id: T057
+    type: judge
+    assignee: Judge
+    status: active
+    reasoning_hint: high
+    objective: "Choose the next highest-leverage safe package after non-asset combat readability. Decide whether to audit the current vertical-slice tranche, add championship rewards/interstitials, improve mode/select polish, deepen runtime UX, or select another bounded slice while preserving the hard no-size-change rule."
+    inputs:
+      - "T050 championship ladder receipt"
+      - "T052 championship UI polish receipt"
+      - "T054 training mode depth receipt"
+      - "T056 combat readability receipt"
+      - "docs/goals/aaa-game-expansion/goal.md"
+      - "Current project files and smoke reports"
+      - "Owner hard rule: character size should not change"
+    constraints:
+      - "Read-only."
+      - "Do not implement."
+      - "Do not generate or edit image/audio assets."
+      - "Do not approve fighter row regeneration, resizing, normalization, sprite scale changes, cell size changes, placement-rule changes, generated asset churn, dependencies, audio, or gameplay frame-data tuning unless a later owner-approved task explicitly scopes it."
+      - "Do not expand into a fourth-fighter playable promotion unless a later task explicitly proves all animation/QA gates."
+      - "Prefer the largest safe useful slice with exact allowed_files, verification commands, stop_if conditions, and acceptance criteria."
+      - "Keep the broad AAA outcome explicitly incomplete unless a final audit proves otherwise."
+    expected_output:
+      - "Decision: proceed_with_worker | require_scout | require_audit | ask_owner"
+      - "Rationale and rejected alternatives"
+      - "Exact next Worker/Judge/Scout objective"
+      - "allowed_files"
+      - "verify"
+      - "stop_if"
+      - "acceptance checklist"
+      - "Parallelization safety notes"
     receipt: null
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T054
+    task: T056
     commands:
-      - "git diff --name-only -- assets/source/imagegen/fighters public/assets/generated/fighters output/imagegen package.json package-lock.json src/game/audio.ts public/assets/audio"
+      - "git diff --name-only -- assets/source/imagegen/fighters public/assets/generated/fighters output/imagegen package.json package-lock.json src/game/audio.ts public/assets/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts src/core/frameData.ts"
       - "for row in idle walk-forward walk-back crouch jump light-punch heavy-punch light-kick special hitstun blockstun knockdown win lose; do cmp -s assets/source/imagegen/fighters/pugilist-pug/$row.png public/assets/generated/fighters/pugilist-pug/$row.png || exit 1; done"
-      - "npm test -- test/game-bible.test.ts test/shell-flow.test.ts test/character-select.test.ts test/combat-core.test.ts test/match-flow.test.ts"
+      - "npm test -- test/combat-effects.test.ts test/presentation.test.ts test/combat-core.test.ts"
       - "npm run typecheck"
       - "npm run verify"
-      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/training-mode-depth"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/combat-readability"
   t021_verification:
     result: pass
     task: T021

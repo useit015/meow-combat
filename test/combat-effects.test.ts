@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { FightingSimulation } from "../src/core";
 import {
+  combatEffectStyle,
   damageNumbersFromSnapshot,
   damageNumberStyleForMove,
   effectsFromSnapshot,
@@ -29,6 +30,9 @@ describe("combat effects", () => {
       {
         id: "12:hit:p1:p2:light",
         kind: "hit",
+        move: "light",
+        tier: "light",
+        label: "HIT",
         x: base.p2.x + base.p2.facing * 34,
         y: base.p2.y - 156,
         age: 0,
@@ -53,7 +57,29 @@ describe("combat effects", () => {
     });
 
     expect(effect?.kind).toBe("block");
-    expect(effect?.duration).toBe(14);
+    expect(effect?.move).toBe("heavy");
+    expect(effect?.tier).toBe("heavy");
+    expect(effect?.label).toBe("HEAVY BLOCK");
+    expect(effect?.duration).toBe(18);
+  });
+
+  it("styles hit, block, heavy, special, and super feedback as distinct readable cues", () => {
+    const base = new FightingSimulation().snapshot();
+    const effects = effectsFromSnapshot({
+      ...base,
+      events: [
+        { type: "hit", frame: 1, attacker: "p1", defender: "p2", move: "light", damage: 45 },
+        { type: "block", frame: 2, attacker: "p1", defender: "p2", move: "heavy" },
+        { type: "hit", frame: 3, attacker: "p1", defender: "p2", move: "heavy", damage: 90 },
+        { type: "hit", frame: 4, attacker: "p1", defender: "p2", move: "special", damage: 120 },
+        { type: "hit", frame: 5, attacker: "p1", defender: "p2", move: "super", damage: 180 },
+      ],
+    });
+
+    expect(effects.map((effect) => effect.label)).toEqual(["HIT", "HEAVY BLOCK", "HEAVY", "SPECIAL", "SUPER"]);
+    expect(effects.map((effect) => effect.tier)).toEqual(["light", "heavy", "heavy", "special", "super"]);
+    expect(new Set(effects.map((effect) => combatEffectStyle(effect).radius)).size).toBeGreaterThanOrEqual(4);
+    expect(combatEffectStyle(effects[4]!).shockwaves).toBeGreaterThan(combatEffectStyle(effects[0]!).shockwaves);
   });
 
   it("ages effects out deterministically", () => {

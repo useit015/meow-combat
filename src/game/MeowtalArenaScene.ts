@@ -22,6 +22,8 @@ import {
   POWER_METER_MAX,
   POWER_METER_STOCK,
   TICK_MS,
+  type CombatEvent,
+  type CommandId,
   type CpuDifficulty,
   type MatchSetState,
   type MatchSnapshot,
@@ -29,6 +31,7 @@ import {
 import { ArenaAudio, audioCuesForCombatEvents, audioCueForMatchTransition } from "./audio";
 import { buildControlFallbackState, type ControlFallbackState } from "./controlFallback";
 import {
+  combatEffectStyle,
   damageNumbersFromSnapshot,
   damageNumberStyleForMove,
   effectsFromSnapshot,
@@ -131,7 +134,8 @@ export class MeowtalArenaScene extends Phaser.Scene {
     this.demoMode === "backdash" ||
     this.demoMode === "roll-forward" ||
     this.demoMode === "roll-back" ||
-    this.demoMode === "knockdown";
+    this.demoMode === "knockdown" ||
+    isCombatReadabilityDemoMode(this.demoMode);
   private effects: readonly CombatEffect[] = [];
   private damageNumbers: readonly DamageNumberPopup[] = [];
   private damageNumberTexts: Phaser.GameObjects.Text[] = [];
@@ -577,11 +581,28 @@ export class MeowtalArenaScene extends Phaser.Scene {
       effects: {
         count: this.effects.length,
         kinds: this.effects.map((effect) => effect.kind),
+        moves: this.effects.map((effect) => effect.move),
+        tiers: this.effects.map((effect) => effect.tier),
+        labels: this.effects.map((effect) => effect.label),
+        active: this.effects.map((effect) => ({
+          kind: effect.kind,
+          move: effect.move,
+          tier: effect.tier,
+          label: effect.label,
+          age: effect.age,
+          duration: effect.duration,
+        })),
       },
       damageNumbers: {
         count: this.damageNumbers.length,
         values: this.damageNumbers.map((number) => number.value),
         kinds: this.damageNumbers.map((number) => number.kind),
+        active: this.damageNumbers.map((number) => ({
+          kind: number.kind,
+          value: number.value,
+          age: number.age,
+          duration: number.duration,
+        })),
       },
       presentation: {
         title: GAME_TITLE,
@@ -1836,7 +1857,8 @@ export class MeowtalArenaScene extends Phaser.Scene {
       this.demoMode !== "championship-ladder-advance" &&
       this.demoMode !== "championship-ladder-clear" &&
       this.demoMode !== "championship-ladder-fail" &&
-      this.demoMode !== "hud-low"
+      this.demoMode !== "hud-low" &&
+      !isCombatReadabilityDemoMode(this.demoMode)
     ) {
       return;
     }
@@ -1884,6 +1906,8 @@ export class MeowtalArenaScene extends Phaser.Scene {
       this.primeChampionshipLadderFailDemo();
     } else if (this.demoMode === "hud-low") {
       this.primeHudLowDemo();
+    } else if (this.demoMode && isCombatReadabilityDemoMode(this.demoMode)) {
+      this.primeCombatReadabilityDemo(this.demoMode);
     }
   }
 
@@ -2352,6 +2376,64 @@ export class MeowtalArenaScene extends Phaser.Scene {
     };
   }
 
+  private primeCombatReadabilityDemo(demoMode: string): void {
+    const cue = combatReadabilityDemoCue(demoMode);
+    if (!cue) return;
+
+    const frame = 240;
+    const event: CombatEvent =
+      cue.kind === "hit"
+        ? {
+            type: "hit",
+            frame,
+            attacker: "p1",
+            defender: "p2",
+            move: cue.move,
+            damage: cue.damage,
+          }
+        : {
+            type: "block",
+            frame,
+            attacker: "p1",
+            defender: "p2",
+            move: cue.move,
+          };
+
+    this.snapshot = {
+      ...this.snapshot,
+      frame,
+      roundTimer: 96,
+      status: "fighting",
+      winner: null,
+      events: [event],
+      combo:
+        cue.kind === "hit"
+          ? { attacker: "p1", defender: "p2", count: 1, damage: cue.damage, lastHitFrame: frame }
+          : { attacker: null, defender: null, count: 0, damage: 0, lastHitFrame: null },
+      p1: {
+        ...this.snapshot.p1,
+        x: 552,
+        meter: cue.move === "super" ? POWER_METER_STOCK : this.snapshot.p1.meter,
+        state: "idle",
+        stateFrame: 24,
+        hitstop: 0,
+        guarding: false,
+      },
+      p2: {
+        ...this.snapshot.p2,
+        x: 704,
+        health: cue.kind === "hit" ? Math.max(1, 1000 - cue.damage) : 1000,
+        state: "idle",
+        stateFrame: 24,
+        hitstop: 0,
+        guarding: false,
+      },
+    };
+    this.effects = effectsFromSnapshot(this.snapshot);
+    this.damageNumbers = damageNumbersFromSnapshot(this.snapshot);
+    this.triggerImpactFeedback();
+  }
+
   private renderShellText(): void {
     this.titleText.setText(shellTitle(this.shell, this.snapshot, this.matchSet));
     this.helpText.setText(shellHelp(this.shell, this.selectionLabel(), this.controlFallbackState().fallbackLine));
@@ -2675,21 +2757,51 @@ function rgbToNumber(red: number, green: number, blue: number): number {
 
 function drawEffects(g: Phaser.GameObjects.Graphics, effects: readonly CombatEffect[]): void {
   for (const effect of effects) {
+    const style = combatEffectStyle(effect);
     const alpha = Math.max(0, 1 - effect.age / effect.duration);
+    const progress = Phaser.Math.Clamp(effect.age / effect.duration, 0, 1);
+    const pulse = 1 + Math.sin(progress * Math.PI) * 0.18;
+    const radius = style.radius * pulse + effect.age * 0.28;
+
+    for (let ring = 0; ring < style.shockwaves; ring += 1) {
+      const ringProgress = Phaser.Math.Clamp(progress + ring * 0.16, 0, 1);
+      const ringAlpha = alpha * (0.34 - ring * 0.07);
+      if (ringAlpha > 0) {
+        g.lineStyle(Math.max(2, style.lineWidth - ring * 2), ring === 0 ? style.secondary : style.highlight, ringAlpha);
+        g.strokeCircle(effect.x, effect.y, radius + ringProgress * (18 + ring * 8));
+      }
+    }
+
     if (effect.kind === "hit") {
-      g.fillStyle(0xfff1a8, alpha).fillCircle(effect.x, effect.y, 10 + effect.age * 0.4);
-      g.lineStyle(3, 0xff3366, alpha);
-      g.lineBetween(effect.x - 18, effect.y, effect.x + 18, effect.y);
-      g.lineBetween(effect.x, effect.y - 18, effect.x, effect.y + 18);
-      g.lineBetween(effect.x - 12, effect.y - 12, effect.x + 12, effect.y + 12);
-      g.lineBetween(effect.x - 12, effect.y + 12, effect.x + 12, effect.y - 12);
+      g.fillStyle(style.highlight, alpha * 0.34).fillCircle(effect.x, effect.y, Math.max(8, radius * 0.46));
+      g.fillStyle(style.primary, alpha * 0.28).fillCircle(effect.x, effect.y, Math.max(5, radius * 0.28));
+      for (let index = 0; index < style.rays; index += 1) {
+        const angle = (Math.PI * 2 * index) / style.rays + progress * 0.35;
+        const inner = radius * 0.42;
+        const outer = radius + (index % 2 === 0 ? 18 : 10);
+        g.lineStyle(index % 2 === 0 ? style.lineWidth : Math.max(2, style.lineWidth - 2), index % 2 === 0 ? style.primary : style.secondary, alpha);
+        g.lineBetween(
+          effect.x + Math.cos(angle) * inner,
+          effect.y + Math.sin(angle) * inner,
+          effect.x + Math.cos(angle) * outer,
+          effect.y + Math.sin(angle) * outer,
+        );
+      }
+      if (effect.tier === "special" || effect.tier === "super") {
+        g.lineStyle(effect.tier === "super" ? 4 : 3, style.highlight, alpha * 0.72);
+        g.strokeCircle(effect.x, effect.y, radius * (effect.tier === "super" ? 1.34 : 1.18));
+      }
       continue;
     }
 
-    g.lineStyle(4, 0x9bdff2, alpha);
-    g.strokeCircle(effect.x, effect.y, 16 + effect.age * 0.35);
-    g.lineBetween(effect.x - 12, effect.y - 12, effect.x + 12, effect.y + 12);
-    g.lineBetween(effect.x - 12, effect.y + 12, effect.x + 12, effect.y - 12);
+    const shieldWidth = radius * 1.15;
+    const shieldHeight = radius * 1.55;
+    g.fillStyle(style.primary, alpha * 0.16).fillEllipse(effect.x, effect.y, shieldWidth, shieldHeight);
+    g.lineStyle(style.lineWidth, style.primary, alpha).strokeEllipse(effect.x, effect.y, shieldWidth, shieldHeight);
+    g.lineStyle(Math.max(2, style.lineWidth - 2), style.highlight, alpha * 0.72);
+    g.lineBetween(effect.x - radius * 0.48, effect.y - radius * 0.52, effect.x + radius * 0.48, effect.y + radius * 0.52);
+    g.lineBetween(effect.x - radius * 0.48, effect.y + radius * 0.52, effect.x + radius * 0.48, effect.y - radius * 0.52);
+    g.lineStyle(2, style.secondary, alpha * 0.86).strokeCircle(effect.x, effect.y, radius * 0.62);
   }
 }
 
@@ -2821,6 +2933,21 @@ function trainingDummyStatusLabel(fighter: MatchSnapshot["p2"]): string {
   if (fighter.state === "knockdown") return "knockdown locked";
   if (fighter.health <= 1) return "health lock active";
   return "standing by";
+}
+
+function isCombatReadabilityDemoMode(mode: string | null): boolean {
+  return mode?.startsWith("combat-readability-") ?? false;
+}
+
+function combatReadabilityDemoCue(
+  mode: string,
+): { kind: "hit"; move: CommandId; damage: number } | { kind: "block"; move: CommandId } | null {
+  if (mode === "combat-readability-light") return { kind: "hit", move: "light", damage: 45 };
+  if (mode === "combat-readability-block") return { kind: "block", move: "heavy" };
+  if (mode === "combat-readability-heavy") return { kind: "hit", move: "heavy", damage: 90 };
+  if (mode === "combat-readability-special") return { kind: "hit", move: "special", damage: 120 };
+  if (mode === "combat-readability-super") return { kind: "hit", move: "super", damage: 180 };
+  return null;
 }
 
 function inactiveChampionshipLadder(): ChampionshipLadderState {

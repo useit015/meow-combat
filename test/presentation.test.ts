@@ -23,7 +23,26 @@ describe("presentation helpers", () => {
     ]);
 
     expect(cue?.kind).toBe("hit");
+    expect(cue?.tier).toBe("heavy");
+    expect(cue?.label).toBe("HEAVY");
     expect(cue?.duration).toBeGreaterThan(100);
+  });
+
+  it("scales impact flash and shake cues by move readability tier without changing sprites", () => {
+    const light = impactFeedbackCue([
+      { type: "hit", frame: 4, attacker: "p1", defender: "p2", move: "light", damage: 45 },
+    ]);
+    const superCue = impactFeedbackCue([
+      { type: "hit", frame: 4, attacker: "p1", defender: "p2", move: "super", damage: 180 },
+    ]);
+    const heavyBlock = impactFeedbackCue([{ type: "block", frame: 4, attacker: "p1", defender: "p2", move: "heavy" }]);
+
+    expect(light).toMatchObject({ kind: "hit", tier: "light", label: "HIT" });
+    expect(superCue).toMatchObject({ kind: "hit", tier: "super", label: "SUPER" });
+    expect(heavyBlock).toMatchObject({ kind: "block", tier: "heavy", label: "HEAVY BLOCK" });
+    expect(superCue?.duration).toBeGreaterThan(light?.duration ?? 0);
+    expect(superCue?.intensity).toBeGreaterThan(light?.intensity ?? 0);
+    expect(heavyBlock?.flash.alpha).toBeGreaterThan(0.14);
   });
 
   it("reports a production-ready asset set without undefined next assets", () => {

@@ -1,8 +1,11 @@
 import type { AssetReadinessSummary } from "../assets";
 import type { CombatEvent, Facing, FighterState } from "../core";
+import type { CombatFeedbackTier } from "./effects";
 
 export type ImpactFeedbackCue = {
   kind: "hit" | "block";
+  tier: CombatFeedbackTier;
+  label: string;
   duration: number;
   intensity: number;
   flash: { red: number; green: number; blue: number; alpha: number };
@@ -52,21 +55,34 @@ const ROLL_CUE_FRAMES = 25;
 const MOBILITY_CUE_FRAMES = 24;
 
 export function impactFeedbackCue(events: readonly CombatEvent[]): ImpactFeedbackCue | null {
-  if (events.some((event) => event.type === "hit")) {
+  const strongestHit = strongestCombatEvent(events, "hit");
+  if (strongestHit) {
+    const tier = feedbackTierForMove(strongestHit.move);
     return {
       kind: "hit",
-      duration: 130,
-      intensity: 0.0055,
-      flash: { red: 255, green: 241, blue: 168, alpha: 0.22 },
+      tier,
+      label: feedbackLabel("hit", tier),
+      duration: tier === "super" ? 170 : tier === "special" ? 150 : tier === "heavy" ? 140 : 130,
+      intensity: tier === "super" ? 0.0072 : tier === "special" ? 0.0064 : tier === "heavy" ? 0.006 : 0.0055,
+      flash:
+        tier === "super"
+          ? { red: 255, green: 241, blue: 168, alpha: 0.3 }
+          : tier === "special"
+            ? { red: 143, green: 255, blue: 208, alpha: 0.24 }
+            : { red: 255, green: 241, blue: 168, alpha: 0.22 },
     };
   }
 
-  if (events.some((event) => event.type === "block")) {
+  const strongestBlock = strongestCombatEvent(events, "block");
+  if (strongestBlock) {
+    const tier = feedbackTierForMove(strongestBlock.move);
     return {
       kind: "block",
-      duration: 80,
-      intensity: 0.0028,
-      flash: { red: 155, green: 223, blue: 242, alpha: 0.14 },
+      tier,
+      label: feedbackLabel("block", tier),
+      duration: tier === "heavy" ? 96 : 80,
+      intensity: tier === "heavy" ? 0.0034 : 0.0028,
+      flash: { red: 155, green: 223, blue: 242, alpha: tier === "heavy" ? 0.17 : 0.14 },
     };
   }
 
@@ -148,4 +164,32 @@ export function fighterMobilityMotionCue(fighter: FighterRollMotionState): Fight
 
 function isVisualPassThroughState(fighter: FighterVisualSeparationState): boolean {
   return !fighter.grounded || fighter.state === "rollForward" || fighter.state === "rollBack";
+}
+
+function strongestCombatEvent(events: readonly CombatEvent[], kind: "hit" | "block"): Extract<CombatEvent, { type: "hit" | "block" }> | null {
+  return events
+    .filter((event): event is Extract<CombatEvent, { type: "hit" | "block" }> => event.type === kind)
+    .sort((a, b) => feedbackTierScore(feedbackTierForMove(b.move)) - feedbackTierScore(feedbackTierForMove(a.move)))[0] ?? null;
+}
+
+function feedbackTierForMove(move: Extract<CombatEvent, { move: string }>["move"]): CombatFeedbackTier {
+  if (move === "super") return "super";
+  if (move === "special") return "special";
+  if (move === "heavy") return "heavy";
+  return "light";
+}
+
+function feedbackTierScore(tier: CombatFeedbackTier): number {
+  if (tier === "super") return 4;
+  if (tier === "special") return 3;
+  if (tier === "heavy") return 2;
+  return 1;
+}
+
+function feedbackLabel(kind: "hit" | "block", tier: CombatFeedbackTier): string {
+  if (kind === "block") return tier === "heavy" ? "HEAVY BLOCK" : "BLOCK";
+  if (tier === "super") return "SUPER";
+  if (tier === "special") return "SPECIAL";
+  if (tier === "heavy") return "HEAVY";
+  return "HIT";
 }
