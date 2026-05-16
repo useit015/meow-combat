@@ -12,15 +12,14 @@ const GAMEPAD_BUTTON = {
   Start: 9,
 };
 const TITLE_UI_SLOTS = ["title-logo"];
-const FIGHT_UI_SLOTS = [
+const CORE_FIGHT_UI_SLOTS = [
   "hud-frame",
-  "rabbit-portrait",
-  "cat-portrait",
   "health-bar-rabbit",
   "health-bar-cat",
   "super-meter",
   "timer-frame",
 ];
+const FIGHT_UI_SLOTS = [...CORE_FIGHT_UI_SLOTS, "rabbit-portrait", "cat-portrait"];
 const EXPECTED_RUNTIME_ROSTER_IDS = ["gray-rabbit", "ginger-tabby-cat", "pugilist-pug", "ferret-noodle"];
 const EXPECTED_RUNTIME_PLAYABLE_COUNT = EXPECTED_RUNTIME_ROSTER_IDS.length;
 const EXPECTED_PLANNED_LOCKED_COUNT = 4;
@@ -246,6 +245,17 @@ async function holdKey(page, key, frames) {
   await page.keyboard.up(key);
   await waitFrames(page, 4);
   return state;
+}
+
+async function selectRosterPair(page, { p1Index, p2Index }) {
+  for (let index = 0; index < p1Index; index += 1) {
+    await pressKey(page, "KeyD");
+  }
+  const p2Steps =
+    (p2Index - 1 + EXPECTED_RUNTIME_PLAYABLE_COUNT) % EXPECTED_RUNTIME_PLAYABLE_COUNT;
+  for (let index = 0; index < p2Steps; index += 1) {
+    await pressKey(page, "ArrowRight");
+  }
 }
 
 function assert(condition, failures, message) {
@@ -676,24 +686,40 @@ async function runTrainingDemo(browser, url, outDir) {
   checkModeShellPresentation(state, "training mode-select", "training", "TRAINING", "combo feedback", failures);
 
   await pressKey(page, "Space");
+  await selectRosterPair(page, { p1Index: 3, p2Index: 2 });
   state = await readState(page);
-  screenshots.push(await screenshot(page, outDir, "training-character-select"));
+  screenshots.push(await screenshot(page, outDir, "training-noodle-character-select"));
   assert(state.shellPhase === "select", failures, `training confirm expected select phase, got ${state.shellPhase}`);
   assert(state.playMode === "training", failures, `training select expected training mode, got ${state.playMode}`);
   checkSelectShellPresentation(state, "training character-select", failures);
+  assert(
+    state.selectedFighterDetails?.p1?.fighterId === "ferret-noodle",
+    failures,
+    `training select expected Noodle P1, got ${state.selectedFighterDetails?.p1?.fighterId}`,
+  );
+  assert(
+    state.selectedFighterDetails?.p2?.fighterId === "pugilist-pug",
+    failures,
+    `training select expected Pickles dummy, got ${state.selectedFighterDetails?.p2?.fighterId}`,
+  );
 
   await pressKey(page, "Space");
   await waitFrames(page, 30);
   state = await readState(page);
-  screenshots.push(await screenshot(page, outDir, "training-fight"));
+  screenshots.push(await screenshot(page, outDir, "training-noodle-fight"));
   assert(state.shellPhase === "fighting", failures, `training fight expected fighting phase, got ${state.shellPhase}`);
   assert(state.playMode === "training", failures, `training fight expected training mode, got ${state.playMode}`);
   assert(state.training?.enabled === true, failures, "training fight should expose training.enabled=true");
   assert(state.training?.endlessRound === true, failures, "training fight should expose endlessRound=true");
   assert(
-    state.training?.selectedFighter?.trainingTip?.includes("spacing"),
+    state.training?.selectedFighter?.fighterId === "ferret-noodle",
     failures,
-    "training fight should expose selected fighter training tip",
+    `training fight should expose Noodle as selected fighter, got ${state.training?.selectedFighter?.fighterId}`,
+  );
+  assert(
+    state.training?.selectedFighter?.trainingTip?.includes("side switches"),
+    failures,
+    "training fight should expose Noodle side-switch training tip",
   );
   assert(
     state.training?.dummy?.behavior === "manual idle sparring dummy" && state.training?.dummy?.healthLocked === true,
@@ -711,13 +737,23 @@ async function runTrainingDemo(browser, url, outDir) {
     `training presentation should expose combo feedback, got ${state.training?.presentation?.feedbackLine}`,
   );
   assert(state.p2Mode === "manual", failures, `training fight expected manual dummy, got ${state.p2Mode}`);
+  assert(state.runtimeVisuals?.p1?.fighterId === "ferret-noodle", failures, `training P1 runtime expected Noodle, got ${state.runtimeVisuals?.p1?.fighterId}`);
+  assert(state.runtimeVisuals?.p2?.fighterId === "pugilist-pug", failures, `training P2 runtime expected Pickles, got ${state.runtimeVisuals?.p2?.fighterId}`);
+  assert(
+    state.assetReadiness?.runtimeFallbacks?.fighterAnimations === 0,
+    failures,
+    `training Noodle expected zero fighter fallbacks, got ${state.assetReadiness?.runtimeFallbacks?.fighterAnimations}`,
+  );
   checkRuntimeUiLoaded(state, "training fight", failures);
-  checkVisibleRuntimeUiSlots(state, "training fight", FIGHT_UI_SLOTS, failures);
+  checkVisibleRuntimeUiSlots(state, "training fight", CORE_FIGHT_UI_SLOTS, failures);
+  checkHudPortrait(state, "p1", "ferret-noodle", null, "training Noodle P1", failures);
+  checkHudPortrait(state, "p2", "pugilist-pug", null, "training Pickles dummy", failures);
+  await checkNoodleRuntimeRowsFetched(page, "training Noodle", failures);
 
   await page.keyboard.down("KeyJ");
   await waitFrames(page, 5);
   state = await readState(page);
-  screenshots.push(await screenshot(page, outDir, "training-light-feedback"));
+  screenshots.push(await screenshot(page, outDir, "training-noodle-light-feedback"));
   await page.keyboard.up("KeyJ");
   await waitFrames(page, 4);
   assert(
@@ -765,11 +801,22 @@ async function runLocalVersusDemo(browser, url, outDir) {
   );
 
   await pressKey(page, "Space");
+  await selectRosterPair(page, { p1Index: 3, p2Index: 2 });
   state = await readState(page);
-  screenshots.push(await screenshot(page, outDir, "local-versus-character-select"));
+  screenshots.push(await screenshot(page, outDir, "local-versus-noodle-pickles-select"));
   assert(state.shellPhase === "select", failures, `local versus select expected select, got ${state.shellPhase}`);
   assert(state.playMode === "local-versus", failures, `local versus select expected local-versus, got ${state.playMode}`);
   checkSelectShellPresentation(state, "local-versus character-select", failures);
+  assert(
+    state.selectedFighterDetails?.p1?.fighterId === "ferret-noodle",
+    failures,
+    `local versus select expected Noodle P1, got ${state.selectedFighterDetails?.p1?.fighterId}`,
+  );
+  assert(
+    state.selectedFighterDetails?.p2?.fighterId === "pugilist-pug",
+    failures,
+    `local versus select expected Pickles P2, got ${state.selectedFighterDetails?.p2?.fighterId}`,
+  );
   assert(
     state.shellPresentation?.selectedFighters?.p2?.role === "P2",
     failures,
@@ -779,7 +826,7 @@ async function runLocalVersusDemo(browser, url, outDir) {
   await pressKey(page, "Space");
   await waitFrames(page, 20);
   state = await readState(page);
-  screenshots.push(await screenshot(page, outDir, "local-versus-fight"));
+  screenshots.push(await screenshot(page, outDir, "local-versus-noodle-pickles-fight"));
   assert(state.shellPhase === "fighting", failures, `local versus fight expected fighting, got ${state.shellPhase}`);
   assert(state.playMode === "local-versus", failures, `local versus fight expected local-versus, got ${state.playMode}`);
   assert(state.p2Mode === "manual", failures, `local versus fight expected manual P2, got ${state.p2Mode}`);
@@ -792,16 +839,31 @@ async function runLocalVersusDemo(browser, url, outDir) {
     `local versus state expected same-keyboard plan, got ${state.localVersus?.controlPlan}`,
   );
   assert(
+    state.localVersus?.p1?.fighterId === "ferret-noodle" && state.localVersus?.p2?.fighterId === "pugilist-pug",
+    failures,
+    `local versus should expose Noodle/Pickles fighters, got ${JSON.stringify(state.localVersus)}`,
+  );
+  assert(
     state.localVersus?.inputHints?.p2?.some((hint) => hint.includes("Numpad")),
     failures,
     `local versus should expose P2 keyboard hints, got ${JSON.stringify(state.localVersus?.inputHints)}`,
   );
+  assert(state.runtimeVisuals?.p1?.fighterId === "ferret-noodle", failures, `local versus P1 runtime expected Noodle, got ${state.runtimeVisuals?.p1?.fighterId}`);
+  assert(state.runtimeVisuals?.p2?.fighterId === "pugilist-pug", failures, `local versus P2 runtime expected Pickles, got ${state.runtimeVisuals?.p2?.fighterId}`);
+  assert(
+    state.assetReadiness?.runtimeFallbacks?.fighterAnimations === 0,
+    failures,
+    `local versus Noodle expected zero fighter fallbacks, got ${state.assetReadiness?.runtimeFallbacks?.fighterAnimations}`,
+  );
   checkRuntimeUiLoaded(state, "local versus fight", failures);
-  checkVisibleRuntimeUiSlots(state, "local versus fight", FIGHT_UI_SLOTS, failures);
+  checkVisibleRuntimeUiSlots(state, "local versus fight", CORE_FIGHT_UI_SLOTS, failures);
+  checkHudPortrait(state, "p1", "ferret-noodle", null, "local versus Noodle P1", failures);
+  checkHudPortrait(state, "p2", "pugilist-pug", null, "local versus Pickles P2", failures);
+  await checkNoodleRuntimeRowsFetched(page, "local versus Noodle", failures);
 
   await pressKey(page, "KeyC");
   state = await readState(page);
-  screenshots.push(await screenshot(page, outDir, "local-versus-cpu-toggle-ignored"));
+  screenshots.push(await screenshot(page, outDir, "local-versus-noodle-cpu-toggle-ignored"));
   assert(state.playMode === "local-versus", failures, `local versus CPU toggle should stay local-versus, got ${state.playMode}`);
   assert(state.p2Mode === "manual", failures, `local versus CPU toggle should keep manual P2, got ${state.p2Mode}`);
   assert(state.cpuOpponent === null, failures, `local versus CPU toggle should not expose CPU opponent, got ${JSON.stringify(state.cpuOpponent)}`);
@@ -813,7 +875,7 @@ async function runLocalVersusDemo(browser, url, outDir) {
 
   const p2StartX = state.fighters?.p2?.x;
   state = await holdKey(page, "ArrowLeft", 12);
-  screenshots.push(await screenshot(page, outDir, "local-versus-p2-move"));
+  screenshots.push(await screenshot(page, outDir, "local-versus-pickles-p2-move"));
   assert(state.shellPhase === "fighting", failures, `local versus P2 move expected fighting, got ${state.shellPhase}`);
   assert(state.p2Mode === "manual", failures, `local versus P2 move expected manual P2, got ${state.p2Mode}`);
   assert(state.fighters?.p2?.x < p2StartX, failures, `local versus ArrowLeft should move P2 left from ${p2StartX}, got ${state.fighters?.p2?.x}`);
@@ -981,14 +1043,7 @@ async function runRuntimeRosterPromotion(browser, url, outDir) {
     checkModeShellPresentation(state, `${rosterCase.name} championship mode-select`, "championship", "CHAMPIONSHIP", "2026", failures);
 
     await pressKey(page, "Space");
-    for (let index = 0; index < rosterCase.p1Index; index += 1) {
-      await pressKey(page, "KeyD");
-    }
-    const p2Steps =
-      (rosterCase.p2Index - 1 + EXPECTED_RUNTIME_PLAYABLE_COUNT) % EXPECTED_RUNTIME_PLAYABLE_COUNT;
-    for (let index = 0; index < p2Steps; index += 1) {
-      await pressKey(page, "ArrowRight");
-    }
+    await selectRosterPair(page, { p1Index: rosterCase.p1Index, p2Index: rosterCase.p2Index });
     state = await readState(page);
     states[`${rosterCase.name}-select`] = state;
     screenshots.push(await screenshot(page, outDir, `runtime-roster-${rosterCase.name}-select`));
