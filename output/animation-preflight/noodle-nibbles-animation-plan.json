@@ -18,20 +18,328 @@
     "Runtime promotion requires byte-identical source/runtime rows, source provenance, browser smoke, and explicit roster/select/championship updates in a later task."
   ],
   "requiredRows": [
-    { "animationId": "idle", "frameCount": 8, "cellSize": { "width": 256, "height": 256 }, "facing": "right" },
-    { "animationId": "walk-forward", "frameCount": 8, "cellSize": { "width": 256, "height": 256 }, "facing": "right" },
-    { "animationId": "walk-back", "frameCount": 8, "cellSize": { "width": 256, "height": 256 }, "facing": "right" },
-    { "animationId": "crouch", "frameCount": 4, "cellSize": { "width": 256, "height": 256 }, "facing": "right" },
-    { "animationId": "jump", "frameCount": 6, "cellSize": { "width": 256, "height": 256 }, "facing": "right" },
-    { "animationId": "light-punch", "frameCount": 6, "cellSize": { "width": 256, "height": 256 }, "facing": "right" },
-    { "animationId": "heavy-punch", "frameCount": 8, "cellSize": { "width": 256, "height": 256 }, "facing": "right" },
-    { "animationId": "light-kick", "frameCount": 8, "cellSize": { "width": 256, "height": 256 }, "facing": "right" },
-    { "animationId": "special", "frameCount": 10, "cellSize": { "width": 256, "height": 256 }, "facing": "right" },
-    { "animationId": "hitstun", "frameCount": 5, "cellSize": { "width": 256, "height": 256 }, "facing": "right" },
-    { "animationId": "blockstun", "frameCount": 5, "cellSize": { "width": 256, "height": 256 }, "facing": "right" },
-    { "animationId": "knockdown", "frameCount": 8, "cellSize": { "width": 256, "height": 256 }, "facing": "right" },
-    { "animationId": "win", "frameCount": 8, "cellSize": { "width": 256, "height": 256 }, "facing": "right" },
-    { "animationId": "lose", "frameCount": 6, "cellSize": { "width": 256, "height": 256 }, "facing": "right" }
+    {
+      "animationId": "idle",
+      "frameCount": 8,
+      "cellSize": {
+        "width": 256,
+        "height": 256
+      },
+      "facing": "right",
+      "rowGenerationBrief": "Noodle Nibbles idle row-generation pass: Calm fighting stance with subtle breathing and grounded weight shift. Use only the approved canonical model sheet and preserve ferret proportions, tapered muzzle, bright eyes, rounded ears, long torso, short legs, ringed tail, and sock-belt gag.",
+      "motionLanguage": "long-body guard sway, mischievous head tilt, sock-belt visible, stable head and hip height",
+      "acceptanceCriteria": [
+        "Matches the planned 8-frame timing and exact 256x256 cells.",
+        "Passes no-size-drift/no-drift review against Noodle model-sheet scale, long-body silhouette, palette, face, ringed tail, sock props, and short legs.",
+        "Contains transparent-background sprite frames only; no text, logo, watermark, frame number, loose effect, or UI element.",
+        "Reads as a natural fighting-game motion when scrubbed frame by frame, with no character resizing or identity mutation."
+      ],
+      "rejectionTriggers": [
+        "size drift, identity drift, warped anatomy, extra limbs, or changing face structure",
+        "generic mascot look, copied fighting-game costume language, or non-original special effect identity",
+        "cropped frame, unstable alpha bounds, baked impact effect, visible text, watermark, logo, or frame grid",
+        "motion that looks glitchy, floaty, mechanical, or inconsistent with a slinky ferret mix-up fighter"
+      ]
+    },
+    {
+      "animationId": "walk-forward",
+      "frameCount": 8,
+      "cellSize": {
+        "width": 256,
+        "height": 256
+      },
+      "facing": "right",
+      "rowGenerationBrief": "Noodle Nibbles walk-forward row-generation pass: Forward step cycle with guarded upper body and stable head height. Use only the approved canonical model sheet and preserve ferret proportions, tapered muzzle, bright eyes, rounded ears, long torso, short legs, ringed tail, and sock-belt gag.",
+      "motionLanguage": "slinky forward steps with long torso held together, short legs grounded, tail rings stable",
+      "acceptanceCriteria": [
+        "Matches the planned 8-frame timing and exact 256x256 cells.",
+        "Passes no-size-drift/no-drift review against Noodle model-sheet scale, long-body silhouette, palette, face, ringed tail, sock props, and short legs.",
+        "Contains transparent-background sprite frames only; no text, logo, watermark, frame number, loose effect, or UI element.",
+        "Reads as a natural fighting-game motion when scrubbed frame by frame, with no character resizing or identity mutation."
+      ],
+      "rejectionTriggers": [
+        "size drift, identity drift, warped anatomy, extra limbs, or changing face structure",
+        "generic mascot look, copied fighting-game costume language, or non-original special effect identity",
+        "cropped frame, unstable alpha bounds, baked impact effect, visible text, watermark, logo, or frame grid",
+        "motion that looks glitchy, floaty, mechanical, or inconsistent with a slinky ferret mix-up fighter"
+      ]
+    },
+    {
+      "animationId": "walk-back",
+      "frameCount": 8,
+      "cellSize": {
+        "width": 256,
+        "height": 256
+      },
+      "facing": "right",
+      "rowGenerationBrief": "Noodle Nibbles walk-back row-generation pass: Backward step cycle with defensive posture and readable footwork. Use only the approved canonical model sheet and preserve ferret proportions, tapered muzzle, bright eyes, rounded ears, long torso, short legs, ringed tail, and sock-belt gag.",
+      "motionLanguage": "quick retreat shuffle with sneaky shoulder angle, no body-length shrink",
+      "acceptanceCriteria": [
+        "Matches the planned 8-frame timing and exact 256x256 cells.",
+        "Passes no-size-drift/no-drift review against Noodle model-sheet scale, long-body silhouette, palette, face, ringed tail, sock props, and short legs.",
+        "Contains transparent-background sprite frames only; no text, logo, watermark, frame number, loose effect, or UI element.",
+        "Reads as a natural fighting-game motion when scrubbed frame by frame, with no character resizing or identity mutation."
+      ],
+      "rejectionTriggers": [
+        "size drift, identity drift, warped anatomy, extra limbs, or changing face structure",
+        "generic mascot look, copied fighting-game costume language, or non-original special effect identity",
+        "cropped frame, unstable alpha bounds, baked impact effect, visible text, watermark, logo, or frame grid",
+        "motion that looks glitchy, floaty, mechanical, or inconsistent with a slinky ferret mix-up fighter"
+      ]
+    },
+    {
+      "animationId": "crouch",
+      "frameCount": 4,
+      "cellSize": {
+        "width": 256,
+        "height": 256
+      },
+      "facing": "right",
+      "rowGenerationBrief": "Noodle Nibbles crouch row-generation pass: Low guarded crouch pose, compact silhouette, no floor shadow. Use only the approved canonical model sheet and preserve ferret proportions, tapered muzzle, bright eyes, rounded ears, long torso, short legs, ringed tail, and sock-belt gag.",
+      "motionLanguage": "low coiled ferret guard with full body folded, muzzle and tail still readable",
+      "acceptanceCriteria": [
+        "Matches the planned 4-frame timing and exact 256x256 cells.",
+        "Passes no-size-drift/no-drift review against Noodle model-sheet scale, long-body silhouette, palette, face, ringed tail, sock props, and short legs.",
+        "Contains transparent-background sprite frames only; no text, logo, watermark, frame number, loose effect, or UI element.",
+        "Reads as a natural fighting-game motion when scrubbed frame by frame, with no character resizing or identity mutation."
+      ],
+      "rejectionTriggers": [
+        "size drift, identity drift, warped anatomy, extra limbs, or changing face structure",
+        "generic mascot look, copied fighting-game costume language, or non-original special effect identity",
+        "cropped frame, unstable alpha bounds, baked impact effect, visible text, watermark, logo, or frame grid",
+        "motion that looks glitchy, floaty, mechanical, or inconsistent with a slinky ferret mix-up fighter"
+      ]
+    },
+    {
+      "animationId": "jump",
+      "frameCount": 6,
+      "cellSize": {
+        "width": 256,
+        "height": 256
+      },
+      "facing": "right",
+      "rowGenerationBrief": "Noodle Nibbles jump row-generation pass: Vertical jump arc poses with tucked knees and controlled landing posture. Use only the approved canonical model sheet and preserve ferret proportions, tapered muzzle, bright eyes, rounded ears, long torso, short legs, ringed tail, and sock-belt gag.",
+      "motionLanguage": "arched ferret hop with controlled stretch, same body mass, clean landing posture",
+      "acceptanceCriteria": [
+        "Matches the planned 6-frame timing and exact 256x256 cells.",
+        "Passes no-size-drift/no-drift review against Noodle model-sheet scale, long-body silhouette, palette, face, ringed tail, sock props, and short legs.",
+        "Contains transparent-background sprite frames only; no text, logo, watermark, frame number, loose effect, or UI element.",
+        "Reads as a natural fighting-game motion when scrubbed frame by frame, with no character resizing or identity mutation."
+      ],
+      "rejectionTriggers": [
+        "size drift, identity drift, warped anatomy, extra limbs, or changing face structure",
+        "generic mascot look, copied fighting-game costume language, or non-original special effect identity",
+        "cropped frame, unstable alpha bounds, baked impact effect, visible text, watermark, logo, or frame grid",
+        "motion that looks glitchy, floaty, mechanical, or inconsistent with a slinky ferret mix-up fighter"
+      ]
+    },
+    {
+      "animationId": "light-punch",
+      "frameCount": 6,
+      "cellSize": {
+        "width": 256,
+        "height": 256
+      },
+      "facing": "right",
+      "rowGenerationBrief": "Noodle Nibbles light-punch row-generation pass: Fast jab with clear startup, active extension, and recovery frames. Use only the approved canonical model sheet and preserve ferret proportions, tapered muzzle, bright eyes, rounded ears, long torso, short legs, ringed tail, and sock-belt gag.",
+      "motionLanguage": "fast paw poke from a side-switch stance, tiny reach, quick recovery",
+      "acceptanceCriteria": [
+        "Matches the planned 6-frame timing and exact 256x256 cells.",
+        "Passes no-size-drift/no-drift review against Noodle model-sheet scale, long-body silhouette, palette, face, ringed tail, sock props, and short legs.",
+        "Contains transparent-background sprite frames only; no text, logo, watermark, frame number, loose effect, or UI element.",
+        "Reads as a natural fighting-game motion when scrubbed frame by frame, with no character resizing or identity mutation."
+      ],
+      "rejectionTriggers": [
+        "size drift, identity drift, warped anatomy, extra limbs, or changing face structure",
+        "generic mascot look, copied fighting-game costume language, or non-original special effect identity",
+        "cropped frame, unstable alpha bounds, baked impact effect, visible text, watermark, logo, or frame grid",
+        "motion that looks glitchy, floaty, mechanical, or inconsistent with a slinky ferret mix-up fighter"
+      ]
+    },
+    {
+      "animationId": "heavy-punch",
+      "frameCount": 8,
+      "cellSize": {
+        "width": 256,
+        "height": 256
+      },
+      "facing": "right",
+      "rowGenerationBrief": "Noodle Nibbles heavy-punch row-generation pass: Heavier committed punch with stronger shoulder rotation and recovery. Use only the approved canonical model sheet and preserve ferret proportions, tapered muzzle, bright eyes, rounded ears, long torso, short legs, ringed tail, and sock-belt gag.",
+      "motionLanguage": "laundry-basket lariat windup with body twist, no noodle-like melting",
+      "acceptanceCriteria": [
+        "Matches the planned 8-frame timing and exact 256x256 cells.",
+        "Passes no-size-drift/no-drift review against Noodle model-sheet scale, long-body silhouette, palette, face, ringed tail, sock props, and short legs.",
+        "Contains transparent-background sprite frames only; no text, logo, watermark, frame number, loose effect, or UI element.",
+        "Reads as a natural fighting-game motion when scrubbed frame by frame, with no character resizing or identity mutation."
+      ],
+      "rejectionTriggers": [
+        "size drift, identity drift, warped anatomy, extra limbs, or changing face structure",
+        "generic mascot look, copied fighting-game costume language, or non-original special effect identity",
+        "cropped frame, unstable alpha bounds, baked impact effect, visible text, watermark, logo, or frame grid",
+        "motion that looks glitchy, floaty, mechanical, or inconsistent with a slinky ferret mix-up fighter"
+      ]
+    },
+    {
+      "animationId": "light-kick",
+      "frameCount": 8,
+      "cellSize": {
+        "width": 256,
+        "height": 256
+      },
+      "facing": "right",
+      "rowGenerationBrief": "Noodle Nibbles light-kick row-generation pass: Quick low-to-mid kick with balanced stance and clean contact pose. Use only the approved canonical model sheet and preserve ferret proportions, tapered muzzle, bright eyes, rounded ears, long torso, short legs, ringed tail, and sock-belt gag.",
+      "motionLanguage": "short ankle-nip kick with grounded hips and stable tail counterbalance",
+      "acceptanceCriteria": [
+        "Matches the planned 8-frame timing and exact 256x256 cells.",
+        "Passes no-size-drift/no-drift review against Noodle model-sheet scale, long-body silhouette, palette, face, ringed tail, sock props, and short legs.",
+        "Contains transparent-background sprite frames only; no text, logo, watermark, frame number, loose effect, or UI element.",
+        "Reads as a natural fighting-game motion when scrubbed frame by frame, with no character resizing or identity mutation."
+      ],
+      "rejectionTriggers": [
+        "size drift, identity drift, warped anatomy, extra limbs, or changing face structure",
+        "generic mascot look, copied fighting-game costume language, or non-original special effect identity",
+        "cropped frame, unstable alpha bounds, baked impact effect, visible text, watermark, logo, or frame grid",
+        "motion that looks glitchy, floaty, mechanical, or inconsistent with a slinky ferret mix-up fighter"
+      ]
+    },
+    {
+      "animationId": "special",
+      "frameCount": 10,
+      "cellSize": {
+        "width": 256,
+        "height": 256
+      },
+      "facing": "right",
+      "rowGenerationBrief": "Noodle Nibbles special row-generation pass: Signature character special strike pose without detached magical effects. Use only the approved canonical model sheet and preserve ferret proportions, tapered muzzle, bright eyes, rounded ears, long torso, short legs, ringed tail, and sock-belt gag.",
+      "motionLanguage": "sock-drawer feint into a playful wraparound strike, no detached magic or copied move",
+      "acceptanceCriteria": [
+        "Matches the planned 10-frame timing and exact 256x256 cells.",
+        "Passes no-size-drift/no-drift review against Noodle model-sheet scale, long-body silhouette, palette, face, ringed tail, sock props, and short legs.",
+        "Contains transparent-background sprite frames only; no text, logo, watermark, frame number, loose effect, or UI element.",
+        "Reads as a natural fighting-game motion when scrubbed frame by frame, with no character resizing or identity mutation."
+      ],
+      "rejectionTriggers": [
+        "size drift, identity drift, warped anatomy, extra limbs, or changing face structure",
+        "generic mascot look, copied fighting-game costume language, or non-original special effect identity",
+        "cropped frame, unstable alpha bounds, baked impact effect, visible text, watermark, logo, or frame grid",
+        "motion that looks glitchy, floaty, mechanical, or inconsistent with a slinky ferret mix-up fighter"
+      ]
+    },
+    {
+      "animationId": "hitstun",
+      "frameCount": 5,
+      "cellSize": {
+        "width": 256,
+        "height": 256
+      },
+      "facing": "right",
+      "rowGenerationBrief": "Noodle Nibbles hitstun row-generation pass: Readable recoil poses from being hit, no loose impact symbols. Use only the approved canonical model sheet and preserve ferret proportions, tapered muzzle, bright eyes, rounded ears, long torso, short legs, ringed tail, and sock-belt gag.",
+      "motionLanguage": "elastic recoil that keeps the ferret face, body length, and ringed tail intact",
+      "acceptanceCriteria": [
+        "Matches the planned 5-frame timing and exact 256x256 cells.",
+        "Passes no-size-drift/no-drift review against Noodle model-sheet scale, long-body silhouette, palette, face, ringed tail, sock props, and short legs.",
+        "Contains transparent-background sprite frames only; no text, logo, watermark, frame number, loose effect, or UI element.",
+        "Reads as a natural fighting-game motion when scrubbed frame by frame, with no character resizing or identity mutation."
+      ],
+      "rejectionTriggers": [
+        "size drift, identity drift, warped anatomy, extra limbs, or changing face structure",
+        "generic mascot look, copied fighting-game costume language, or non-original special effect identity",
+        "cropped frame, unstable alpha bounds, baked impact effect, visible text, watermark, logo, or frame grid",
+        "motion that looks glitchy, floaty, mechanical, or inconsistent with a slinky ferret mix-up fighter"
+      ]
+    },
+    {
+      "animationId": "blockstun",
+      "frameCount": 5,
+      "cellSize": {
+        "width": 256,
+        "height": 256
+      },
+      "facing": "right",
+      "rowGenerationBrief": "Noodle Nibbles blockstun row-generation pass: Guard impact recoil with arms raised, no detached sparks or text. Use only the approved canonical model sheet and preserve ferret proportions, tapered muzzle, bright eyes, rounded ears, long torso, short legs, ringed tail, and sock-belt gag.",
+      "motionLanguage": "compact guard recoil with paws up and body still full-size",
+      "acceptanceCriteria": [
+        "Matches the planned 5-frame timing and exact 256x256 cells.",
+        "Passes no-size-drift/no-drift review against Noodle model-sheet scale, long-body silhouette, palette, face, ringed tail, sock props, and short legs.",
+        "Contains transparent-background sprite frames only; no text, logo, watermark, frame number, loose effect, or UI element.",
+        "Reads as a natural fighting-game motion when scrubbed frame by frame, with no character resizing or identity mutation."
+      ],
+      "rejectionTriggers": [
+        "size drift, identity drift, warped anatomy, extra limbs, or changing face structure",
+        "generic mascot look, copied fighting-game costume language, or non-original special effect identity",
+        "cropped frame, unstable alpha bounds, baked impact effect, visible text, watermark, logo, or frame grid",
+        "motion that looks glitchy, floaty, mechanical, or inconsistent with a slinky ferret mix-up fighter"
+      ]
+    },
+    {
+      "animationId": "knockdown",
+      "frameCount": 8,
+      "cellSize": {
+        "width": 256,
+        "height": 256
+      },
+      "facing": "right",
+      "rowGenerationBrief": "Noodle Nibbles knockdown row-generation pass: Fall and grounded recovery poses kept inside frame bounds. Use only the approved canonical model sheet and preserve ferret proportions, tapered muzzle, bright eyes, rounded ears, long torso, short legs, ringed tail, and sock-belt gag.",
+      "motionLanguage": "safe tumble and curled grounded recovery inside frame bounds, same full-size body",
+      "acceptanceCriteria": [
+        "Matches the planned 8-frame timing and exact 256x256 cells.",
+        "Passes no-size-drift/no-drift review against Noodle model-sheet scale, long-body silhouette, palette, face, ringed tail, sock props, and short legs.",
+        "Contains transparent-background sprite frames only; no text, logo, watermark, frame number, loose effect, or UI element.",
+        "Reads as a natural fighting-game motion when scrubbed frame by frame, with no character resizing or identity mutation."
+      ],
+      "rejectionTriggers": [
+        "size drift, identity drift, warped anatomy, extra limbs, or changing face structure",
+        "generic mascot look, copied fighting-game costume language, or non-original special effect identity",
+        "cropped frame, unstable alpha bounds, baked impact effect, visible text, watermark, logo, or frame grid",
+        "motion that looks glitchy, floaty, mechanical, or inconsistent with a slinky ferret mix-up fighter"
+      ]
+    },
+    {
+      "animationId": "win",
+      "frameCount": 8,
+      "cellSize": {
+        "width": 256,
+        "height": 256
+      },
+      "facing": "right",
+      "rowGenerationBrief": "Noodle Nibbles win row-generation pass: Respectful victory stance with controlled celebratory motion. Use only the approved canonical model sheet and preserve ferret proportions, tapered muzzle, bright eyes, rounded ears, long torso, short legs, ringed tail, and sock-belt gag.",
+      "motionLanguage": "sly sock-trophy flourish, readable grin, no text prop",
+      "acceptanceCriteria": [
+        "Matches the planned 8-frame timing and exact 256x256 cells.",
+        "Passes no-size-drift/no-drift review against Noodle model-sheet scale, long-body silhouette, palette, face, ringed tail, sock props, and short legs.",
+        "Contains transparent-background sprite frames only; no text, logo, watermark, frame number, loose effect, or UI element.",
+        "Reads as a natural fighting-game motion when scrubbed frame by frame, with no character resizing or identity mutation."
+      ],
+      "rejectionTriggers": [
+        "size drift, identity drift, warped anatomy, extra limbs, or changing face structure",
+        "generic mascot look, copied fighting-game costume language, or non-original special effect identity",
+        "cropped frame, unstable alpha bounds, baked impact effect, visible text, watermark, logo, or frame grid",
+        "motion that looks glitchy, floaty, mechanical, or inconsistent with a slinky ferret mix-up fighter"
+      ]
+    },
+    {
+      "animationId": "lose",
+      "frameCount": 6,
+      "cellSize": {
+        "width": 256,
+        "height": 256
+      },
+      "facing": "right",
+      "rowGenerationBrief": "Noodle Nibbles lose row-generation pass: Defeated idle pose, readable and non-comedic. Use only the approved canonical model sheet and preserve ferret proportions, tapered muzzle, bright eyes, rounded ears, long torso, short legs, ringed tail, and sock-belt gag.",
+      "motionLanguage": "dramatic sock-pile slump, stylized and funny, not melted or off-model",
+      "acceptanceCriteria": [
+        "Matches the planned 6-frame timing and exact 256x256 cells.",
+        "Passes no-size-drift/no-drift review against Noodle model-sheet scale, long-body silhouette, palette, face, ringed tail, sock props, and short legs.",
+        "Contains transparent-background sprite frames only; no text, logo, watermark, frame number, loose effect, or UI element.",
+        "Reads as a natural fighting-game motion when scrubbed frame by frame, with no character resizing or identity mutation."
+      ],
+      "rejectionTriggers": [
+        "size drift, identity drift, warped anatomy, extra limbs, or changing face structure",
+        "generic mascot look, copied fighting-game costume language, or non-original special effect identity",
+        "cropped frame, unstable alpha bounds, baked impact effect, visible text, watermark, logo, or frame grid",
+        "motion that looks glitchy, floaty, mechanical, or inconsistent with a slinky ferret mix-up fighter"
+      ]
+    }
   ],
   "noDriftQaGates": [
     {
@@ -54,17 +362,20 @@
         "No detached dust, speed lines, shadows, hit sparks, text, frame numbers, grids, or UI artifacts are baked into a row."
       ],
       "failIf": [
-        "A frame is cropped, clipped, floating outside its 256x256 cell, or has baked effects that belong in the game effects layer."
+        "A frame is cropped, clipped, floating outside its 256x256 cell, or has baked effects that belong in the game effects layer.",
+        "The row needs hand-waved cleanup before it can pass tests."
       ]
     },
     {
       "id": "identity-traits",
       "label": "Noodle identity lock",
       "requiredEvidence": [
-        "Tapered muzzle, bright eyes, rounded ears, long torso, short legs, ringed tail, sock-belt gag, mischievous face, and warm ferret palette survive every row."
+        "Tapered muzzle, bright eyes, rounded ears, long torso, short legs, ringed tail, sock-belt gag, mischievous face, and warm ferret palette survive every row.",
+        "Any asymmetrical sock props, mask markings, tail rings, or belt-pouch details are tracked as intentional source notes, not accidental frame drift."
       ],
       "failIf": [
-        "The face, muzzle, eyes, ears, torso length, tail rings, sock props, or palette mutate between frames."
+        "The face, muzzle, eyes, ears, torso length, tail rings, sock props, or palette mutate between frames.",
+        "The row borrows recognizable costume, move, logo, title, or UI language from a reference fighting game."
       ]
     },
     {
@@ -75,17 +386,20 @@
         "Spritesheet width equals frameCount * 256 and spritesheet height equals 256."
       ],
       "failIf": [
-        "Any row uses inconsistent dimensions, missing frames, variable cell sizes, or an unreviewed frame order."
+        "Any row uses inconsistent dimensions, missing frames, variable cell sizes, or an unreviewed frame order.",
+        "The motion reads as glitchy, jittery, resized, or mechanically unnatural when scrubbed frame by frame."
       ]
     },
     {
       "id": "provenance",
       "label": "Source and runtime provenance",
       "requiredEvidence": [
-        "Source prompt, canonical-reference path, candidate path, QA decision, accepted source path, and future runtime path are recorded before promotion."
+        "Source prompt, canonical-reference path, candidate path, QA decision, accepted source path, and future runtime path are recorded before promotion.",
+        "Manifest entries are approved only after generation and QA receipts explicitly promote each row."
       ],
       "failIf": [
-        "A row lacks a source record, reviewer decision, or future runtime destination."
+        "A row lacks a source record, reviewer decision, or future runtime destination.",
+        "Noodle public/runtime rows differ from accepted source rows or fall back to procedural rendering."
       ]
     }
   ],

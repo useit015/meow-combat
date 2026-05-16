@@ -297,13 +297,34 @@ describe("Noodle Nibbles animation preflight", () => {
     expect(outputJson.sourceOnly).toBe(true);
     expect(outputJson.playable).toBe(false);
     expect(outputJson.requiredRows.map((row) => row.animationId)).toEqual(REQUIRED_FIGHTER_ANIMATIONS);
+    expect(outputJson.requiredRows).toEqual(plan.requiredRows);
+    expect(outputJson.noDriftQaGates).toEqual(plan.noDriftQaGates);
+    expect(outputJson.runtimePromotionTests).toEqual(plan.runtimePromotionTests);
+    expect(outputJson.browserSmokeRequirements).toEqual(plan.browserSmokeRequirements);
+
+    const idleRow = plan.requiredRows.find((row) => row.animationId === "idle");
+    expect(idleRow).toBeDefined();
+    expect(idleRow?.rowGenerationBrief).toContain("Noodle Nibbles idle row-generation pass");
+    expect(idleRow?.motionLanguage).toContain("long-body guard sway");
+    expect(idleRow?.acceptanceCriteria.join(" ")).toContain("no-size-drift/no-drift");
+    expect(idleRow?.rejectionTriggers.join(" ")).toContain("size drift");
+    expect(outputJson.requiredRows.every((row) => row.rowGenerationBrief && row.motionLanguage)).toBe(true);
+    expect(outputJson.requiredRows.every((row) => row.acceptanceCriteria.length > 0 && row.rejectionTriggers.length > 0)).toBe(true);
+
     expect(html).toContain("Noodle Nibbles");
     expect(html).toContain("source-only production preflight");
     expect(html).toContain("not playable");
     expect(html).toContain("no-size-drift");
+    expect(html).toContain("Noodle Nibbles idle row-generation pass");
+    expect(html).toContain("long-body guard sway");
+    expect(html).toContain("Reject if");
     expect(html).not.toContain("playable runtime assets");
     expect(outputHtml).toContain("Noodle Nibbles");
     expect(outputHtml).toContain("source-only production preflight");
+    expect(outputHtml).toContain("Noodle Nibbles idle row-generation pass");
+    expect(outputHtml).toContain("long-body guard sway");
+    expect(outputHtml).toContain("Reject if");
+    expect(outputHtml).toContain("size drift, identity drift");
     expect(outputHtml).not.toContain("playable runtime assets");
   });
 });

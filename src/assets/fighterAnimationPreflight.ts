@@ -411,8 +411,10 @@ export function renderAnimationPreflightHtml(plan: FighterAnimationPreflight): s
       (row) => `<tr>
         <td>${escapeHtml(row.animationId)}</td>
         <td>${row.frameCount}</td>
+        <td>${escapeHtml(row.rowGenerationBrief)}</td>
         <td>${escapeHtml(row.motionLanguage)}</td>
-        <td>${escapeHtml(row.acceptanceCriteria.join(" "))}</td>
+        <td>${renderList(row.acceptanceCriteria)}</td>
+        <td>${renderList(row.rejectionTriggers)}</td>
       </tr>`,
     )
     .join("\n");
@@ -449,7 +451,7 @@ export function renderAnimationPreflightHtml(plan: FighterAnimationPreflight): s
   </div>
   <h2>Required Rows</h2>
   <table>
-    <thead><tr><th>Animation</th><th>Frames</th><th>Motion language</th><th>Acceptance</th></tr></thead>
+    <thead><tr><th>Animation</th><th>Frames</th><th>Row brief</th><th>Motion language</th><th>Acceptance</th><th>Reject if</th></tr></thead>
     <tbody>
 ${rows}
     </tbody>
@@ -570,4 +572,8 @@ function noodleMotionLanguageFor(animationId: FighterAnimationId): string {
 
 function escapeHtml(value: string): string {
   return value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
+}
+
+function renderList(items: readonly string[]): string {
+  return `<ul>${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
 }
