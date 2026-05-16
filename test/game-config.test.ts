@@ -9,9 +9,9 @@ import {
 } from "../src/game/gameConfig";
 
 describe("game content config", () => {
-  it("captures the active Meowtal presentation content", () => {
-    expect(meowtalKombatConfig.title).toBe("MEOWTAL KOMBAT");
-    expect(meowtalKombatConfig.subtitle).toBe("RABBIT VS TABBY");
+  it("captures the active Pawbreaker presentation content", () => {
+    expect(meowtalKombatConfig.title).toBe("PAWBREAKER LEAGUE");
+    expect(meowtalKombatConfig.subtitle).toBe("SNACKBELT SHOWDOWN");
     expect(meowtalKombatConfig.roster.map((fighter) => fighter.displayName)).toEqual([
       "Gray Rabbit",
       "Ginger Tabby Cat",
@@ -50,7 +50,7 @@ describe("game content config", () => {
 
   it("routes the approved Meowtal runtime UI asset set through config", () => {
     expect(meowtalKombatConfig.runtimeUiAssets.map((asset) => asset.id)).toEqual([
-      "logo-title-mark",
+      "title-crest",
       "hud-frame",
       "rabbit-portrait",
       "cat-portrait",
@@ -62,7 +62,11 @@ describe("game content config", () => {
     ]);
     for (const asset of meowtalKombatConfig.runtimeUiAssets) {
       expect(asset.key).toBe(runtimeUiAssetKey(asset.id));
-      expect(asset.path).toBe(`/assets/generated/ui/meowtal/${asset.id}.png`);
+      expect(asset.path).toBe(
+        asset.id === "title-crest"
+          ? "/assets/generated/ui/pawbreaker/title-crest.png"
+          : `/assets/generated/ui/meowtal/${asset.id}.png`,
+      );
       expect(asset.path).not.toContain("atlas");
       expect(asset.path).not.toContain("viper");
     }

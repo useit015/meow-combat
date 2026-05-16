@@ -300,6 +300,8 @@ export class MeowtalArenaScene extends Phaser.Scene {
         fontFamily: "Inter, Arial, sans-serif",
         fontSize: "34px",
         fontStyle: "800",
+        stroke: "#22140f",
+        strokeThickness: 7,
       })
       .setOrigin(0.5, 0.5)
       .setDepth(101);
@@ -843,9 +845,9 @@ export class MeowtalArenaScene extends Phaser.Scene {
 
     const logo = this.runtimeUiImages["title-logo"];
     if (this.shell.phase === "ready") {
-      logo.setPosition(512, 140).setDisplaySize(520, 210).setVisible(true);
+      logo.setPosition(512, 194).setDisplaySize(690, 388).setVisible(true);
     } else if (this.shell.phase === "mode-select" || this.shell.phase === "select") {
-      logo.setPosition(512, 48).setDisplaySize(280, 113).setVisible(true);
+      logo.setPosition(512, 58).setDisplaySize(280, 158).setVisible(true);
     }
 
     if (showFightLayer) {
@@ -1868,24 +1870,21 @@ export class MeowtalArenaScene extends Phaser.Scene {
       this.helpText.setAlpha(0.78);
       this.helpText.setVisible(!this.canRenderRuntimeUi());
     } else if (this.shell.phase === "select") {
-      this.titleText.setPosition(512, 132);
+      this.titleText.setPosition(512, 138);
       this.titleText.setFontSize(30);
-      this.helpText.setPosition(512, 194);
+      this.helpText.setPosition(512, 202);
       this.helpText.setFontSize(15);
       this.helpText.setAlpha(1);
     } else if (this.shell.phase === "mode-select") {
-      this.titleText.setPosition(512, 132);
+      this.titleText.setPosition(512, 138);
       this.titleText.setFontSize(30);
-      this.helpText.setPosition(512, 214);
+      this.helpText.setPosition(512, 222);
       this.helpText.setFontSize(16);
       this.helpText.setAlpha(1);
     } else if (this.shell.phase === "ready") {
-      if (this.canRenderRuntimeUi()) {
-        this.titleText.setText("");
-      }
-      this.titleText.setPosition(512, 148);
-      this.titleText.setFontSize(48);
-      this.helpText.setPosition(512, this.canRenderRuntimeUi() ? 334 : 264);
+      this.titleText.setPosition(512, 178);
+      this.titleText.setFontSize(44);
+      this.helpText.setPosition(512, this.canRenderRuntimeUi() ? 356 : 264);
       this.helpText.setFontSize(16);
       this.helpText.setAlpha(1);
     } else if (this.shell.phase === "paused") {
@@ -2098,7 +2097,7 @@ function shellTitle(shell: ShellState, snapshot: MatchSnapshot, matchSet: MatchS
 
 function shellHelp(shell: ShellState, selectionLabel: string, controlFallbackLine: string): string {
   if (shell.phase === "ready") {
-    return `${GAME_SUBTITLE}\nPRESS ENTER\n${controlFallbackLine}`;
+    return `${GAME_SUBTITLE}\nPRESS ENTER`;
   }
   if (shell.phase === "mode-select") {
     return `A/D or arrows: mode  |  Enter: character select  |  R: reset\n${controlFallbackLine}`;

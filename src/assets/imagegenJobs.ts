@@ -36,24 +36,39 @@ export function buildUiImagegenJobs(
     .filter((surface) => surface.provenance.medium === "image" && surface.provenance.sourceKind === "codex-imagegen")
     .map((surface) => {
       const provenance = surface.provenance;
+      const isPawbreakerTitleCrest = surface.id === "title-crest";
       return {
         id: provenance.assetId,
         kind: "ui-surface",
-        subjectId: "meowtal-ui",
+        subjectId: isPawbreakerTitleCrest ? "pawbreaker-ui" : "meowtal-ui",
         promptSlug: provenance.promptSlug,
         outputPath: provenance.sourcePath ?? `assets/source/imagegen/ui/meowtal/${surface.id}.png`,
         status: provenance.status,
         blocker: provenance.blocker ?? undefined,
         requiredInputs: [],
-        prompt: [
-          provenance.prompt,
-          `Runtime contract: produce a 1024x576 PNG source sheet for ${surface.id}.`,
-          "Original-view lock: preserve the original view, visual hierarchy, focal scale, and crop-compatible layout used by the current runtime UI.",
-          "do not change source sheet dimensions, safe margins, element scale, or primary placement unless the runtime crop specs are updated in the same review.",
-          "Constraints: preserve the current Meowtal Kombat arcade UI direction, keep gameplay center readable, no copied fighting-game branding, no watermark, no real brand marks.",
-        ].join("\n"),
+        prompt: uiSurfacePrompt(surface.id, provenance.prompt),
       } satisfies ImagegenJob;
     });
+}
+
+function uiSurfacePrompt(surfaceId: string, provenancePrompt: string): string {
+  if (surfaceId === "title-crest") {
+    return [
+      provenancePrompt,
+      "Runtime contract: produce a textless transparent PNG crest/backplate source for the Pawbreaker League title screen.",
+      "Original-view lock: preserve the approved title crest silhouette, safe margins, focal scale, and crop-compatible layout used by the current runtime UI.",
+      "do not add title lettering, initials, pseudo-text, logos, watermarks, dragons, copied fighting-game symbols, or real brand marks.",
+      "Constraints: exact PAWBREAKER LEAGUE title words are code-native text only; the bitmap remains decorative and textless.",
+    ].join("\n");
+  }
+
+  return [
+    provenancePrompt,
+    `Runtime contract: produce a 1024x576 PNG source sheet for ${surfaceId}.`,
+    "Original-view lock: preserve the original view, visual hierarchy, focal scale, and crop-compatible layout used by the current runtime UI.",
+    "do not change source sheet dimensions, safe margins, element scale, or primary placement unless the runtime crop specs are updated in the same review.",
+    "Constraints: preserve the current Meowtal Kombat arcade UI direction, keep gameplay center readable, no copied fighting-game branding, no watermark, no real brand marks.",
+  ].join("\n");
 }
 
 function fighterJobs(manifest: FighterAssetManifest): readonly ImagegenJob[] {

@@ -12,7 +12,7 @@ import {
 
 describe("Meowtal production manifest", () => {
   it("defines the production asset families without switching broad runtime content", () => {
-    expect(meowtalProductionManifest.title).toBe("Meowtal Kombat");
+    expect(meowtalProductionManifest.title).toBe("Pawbreaker League");
     expect(meowtalProductionManifest.fighters.map((fighter) => fighter.id)).toEqual([
       "gray-rabbit",
       "ginger-tabby-cat",
@@ -32,7 +32,7 @@ describe("Meowtal production manifest", () => {
 
     const entries = collectMeowtalProvenanceEntries();
     const runtimeEntries = entries.filter((entry) => entry.runtimePath !== null);
-    expect(entries).toHaveLength(2 + 2 * REQUIRED_FIGHTER_ANIMATIONS.length + 6 + 15 + 11);
+    expect(entries).toHaveLength(2 + 2 * REQUIRED_FIGHTER_ANIMATIONS.length + 6 + 16 + 11);
     expect(runtimeEntries.map((entry) => entry.assetId).sort()).toEqual([
       "ginger-tabby-cat:blockstun",
       "ginger-tabby-cat:crouch",
@@ -91,6 +91,7 @@ describe("Meowtal production manifest", () => {
       "ui:pause-options-panel",
       "ui:rabbit-portrait",
       "ui:super-meter",
+      "ui:title-crest",
       "ui:title-key-art",
       "ui:timer-frame",
       "ui:touch-controls",
@@ -119,6 +120,7 @@ describe("Meowtal production manifest", () => {
 
   it("tracks approved generated and procedural runtime UI/effects surfaces", () => {
     const generatedSurfaceIds = [
+      "title-crest",
       "logo-title-mark",
       "hud-frame",
       "rabbit-portrait",
@@ -136,12 +138,25 @@ describe("Meowtal production manifest", () => {
 
       expect(provenance?.status).toBe("approved");
       expect(provenance?.sourceKind).toBe("codex-imagegen");
-      expect(provenance?.sourcePath).toBe(`assets/source/imagegen/ui/meowtal/${surfaceId}.png`);
-      expect(provenance?.runtimePath).toBe(`/assets/generated/ui/meowtal/${surfaceId}.png`);
+      expect(provenance?.sourcePath).toBe(
+        surfaceId === "title-crest"
+          ? "assets/source/imagegen/ui/pawbreaker/title-crest.png"
+          : `assets/source/imagegen/ui/meowtal/${surfaceId}.png`,
+      );
+      expect(provenance?.runtimePath).toBe(
+        surfaceId === "title-crest"
+          ? "/assets/generated/ui/pawbreaker/title-crest.png"
+          : `/assets/generated/ui/meowtal/${surfaceId}.png`,
+      );
       expect(provenance?.license.kind).toBe("owned-generated");
-      expect(provenance?.createdOrDownloadedOn).toBe("2026-05-14");
+      expect(provenance?.createdOrDownloadedOn).toBe(surfaceId === "title-crest" ? "2026-05-16" : "2026-05-14");
       expect(provenance?.approvalNotes).toContain("Approved runtime UI asset");
-      if (surfaceId === "logo-title-mark" || surfaceId === "fight-ko-victory-overlays") {
+      if (surfaceId === "title-crest") {
+        expect(provenance?.approvalNotes).toContain("textless Pawbreaker League crest/backplate");
+        expect(provenance?.approvalNotes).toContain("no readable text");
+        expect(provenance?.approvalNotes).toContain("Exact PAWBREAKER LEAGUE title words are rendered code-native");
+        expect(provenance?.approvalNotes).toContain("Approved by T010 visual QA, promoted by T010");
+      } else if (surfaceId === "logo-title-mark" || surfaceId === "fight-ko-victory-overlays") {
         expect(provenance?.approvalNotes).toContain("Codex built-in imagegen regenerated");
         expect(provenance?.approvalNotes).toContain("crop-compatible");
         expect(provenance?.approvalNotes).toContain(`assets/source/imagegen/ui/meowtal/candidates/${surfaceId}-codex-01.png`);
@@ -165,7 +180,9 @@ describe("Meowtal production manifest", () => {
         expect(provenance?.approvalNotes).toContain(`output/imagegen/meowtal-ui-${surfaceId}.png`);
         expect(provenance?.approvalNotes).toMatch(/Approved by T09[58] visual QA, promoted by T09[69]/);
       }
-      expect(provenance?.approvalNotes).toContain("routed into scene rendering by T100");
+      expect(provenance?.approvalNotes).toContain(
+        surfaceId === "title-crest" ? "routed behind code-native title text" : "routed into scene rendering by T100",
+      );
       expect(provenance?.blocker).toBeNull();
       expect(existsSync(join(process.cwd(), provenance?.sourcePath ?? ""))).toBe(true);
       expect(existsSync(join(process.cwd(), "public", provenance?.runtimePath ?? ""))).toBe(true);

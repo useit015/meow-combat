@@ -292,9 +292,13 @@ describe("asset runtime resolver", () => {
     }
   });
 
-  it("points every routed Meowtal UI asset at an existing runtime PNG", () => {
+  it("points every routed runtime UI asset at an existing runtime PNG", () => {
     for (const asset of meowtalKombatConfig.runtimeUiAssets) {
-      expect(asset.path).toMatch(/^\/assets\/generated\/ui\/meowtal\/.+\.png$/);
+      expect(asset.path).toMatch(
+        asset.id === "title-crest"
+          ? /^\/assets\/generated\/ui\/pawbreaker\/title-crest\.png$/
+          : /^\/assets\/generated\/ui\/meowtal\/.+\.png$/,
+      );
       expect(existsSync(join(process.cwd(), "public", asset.path))).toBe(true);
     }
   });
@@ -320,7 +324,7 @@ describe("asset runtime resolver", () => {
     }
   });
 
-  it("keeps approved public stage and UI images on the 1024x576 runtime contract", () => {
+  it("keeps approved public stage and sheet-style UI images on the 1024x576 runtime contract", () => {
     for (const layer of resolveStageRuntimeLayers(meowtalKombatConfig.stage)) {
       expect(layer.kind).toBe("image-layer");
       expect(layer.outputPath).toBeTruthy();
@@ -328,6 +332,11 @@ describe("asset runtime resolver", () => {
     }
 
     for (const asset of meowtalKombatConfig.runtimeUiAssets) {
+      if (asset.id === "title-crest") {
+        expect(pngDimensions(asset.path)).toEqual({ width: 1672, height: 941 });
+        expect(pngHasAlpha(asset.path)).toBe(true);
+        continue;
+      }
       expect(pngDimensions(asset.path)).toEqual({ width: GAME_WIDTH, height: GAME_HEIGHT });
     }
   });

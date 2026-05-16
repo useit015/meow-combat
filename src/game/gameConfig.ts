@@ -30,6 +30,7 @@ export interface RuntimeSpritesheetConfig {
 
 export type RuntimeUiAssetId =
   | "logo-title-mark"
+  | "title-crest"
   | "hud-frame"
   | "rabbit-portrait"
   | "cat-portrait"
@@ -96,12 +97,12 @@ export interface GameContentConfig {
 export const RUNTIME_UI_IMAGE_SPECS = [
   {
     slot: "title-logo",
-    assetId: "logo-title-mark",
-    crop: { x: 43, y: 106, width: 941, height: 381 },
+    assetId: "title-crest",
+    crop: { x: 0, y: 0, width: 1672, height: 941 },
     x: 512,
-    y: 140,
-    width: 520,
-    height: 210,
+    y: 194,
+    width: 690,
+    height: 388,
     depth: 96,
   },
   {
@@ -217,8 +218,8 @@ export const RUNTIME_UI_IMAGE_SPECS = [
 ] as const satisfies readonly RuntimeUiImageSpec[];
 
 export const meowtalKombatConfig: GameContentConfig = {
-  title: "MEOWTAL KOMBAT",
-  subtitle: "RABBIT VS TABBY",
+  title: "PAWBREAKER LEAGUE",
+  subtitle: "SNACKBELT SHOWDOWN",
   cpuDifficulties: ["easy", "normal", "hard"],
   roster: [GRAY_RABBIT, GINGER_TABBY_CAT],
   defaultSelections: { p1: 0, p2: 1 },
@@ -227,7 +228,7 @@ export const meowtalKombatConfig: GameContentConfig = {
   runtimeSpritesheets: runtimeSpritesheetsFor(meowtalFighterAssetManifests),
   runtimeSpriteCellSize: 256,
   runtimeUiAssets: runtimeUiAssetsFor([
-    "logo-title-mark",
+    "title-crest",
     "hud-frame",
     "rabbit-portrait",
     "cat-portrait",
@@ -259,11 +260,12 @@ function runtimeUiAssetsFor(ids: readonly RuntimeUiAssetId[]): readonly RuntimeU
   return ids.map((id) => ({
     id,
     key: runtimeUiAssetKey(id),
-    path: `/assets/generated/ui/meowtal/${id}.png`,
+    path: id === "title-crest" ? "/assets/generated/ui/pawbreaker/title-crest.png" : `/assets/generated/ui/meowtal/${id}.png`,
   }));
 }
 
 export function runtimeUiAssetKey(id: RuntimeUiAssetId): string {
+  if (id === "title-crest") return "pawbreaker-ui:title-crest";
   return `meowtal-ui:${id}`;
 }
 

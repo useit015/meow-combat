@@ -20,6 +20,7 @@ export type MeowtalStageLayerId =
   | "foreground-dust-leaves";
 export type MeowtalVisualSurfaceId =
   | "logo-title-mark"
+  | "title-crest"
   | "title-key-art"
   | "hud-frame"
   | "rabbit-portrait"
@@ -96,7 +97,7 @@ export interface MeowtalAudioCuePlan {
 
 export interface MeowtalProductionManifest {
   id: "meowtal-kombat-production";
-  title: "Meowtal Kombat";
+  title: "Pawbreaker League";
   provenanceDocument: "docs/assets/meowtal-kombat-provenance.md";
   visualReferences: readonly string[];
   fighters: readonly MeowtalFighterAssetPlan[];
@@ -113,6 +114,7 @@ type MeowtalEndStateAnimationId = Extract<FighterAnimationId, "win" | "lose">;
 
 const binaryBlocker = "Planned production asset only; no binary image or audio generated in the T020 scaffold.";
 const generatedOn = "2026-05-14";
+const pawbreakerGeneratedOn = "2026-05-16";
 
 const stageLayerSourcePaths: Readonly<Record<MeowtalStageLayerId, string>> = {
   "sky-lighting": "assets/source/imagegen/stages/meowtal-courtyard/sky-lighting.png",
@@ -184,6 +186,7 @@ const stageLayerQaNotes: Readonly<Record<MeowtalStageLayerId, string>> = {
 };
 
 const generatedUiSurfaceSourcePaths: Readonly<Partial<Record<MeowtalVisualSurfaceId, string>>> = {
+  "title-crest": "assets/source/imagegen/ui/pawbreaker/title-crest.png",
   "logo-title-mark": "assets/source/imagegen/ui/meowtal/logo-title-mark.png",
   "hud-frame": "assets/source/imagegen/ui/meowtal/hud-frame.png",
   "rabbit-portrait": "assets/source/imagegen/ui/meowtal/rabbit-portrait.png",
@@ -196,6 +199,7 @@ const generatedUiSurfaceSourcePaths: Readonly<Partial<Record<MeowtalVisualSurfac
 };
 
 const generatedUiSurfaceRuntimePaths: Readonly<Partial<Record<MeowtalVisualSurfaceId, string>>> = {
+  "title-crest": "/assets/generated/ui/pawbreaker/title-crest.png",
   "logo-title-mark": "/assets/generated/ui/meowtal/logo-title-mark.png",
   "hud-frame": "/assets/generated/ui/meowtal/hud-frame.png",
   "rabbit-portrait": "/assets/generated/ui/meowtal/rabbit-portrait.png",
@@ -208,6 +212,7 @@ const generatedUiSurfaceRuntimePaths: Readonly<Partial<Record<MeowtalVisualSurfa
 };
 
 const generatedUiSurfaceOutputCandidatePaths: Readonly<Partial<Record<MeowtalVisualSurfaceId, string>>> = {
+  "title-crest": "assets/source/imagegen/ui/pawbreaker/candidates/title-crest-codex-01.png",
   "logo-title-mark": "assets/source/imagegen/ui/meowtal/candidates/logo-title-mark-codex-01.png",
   "hud-frame": "assets/source/imagegen/ui/meowtal/candidates/hud-frame-codex-01.png",
   "rabbit-portrait": "output/imagegen/meowtal-ui-rabbit-portrait.png",
@@ -220,6 +225,8 @@ const generatedUiSurfaceOutputCandidatePaths: Readonly<Partial<Record<MeowtalVis
 };
 
 const generatedUiSurfaceQaNotes: Readonly<Partial<Record<MeowtalVisualSurfaceId, string>>> = {
+  "title-crest":
+    "Approved runtime UI asset: Codex built-in imagegen generated a textless Pawbreaker League crest/backplate with rabbit-ear, paw, toy-glove, and treat-belt motifs on flat chroma key; chroma key was removed to transparent alpha. The bitmap contains no readable text, pseudo-text, MK, Meowtal, Kombat, watermark, copied fighting-game logo, dragon mark, or real brand mark. Exact PAWBREAKER LEAGUE title words are rendered code-native by Phaser scene text. Approved by T010 visual QA, promoted by T010, and routed behind code-native title text.",
   "logo-title-mark":
     "Approved runtime UI asset: Codex built-in imagegen regenerated readable MEOWTAL KOMBAT title mark with rabbit-ear and cat-tail motifs, transparent alpha, original-view crop-compatible layout, no copied branding, watermark, or brand marks. Approved by T155 visual QA, promoted by T156, and routed into scene rendering by T100.",
   "hud-frame":
@@ -241,6 +248,11 @@ const generatedUiSurfaceQaNotes: Readonly<Partial<Record<MeowtalVisualSurfaceId,
 };
 
 const generatedUiSurfaceTransformNotes: Readonly<Partial<Record<MeowtalVisualSurfaceId, readonly string[]>>> = {
+  "title-crest": [
+    "Generated one textless Pawbreaker title crest/backplate with Codex built-in imagegen on green chroma-key background.",
+    "Rejected generated text as a source of title wording by design; exact PAWBREAKER LEAGUE title words remain code-native Phaser text.",
+    "Removed chroma-key background to alpha with the imagegen helper and promoted the selected output to source and runtime Pawbreaker UI paths.",
+  ],
   "logo-title-mark": [
     "Regenerated complete title-mark sheet with Codex built-in imagegen on magenta chroma-key background.",
     "Removed chroma-key background to alpha, resized to 1024x576, and preserved the original crop-compatible title placement.",
@@ -796,7 +808,7 @@ const fighterDetails: Readonly<
 
 export const meowtalProductionManifest: MeowtalProductionManifest = {
   id: "meowtal-kombat-production",
-  title: "Meowtal Kombat",
+  title: "Pawbreaker League",
   provenanceDocument: "docs/assets/meowtal-kombat-provenance.md",
   visualReferences: [
     "docs/visual-reference/meowtal-kombat/vision-01.png",
@@ -818,6 +830,7 @@ export const meowtalProductionManifest: MeowtalProductionManifest = {
     ],
   },
   visualSurfaces: [
+    visualSurface("title-crest", "Textless Pawbreaker League decorative crest/backplate routed behind code-native title text."),
     visualSurface("logo-title-mark", "Production Meowtal Kombat title mark for title and loading surfaces."),
     visualSurface("title-key-art", "Hero key art showing rabbit versus tabby without becoming runtime animation."),
     visualSurface("hud-frame", "Mortal-Kombat-inspired HUD frame with original shapes and no copied branding."),
@@ -1697,13 +1710,13 @@ function approvedStageLayerProvenance(id: MeowtalStageLayerId, role: string): As
   };
 }
 
-function ownedGeneratedImageLicense(summary: string): AssetLicense {
+function ownedGeneratedImageLicense(summary: string, checkedOn: string = generatedOn): AssetLicense {
   return {
     kind: "owned-generated",
     summary,
     sourceUrl: null,
     attribution: null,
-    checkedOn: generatedOn,
+    checkedOn,
   };
 }
 
@@ -1759,18 +1772,24 @@ function approvedUiSurfaceProvenance(
     ...imageProvenance({
       assetId: `ui:${id}`,
       promptSlug: `meowtal-ui-${id}`,
-      prompt: `Create the ${id} visual surface for Meowtal Kombat. ${role} Keep it original, readable, arcade-polished, source-only, and free of copied fighting-game branding, watermarks, or real brand marks.`,
+      prompt:
+        id === "title-crest"
+          ? `Create the ${id} visual surface for Pawbreaker League. ${role} Keep it original, textless, readable as a decorative crest, arcade-polished, source-only, and free of copied fighting-game branding, readable text, pseudo-text, watermarks, or real brand marks.`
+          : `Create the ${id} visual surface for Meowtal Kombat. ${role} Keep it original, readable, arcade-polished, source-only, and free of copied fighting-game branding, watermarks, or real brand marks.`,
       status: isApproved ? "approved" : "generated",
       blocker: "",
     }),
     sourcePath,
     runtimePath: runtimePath ?? null,
     license: ownedGeneratedImageLicense(
-      isApproved
-        ? "Generated with Codex built-in imagegen for this project; approved as a runtime UI asset and routed into scene rendering by T100."
-        : "Generated or derived from Codex imagegen source material for this project; source-only UI candidate pending visual QA and runtime promotion.",
+      id === "title-crest"
+        ? "Generated with Codex built-in imagegen for this project; approved as a textless Pawbreaker runtime UI crest and routed behind code-native title text by T010."
+        : isApproved
+          ? "Generated with Codex built-in imagegen for this project; approved as a runtime UI asset and routed into scene rendering by T100."
+          : "Generated or derived from Codex imagegen source material for this project; source-only UI candidate pending visual QA and runtime promotion.",
+      id === "title-crest" ? pawbreakerGeneratedOn : generatedOn,
     ),
-    createdOrDownloadedOn: generatedOn,
+    createdOrDownloadedOn: id === "title-crest" ? pawbreakerGeneratedOn : generatedOn,
     transforms: runtimePath
       ? [...(generatedUiSurfaceTransformNotes[id] ?? []), `Promoted source UI candidate to ${runtimePath}.`]
       : (generatedUiSurfaceTransformNotes[id] ?? []),

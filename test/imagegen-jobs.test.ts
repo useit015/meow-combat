@@ -101,16 +101,27 @@ describe("imagegen jobs", () => {
       "ui:rabbit-portrait",
       "ui:super-meter",
       "ui:timer-frame",
+      "ui:title-crest",
     ]);
     expect(new Set(jobs.map((job) => job.kind))).toEqual(new Set(["ui-surface"]));
-    expect(new Set(jobs.map((job) => job.subjectId))).toEqual(new Set(["meowtal-ui"]));
+    expect(new Set(jobs.map((job) => job.subjectId))).toEqual(new Set(["meowtal-ui", "pawbreaker-ui"]));
     expect(new Set(jobs.map((job) => job.promptSlug)).size).toBe(jobs.length);
 
     for (const job of jobs) {
-      expect(job.outputPath).toBe(`assets/source/imagegen/ui/meowtal/${job.id.replace("ui:", "")}.png`);
       expect(job.requiredInputs).toEqual([]);
       expect(job.status).toBe("approved");
       expect(job.blocker).toBeUndefined();
+      if (job.id === "ui:title-crest") {
+        expect(job.subjectId).toBe("pawbreaker-ui");
+        expect(job.outputPath).toBe("assets/source/imagegen/ui/pawbreaker/title-crest.png");
+        expect(job.prompt).toContain("Pawbreaker League");
+        expect(job.prompt).toContain("textless");
+        expect(job.prompt).toContain("code-native text only");
+        expect(job.prompt).not.toContain("Meowtal Kombat");
+        continue;
+      }
+
+      expect(job.outputPath).toBe(`assets/source/imagegen/ui/meowtal/${job.id.replace("ui:", "")}.png`);
       expect(job.prompt).toContain("Meowtal Kombat");
       expect(job.prompt).toContain("free of copied fighting-game branding");
       expect(job.prompt).toContain("1024x576");
