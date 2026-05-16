@@ -117,7 +117,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T033
+active_task: T034
 
 tasks:
   - id: T001
@@ -1942,7 +1942,7 @@ tasks:
   - id: T033
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Review the accepted Pickles idle, grounded locomotion, crouch, and jump source rows and decide the next safe row-production package without risking character drift or premature playable promotion."
     inputs:
@@ -1971,6 +1971,79 @@ tasks:
       - "stop_if"
       - "acceptance checklist"
       - "Whether parallel agents are safe"
+    receipt:
+      result: done
+      decision: proceed_with_worker
+      full_outcome_complete: false
+      evidence:
+        - "Accepted Pickles rows idle, walk-forward, walk-back, crouch, and jump are exact alpha spritesheets at expected dimensions."
+        - "QA receipts pass identity, scale, motion, and alpha for the accepted source rows."
+        - "src/assets/catalog.ts records exactly five generated source rows for pugilist-pug."
+        - "public/assets/generated/fighters/pugilist-pug remains absent; Pickles is not playable."
+      rationale: "The accepted source rows are coherent enough to continue bounded source-only production. The safest next package is light-punch plus light-kick because these controlled starter attacks establish Pickles' offensive motion before heavier deformation, reaction recoil, presentation poses, or runtime promotion."
+      rejected_alternatives:
+        - "require_scout: rejected because enough row plan, QA, and test evidence already exists."
+        - "require_audit: rejected because there is no current evidence of drift requiring an audit before the next bounded package."
+        - "heavy-punch/special: deferred because committed rotation, effects, and identity risk are higher before light attacks prove the attack language."
+        - "hit/block reactions: deferred until at least one attack set exists."
+        - "knockdown/win/lose: deferred because presentation and grounded poses are higher drift risk and lower priority than starter attacks."
+        - "playable promotion/all remaining rows: blocked."
+      next_task: T034
+      summary: "Approved one Worker for exactly two source-only Pickles starter attack rows, light-punch and light-kick. They must use built-in imagegen only, normalize to exact alpha spritesheets, compare against the five accepted reference rows, update only source/planned manifests/tests/QA notes, and prove Pickles remains non-playable with no public/runtime assets."
+  - id: T034
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: medium
+    objective: "Generate and QA exactly two source-only Pickles Pugilist starter attack rows: light-punch and light-kick, using built-in imagegen only. Normalize light-punch to 1536x256 and light-kick to 2048x256 alpha spritesheets, compare both against idle, walk-forward, walk-back, crouch, and jump, update source/planned manifests and focused tests, and prove Pickles remains non-playable with no public/runtime assets."
+    allowed_files:
+      - "assets/source/imagegen/fighters/pugilist-pug/candidates/light-punch-codex-01.png"
+      - "assets/source/imagegen/fighters/pugilist-pug/candidates/light-punch-codex-02.png"
+      - "assets/source/imagegen/fighters/pugilist-pug/candidates/light-punch-codex-03.png"
+      - "assets/source/imagegen/fighters/pugilist-pug/candidates/light-kick-codex-01.png"
+      - "assets/source/imagegen/fighters/pugilist-pug/candidates/light-kick-codex-02.png"
+      - "assets/source/imagegen/fighters/pugilist-pug/candidates/light-kick-codex-03.png"
+      - "assets/source/imagegen/fighters/pugilist-pug/light-punch.png"
+      - "assets/source/imagegen/fighters/pugilist-pug/light-kick.png"
+      - "output/imagegen/pugilist-pug-light-punch.png"
+      - "output/imagegen/pugilist-pug-light-punch-normalized.png"
+      - "output/imagegen/pugilist-pug-light-kick.png"
+      - "output/imagegen/pugilist-pug-light-kick-normalized.png"
+      - "output/animation-preflight/pickles-pugilist-light-attack-row-qa.json"
+      - "output/animation-preflight/pickles-pugilist-light-attack-row-qa.html"
+      - "output/web-game/pickles-light-attacks-source-rows/"
+      - "src/assets/catalog.ts"
+      - "test/asset-pipeline.test.ts"
+      - "test/asset-qa.test.ts"
+      - "test/fighter-animation-preflight.test.ts"
+      - "docs/goals/aaa-game-expansion/notes/T034-pickles-light-attack-row-production.md"
+    verify:
+      - "node scripts/normalize-fighter-rows.mjs --animation light-punch --fighters pugilist-pug"
+      - "node scripts/normalize-fighter-rows.mjs --animation light-kick --fighters pugilist-pug"
+      - "sips -g pixelWidth -g pixelHeight -g hasAlpha assets/source/imagegen/fighters/pugilist-pug/light-punch.png assets/source/imagegen/fighters/pugilist-pug/light-kick.png"
+      - "node scripts/asset-qa.mjs --json"
+      - "test ! -e public/assets/generated/fighters/pugilist-pug"
+      - "npm test -- test/fighter-animation-preflight.test.ts test/asset-pipeline.test.ts test/source-roster-lab.test.ts test/game-config.test.ts test/imagegen-jobs.test.ts test/asset-qa.test.ts"
+      - "npm run typecheck"
+      - "npm run build"
+      - "npm run verify"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/pickles-light-attacks-source-rows"
+    stop_if:
+      - "Built-in imagegen is unavailable or external image API/.env use is needed."
+      - "More than three candidates are needed for either row."
+      - "Any row shows size drift, identity drift, stretched limbs, glove/foot scale mutation, cropped body parts, bad alpha, baked hit sparks/text/effects/UI, or changed pug traits."
+      - "light-punch reads as heavy/special, or light-kick becomes acrobatic/off-model."
+      - "Only one row passes; do not accept a partial light-attack package without a new Judge decision."
+      - "Any runtime roster/select/combat/public asset/playable promotion change is needed."
+      - "The rows cannot normalize to exact 1536x256 and 2048x256 alpha PNGs."
+    acceptance:
+      - "Exactly two accepted source-only rows: light-punch and light-kick."
+      - "Both compare cleanly against the five accepted reference rows for scale, head height, gloves, muzzle, ears, tail curl, palette, and silhouette."
+      - "Catalog marks exactly seven generated Pickles rows; heavy/reaction/KO/win/lose rows remain blocked."
+      - "No public/runtime Pickles folder exists."
+      - "Pickles remains non-playable."
+      - "QA JSON/HTML records candidate paths, hashes, dimensions, reference-row comparison, rejected candidates if any, and verdicts."
+      - "Tests, build, verify, asset QA, and smoke pass."
     receipt: null
 
 checks:
