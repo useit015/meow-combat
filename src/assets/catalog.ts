@@ -133,7 +133,9 @@ const generatedAnimationRows: Record<string, Partial<Record<FighterAnimationSpec
     crouch: "assets/source/imagegen/fighters/pugilist-pug/crouch.png",
     jump: "assets/source/imagegen/fighters/pugilist-pug/jump.png",
     "light-punch": "assets/source/imagegen/fighters/pugilist-pug/light-punch.png",
+    "heavy-punch": "assets/source/imagegen/fighters/pugilist-pug/heavy-punch.png",
     "light-kick": "assets/source/imagegen/fighters/pugilist-pug/light-kick.png",
+    special: "assets/source/imagegen/fighters/pugilist-pug/special.png",
   },
 };
 

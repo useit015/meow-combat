@@ -59,7 +59,7 @@ describe("Pickles Pugilist animation preflight", () => {
       outputPath: "assets/source/imagegen/fighters/pugilist-pug/idle.png",
     });
     expect(plannedManifest?.animations.filter((animation) => animation.source.status === "generated").map((animation) => animation.id)).toEqual(
-      ["idle", "walk-forward", "walk-back", "crouch", "jump", "light-punch", "light-kick"],
+      ["idle", "walk-forward", "walk-back", "crouch", "jump", "light-punch", "heavy-punch", "light-kick", "special"],
     );
   });
 
@@ -118,6 +118,35 @@ describe("Pickles Pugilist animation preflight", () => {
     expect(Math.min(...jumpWidths)).toBeGreaterThanOrEqual(Math.round(idleWidth * 0.9));
     expect(Math.min(...jumpHeights)).toBeGreaterThanOrEqual(Math.round(idleHeight * 0.8));
     expect(Math.max(...jumpHeights)).toBeGreaterThanOrEqual(Math.round(idleHeight * 0.92));
+  });
+
+  it("keeps generated Pickles power attacks locked to the approved character size", () => {
+    const idleBounds = alphaBoundsByFrame("assets/source/imagegen/fighters/pugilist-pug/idle.png", 8);
+    const idleHeight = Math.round(average(idleBounds.map((bounds) => bounds.height)));
+    const rows = [
+      {
+        path: "assets/source/imagegen/fighters/pugilist-pug/heavy-punch.png",
+        frameCount: 8,
+        maxWidth: 245,
+      },
+      {
+        path: "assets/source/imagegen/fighters/pugilist-pug/special.png",
+        frameCount: 10,
+        maxWidth: 210,
+      },
+    ];
+
+    for (const row of rows) {
+      const bounds = alphaBoundsByFrame(row.path, row.frameCount);
+      const widths = bounds.map((frame) => frame.width);
+      const heights = bounds.map((frame) => frame.height);
+
+      expect(Math.min(...widths)).toBeGreaterThanOrEqual(150);
+      expect(Math.max(...widths)).toBeLessThanOrEqual(row.maxWidth);
+      expect(Math.min(...heights)).toBeGreaterThanOrEqual(195);
+      expect(average(heights)).toBeGreaterThanOrEqual(205);
+      expect(average(heights)).toBeGreaterThanOrEqual(idleHeight * 0.9);
+    }
   });
 });
 

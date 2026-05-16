@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>T037 Pickles Power Attack Row QA</title>
+  <style>
+    body { margin: 0; font-family: Inter, system-ui, sans-serif; background: #f4f7f3; color: #151915; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px; }
+    h1, h2 { margin: 0 0 12px; }
+    p { line-height: 1.5; }
+    table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #c8d8c4; margin: 16px 0 24px; }
+    th, td { text-align: left; border-bottom: 1px solid #dce8d8; padding: 10px 12px; vertical-align: top; }
+    th { background: #24412f; color: #fff; }
+    code { background: #e8efe5; padding: 2px 4px; border-radius: 4px; }
+    .pill { display: inline-block; margin: 4px 8px 12px 0; border: 1px solid #b7c9ae; padding: 8px 10px; font-weight: 700; background: #fff; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>T037 Pickles Power Attack Row QA</h1>
+    <p><strong>Status:</strong> pass. Pickles remains source-only and non-playable; no public runtime fighter folder exists.</p>
+    <div class="pill">Idle reference: 166-168px wide, 228px high</div>
+    <div class="pill">Corrected jump: 153-163px wide, 190-212px high</div>
+    <h2>Accepted Rows</h2>
+    <table>
+      <thead><tr><th>Row</th><th>Dimensions</th><th>Width px</th><th>Height px</th><th>Avg height</th><th>Verdict</th></tr></thead>
+      <tbody><tr><td>heavy-punch</td><td>2048x256</td><td>164-233</td><td>204-223</td><td>220</td><td>pass</td></tr>
+<tr><td>special</td><td>2560x256</td><td>152-200</td><td>220-233</td><td>226</td><td>pass</td></tr></tbody>
+    </table>
+    <h2>Rejected Candidates</h2>
+    <ul><li><code>assets/source/imagegen/fighters/pugilist-pug/candidates/heavy-punch-codex-01.png</code>: Rejected after visual and normalization QA: the pose idea was usable, but equal-slice normalization exposed stray disconnected glove fragments crossing frame boundaries, so it was not AAA-safe.</li></ul>
+    <h2>Runtime Gate</h2>
+    <p><code>public/assets/generated/fighters/pugilist-pug</code> absent: true. Pickles animation rows are still source-only and blocked from roster/runtime selection.</p>
+  </main>
+</body>
+</html>

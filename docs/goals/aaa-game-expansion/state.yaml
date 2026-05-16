@@ -117,7 +117,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T037
+active_task: T038
 
 tasks:
   - id: T001
@@ -2217,7 +2217,7 @@ tasks:
   - id: T037
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: medium
     objective: "Generate and QA exactly two source-only Pickles Pugilist power/offense rows: heavy-punch and special, using built-in imagegen only. Normalize heavy-punch to 2048x256 and special to 2560x256 alpha spritesheets, compare both against idle, walk-forward, walk-back, crouch, corrected jump, light-punch, and light-kick, update source/planned manifests and focused tests, and prove Pickles remains non-playable with no public/runtime assets."
     allowed_files:
@@ -2269,23 +2269,151 @@ tasks:
       - "No-size-change thresholds: idle reference is about 167px body width and 228px body height. Character core width must stay >=150px and <=185px except intentional extended attacking glove; character core height must average >=205px and no frame may drop below 195px unless QA explicitly proves pose-local crouch/lean rather than global shrink. Head/glove/muzzle scale must visually match idle/light rows."
       - "QA JSON records candidate paths, hashes, dimensions, body-bound measurements, rejected candidates, T035 corrected jump comparison, and verdict."
       - "Tests, build, verify, asset QA, and smoke pass."
+    receipt:
+      result: done
+      changed_files:
+        - "assets/source/imagegen/fighters/pugilist-pug/candidates/heavy-punch-codex-01.png"
+        - "assets/source/imagegen/fighters/pugilist-pug/candidates/heavy-punch-codex-02.png"
+        - "assets/source/imagegen/fighters/pugilist-pug/candidates/special-codex-01.png"
+        - "assets/source/imagegen/fighters/pugilist-pug/heavy-punch.png"
+        - "assets/source/imagegen/fighters/pugilist-pug/special.png"
+        - "output/imagegen/pugilist-pug-heavy-punch.png"
+        - "output/imagegen/pugilist-pug-heavy-punch-normalized.png"
+        - "output/imagegen/pugilist-pug-special.png"
+        - "output/imagegen/pugilist-pug-special-normalized.png"
+        - "output/animation-preflight/pickles-pugilist-power-attack-row-qa.json"
+        - "output/animation-preflight/pickles-pugilist-power-attack-row-qa.html"
+        - "output/web-game/pickles-power-attacks-source-rows/"
+        - "src/assets/catalog.ts"
+        - "test/fighter-animation-preflight.test.ts"
+        - "test/asset-pipeline.test.ts"
+        - "test/asset-qa.test.ts"
+        - "docs/goals/aaa-game-expansion/notes/T037-pickles-power-attack-row-production.md"
+      commands:
+        - cmd: "node scripts/normalize-fighter-rows.mjs --animation heavy-punch --fighters pugilist-pug"
+          status: pass
+        - cmd: "node scripts/normalize-fighter-rows.mjs --animation special --fighters pugilist-pug"
+          status: pass
+        - cmd: "sips -g pixelWidth -g pixelHeight -g hasAlpha assets/source/imagegen/fighters/pugilist-pug/heavy-punch.png assets/source/imagegen/fighters/pugilist-pug/special.png output/imagegen/pugilist-pug-heavy-punch-normalized.png output/imagegen/pugilist-pug-special-normalized.png"
+          status: pass
+        - cmd: "npm test -- test/fighter-animation-preflight.test.ts test/asset-pipeline.test.ts test/asset-qa.test.ts test/game-config.test.ts"
+          status: pass
+        - cmd: "node scripts/asset-qa.mjs --json"
+          status: pass
+        - cmd: "test ! -e public/assets/generated/fighters/pugilist-pug"
+          status: pass
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm run build"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/pickles-power-attacks-source-rows"
+          status: pass
+      decision: accept_with_caveat
+      full_outcome_complete: false
+      note: notes/T037-pickles-power-attack-row-production.md
+      summary: "Generated exactly two source-only Pickles power/offense rows: heavy-punch and special. Both used built-in Codex imagegen, were chroma-key cleaned, normalized to exact alpha spritesheets, size-checked against idle/grounded/light rows and the corrected T035 jump row, and kept Pickles non-playable with no public/runtime assets."
+      accepted_rows:
+        - "heavy-punch: 2048x256 alpha, body bounds 164-233px wide and 204-223px high; the wide frame is intentional punch extension, not global scale drift."
+        - "special: 2560x256 alpha, body bounds 152-200px wide and 220-233px high; no projectiles, sparks, text, logos, or copied fighting-game language."
+      rejected_candidates:
+        - "assets/source/imagegen/fighters/pugilist-pug/candidates/heavy-punch-codex-01.png: rejected because normalization exposed stray disconnected glove fragments crossing frame boundaries."
+      judge_review:
+        result: accept_with_caveat
+        caveat: "The focused size test is useful but still permissive; future rows require artifact QA plus visual Judge review before acceptance."
+      verification:
+        result: pass
+        commands:
+          - "node scripts/normalize-fighter-rows.mjs --animation heavy-punch --fighters pugilist-pug"
+          - "node scripts/normalize-fighter-rows.mjs --animation special --fighters pugilist-pug"
+          - "sips -g pixelWidth -g pixelHeight -g hasAlpha assets/source/imagegen/fighters/pugilist-pug/heavy-punch.png assets/source/imagegen/fighters/pugilist-pug/special.png output/imagegen/pugilist-pug-heavy-punch-normalized.png output/imagegen/pugilist-pug-special-normalized.png"
+          - "npm test -- test/fighter-animation-preflight.test.ts test/asset-pipeline.test.ts test/asset-qa.test.ts test/game-config.test.ts"
+          - "node scripts/asset-qa.mjs --json"
+          - "test ! -e public/assets/generated/fighters/pugilist-pug"
+          - "npm run typecheck"
+          - "npm run build"
+          - "npm run verify"
+          - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/pickles-power-attacks-source-rows"
+        focused_tests: "4 files, 19 tests passed"
+        full_verify: "31 files, 206 tests passed; build passed"
+        asset_qa: "130 checked, 74 runtime-ready, 56 needs-normalization"
+        smoke: "No failures; screenshots and state written under output/web-game/pickles-power-attacks-source-rows"
+      spawned_tasks:
+        - T038
+  - id: T038
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: medium
+    objective: "Generate and QA exactly two source-only Pickles Pugilist defensive reaction rows: hitstun and blockstun, using built-in imagegen only. Normalize both to exact 1280x256 alpha spritesheets, compare both against all accepted Pickles rows, preserve the no-size-change rule with stricter per-row QA and visual review, update source/planned manifests/tests/QA notes, and prove Pickles remains non-playable with no public/runtime assets."
+    allowed_files:
+      - "assets/source/imagegen/fighters/pugilist-pug/candidates/hitstun-codex-01.png"
+      - "assets/source/imagegen/fighters/pugilist-pug/candidates/hitstun-codex-02.png"
+      - "assets/source/imagegen/fighters/pugilist-pug/candidates/hitstun-codex-03.png"
+      - "assets/source/imagegen/fighters/pugilist-pug/candidates/blockstun-codex-01.png"
+      - "assets/source/imagegen/fighters/pugilist-pug/candidates/blockstun-codex-02.png"
+      - "assets/source/imagegen/fighters/pugilist-pug/candidates/blockstun-codex-03.png"
+      - "assets/source/imagegen/fighters/pugilist-pug/hitstun.png"
+      - "assets/source/imagegen/fighters/pugilist-pug/blockstun.png"
+      - "output/imagegen/pugilist-pug-hitstun.png"
+      - "output/imagegen/pugilist-pug-hitstun-normalized.png"
+      - "output/imagegen/pugilist-pug-blockstun.png"
+      - "output/imagegen/pugilist-pug-blockstun-normalized.png"
+      - "output/animation-preflight/pickles-pugilist-defense-row-qa.json"
+      - "output/animation-preflight/pickles-pugilist-defense-row-qa.html"
+      - "output/web-game/pickles-defense-source-rows/"
+      - "src/assets/catalog.ts"
+      - "test/fighter-animation-preflight.test.ts"
+      - "test/asset-pipeline.test.ts"
+      - "test/asset-qa.test.ts"
+      - "docs/goals/aaa-game-expansion/notes/T038-pickles-defense-row-production.md"
+    verify:
+      - "node scripts/normalize-fighter-rows.mjs --animation hitstun --fighters pugilist-pug"
+      - "node scripts/normalize-fighter-rows.mjs --animation blockstun --fighters pugilist-pug"
+      - "sips -g pixelWidth -g pixelHeight -g hasAlpha assets/source/imagegen/fighters/pugilist-pug/hitstun.png assets/source/imagegen/fighters/pugilist-pug/blockstun.png output/imagegen/pugilist-pug-hitstun-normalized.png output/imagegen/pugilist-pug-blockstun-normalized.png"
+      - "npm test -- test/fighter-animation-preflight.test.ts test/asset-pipeline.test.ts test/asset-qa.test.ts test/game-config.test.ts"
+      - "node scripts/asset-qa.mjs --json"
+      - "test ! -e public/assets/generated/fighters/pugilist-pug"
+      - "npm run typecheck"
+      - "npm run build"
+      - "npm run verify"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/pickles-defense-source-rows"
+    stop_if:
+      - "Need files outside allowed_files."
+      - "Any public/runtime asset, roster, select-screen, combat, input, dependency, or playable promotion change is needed."
+      - "Any row globally shrinks/enlarges Pickles relative to idle/grounded/offense rows."
+      - "Any reaction pose hides scale drift through curling, crouching, cropped limbs, oversized impact smear, or changed body mass."
+      - "Any candidate changes Pickles' face, muzzle, wrinkles, ears, gloves, belt, tail curl, palette, body scale, or upright pug-boxer identity."
+      - "Rows require detached hit sparks, dust, impact symbols, text, logos, frame numbers, watermarks, UI, or copied fighting-game visual language."
+      - "The rows cannot normalize to exact 1280x256 alpha PNGs."
+    acceptance:
+      - "Exactly two accepted source-only rows: hitstun and blockstun."
+      - "hitstun is exact 1280x256 alpha, 5 frames of 256x256."
+      - "blockstun is exact 1280x256 alpha, 5 frames of 256x256."
+      - "No public/runtime Pickles folder exists; Pickles remains non-playable."
+      - "Catalog marks exactly eleven generated Pickles rows; knockdown, win, and lose remain blocked."
+      - "No-size-change thresholds: idle reference is about 167px body width and 228px body height. Reaction core width must stay >=150px unless QA explicitly proves temporary arm/body overlap without global shrink; character core height must average >=205px and no frame may drop below 195px unless visual QA proves pose-local recoil rather than global shrink. Head/glove/muzzle scale must visually match accepted rows."
+      - "QA JSON records candidate paths, hashes, dimensions, per-frame body bounds, rejected candidates, T035/T037 comparison, visual no-size-change rationale, and verdict."
+      - "Tests, build, verify, asset QA, and smoke pass."
     receipt: null
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T035
+    task: T037
     commands:
-      - "node scripts/normalize-fighter-rows.mjs --animation jump --fighters pugilist-pug"
-      - "sips -g pixelWidth -g pixelHeight -g hasAlpha assets/source/imagegen/fighters/pugilist-pug/jump.png output/imagegen/pugilist-pug-jump-normalized.png"
-      - "npm test -- test/fighter-animation-preflight.test.ts test/asset-qa.test.ts"
+      - "node scripts/normalize-fighter-rows.mjs --animation heavy-punch --fighters pugilist-pug"
+      - "node scripts/normalize-fighter-rows.mjs --animation special --fighters pugilist-pug"
+      - "sips -g pixelWidth -g pixelHeight -g hasAlpha assets/source/imagegen/fighters/pugilist-pug/heavy-punch.png assets/source/imagegen/fighters/pugilist-pug/special.png output/imagegen/pugilist-pug-heavy-punch-normalized.png output/imagegen/pugilist-pug-special-normalized.png"
+      - "npm test -- test/fighter-animation-preflight.test.ts test/asset-pipeline.test.ts test/asset-qa.test.ts test/game-config.test.ts"
       - "node scripts/asset-qa.mjs --json"
       - "test ! -e public/assets/generated/fighters/pugilist-pug"
       - "npm run typecheck"
       - "npm run build"
       - "npm run verify"
-      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/pickles-jump-size-lock"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/pickles-power-attacks-source-rows"
   t021_verification:
     result: pass
     task: T021

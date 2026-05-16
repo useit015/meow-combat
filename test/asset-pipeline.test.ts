@@ -10,7 +10,17 @@ import {
 } from "../src/assets";
 
 describe("fighter asset manifests", () => {
-  const generatedPicklesRows = new Set(["idle", "walk-forward", "walk-back", "crouch", "jump", "light-punch", "light-kick"]);
+  const generatedPicklesRows = new Set([
+    "idle",
+    "walk-forward",
+    "walk-back",
+    "crouch",
+    "jump",
+    "light-punch",
+    "heavy-punch",
+    "light-kick",
+    "special",
+  ]);
 
   it("define every required production animation for each fighter", () => {
     for (const manifest of fighterAssetManifests) {

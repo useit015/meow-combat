@@ -44,6 +44,10 @@ describe("imagegen asset QA command", () => {
       cwd: process.cwd(),
       encoding: "utf8",
     });
+    execFileSync("node", ["scripts/normalize-fighter-rows.mjs", "--animation", "heavy-punch", "--fighters", "pugilist-pug"], {
+      cwd: process.cwd(),
+      encoding: "utf8",
+    });
     execFileSync("node", ["scripts/normalize-fighter-rows.mjs", "--animation", "light-kick"], {
       cwd: process.cwd(),
       encoding: "utf8",
@@ -65,6 +69,10 @@ describe("imagegen asset QA command", () => {
       encoding: "utf8",
     });
     execFileSync("node", ["scripts/normalize-fighter-rows.mjs", "--animation", "heavy-punch"], {
+      cwd: process.cwd(),
+      encoding: "utf8",
+    });
+    execFileSync("node", ["scripts/normalize-fighter-rows.mjs", "--animation", "special", "--fighters", "pugilist-pug"], {
       cwd: process.cwd(),
       encoding: "utf8",
     });
@@ -122,8 +130,8 @@ describe("imagegen asset QA command", () => {
     });
     const summary = JSON.parse(output) as AssetQaSummary;
 
-    expect(summary.checked).toBe(126);
-    expect(summary.runtimeReady).toBe(70);
+    expect(summary.checked).toBe(130);
+    expect(summary.runtimeReady).toBe(74);
     expect(summary.needsNormalization).toBe(56);
     expect(summary.rows.map((row) => `${row.kind}:${row.fighterId}:${row.animationId}`).sort()).toEqual([
       "normalized-candidate:atlas-lion:blockstun",
@@ -169,10 +177,12 @@ describe("imagegen asset QA command", () => {
       "normalized-candidate:gray-rabbit:walk-forward",
       "normalized-candidate:gray-rabbit:win",
       "normalized-candidate:pugilist-pug:crouch",
+      "normalized-candidate:pugilist-pug:heavy-punch",
       "normalized-candidate:pugilist-pug:idle",
       "normalized-candidate:pugilist-pug:jump",
       "normalized-candidate:pugilist-pug:light-kick",
       "normalized-candidate:pugilist-pug:light-punch",
+      "normalized-candidate:pugilist-pug:special",
       "normalized-candidate:pugilist-pug:walk-back",
       "normalized-candidate:pugilist-pug:walk-forward",
       "normalized-candidate:sahara-viper:blockstun",
@@ -232,10 +242,12 @@ describe("imagegen asset QA command", () => {
       "source:gray-rabbit:walk-forward",
       "source:gray-rabbit:win",
       "source:pugilist-pug:crouch",
+      "source:pugilist-pug:heavy-punch",
       "source:pugilist-pug:idle",
       "source:pugilist-pug:jump",
       "source:pugilist-pug:light-kick",
       "source:pugilist-pug:light-punch",
+      "source:pugilist-pug:special",
       "source:pugilist-pug:walk-back",
       "source:pugilist-pug:walk-forward",
       "source:sahara-viper:blockstun",
@@ -299,10 +311,12 @@ describe("imagegen asset QA command", () => {
       "gray-rabbit:walk-forward",
       "gray-rabbit:win",
       "pugilist-pug:crouch",
+      "pugilist-pug:heavy-punch",
       "pugilist-pug:idle",
       "pugilist-pug:jump",
       "pugilist-pug:light-kick",
       "pugilist-pug:light-punch",
+      "pugilist-pug:special",
       "pugilist-pug:walk-back",
       "pugilist-pug:walk-forward",
       "sahara-viper:blockstun",
@@ -345,7 +359,7 @@ describe("imagegen asset QA command", () => {
     }
 
     const normalizedRows = summary.rows.filter((row) => row.kind === "normalized-candidate");
-    expect(normalizedRows).toHaveLength(63);
+    expect(normalizedRows).toHaveLength(65);
     for (const row of normalizedRows) {
       expect(row.expected).toEqual({ width: row.frameCount * 256, height: 256 });
       expect(row.dimensions).toEqual(row.expected);
