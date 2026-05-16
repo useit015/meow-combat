@@ -117,7 +117,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T064
+active_task: T065
 
 tasks:
   - id: T001
@@ -4142,7 +4142,7 @@ tasks:
   - id: T064
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Audit the post-Local-Versus browser milestone and decide the next safe package or ask_owner if the next meaningful step requires audio or generated asset work."
     inputs:
@@ -4163,6 +4163,77 @@ tasks:
       - "Next package or owner question"
       - "Allowed files, verification, stop_if, and acceptance if proceeding"
       - "Decision: proceed_with_worker | require_audit | ask_owner"
+    receipt:
+      result: done
+      decision: approved
+      routing_decision: proceed_with_worker
+      full_outcome_complete: false
+      note: notes/T064-post-local-versus-audit.md
+      summary: "Audited the post-Local-Versus browser milestone and selected a browser-v1 settings/controls/options surface as the next safe package. Audio music-loop, voice, external audio, generated art, roster expansion, model-sheet work, sprite sizing, character-size logic, and gameplay frame-data changes remain owner-gated under the hard no-size/no-asset/no-audio constraints."
+      ranked_gaps:
+        - "Browser-v1 settings/options/control clarity is still thin; pause and shell copy expose controls, but there is no first-class settings/options surface."
+        - "Music-loop and deeper audio production remain meaningful but touch audio/source records and platform-claim risk."
+        - "Five planned fighters remain non-playable; any roster continuation would touch generated assets, model sheets, animation rows, or promotion gates."
+        - "Championship/story can keep growing later, but current ladder/reward/interstitial states are newer and already smoke-covered."
+      evidence:
+        - "T063 Local Versus receipt reports manual P1/P2 same-keyboard play, CPU toggle locked off, protected guards clean, focused tests passing, typecheck passing, full verify passing, and Local Versus smoke failures=[]."
+        - "T022/T024 show authored sample cues exist for current non-loop runtime cue coverage; further music/voice/external audio work should be owner-gated."
+        - "Current content bible has three active runtime fighters and five planned fighters; roster expansion remains unsafe without generated asset/model-sheet/animation gates."
+      blocked_tasks:
+        - "Ask owner before music-loop, voice, ElevenLabs, Pixabay, source-record, or other audio work."
+        - "Ask owner before generated art, fighter row, model-sheet, roster-promotion, sprite sizing, placement, frame-size, or character-size work."
+        - "Ask owner before gameplay frame-data, hitbox, damage, pushback, movement, dependency, or package-lock changes."
+      spawned_tasks:
+        - T065
+  - id: T065
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: default
+    objective: "Add a browser-v1 controls/settings/options surface using current code-rendered UI only: expose current controls, CPU difficulty/manual/Local Versus control truth, fullscreen/reset/pause actions, and smoke-verifiable render_game_to_text state without persistence, audio, assets, dependencies, gameplay frame data, or character-size changes."
+    inputs:
+      - "T064 post-Local-Versus audit receipt"
+      - "Current shell and scene code"
+      - "Current game bible and mode metadata"
+      - "Recent smoke scripts and shell/control tests"
+    allowed_files:
+      - "src/game/shellFlow.ts"
+      - "src/game/MeowtalArenaScene.ts"
+      - "src/content/gameBible.ts"
+      - "scripts/smoke-meowtal-browser.mjs"
+      - "test/game-bible.test.ts"
+      - "test/shell-flow.test.ts"
+      - "test/character-select.test.ts"
+      - "test/control-fallback.test.ts"
+      - "output/web-game/browser-settings-controls/*"
+      - "docs/goals/aaa-game-expansion/notes/T065-browser-settings-controls.md"
+      - "docs/goals/aaa-game-expansion/state.yaml"
+    constraints:
+      - "Do not generate, resize, normalize, crop, repack, or pixel-edit fighter rows."
+      - "Do not change sprite scale, cell size, frame size, placement rules, character-size logic, generated assets, dependencies, audio, source records, music-loop, gameplay frame data, hitboxes, damage, pushback, or movement."
+      - "Do not add persistence, localStorage, key rebinding, online play, touch/mobile redesign, or broad settings architecture."
+      - "Use current code-rendered UI/runtime state only."
+      - "Keep existing 1 VS CPU, Training, Championship, Local Versus, pause, gamepad, and landscape behavior intact."
+      - "Do not mark the full AAA outcome complete."
+    verification:
+      - "git diff --name-only -- assets/source/imagegen/fighters public/assets/generated/fighters output/imagegen package.json package-lock.json src/game/audio.ts public/assets/audio assets/source/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts src/core/frameData.ts"
+      - "for row in idle walk-forward walk-back crouch jump light-punch heavy-punch light-kick special hitstun blockstun knockdown win lose; do cmp -s assets/source/imagegen/fighters/pugilist-pug/$row.png public/assets/generated/fighters/pugilist-pug/$row.png || exit 1; done"
+      - "npm test -- test/game-bible.test.ts test/shell-flow.test.ts test/character-select.test.ts test/control-fallback.test.ts"
+      - "npm run typecheck"
+      - "npm run verify"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/browser-settings-controls"
+    stop_if:
+      - "Any fighter row regeneration, resizing, normalization, cropping, repacking, or pixel edit is needed."
+      - "Any sprite scale, cell size, frame size, placement rule, character-size logic, generated asset, dependency, package lock, audio, source-record, music-loop, gameplay frame-data, hitbox, damage, pushback, or movement change is needed."
+      - "The slice requires persistent settings, key rebinding, online play, touch/mobile redesign, generated assets, external audio, or roster expansion."
+      - "Smoke shows fallback fighters, misleading roster/mode truth, obscured HUD/body, broken existing modes, or visible character size drift."
+    acceptance:
+      - "Settings/options surface is player-visible and truthful for keyboard-first browser v1."
+      - "render_game_to_text exposes settings/options state for smoke assertions."
+      - "Current CPU difficulty and Local Versus manual-P2 truth are represented accurately."
+      - "Existing 1 VS CPU, Training, Championship, Local Versus, pause, gamepad, and landscape smoke remain intact."
+      - "No protected files are changed and Pickles runtime rows remain byte-identical to source."
+      - "Receipt states full_outcome_complete=false."
     receipt: null
 
 checks:
