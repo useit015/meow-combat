@@ -117,7 +117,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T074
+active_task: T075
 
 tasks:
   - id: T001
@@ -4834,7 +4834,7 @@ tasks:
   - id: T074
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Review the accepted Noodle Nibbles idle plus locomotion source rows and decide the next safe row-production package without risking character-size drift, identity drift, or motion slop."
     inputs:
@@ -4857,25 +4857,102 @@ tasks:
       - "Exact next Worker objective if approved."
       - "Allowed files, verification commands, stop conditions, and acceptance criteria."
       - "Parallel-safety decision."
+    receipt:
+      result: done
+      decision: proceed_with_worker
+      full_outcome_complete: false
+      note: notes/T074-noodle-locomotion-review.md
+      rationale: "The accepted Noodle idle plus grounded locomotion rows are coherent enough to continue source-only row production. T073 correctly rejected the first bad forward candidate, then accepted exact alpha walk-forward/walk-back rows that preserve identity and stay source-only. The largest safe next package is crouch plus jump because both stress body compression/extension around the same scale baseline without attack, reaction, acting, or runtime-promotion risk."
+      rejected_alternatives:
+        - "Require locomotion repair: rejected because the accepted rows are stable enough and the first bad forward candidate was correctly rejected."
+        - "Starter attacks next: rejected until non-attack mobility proves the body can compress and extend without identity drift."
+        - "Defense/reaction rows next: rejected because hit/block distortion should follow clean crouch/jump posture proof."
+        - "Runtime promotion: rejected until every required Noodle row passes source-only production, QA, manifest review, and smoke in a later task."
+        - "Parallel workers: rejected because crouch and jump share one scale/identity risk and should share one QA report."
+      next_task: T075
+      spawned_tasks:
+        - T075
+  - id: T075
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: medium
+    objective: "Generate and QA exactly two source-only Noodle Nibbles / ferret-noodle mobility rows: crouch and jump, using built-in imagegen only. Normalize crouch to exact 1024x256 transparent spritesheet form and jump to exact 1536x256 transparent spritesheet form, compare both against the accepted idle/walk-forward/walk-back rows, update only source/planned manifests and focused tests, and prove Noodle remains not playable with no public/runtime assets."
+    inputs:
+      - "T074 Judge receipt."
+      - "T071 accepted Noodle idle source row and QA."
+      - "T073 accepted Noodle walk-forward/walk-back source rows and QA."
+      - "Hardened Noodle preflight row-generation briefs."
+    constraints:
+      - "Use built-in imagegen only; do not use external APIs, .env, CLI fallback, new dependencies, or package-lock changes."
+      - "Generate only crouch and jump; do not generate idle, walk-forward, walk-back, attacks, reactions, win/lose, knockdown, portraits, UI, stage, audio, or story assets."
+      - "Do not create or modify public/assets/generated/fighters/ferret-noodle files."
+      - "Do not change runtime roster, select screen, championship ladder, combat frame data, hitboxes, damage, pushback, movement, sprite scale, placement, frame size, dependencies, audio, or source records."
+      - "Reject any candidate with character-size drift, identity drift, body-length shrink/stretch, tail-ring instability, weird anatomy, unstable alpha bounds, baked text/effects, cropped frames, jump smear, or crouch collapse."
+      - "Do not mark the full AAA outcome complete."
+    allowed_files:
+      - "assets/source/imagegen/fighters/ferret-noodle/candidates/crouch-codex-01.png"
+      - "assets/source/imagegen/fighters/ferret-noodle/candidates/crouch-codex-02.png"
+      - "assets/source/imagegen/fighters/ferret-noodle/candidates/crouch-codex-03.png"
+      - "assets/source/imagegen/fighters/ferret-noodle/candidates/jump-codex-01.png"
+      - "assets/source/imagegen/fighters/ferret-noodle/candidates/jump-codex-02.png"
+      - "assets/source/imagegen/fighters/ferret-noodle/candidates/jump-codex-03.png"
+      - "assets/source/imagegen/fighters/ferret-noodle/crouch.png"
+      - "assets/source/imagegen/fighters/ferret-noodle/jump.png"
+      - "output/imagegen/ferret-noodle-crouch.png"
+      - "output/imagegen/ferret-noodle-crouch-normalized.png"
+      - "output/imagegen/ferret-noodle-jump.png"
+      - "output/imagegen/ferret-noodle-jump-normalized.png"
+      - "output/animation-preflight/noodle-nibbles-mobility-row-qa.json"
+      - "output/animation-preflight/noodle-nibbles-mobility-row-qa.html"
+      - "output/web-game/noodle-mobility-source-rows/"
+      - "src/assets/catalog.ts"
+      - "test/asset-pipeline.test.ts"
+      - "test/asset-qa.test.ts"
+      - "test/fighter-animation-preflight.test.ts"
+      - "test/imagegen-jobs.test.ts"
+      - "docs/goals/aaa-game-expansion/notes/T075-noodle-mobility-row-production.md"
+      - "docs/goals/aaa-game-expansion/state.yaml"
+    verify:
+      - "node scripts/normalize-fighter-rows.mjs --animation crouch --fighters ferret-noodle"
+      - "node scripts/normalize-fighter-rows.mjs --animation jump --fighters ferret-noodle"
+      - "bundled remove_chroma_key.py cleanup on normalized rows if imagegen uses a chroma key background"
+      - "npm run typecheck"
+      - "npm test -- test/fighter-animation-preflight.test.ts test/asset-pipeline.test.ts test/source-roster-lab.test.ts test/game-config.test.ts test/imagegen-jobs.test.ts test/asset-qa.test.ts"
+      - "sips -g pixelWidth -g pixelHeight -g hasAlpha assets/source/imagegen/fighters/ferret-noodle/crouch.png assets/source/imagegen/fighters/ferret-noodle/jump.png output/imagegen/ferret-noodle-crouch-normalized.png output/imagegen/ferret-noodle-jump-normalized.png"
+      - "node scripts/asset-qa.mjs --json"
+      - "test ! -e public/assets/generated/fighters/ferret-noodle"
+      - "npm run verify"
+      - "git diff --name-only -- public/assets/generated/fighters package.json package-lock.json src/game/audio.ts public/assets/audio assets/source/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts src/core/frameData.ts"
+      - "rg -n \"Noodle Nibbles|ferret-noodle|crouch|jump|no-size-drift|row-generation|not playable|source-only\" src/assets/catalog.ts src/assets/fighterAnimationPreflight.ts test/fighter-animation-preflight.test.ts test/asset-pipeline.test.ts test/asset-qa.test.ts docs/goals/aaa-game-expansion/notes/T075-noodle-mobility-row-production.md output/animation-preflight/noodle-nibbles-mobility-row-qa.json"
+    stop_if:
+      - "Built-in imagegen is unavailable or any external image API/.env/CLI fallback use is needed."
+      - "Either row has size drift, identity drift, body-length shrink/stretch, tail-ring instability, weird anatomy, unstable alpha bounds, baked text/effects, cropped frames, jump smear, or crouch collapse."
+      - "More than the three allowed candidates per row are needed."
+      - "Any runtime roster/select/combat/public asset change is needed."
+      - "Crouch cannot be normalized to exact 1024x256 or jump cannot be normalized to exact 1536x256 with 256x256 cells."
+      - "Verification fails twice."
+    acceptance:
+      - "Exactly two accepted source-only rows: crouch and jump."
+      - "Both rows preserve Noodle identity and compare cleanly against accepted idle and locomotion baselines."
+      - "Catalog marks only idle, walk-forward, walk-back, crouch, and jump as generated for Noodle; all attack/reaction/KO/win/lose rows remain blocked."
+      - "Candidate/source/public separation is preserved."
+      - "public/assets/generated/fighters/ferret-noodle remains absent."
+      - "Noodle remains not playable."
+      - "Tests and verification pass."
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T073
+    task: T074
     commands:
-      - "built-in Codex imagegen for source-only Noodle walk-forward candidate 01, walk-forward candidate 02, and walk-back candidate 01"
-      - "node scripts/normalize-fighter-rows.mjs --animation walk-forward --fighters ferret-noodle"
-      - "node scripts/normalize-fighter-rows.mjs --animation walk-back --fighters ferret-noodle"
-      - "bundled remove_chroma_key.py cleanup on raw and normalized Noodle locomotion rows"
-      - "npm run typecheck"
-      - "npm test -- test/fighter-animation-preflight.test.ts test/asset-pipeline.test.ts test/source-roster-lab.test.ts test/game-config.test.ts test/imagegen-jobs.test.ts test/asset-qa.test.ts"
-      - "sips -g pixelWidth -g pixelHeight -g hasAlpha assets/source/imagegen/fighters/ferret-noodle/walk-forward.png assets/source/imagegen/fighters/ferret-noodle/walk-back.png output/imagegen/ferret-noodle-walk-forward-normalized.png output/imagegen/ferret-noodle-walk-back-normalized.png"
-      - "node scripts/asset-qa.mjs --json"
+      - "view_image assets/source/imagegen/fighters/ferret-noodle/idle.png"
+      - "view_image assets/source/imagegen/fighters/ferret-noodle/walk-forward.png"
+      - "view_image assets/source/imagegen/fighters/ferret-noodle/walk-back.png"
+      - "sed -n '1,230p' output/animation-preflight/noodle-nibbles-locomotion-row-qa.json"
       - "test ! -e public/assets/generated/fighters/ferret-noodle"
-      - "npm run verify"
-      - "git diff --name-only -- public/assets/generated/fighters package.json package-lock.json src/game/audio.ts public/assets/audio assets/source/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts src/core/frameData.ts"
-      - "rg -n \"Noodle Nibbles|ferret-noodle|walk-forward|walk-back|no-size-drift|row-generation|not playable|source-only\" src/assets/catalog.ts src/assets/fighterAnimationPreflight.ts test/fighter-animation-preflight.test.ts test/asset-pipeline.test.ts test/asset-qa.test.ts docs/goals/aaa-game-expansion/notes/T073-noodle-locomotion-row-production.md output/animation-preflight/noodle-nibbles-locomotion-row-qa.json"
+      - "rg -n \"crouch|jump|Noodle Nibbles|ferret-noodle\" output/animation-preflight/noodle-nibbles-animation-plan.json src/assets/fighterAnimationPreflight.ts docs/goals/aaa-game-expansion/notes/T073-noodle-locomotion-row-production.md"
   t021_verification:
     result: pass
     task: T021
