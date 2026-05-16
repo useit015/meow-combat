@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pickles Pugilist Locomotion Row QA</title>
+  <style>
+    body { margin: 0; font-family: Inter, system-ui, sans-serif; background: #f5f7f0; color: #151915; }
+    main { max-width: 1120px; margin: 0 auto; padding: 32px; }
+    h1 { font-size: 32px; margin: 0 0 8px; }
+    p { line-height: 1.5; }
+    table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #cbd9c4; }
+    th, td { padding: 10px 12px; border-bottom: 1px solid #dfe9d9; text-align: left; vertical-align: top; }
+    th { background: #24412f; color: #fff; }
+    .pill { display: inline-block; margin: 4px 8px 12px 0; border: 1px solid #b7c9ae; padding: 8px 10px; font-weight: 700; background: #fff; }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Pickles Pugilist Locomotion Row QA</h1>
+  <p>T030 accepted exactly two source-only locomotion rows for <code>pugilist-pug</code>: <code>walk-forward</code> and <code>walk-back</code>. Pickles Pugilist is still not playable and has no public runtime fighter asset folder.</p>
+  <div>
+    <span class="pill">Result: accepted-source-only</span>
+    <span class="pill">Rows: walk-forward, walk-back</span>
+    <span class="pill">Frames per row: 8</span>
+    <span class="pill">Cells: 256x256</span>
+  </div>
+  <table>
+    <thead><tr><th>Row</th><th>Accepted source</th><th>Dimensions</th><th>QA</th></tr></thead>
+    <tbody>
+      <tr><td>walk-forward</td><td><code>assets/source/imagegen/fighters/pugilist-pug/walk-forward.png</code></td><td>2048x256, alpha</td><td>Scale, identity, forward pressure-step motion, alpha, and source-only gates pass</td></tr>
+      <tr><td>walk-back</td><td><code>assets/source/imagegen/fighters/pugilist-pug/walk-back.png</code></td><td>2048x256, alpha</td><td>Scale, identity, backward defensive shuffle, alpha, and source-only gates pass</td></tr>
+    </tbody>
+  </table>
+  <h2>No-Drift Verdict</h2>
+  <ul>
+    <li>Both rows preserve Pickles' idle-reference head height, compact body width, glove size, muzzle, ears, tail curl, belt, palette, and silhouette.</li>
+    <li>Both rows stay upright and grounded with no four-legged locomotion, attack pose, baked effects, text, or public runtime promotion.</li>
+    <li><code>public/assets/generated/fighters/pugilist-pug</code> remains absent.</li>
+  </ul>
+</main>
+</body>
+</html>

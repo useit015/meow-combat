@@ -57,9 +57,9 @@ describe("Pickles Pugilist animation preflight", () => {
       status: "generated",
       outputPath: "assets/source/imagegen/fighters/pugilist-pug/idle.png",
     });
-    expect(plannedManifest?.animations.filter((animation) => animation.source.status === "generated").map((animation) => animation.id)).toEqual([
-      "idle",
-    ]);
+    expect(plannedManifest?.animations.filter((animation) => animation.source.status === "generated").map((animation) => animation.id)).toEqual(
+      ["idle", "walk-forward", "walk-back"],
+    );
   });
 
   it("defines concrete no-drift gates, runtime promotion tests, and smoke requirements", () => {

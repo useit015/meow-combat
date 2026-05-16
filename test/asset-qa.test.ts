@@ -122,8 +122,8 @@ describe("imagegen asset QA command", () => {
     });
     const summary = JSON.parse(output) as AssetQaSummary;
 
-    expect(summary.checked).toBe(114);
-    expect(summary.runtimeReady).toBe(58);
+    expect(summary.checked).toBe(118);
+    expect(summary.runtimeReady).toBe(62);
     expect(summary.needsNormalization).toBe(56);
     expect(summary.rows.map((row) => `${row.kind}:${row.fighterId}:${row.animationId}`).sort()).toEqual([
       "normalized-candidate:atlas-lion:blockstun",
@@ -169,6 +169,8 @@ describe("imagegen asset QA command", () => {
       "normalized-candidate:gray-rabbit:walk-forward",
       "normalized-candidate:gray-rabbit:win",
       "normalized-candidate:pugilist-pug:idle",
+      "normalized-candidate:pugilist-pug:walk-back",
+      "normalized-candidate:pugilist-pug:walk-forward",
       "normalized-candidate:sahara-viper:blockstun",
       "normalized-candidate:sahara-viper:crouch",
       "normalized-candidate:sahara-viper:heavy-punch",
@@ -226,6 +228,8 @@ describe("imagegen asset QA command", () => {
       "source:gray-rabbit:walk-forward",
       "source:gray-rabbit:win",
       "source:pugilist-pug:idle",
+      "source:pugilist-pug:walk-back",
+      "source:pugilist-pug:walk-forward",
       "source:sahara-viper:blockstun",
       "source:sahara-viper:crouch",
       "source:sahara-viper:heavy-punch",
@@ -287,6 +291,8 @@ describe("imagegen asset QA command", () => {
       "gray-rabbit:walk-forward",
       "gray-rabbit:win",
       "pugilist-pug:idle",
+      "pugilist-pug:walk-back",
+      "pugilist-pug:walk-forward",
       "sahara-viper:blockstun",
       "sahara-viper:crouch",
       "sahara-viper:heavy-punch",
@@ -327,7 +333,7 @@ describe("imagegen asset QA command", () => {
     }
 
     const normalizedRows = summary.rows.filter((row) => row.kind === "normalized-candidate");
-    expect(normalizedRows).toHaveLength(57);
+    expect(normalizedRows).toHaveLength(59);
     for (const row of normalizedRows) {
       expect(row.expected).toEqual({ width: row.frameCount * 256, height: 256 });
       expect(row.dimensions).toEqual(row.expected);

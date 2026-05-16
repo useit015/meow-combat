@@ -1,0 +1,72 @@
+{
+  "task": "T030",
+  "result": "accepted-source-only",
+  "fighterId": "pugilist-pug",
+  "displayName": "Pickles Pugilist",
+  "acceptedRows": ["walk-forward", "walk-back"],
+  "playable": false,
+  "runtimePromotion": false,
+  "generatedWith": "built-in Codex imagegen",
+  "idleReferencePath": "assets/source/imagegen/fighters/pugilist-pug/idle.png",
+  "rows": [
+    {
+      "animationId": "walk-forward",
+      "candidatePath": "assets/source/imagegen/fighters/pugilist-pug/candidates/walk-forward-codex-01.png",
+      "acceptedSourcePath": "assets/source/imagegen/fighters/pugilist-pug/walk-forward.png",
+      "rawOutputPath": "output/imagegen/pugilist-pug-walk-forward.png",
+      "normalizedOutputPath": "output/imagegen/pugilist-pug-walk-forward-normalized.png",
+      "candidateSha256": "16afde511b4657a92f68e643a054fbfbfd1efcb332bfea6fcaa5d4ef44c5cbc9",
+      "acceptedSourceSha256": "591f06436f4b7dfadf721a24b106cd33c521fd257d76a8dea42488fafe44d365",
+      "dimensions": {
+        "candidate": { "width": 2172, "height": 724, "hasAlpha": false },
+        "acceptedSource": { "width": 2048, "height": 256, "hasAlpha": true },
+        "cellSize": { "width": 256, "height": 256 },
+        "frameCount": 8
+      },
+      "detectedFrameCrops": [
+        { "x": 23, "y": 185, "width": 262, "height": 343 },
+        { "x": 285, "y": 185, "width": 256, "height": 343 },
+        { "x": 541, "y": 185, "width": 265, "height": 343 },
+        { "x": 807, "y": 185, "width": 266, "height": 343 },
+        { "x": 1073, "y": 185, "width": 265, "height": 343 },
+        { "x": 1338, "y": 185, "width": 267, "height": 343 },
+        { "x": 1605, "y": 185, "width": 263, "height": 343 },
+        { "x": 1871, "y": 185, "width": 268, "height": 343 }
+      ],
+      "qaVerdict": "pass: forward pressure-step motion keeps Pickles upright, compact, and scale-stable against idle; gloves, muzzle, ears, tail curl, belt, palette, and silhouette remain consistent."
+    },
+    {
+      "animationId": "walk-back",
+      "candidatePath": "assets/source/imagegen/fighters/pugilist-pug/candidates/walk-back-codex-01.png",
+      "acceptedSourcePath": "assets/source/imagegen/fighters/pugilist-pug/walk-back.png",
+      "rawOutputPath": "output/imagegen/pugilist-pug-walk-back.png",
+      "normalizedOutputPath": "output/imagegen/pugilist-pug-walk-back-normalized.png",
+      "candidateSha256": "1867036c8e4958fc84c29d9ff97bcb7e140d472b9ec9cf135d415fca3b9e3c5e",
+      "acceptedSourceSha256": "391d9248426b1ef086dae206ae427e899a168fc4b6031f9a24959b7c6efc20ec",
+      "dimensions": {
+        "candidate": { "width": 2172, "height": 724, "hasAlpha": false },
+        "acceptedSource": { "width": 2048, "height": 256, "hasAlpha": true },
+        "cellSize": { "width": 256, "height": 256 },
+        "frameCount": 8
+      },
+      "detectedFrameCrops": [
+        { "x": 24, "y": 191, "width": 259, "height": 344 },
+        { "x": 283, "y": 191, "width": 257, "height": 344 },
+        { "x": 546, "y": 191, "width": 259, "height": 344 },
+        { "x": 826, "y": 191, "width": 261, "height": 344 },
+        { "x": 1097, "y": 191, "width": 258, "height": 344 },
+        { "x": 1367, "y": 191, "width": 256, "height": 344 },
+        { "x": 1623, "y": 191, "width": 257, "height": 344 },
+        { "x": 1880, "y": 191, "width": 260, "height": 344 }
+      ],
+      "qaVerdict": "pass: backward shuffle stays defensive and grounded while preserving idle scale, head height, body width, gloves, muzzle, ears, tail curl, palette, and silhouette."
+    }
+  ],
+  "sourceOnlyVerdict": "pass: public/assets/generated/fighters/pugilist-pug remains absent and Pickles remains non-playable.",
+  "rejectedCandidates": [],
+  "notes": [
+    "Exactly one candidate was needed for each locomotion row.",
+    "Both accepted rows are source-only and are not runtime promotion.",
+    "Future crouch/jump or attack rows must compare against idle plus both locomotion rows before acceptance."
+  ]
+}
