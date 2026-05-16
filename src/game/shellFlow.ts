@@ -1,8 +1,9 @@
 import type { MatchSnapshot } from "../core";
 import type { MatchSetStatus } from "../core";
+import { petFighterGameBible } from "../content";
 
 export type ShellPhase = "ready" | "mode-select" | "select" | "fighting" | "paused" | "round-over" | "match-over";
-export type ArcadePlayMode = "versus-cpu" | "training";
+export type ArcadePlayMode = "versus-cpu" | "training" | "championship";
 
 export interface ShellState {
   phase: ShellPhase;
@@ -19,7 +20,7 @@ export interface ShellInput {
   matchSetStatus?: MatchSetStatus;
 }
 
-const PLAY_MODES = ["versus-cpu", "training"] as const satisfies readonly ArcadePlayMode[];
+const PLAY_MODES = ["versus-cpu", "training", "championship"] as const satisfies readonly ArcadePlayMode[];
 const DEFAULT_PLAY_MODE: ArcadePlayMode = "versus-cpu";
 
 export const initialShellState: ShellState = {
@@ -81,7 +82,21 @@ export function selectedPlayMode(state: Pick<ShellState, "selectedMode">): Arcad
 }
 
 export function shellModeLabel(state: Pick<ShellState, "selectedMode">): string {
-  return selectedPlayMode(state) === "training" ? "TRAINING" : "1 VS CPU";
+  const mode = selectedPlayMode(state);
+  if (mode === "training") return "TRAINING";
+  if (mode === "championship") return "CHAMPIONSHIP";
+  return "1 VS CPU";
+}
+
+export function shellModeDescription(state: Pick<ShellState, "selectedMode">): string {
+  const mode = selectedPlayMode(state);
+  if (mode === "training") return "Endless sparring lab for timing, spacing, and dummy practice.";
+  if (mode === "championship") return petFighterGameBible.championship.firstStoryBeat;
+  return "Best-of-three CPU fight using the current roster and difficulty setting.";
+}
+
+export function playModeUsesCpu(state: Pick<ShellState, "selectedMode">): boolean {
+  return selectedPlayMode(state) !== "training";
 }
 
 function withSelectedMode(state: ShellState): ShellState {

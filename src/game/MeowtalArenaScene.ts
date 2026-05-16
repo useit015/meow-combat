@@ -55,7 +55,15 @@ import {
   type GamepadInputState,
 } from "./gamepadInput";
 import { fighterMobilityMotionCue, fighterRollMotionCue, fighterVisualSeparationOffset, impactFeedbackCue } from "./presentation";
-import { initialShellState, reduceShellState, selectedPlayMode, shellModeLabel, type ShellState } from "./shellFlow";
+import {
+  initialShellState,
+  playModeUsesCpu,
+  reduceShellState,
+  selectedPlayMode,
+  shellModeDescription,
+  shellModeLabel,
+  type ShellState,
+} from "./shellFlow";
 import { selectSpritePose, spriteStanceConventionForAnimation } from "./spriteFrame";
 import {
   spriteReferenceArea,
@@ -398,6 +406,13 @@ export class MeowtalArenaScene extends Phaser.Scene {
       p2Mode: this.p2CpuEnabled ? "cpu" : "manual",
       playMode: selectedPlayMode(this.shell),
       playModeLabel: shellModeLabel(this.shell),
+      storyMode:
+        selectedPlayMode(this.shell) === "championship"
+          ? {
+              status: "planned-shell",
+              firstBeat: shellModeDescription(this.shell),
+            }
+          : null,
       training: {
         enabled: selectedPlayMode(this.shell) === "training",
         endlessRound: selectedPlayMode(this.shell) === "training",
@@ -729,11 +744,7 @@ export class MeowtalArenaScene extends Phaser.Scene {
     this.roundText.setText(roundLabel(this.matchSet));
     if (this.shell.phase === "mode-select") {
       this.modeText
-        .setText(
-          selectedPlayMode(this.shell) === "training"
-            ? "TRAINING\nENDLESS SPARRING"
-            : `1 VS CPU\n${this.cpuDifficulty.toUpperCase()}`,
-        )
+        .setText(modeSelectText(this.shell, this.cpuDifficulty))
         .setStyle({
           align: "center",
           color: "#f8f5e9",
@@ -750,6 +761,8 @@ export class MeowtalArenaScene extends Phaser.Scene {
         .setText(
           selectedPlayMode(this.shell) === "training"
             ? "TRAINING MODE"
+            : selectedPlayMode(this.shell) === "championship"
+              ? "CHAMPIONSHIP"
             : this.p2CpuEnabled
               ? `1 VS CPU ${this.cpuDifficulty.toUpperCase()}`
               : "P2 MANUAL",
@@ -1132,7 +1145,7 @@ export class MeowtalArenaScene extends Phaser.Scene {
 
   private startSelectedMatch(options: { syncCpuToMode?: boolean } = {}): void {
     if (options.syncCpuToMode ?? true) {
-      this.p2CpuEnabled = selectedPlayMode(this.shell) === "versus-cpu";
+      this.p2CpuEnabled = playModeUsesCpu(this.shell);
     }
     this.simulation = this.createSimulation();
     this.snapshot = this.simulation.snapshot();
@@ -2105,7 +2118,16 @@ function shellHelp(shell: ShellState, selectionLabel: string, controlFallbackLin
   if (selectedPlayMode(shell) === "training") {
     return "Training: endless timer and dummy sparring  |  Space/J light  |  I kick  |  K heavy  |  L special  |  P pause  |  R reset";
   }
+  if (selectedPlayMode(shell) === "championship") {
+    return "Championship shell: story CPU fight  |  Space/J light  |  I kick  |  K heavy  |  L special  |  S,D,L super  |  P pause  |  R reset";
+  }
   return "Double-tap D/B run  |  W+dir hop  |  Space/J light  |  I kick  |  K heavy  |  L special  |  S,D,L super  |  C CPU  |  V level  |  P pause  |  F full";
+}
+
+function modeSelectText(shell: ShellState, cpuDifficulty: CpuDifficulty): string {
+  if (selectedPlayMode(shell) === "training") return "TRAINING\nENDLESS SPARRING";
+  if (selectedPlayMode(shell) === "championship") return "CHAMPIONSHIP\n2026 STORY SHELL";
+  return `1 VS CPU\n${cpuDifficulty.toUpperCase()}`;
 }
 
 function nextCpuDifficulty(current: CpuDifficulty): CpuDifficulty {

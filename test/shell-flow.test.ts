@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { initialShellState, reduceShellState, selectedPlayMode, shellModeLabel } from "../src/game/shellFlow";
+import {
+  initialShellState,
+  playModeUsesCpu,
+  reduceShellState,
+  selectedPlayMode,
+  shellModeDescription,
+  shellModeLabel,
+} from "../src/game/shellFlow";
 
 describe("shell flow", () => {
   it("waits in ready until start opens play mode select", () => {
@@ -15,7 +22,7 @@ describe("shell flow", () => {
     ).toEqual({ phase: "mode-select", selectedMode: "versus-cpu" });
   });
 
-  it("selects training or 1 vs CPU before fighter select", () => {
+  it("selects training, championship, or 1 vs CPU before fighter select", () => {
     const modeSelect = reduceShellState(initialShellState, {
       startPressed: true,
       matchStatus: "fighting",
@@ -28,6 +35,21 @@ describe("shell flow", () => {
     expect(training).toEqual({ phase: "mode-select", selectedMode: "training" });
     expect(shellModeLabel(training)).toBe("TRAINING");
 
+    const championship = reduceShellState(training, {
+      modeNextPressed: true,
+      matchStatus: "fighting",
+    });
+    expect(championship).toEqual({ phase: "mode-select", selectedMode: "championship" });
+    expect(shellModeLabel(championship)).toBe("CHAMPIONSHIP");
+    expect(shellModeDescription(championship)).toContain("2026");
+
+    expect(
+      reduceShellState(championship, {
+        modeNextPressed: true,
+        matchStatus: "fighting",
+      }),
+    ).toEqual({ phase: "mode-select", selectedMode: "versus-cpu" });
+
     expect(
       reduceShellState(training, {
         modePreviousPressed: true,
@@ -36,6 +58,22 @@ describe("shell flow", () => {
     ).toEqual({ phase: "mode-select", selectedMode: "versus-cpu" });
     expect(shellModeLabel(modeSelect)).toBe("1 VS CPU");
     expect(selectedPlayMode(training)).toBe("training");
+  });
+
+  it("treats championship as a CPU-backed story shell until full mode implementation", () => {
+    expect(playModeUsesCpu({ selectedMode: "championship" })).toBe(true);
+    expect(playModeUsesCpu({ selectedMode: "versus-cpu" })).toBe(true);
+    expect(playModeUsesCpu({ selectedMode: "training" })).toBe(false);
+
+    expect(
+      reduceShellState(
+        { phase: "fighting", selectedMode: "championship" },
+        {
+          matchStatus: "round-over",
+          matchSetStatus: "in-progress",
+        },
+      ),
+    ).toEqual({ phase: "round-over", selectedMode: "championship" });
   });
 
   it("starts fighting through fighter select with the selected mode", () => {
