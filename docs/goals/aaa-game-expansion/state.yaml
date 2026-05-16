@@ -117,7 +117,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T062
+active_task: T063
 
 tasks:
   - id: T001
@@ -4007,7 +4007,7 @@ tasks:
   - id: T062
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Audit the current post-T061 browser milestone and choose the next safe package without violating the no-size/no-asset/no-audio gates."
     inputs:
@@ -4032,6 +4032,70 @@ tasks:
       - "Stop conditions"
       - "Acceptance criteria"
       - "Decision: proceed_with_worker | require_audit | ask_owner"
+    receipt:
+      result: done
+      decision: approved
+      routing_decision: proceed_with_worker
+      full_outcome_complete: false
+      summary: "Audited the post-T061 milestone and selected Local Versus as the next safe package. The current build is a credible three-fighter browser milestone with shell/select polish, Training, combat readability, championship ladder, and championship rewards/interstitials, but not the full AAA game. Local Versus advances a planned core mode using existing manual P2 input and current runtime assets without touching audio, generated assets, fighter size, sprite sizing, placement, dependencies, or frame data."
+      ranked_gaps:
+        - "Local Versus mode remains planned, not implemented: select next."
+        - "Authored/sample audio and music depth remain incomplete: defer because current gates forbid audio/source-record changes."
+        - "Roster expansion beyond Pickles remains incomplete: defer until generated asset/model-sheet/animation gates are active."
+        - "Championship save/continue and larger story system remain future work."
+        - "Advanced training/settings/accessibility polish remains future work."
+      evidence:
+        - "T058, T059, and T061 all report protected guards clean and smoke/tests passing."
+        - "src/content/gameBible.ts still marks local-versus planned while three other browser modes are implemented."
+        - "src/game/shellFlow.ts currently lists only versus-cpu, training, and championship in mode selection."
+        - "src/game/MeowtalArenaScene.ts already has a manual P2 keyboard input path."
+        - "output/web-game/championship-rewards-interstitials/report.json has failures=[]."
+      blocked_tasks:
+        - "Further authored/sample audio, music loops, voice, or audio polish under current no-audio gates."
+        - "Fourth-fighter playable promotion or new generated model/animation assets without a dedicated asset/model-sheet/animation consistency gate."
+        - "Any fighter-row regeneration, resizing, normalization, sprite scale, cell size, placement-rule, frame-data, dependency, or generated asset churn."
+        - "Marking the full AAA outcome complete."
+      spawned_tasks:
+        - T063
+  - id: T063
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: medium
+    objective: "Promote Local Versus from planned to implemented using current runtime assets only: add it to mode select, keep P1/P2 as manual keyboard fighters, expose smoke-verifiable runtime state/copy, and preserve existing 1 VS CPU, Training, and Championship behavior without changing fighter size, fighter rows, generated assets, audio, dependencies, sprite scale, cell size, placement rules, or gameplay frame data."
+    allowed_files:
+      - "src/game/shellFlow.ts"
+      - "src/game/MeowtalArenaScene.ts"
+      - "src/content/gameBible.ts"
+      - "scripts/smoke-meowtal-browser.mjs"
+      - "test/game-bible.test.ts"
+      - "test/shell-flow.test.ts"
+      - "test/character-select.test.ts"
+      - "test/combat-core.test.ts"
+      - "output/web-game/local-versus-mode/*"
+      - "docs/goals/aaa-game-expansion/notes/T063-local-versus-mode.md"
+      - "docs/goals/aaa-game-expansion/state.yaml"
+    verify:
+      - "git diff --name-only -- assets/source/imagegen/fighters public/assets/generated/fighters output/imagegen package.json package-lock.json src/game/audio.ts public/assets/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts src/core/frameData.ts"
+      - "for row in idle walk-forward walk-back crouch jump light-punch heavy-punch light-kick special hitstun blockstun knockdown win lose; do cmp -s assets/source/imagegen/fighters/pugilist-pug/$row.png public/assets/generated/fighters/pugilist-pug/$row.png || exit 1; done"
+      - "npm test -- test/game-bible.test.ts test/shell-flow.test.ts test/character-select.test.ts test/combat-core.test.ts"
+      - "npm run typecheck"
+      - "npm run verify"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/local-versus-mode"
+    stop_if:
+      - "Any fighter row would be regenerated, normalized, resized, cropped, repacked, or pixel-edited."
+      - "Any sprite scale, cell size, frame size, placement rule, character-size logic, gameplay frame-data, hitbox, damage, pushback, movement, dependency, package lock, generated asset, imagegen output, or audio change is needed."
+      - "Local Versus cannot be implemented with existing manual P1/P2 keyboard input and current runtime fighters."
+      - "The slice expands into online play, save systems, fourth-fighter promotion, touch/mobile v2 redesign, audio work, or broad all-modes completion."
+      - "Smoke shows runtime fighter fallback, misleading roster state, broken existing modes, obscured fighter bodies/HUD, or visible character size drift."
+    acceptance:
+      - "Mode select exposes Local Versus as a browser-v1 same-keyboard PvP mode using current runtime roster truth."
+      - "Starting Local Versus creates a manual P1 vs manual P2 fight; P2 is not CPU-controlled in this mode."
+      - "render_game_to_text exposes enough mode/local-versus state for smoke assertions."
+      - "Existing 1 VS CPU, Training, Championship ladder/rewards, shell/select, pause, combat readability, gamepad, and landscape smoke remain intact."
+      - "No fighter rows, generated assets, audio, dependencies, sprite scale, cell sizes, frame sizes, placement rules, character-size logic, or frame data are changed."
+      - "Focused tests, typecheck, full verify, protected diff guard, Pickles row byte-compare, and Local Versus smoke pass."
+      - "Receipt states full_outcome_complete=false."
     receipt: null
 
 checks:
