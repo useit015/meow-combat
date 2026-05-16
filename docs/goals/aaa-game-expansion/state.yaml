@@ -117,7 +117,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T055
+active_task: T056
 
 tasks:
   - id: T001
@@ -3545,7 +3545,7 @@ tasks:
   - id: T055
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Choose the next highest-leverage safe package after Training mode depth. Decide whether to audit the current tranche, deepen championship rewards/interstitials, improve mode/select polish, add non-asset combat feel/readability, or select another bounded gameplay slice while preserving the hard no-size-change rule."
     inputs:
@@ -3572,6 +3572,63 @@ tasks:
       - "stop_if"
       - "acceptance checklist"
       - "Parallelization safety notes"
+    receipt:
+      result: done
+      decision: proceed_with_worker
+      full_outcome_complete: false
+      summary: "Approved a bounded non-asset combat readability slice. Recent championship and Training work have fresh verification, smoke artifacts, byte-compare guards, and Judge approvals, so the next highest-leverage safe package is making moment-to-moment hit, block, heavy, special, and super feedback clearer across modes without touching fighter size, assets, audio, dependencies, or gameplay frame data."
+      rejected_alternatives:
+        - "Tranche audit: lower leverage now because T054 has fresh full verify, smoke, screenshot review, byte-compare evidence, and Judge approval."
+        - "Additional Scout work: not needed because current scene/effects/presentation/smoke code already exposes enough evidence for a bounded Worker package."
+        - "Championship rewards/interstitials: useful later, but T050/T052 just improved championship and combat readability benefits championship, Training, and 1 VS CPU together."
+        - "Mode/select polish: useful but lower gameplay leverage than improving hit/block/special/super readability."
+        - "Fourth-fighter or asset work: rejected because it risks asset churn and character-size violations."
+        - "Owner question: not needed because the package stays inside existing constraints and current assets."
+      parallel_safety:
+        write_parallelism: unsafe
+        reason: "The package touches shared scene rendering, combat effect helpers, smoke scripts, and focused tests. Use one Worker only."
+        safe_parallel_followup: "A read-only Judge/Scout can review screenshots and smoke output after the Worker finishes."
+      spawned_tasks:
+        - T056
+  - id: T056
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: medium
+    objective: "Add a non-asset combat feel/readability pass using current runtime assets only: make hit, block, heavy, special, and super feedback more readable through deterministic canvas/text/runtime-state effects and smoke coverage without changing fighter size, fighter rows, generated assets, audio, dependencies, sprite scale, cell size, frame size, placement rules, or gameplay frame data."
+    allowed_files:
+      - "src/game/effects.ts"
+      - "src/game/presentation.ts"
+      - "src/game/MeowtalArenaScene.ts"
+      - "scripts/smoke-meowtal-browser.mjs"
+      - "test/combat-effects.test.ts"
+      - "test/presentation.test.ts"
+      - "test/combat-core.test.ts"
+      - "output/web-game/combat-readability/*"
+      - "docs/goals/aaa-game-expansion/notes/T056-combat-readability.md"
+      - "docs/goals/aaa-game-expansion/state.yaml"
+    verify:
+      - "git diff --name-only -- assets/source/imagegen/fighters public/assets/generated/fighters output/imagegen package.json package-lock.json src/game/audio.ts public/assets/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts src/core/frameData.ts"
+      - "for row in idle walk-forward walk-back crouch jump light-punch heavy-punch light-kick special hitstun blockstun knockdown win lose; do cmp -s assets/source/imagegen/fighters/pugilist-pug/$row.png public/assets/generated/fighters/pugilist-pug/$row.png || exit 1; done"
+      - "npm test -- test/combat-effects.test.ts test/presentation.test.ts test/combat-core.test.ts"
+      - "npm run typecheck"
+      - "npm run verify"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/combat-readability"
+    stop_if:
+      - "Any fighter row would be regenerated, normalized, resized, cropped, repacked, or pixel-edited."
+      - "Any sprite scale, cell size, frame size, placement rule, or character-size logic change is needed."
+      - "Any generated asset churn, imagegen output, new dependency, package lock change, or audio change is needed."
+      - "Any gameplay frame-data, hitbox, hurtbox, damage, pushback, movement, timer, or simulation tuning is required."
+      - "The work expands into championship rewards, Training overhaul, mode/select redesign, fourth-fighter promotion, asset production, or broad all-modes completion."
+      - "Smoke shows runtime fighter fallbacks, misleading HUD portraits, obscured fighter bodies/HUD, or visible character size drift."
+    acceptance:
+      - "Hit, block, heavy, special, and super feedback are visually distinct and readable using non-asset canvas/text/runtime-state effects only."
+      - "render_game_to_text exposes deterministic combat feedback state sufficient for smoke assertions."
+      - "Existing Training, championship ladder, and 1 VS CPU flows remain intact."
+      - "Smoke captures combat-readability screenshots and asserts the new feedback state."
+      - "No fighter rows, sprite scale, cell sizes, frame sizes, placement rules, generated assets, dependencies, audio, or frame data are changed."
+      - "Focused tests, full verify, and combat-readability smoke pass."
+      - "Receipt states full_outcome_complete=false."
     receipt: null
 
 checks:
