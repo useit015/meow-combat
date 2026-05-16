@@ -17,6 +17,7 @@ describe("Meowtal production manifest", () => {
       "gray-rabbit",
       "ginger-tabby-cat",
     ]);
+    expect(meowtalProductionManifest.sourceOnlyFighters.map((fighter) => fighter.id)).toEqual(["pugilist-pug"]);
     expect(meowtalProductionManifest.stage.layers.map((layer) => layer.id)).toEqual([
       "sky-lighting",
       "distant-hills-city",
@@ -32,7 +33,7 @@ describe("Meowtal production manifest", () => {
 
     const entries = collectMeowtalProvenanceEntries();
     const runtimeEntries = entries.filter((entry) => entry.runtimePath !== null);
-    expect(entries).toHaveLength(2 + 2 * REQUIRED_FIGHTER_ANIMATIONS.length + 6 + 16 + 11);
+    expect(entries).toHaveLength(1 + 2 + 2 * REQUIRED_FIGHTER_ANIMATIONS.length + 6 + 16 + 11);
     expect(runtimeEntries.map((entry) => entry.assetId).sort()).toEqual([
       "ginger-tabby-cat:blockstun",
       "ginger-tabby-cat:crouch",
@@ -97,6 +98,38 @@ describe("Meowtal production manifest", () => {
       "ui:touch-controls",
     ].sort());
     expect(runtimeEntries.every((entry) => entry.status === "approved")).toBe(true);
+  });
+
+  it("tracks Pickles Pugilist as a source-only model sheet, not playable runtime content", () => {
+    const pug = meowtalProductionManifest.sourceOnlyFighters[0];
+    const provenance = pug?.canonicalSheet.provenance;
+
+    expect(pug).toMatchObject({
+      id: "pugilist-pug",
+      displayName: "Pickles Pugilist",
+      engineCharacterId: null,
+      sourceOnly: true,
+    });
+    expect(pug?.animationRows).toEqual([]);
+    expect(pug?.canonicalSheet).toMatchObject({
+      requiredBeforeAnimationRows: true,
+      styleLockApproved: true,
+    });
+    expect(provenance).toMatchObject({
+      assetId: "pugilist-pug:canonical-character-sheet",
+      status: "generated",
+      sourceKind: "codex-imagegen",
+      sourcePath: "assets/source/imagegen/fighters/pugilist-pug/canonical-character-sheet.png",
+      runtimePath: null,
+      createdOrDownloadedOn: "2026-05-16",
+      blocker: null,
+    });
+    expect(provenance?.approvalNotes).toContain("source-only identity lock");
+    expect(provenance?.approvalNotes).toContain("not a runtime sprite");
+    expect(existsSync(join(process.cwd(), provenance?.sourcePath ?? ""))).toBe(true);
+    expect(existsSync(join(process.cwd(), "public/assets/generated/fighters/pugilist-pug/canonical-character-sheet.png"))).toBe(
+      false,
+    );
   });
 
   it("tracks approved runtime parallax courtyard layers", () => {

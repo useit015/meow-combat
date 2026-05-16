@@ -3,6 +3,7 @@ import { existsSync } from "node:fs";
 import {
   REQUIRED_FIGHTER_ANIMATIONS,
   fighterAssetManifests,
+  pawbreakerPlannedFighterAssetManifests,
   stageAssetManifests,
   validateFighterManifest,
   validateStageManifest,
@@ -73,6 +74,24 @@ describe("fighter asset manifests", () => {
         expect.arrayContaining(["exact frame-cell dimensions", "alpha channel present", "stable alpha bounds"]),
       );
       expect(manifest.productionAcceptance.rejectionReasons).toContain("generic AI-looking output");
+    }
+  });
+
+  it("keeps planned Pawbreaker roster additions source-only until full animation approval", () => {
+    const pug = pawbreakerPlannedFighterAssetManifests.find((manifest) => manifest.id === "pugilist-pug");
+
+    expect(pug?.displayName).toBe("Pickles Pugilist");
+    expect(pug?.canonicalReference).toMatchObject({
+      status: "generated",
+      outputPath: "assets/source/imagegen/fighters/pugilist-pug/canonical-character-sheet.png",
+    });
+    expect(existsSync(pug?.canonicalReference.outputPath ?? "")).toBe(true);
+    expect(validateFighterManifest(pug!)).toEqual({ ok: true, errors: [] });
+    expect(pug?.animations).toHaveLength(REQUIRED_FIGHTER_ANIMATIONS.length);
+    for (const animation of pug?.animations ?? []) {
+      expect(animation.source.status).toBe("blocked");
+      expect(animation.source.outputPath).toBeNull();
+      expect(animation.source.blocker).toContain("source-only model sheet");
     }
   });
 });

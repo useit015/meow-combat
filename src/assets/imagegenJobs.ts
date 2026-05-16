@@ -51,6 +51,28 @@ export function buildUiImagegenJobs(
     });
 }
 
+export function buildSourceOnlyFighterImagegenJobs(fighters: readonly FighterAssetManifest[]): readonly ImagegenJob[] {
+  return fighters.map((manifest) =>
+    sourceJob({
+      id: `${manifest.id}:canonical-reference`,
+      kind: "fighter-canonical",
+      subjectId: manifest.id,
+      source: manifest.canonicalReference,
+      outputPath:
+        manifest.canonicalReference.outputPath ?? `assets/source/imagegen/fighters/${manifest.id}/canonical-character-sheet.png`,
+      requiredInputs: [],
+      prompt: [
+        `Create a source-only model sheet for ${manifest.displayName}, ${manifest.archetype}.`,
+        `Design notes: ${manifest.designNotes.join(" ")}`,
+        `Asymmetry notes: ${manifest.asymmetryNotes.join(" ")}`,
+        "Source-only model sheet contract: Do not create animation rows, spritesheets, runtime portraits, public assets, title art, UI, or playable content.",
+        "Show one consistent upright two-legged pet-fighter rig with front, side, back, three-quarter, fighting stance, idle, head close-up, expressions, palette swatches, and silhouette notes.",
+        "no text, pseudo-text, logos, watermarks, real brand marks, copied fighting-game costume language, extra characters, or background scenery.",
+      ].join("\n"),
+    }),
+  );
+}
+
 function uiSurfacePrompt(surfaceId: string, provenancePrompt: string): string {
   if (surfaceId === "title-crest") {
     return [

@@ -2,10 +2,12 @@ import { describe, expect, it } from "vitest";
 import {
   REQUIRED_FIGHTER_ANIMATIONS,
   buildImagegenJobs,
+  buildSourceOnlyFighterImagegenJobs,
   buildUiImagegenJobs,
   fighterAssetManifests,
   meowtalFighterAssetManifests,
   meowtalStageAssetManifests,
+  pawbreakerPlannedFighterAssetManifests,
   stageAssetManifests,
 } from "../src/assets";
 import { meowtalProductionManifest } from "../src/assets/meowtalProductionManifest";
@@ -86,6 +88,22 @@ describe("imagegen jobs", () => {
     expect(jobs.map((job) => job.id)).toContain("sahara-viper:canonical-reference");
     expect(jobs.map((job) => job.id)).toContain("marrakesh-rooftop:sky");
     expect(jobs.some((job) => job.subjectId === "gray-rabbit")).toBe(false);
+  });
+
+  it("creates source-only model-sheet jobs for planned Pawbreaker fighters without animation rows", () => {
+    const jobs = buildSourceOnlyFighterImagegenJobs(pawbreakerPlannedFighterAssetManifests);
+
+    expect(jobs.map((job) => job.id)).toEqual(["pugilist-pug:canonical-reference"]);
+    expect(jobs[0]).toMatchObject({
+      kind: "fighter-canonical",
+      subjectId: "pugilist-pug",
+      outputPath: "assets/source/imagegen/fighters/pugilist-pug/canonical-character-sheet.png",
+      status: "generated",
+    });
+    expect(jobs[0]?.requiredInputs).toEqual([]);
+    expect(jobs[0]?.prompt).toContain("source-only model sheet");
+    expect(jobs[0]?.prompt).toContain("Do not create animation rows");
+    expect(jobs[0]?.prompt).toContain("no text");
   });
 
   it("creates deterministic UI surface jobs from the Meowtal production manifest", () => {

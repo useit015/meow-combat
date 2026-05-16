@@ -34,6 +34,9 @@ const fighterProductionAcceptance: FighterProductionAcceptance = {
   ],
 };
 
+const sourceOnlyAnimationBlocker =
+  "source-only model sheet accepted for planned roster identity lock; animation rows require a separate generation, QA, and runtime promotion task.";
+
 const animationBriefs = [
   ["idle", 8, "Calm fighting stance with subtle breathing and grounded weight shift."],
   ["walk-forward", 8, "Forward step cycle with guarded upper body and stable head height."],
@@ -215,6 +218,30 @@ export const meowtalFighterAssetManifests: readonly FighterAssetManifest[] = [
   },
 ];
 
+export const pawbreakerPlannedFighterAssetManifests: readonly FighterAssetManifest[] = [
+  {
+    id: "pugilist-pug",
+    displayName: "Pickles Pugilist",
+    engineCharacterId: "pugilist-pug",
+    archetype: "source-only pressure boxer with short-range guard breaks",
+    designNotes: [
+      "Pawbreaker planned roster fighter: cute upright pug pressure-boxer with readable short-limb punching shapes.",
+      "Keep the pug identity locked through wrinkles, round muzzle, folded ears, curled tail, compact torso, and stubby limbs.",
+      "Source-only model sheet for now; do not promote to runtime or generate animation rows until a separate QA task approves the rig.",
+    ],
+    asymmetryNotes: [
+      "Wrinkles, glove scuffs, belt tag, and ear folds may be side-specific; do not mirror rows until reviewed.",
+    ],
+    identityLock: identityLockFor(),
+    productionAcceptance: fighterProductionAcceptance,
+    canonicalReference: generatedSource(
+      "pugilist-pug-canonical-character-sheet",
+      "assets/source/imagegen/fighters/pugilist-pug/canonical-character-sheet.png",
+    ),
+    animations: animationSpecsFor("pugilist-pug", sourceOnlyAnimationBlocker),
+  },
+];
+
 export const stageAssetManifests: readonly StageAssetManifest[] = [
   {
     id: "marrakesh-rooftop",
@@ -333,8 +360,8 @@ export const meowtalStageAssetManifests: readonly StageAssetManifest[] = [
   },
 ];
 
-function animationSpecsFor(fighterId: string): readonly FighterAnimationSpec[] {
-  return animationBriefs.map(([id, frameCount, promptIntent]) => animation(fighterId, id, frameCount, promptIntent));
+function animationSpecsFor(fighterId: string, blocker?: string): readonly FighterAnimationSpec[] {
+  return animationBriefs.map(([id, frameCount, promptIntent]) => animation(fighterId, id, frameCount, promptIntent, blocker));
 }
 
 function identityLockFor(): FighterIdentityLock {
@@ -351,6 +378,7 @@ function animation(
   id: FighterAnimationSpec["id"],
   frameCount: number,
   promptIntent: string,
+  blocker?: string,
 ): FighterAnimationSpec {
   const approvedOutputPath = approvedAnimationRows[fighterId]?.[id];
   const generatedOutputPath = generatedAnimationRows[fighterId]?.[id];
@@ -364,18 +392,18 @@ function animation(
       ? approvedSource(`${fighterId}-${id}-animation-row`, approvedOutputPath)
       : generatedOutputPath
         ? generatedSource(`${fighterId}-${id}-animation-row`, generatedOutputPath)
-      : blockedSource(`${fighterId}-${id}-animation-row`),
+      : blockedSource(`${fighterId}-${id}-animation-row`, blocker),
     promptIntent,
     constraints: sharedAnimationConstraints,
   };
 }
 
-function blockedSource(promptSlug: string) {
+function blockedSource(promptSlug: string, blocker?: string) {
   return {
     status: "blocked" as const,
     promptSlug,
     outputPath: null,
-    blocker: "OPENAI_API_KEY is missing; generate with imagegen after credentials are set.",
+    blocker: blocker ?? "OPENAI_API_KEY is missing; generate with imagegen after credentials are set.",
   };
 }
 

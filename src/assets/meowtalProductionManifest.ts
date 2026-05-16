@@ -11,6 +11,7 @@ import {
 import { AUDIO_CUE_ASSET_SPECS, type ArenaAudioAssetSpec } from "../game/audio";
 
 export type MeowtalFighterId = "gray-rabbit" | "ginger-tabby-cat";
+export type MeowtalSourceOnlyFighterId = "pugilist-pug";
 export type MeowtalStageLayerId =
   | "sky-lighting"
   | "distant-hills-city"
@@ -74,6 +75,23 @@ export interface MeowtalFighterAssetPlan {
   animationRows: readonly MeowtalAnimationRowPlan[];
 }
 
+export interface MeowtalSourceOnlyFighterAssetPlan {
+  id: MeowtalSourceOnlyFighterId;
+  displayName: string;
+  engineCharacterId: null;
+  sourceOnly: true;
+  silhouette: string;
+  personality: string;
+  specialEnergy: string;
+  canonicalSheet: {
+    fighterId: MeowtalSourceOnlyFighterId;
+    requiredBeforeAnimationRows: true;
+    styleLockApproved: boolean;
+    provenance: AssetProvenance;
+  };
+  animationRows: readonly [];
+}
+
 export interface MeowtalStageLayerPlan {
   id: MeowtalStageLayerId;
   parallax: number;
@@ -101,6 +119,7 @@ export interface MeowtalProductionManifest {
   provenanceDocument: "docs/assets/meowtal-kombat-provenance.md";
   visualReferences: readonly string[];
   fighters: readonly MeowtalFighterAssetPlan[];
+  sourceOnlyFighters: readonly MeowtalSourceOnlyFighterAssetPlan[];
   stage: {
     id: "meowtal-courtyard";
     displayName: "Bright Courtyard";
@@ -509,11 +528,20 @@ const canonicalSheetSourcePaths: Readonly<Record<MeowtalFighterId, string>> = {
   "ginger-tabby-cat": "assets/source/imagegen/fighters/ginger-tabby-cat/canonical-character-sheet.png",
 };
 
+const sourceOnlyCanonicalSheetSourcePaths: Readonly<Record<MeowtalSourceOnlyFighterId, string>> = {
+  "pugilist-pug": "assets/source/imagegen/fighters/pugilist-pug/canonical-character-sheet.png",
+};
+
 const canonicalSheetQaNotes: Readonly<Record<MeowtalFighterId, string>> = {
   "gray-rabbit":
     "Approved as animation style-lock reference only. Visual QA: rabbit-only upright two-legged sheet, no visible text/watermark, includes front/side/back/three-quarter pose, action pose, idle pose, head close-up, expressions, detail callouts, size reference, color swatches, green tornado language, and consistent gray rabbit proportions.",
   "ginger-tabby-cat":
     "Approved as animation style-lock reference only. Visual QA: cat-only upright two-legged sheet, no visible text/watermark, includes front/side/back views, upright combat poses, upright idle, head close-up, expressions, detail callouts, size reference, color swatches, yellow-green energy language, and consistent orange tabby markings.",
+};
+
+const sourceOnlyCanonicalSheetQaNotes: Readonly<Record<MeowtalSourceOnlyFighterId, string>> = {
+  "pugilist-pug":
+    "Approved as source-only identity lock, not a runtime sprite. Visual QA: Pickles reads as one cute upright pug pressure-boxer with consistent wrinkles, round muzzle, folded ears, curled tail, short limbs, warm fawn/dark muzzle palette, toy boxing gloves, and compact silhouette across views/poses; no readable text, pseudo-text, watermark, logo, copied fighting-game costume language, extra characters, or public/runtime promotion.",
 };
 
 const idleRowSourcePaths: Readonly<Record<MeowtalFighterId, string>> = {
@@ -806,6 +834,31 @@ const fighterDetails: Readonly<
   },
 };
 
+const sourceOnlyFighterDetails: Readonly<
+  Record<
+    MeowtalSourceOnlyFighterId,
+    {
+      displayName: string;
+      silhouette: string;
+      personality: string;
+      body: string;
+      markings: string;
+      signatureTraits: string;
+      specialEnergy: string;
+    }
+  >
+> = {
+  "pugilist-pug": {
+    displayName: "Pickles Pugilist",
+    silhouette: "upright two-legged compact pug stance, folded ears, curled tail, stubby limbs, broad guard, toy boxing gloves",
+    personality: "cute, stubborn, brave, snack-motivated, comedic but battle-ready",
+    body: "short upright biped pug body with stocky chest, planted feet, guarded shoulders, and readable pressure-boxer punching shapes",
+    markings: "warm fawn coat, dark muzzle, soft wrinkle folds, black folded ears, pale belly patch, small curled tail",
+    signatureTraits: "peekaboo guard, stubby glove jabs, shoulder bumps, treat-belt medallion, funny over-serious stare",
+    specialEnergy: "small golden treat-belt spark effects kept attached to the character silhouette",
+  },
+};
+
 export const meowtalProductionManifest: MeowtalProductionManifest = {
   id: "meowtal-kombat-production",
   title: "Pawbreaker League",
@@ -817,6 +870,7 @@ export const meowtalProductionManifest: MeowtalProductionManifest = {
     "docs/visual-reference/meowtal-kombat/vision-04.png",
   ],
   fighters: makeFighters(),
+  sourceOnlyFighters: makeSourceOnlyFighters(),
   stage: {
     id: "meowtal-courtyard",
     displayName: "Bright Courtyard",
@@ -870,6 +924,7 @@ export function collectMeowtalProvenanceEntries(
       fighter.canonicalSheet.provenance,
       ...fighter.animationRows.map((row) => row.provenance),
     ]),
+    ...manifest.sourceOnlyFighters.map((fighter) => fighter.canonicalSheet.provenance),
     ...manifest.stage.layers.map((layer) => layer.provenance),
     ...manifest.visualSurfaces.map((surface) => surface.provenance),
     ...manifest.audioCues.map((cue) => cue.provenance),
@@ -1110,6 +1165,27 @@ export function validateMeowtalProductionManifest(
     }
   }
 
+  for (const fighter of manifest.sourceOnlyFighters) {
+    const provenance = fighter.canonicalSheet.provenance;
+    if (!fighter.sourceOnly) errors.push(`${fighter.id}: planned fighter must be source-only.`);
+    if (fighter.engineCharacterId !== null) errors.push(`${fighter.id}: source-only fighter must not expose an engine character id.`);
+    if (fighter.animationRows.length !== 0) errors.push(`${fighter.id}: source-only fighter must not define animation rows.`);
+    if (!fighter.canonicalSheet.requiredBeforeAnimationRows) errors.push(`${fighter.id}: canonical sheet must gate animation rows.`);
+    if (!fighter.canonicalSheet.styleLockApproved) errors.push(`${fighter.id}: source-only canonical identity lock should be approved.`);
+    if (provenance.status !== "generated") {
+      errors.push(`${provenance.assetId}: source-only canonical sheet should remain generated, not runtime-approved.`);
+    }
+    if (provenance.sourceKind !== "codex-imagegen") {
+      errors.push(`${provenance.assetId}: source-only canonical sheet should use Codex imagegen.`);
+    }
+    if (provenance.sourcePath !== sourceOnlyCanonicalSheetSourcePaths[fighter.id]) {
+      errors.push(`${provenance.assetId}: source-only canonical sheet requires the scoped source path.`);
+    }
+    if (provenance.runtimePath !== null) {
+      errors.push(`${provenance.assetId}: source-only canonical sheet must not have a runtime path.`);
+    }
+  }
+
   return { ok: errors.length === 0, errors };
 }
 
@@ -1174,6 +1250,28 @@ function makeFighters(): readonly MeowtalFighterAssetPlan[] {
                                     ? approvedEndStateRowProvenance(fighterId, animationId, details)
                                   : blockedAnimationRowProvenance(fighterId, animationId, details),
       })),
+    };
+  });
+}
+
+function makeSourceOnlyFighters(): readonly MeowtalSourceOnlyFighterAssetPlan[] {
+  return (Object.keys(sourceOnlyFighterDetails) as MeowtalSourceOnlyFighterId[]).map((fighterId) => {
+    const details = sourceOnlyFighterDetails[fighterId];
+    return {
+      id: fighterId,
+      displayName: details.displayName,
+      engineCharacterId: null,
+      sourceOnly: true,
+      silhouette: details.silhouette,
+      personality: details.personality,
+      specialEnergy: details.specialEnergy,
+      canonicalSheet: {
+        fighterId,
+        requiredBeforeAnimationRows: true,
+        styleLockApproved: true,
+        provenance: generatedSourceOnlyCanonicalSheetProvenance(fighterId),
+      },
+      animationRows: [],
     };
   });
 }
@@ -1663,6 +1761,31 @@ function generatedCanonicalSheetProvenance(fighterId: MeowtalFighterId): AssetPr
   };
 }
 
+function generatedSourceOnlyCanonicalSheetProvenance(fighterId: MeowtalSourceOnlyFighterId): AssetProvenance {
+  return {
+    ...imageProvenance({
+      assetId: `${fighterId}:canonical-character-sheet`,
+      promptSlug: `${fighterId}-canonical-character-sheet`,
+      prompt: sourceOnlyCanonicalSheetPrompt(fighterId),
+      status: "generated",
+      blocker: "",
+    }),
+    sourcePath: sourceOnlyCanonicalSheetSourcePaths[fighterId],
+    runtimePath: null,
+    license: ownedGeneratedImageLicense(
+      "Generated with Codex built-in imagegen for this project; accepted as a source-only Pawbreaker roster identity lock, not a runtime sprite.",
+      pawbreakerGeneratedOn,
+    ),
+    createdOrDownloadedOn: pawbreakerGeneratedOn,
+    transforms: [
+      "Generated exactly one source-only canonical model sheet with Codex built-in imagegen.",
+      "Copied the accepted candidate into the repo source asset tree and output QA path without runtime/public promotion.",
+    ],
+    approvalNotes: sourceOnlyCanonicalSheetQaNotes[fighterId],
+    blocker: null,
+  };
+}
+
 function canonicalSheetPrompt(fighterId: MeowtalFighterId): string {
   const details = fighterDetails[fighterId];
   return [
@@ -1674,6 +1797,19 @@ function canonicalSheetPrompt(fighterId: MeowtalFighterId): string {
     "Include calm idle, excited grin, battle focus, shocked comedic expression, hit reaction, and powering-up intensity.",
     "Include detail callouts for silhouette, ears/tail/paws, fur markings, attack limbs, special-effect aura shape, readable gameplay pose shapes, size reference, and color swatches.",
     "Render as polished high-quality 2D arcade fighting game concept art, clean linework, vibrant cel-shaded color, animation-friendly shapes, consistent proportions, no watermark.",
+  ].join("\n");
+}
+
+function sourceOnlyCanonicalSheetPrompt(fighterId: MeowtalSourceOnlyFighterId): string {
+  const details = sourceOnlyFighterDetails[fighterId];
+  return [
+    `Create a complete polished source-only character design sheet for ${details.displayName}, an original Pawbreaker League fighter, on a clean light background.`,
+    `Show a faithful consistent depiction with ${details.silhouette}, ${details.personality} expression, ${details.body}, ${details.markings}, ${details.signatureTraits}, and ${details.specialEnergy}.`,
+    "All full-body views and combat poses must use one consistent upright two-legged fighting-game rig.",
+    "Do not create animation rows, spritesheets, runtime portraits, select UI slots, public assets, or playable content.",
+    "Present the sheet as professional production concept art with full-body front view, side view, back view, 3/4 heroic pose, action-ready guard pose, relaxed idle pose, large head close-up, expression sheet, silhouette guide, and color swatches.",
+    "No text, pseudo-text, labels, logos, watermarks, copied fighting-game costume language, extra characters, background scenery, or real brand marks.",
+    "Render as polished high-quality 2D arcade fighting game concept art, clean linework, vibrant cel-shaded color, animation-friendly shapes, consistent proportions, and source-only identity-lock clarity.",
   ].join("\n");
 }
 
