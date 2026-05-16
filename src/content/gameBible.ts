@@ -233,7 +233,7 @@ export const petFighterGameBible: PetFighterGameBible = {
       id: "training",
       label: "Training",
       status: "implemented",
-      purpose: "Single-player lab for animation, hit feedback, input feel, and dummy behavior.",
+      purpose: "Single-player lab for animation, hit feedback, input/combo practice feedback, and dummy behavior.",
     },
     {
       id: "championship",

@@ -151,6 +151,8 @@ export class MeowtalArenaScene extends Phaser.Scene {
   private versusText!: Phaser.GameObjects.Text;
   private championshipTitleText!: Phaser.GameObjects.Text;
   private championshipBodyText!: Phaser.GameObjects.Text;
+  private trainingTitleText!: Phaser.GameObjects.Text;
+  private trainingBodyText!: Phaser.GameObjects.Text;
   private conceptPreviews!: Record<"p1" | "p2", Phaser.GameObjects.Image | null>;
   private runtimeUiImages!: Record<RuntimeUiImageSlot, Phaser.GameObjects.Image>;
   private hudPortraitSprites!: Record<"p1" | "p2", Phaser.GameObjects.Sprite>;
@@ -365,6 +367,31 @@ export class MeowtalArenaScene extends Phaser.Scene {
       .setShadow(0, 2, "#000000", 4, true, true)
       .setDepth(103)
       .setVisible(false);
+    this.trainingTitleText = this.add
+      .text(512, 106, "", {
+        align: "center",
+        color: "#bff7e8",
+        fontFamily: "Inter, Arial, sans-serif",
+        fontSize: "13px",
+        fontStyle: "900",
+      })
+      .setOrigin(0.5, 0)
+      .setShadow(0, 2, "#000000", 4, true, true)
+      .setDepth(103)
+      .setVisible(false);
+    this.trainingBodyText = this.add
+      .text(512, 126, "", {
+        align: "center",
+        color: "#f8f5e9",
+        fontFamily: "Inter, Arial, sans-serif",
+        fontSize: "11px",
+        lineSpacing: 2,
+        wordWrap: { width: 590 },
+      })
+      .setOrigin(0.5, 0)
+      .setShadow(0, 2, "#000000", 4, true, true)
+      .setDepth(103)
+      .setVisible(false);
     this.conceptPreviews = {
       p1: this.createConceptPreview("p1"),
       p2: this.createConceptPreview("p2"),
@@ -467,9 +494,7 @@ export class MeowtalArenaScene extends Phaser.Scene {
             }
           : null,
       training: {
-        enabled: selectedPlayMode(this.shell) === "training",
-        endlessRound: selectedPlayMode(this.shell) === "training",
-        dummy: selectedPlayMode(this.shell) === "training" ? "manual idle sparring dummy" : null,
+        ...this.trainingTextState(),
       },
       cpuDifficulty: this.cpuDifficulty,
       cpuOpponent: this.p2CpuEnabled ? selectedFighterDetails.p2 : null,
@@ -860,6 +885,7 @@ export class MeowtalArenaScene extends Phaser.Scene {
     this.renderComboText(this.snapshot);
     this.renderShellText();
     this.renderChampionshipPresentation();
+    this.renderTrainingPresentation();
     this.renderReadinessText();
     this.renderConceptArt();
     this.renderSelectSprites();
@@ -973,6 +999,9 @@ export class MeowtalArenaScene extends Phaser.Scene {
     g.clear();
     if (this.championshipPresentationState().visible) {
       drawChampionshipPresentationPanel(g);
+    }
+    if (this.trainingPresentationState().visible) {
+      drawTrainingPresentationPanel(g);
     }
     if (this.shell.phase === "paused") {
       drawPauseOptionsPanel(g);
@@ -1610,6 +1639,79 @@ export class MeowtalArenaScene extends Phaser.Scene {
       lastCompletedRival,
       opponentOrder,
       result: this.championshipLadder.result,
+    };
+  }
+
+  private trainingTextState() {
+    const enabled = selectedPlayMode(this.shell) === "training";
+    if (!enabled) {
+      return {
+        enabled: false,
+        endlessRound: false,
+        selectedFighter: null,
+        dummy: null,
+        practice: null,
+        presentation: null,
+      };
+    }
+
+    const selectedFighterProfile = this.selectedFighterProfile("p1");
+    const dummyProfile = this.selectedFighterProfile("p2");
+    return {
+      enabled: true,
+      endlessRound: true,
+      selectedFighter: selectedFighterProfile,
+      dummy: {
+        fighterId: dummyProfile.fighterId,
+        displayName: dummyProfile.displayName,
+        behavior: "manual idle sparring dummy",
+        healthLocked: true,
+        currentState: this.snapshot.p2.state,
+        health: this.snapshot.p2.health,
+        guarding: this.snapshot.p2.guarding,
+        statusLabel: trainingDummyStatusLabel(this.snapshot.p2),
+      },
+      practice: {
+        comboCount: this.snapshot.combo.count,
+        comboDamage: this.snapshot.combo.damage,
+        currentAction: trainingActionLabel(this.snapshot.p1),
+        currentState: this.snapshot.p1.state,
+        resetHint: "R resets to ready",
+        inputHints: ["Space/J light", "I kick", "K heavy", "L special", "S,D,L super"],
+      },
+      presentation: this.trainingPresentationState(),
+    };
+  }
+
+  private trainingPresentationState() {
+    const visible =
+      selectedPlayMode(this.shell) === "training" &&
+      (this.shell.phase === "fighting" || this.shell.phase === "paused");
+    const selectedFighterProfile = this.selectedFighterProfile("p1");
+    const dummyProfile = this.selectedFighterProfile("p2");
+    const dummyStatus = trainingDummyStatusLabel(this.snapshot.p2);
+    const currentAction = trainingActionLabel(this.snapshot.p1);
+    const comboLine = `${this.snapshot.combo.count} HIT / ${this.snapshot.combo.damage} DMG`;
+
+    return {
+      visible,
+      headline: "TRAINING LAB",
+      body: `${selectedFighterProfile.displayName}: ${selectedFighterProfile.trainingTip ?? "Practice spacing, confirms, and reset timing."}`,
+      dummyLine: `Dummy: ${dummyProfile.displayName} / ${dummyStatus} / health lock on`,
+      feedbackLine: `Feedback: ${comboLine} / ${currentAction}`,
+      callToAction: "R: reset to ready",
+      selectedFighter: selectedFighterProfile,
+      dummy: {
+        fighterId: dummyProfile.fighterId,
+        displayName: dummyProfile.displayName,
+        statusLabel: dummyStatus,
+        healthLocked: true,
+      },
+      practice: {
+        comboCount: this.snapshot.combo.count,
+        comboDamage: this.snapshot.combo.damage,
+        currentAction,
+      },
     };
   }
 
@@ -2327,6 +2429,24 @@ export class MeowtalArenaScene extends Phaser.Scene {
       .setVisible(true);
   }
 
+  private renderTrainingPresentation(): void {
+    const presentation = this.trainingPresentationState();
+    if (!presentation.visible) {
+      this.trainingTitleText.setVisible(false);
+      this.trainingBodyText.setVisible(false);
+      return;
+    }
+
+    this.trainingTitleText
+      .setText(presentation.headline)
+      .setPosition(512, 106)
+      .setVisible(true);
+    this.trainingBodyText
+      .setText([presentation.body, presentation.dummyLine, presentation.feedbackLine, presentation.callToAction].join("\n"))
+      .setPosition(512, 126)
+      .setVisible(true);
+  }
+
   private renderReadinessText(): void {
     if (this.shell.phase !== "select") {
       this.readinessText.setVisible(false);
@@ -2651,6 +2771,56 @@ function fighterStorySummary(fighterId: string) {
     signatureMove: content?.signatureMove ?? null,
     superMove: content?.superMove ?? null,
   };
+}
+
+function trainingActionLabel(fighter: MatchSnapshot["p1"]): string {
+  if (fighter.guarding) return "Guarding";
+  switch (fighter.state) {
+    case "lightAttack":
+      return "Light punch";
+    case "lightKick":
+      return "Light kick";
+    case "heavyAttack":
+      return "Heavy punch";
+    case "specialAttack":
+      return "Special";
+    case "superAttack":
+      return "Super";
+    case "walkForward":
+      return "Walking forward";
+    case "walkBack":
+      return "Walking back";
+    case "runForward":
+      return "Running";
+    case "backdash":
+      return "Backdash";
+    case "rollForward":
+    case "rollBack":
+      return "Roll";
+    case "jump":
+    case "hop":
+      return "Air movement";
+    case "crouch":
+      return "Crouch";
+    case "hitstun":
+      return "Hit reaction";
+    case "blockstun":
+      return "Block reaction";
+    case "knockdown":
+      return "Knockdown";
+    case "idle":
+    default:
+      return "Neutral";
+  }
+}
+
+function trainingDummyStatusLabel(fighter: MatchSnapshot["p2"]): string {
+  if (fighter.guarding) return "guarding";
+  if (fighter.state === "hitstun") return "hit reaction";
+  if (fighter.state === "blockstun") return "blocking reaction";
+  if (fighter.state === "knockdown") return "knockdown locked";
+  if (fighter.health <= 1) return "health lock active";
+  return "standing by";
 }
 
 function inactiveChampionshipLadder(): ChampionshipLadderState {
@@ -2986,6 +3156,18 @@ function drawChampionshipPresentationPanel(g: Phaser.GameObjects.Graphics): void
   });
   g.fillStyle(0x2ec4b6, 0.78).fillRect(270, 112, 92, 3);
   g.fillStyle(0xff9f1c, 0.78).fillRect(662, 112, 92, 3);
+}
+
+function drawTrainingPresentationPanel(g: Phaser.GameObjects.Graphics): void {
+  drawNotchedPanel(g, 244, 96, 536, 98, {
+    fill: 0x071312,
+    accent: 0x2ec4b6,
+    fillAlpha: 0.74,
+    strokeAlpha: 0.82,
+    cut: 14,
+  });
+  g.fillStyle(0x2ec4b6, 0.76).fillRect(270, 112, 92, 3);
+  g.fillStyle(0xfff1a8, 0.72).fillRect(662, 112, 92, 3);
 }
 
 function drawPauseOptionsPanel(g: Phaser.GameObjects.Graphics): void {

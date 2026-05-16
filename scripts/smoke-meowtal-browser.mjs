@@ -460,9 +460,51 @@ async function runTrainingDemo(browser, url, outDir) {
   assert(state.playMode === "training", failures, `training fight expected training mode, got ${state.playMode}`);
   assert(state.training?.enabled === true, failures, "training fight should expose training.enabled=true");
   assert(state.training?.endlessRound === true, failures, "training fight should expose endlessRound=true");
+  assert(
+    state.training?.selectedFighter?.trainingTip?.includes("spacing"),
+    failures,
+    "training fight should expose selected fighter training tip",
+  );
+  assert(
+    state.training?.dummy?.behavior === "manual idle sparring dummy" && state.training?.dummy?.healthLocked === true,
+    failures,
+    `training dummy should expose manual health-locked behavior, got ${JSON.stringify(state.training?.dummy)}`,
+  );
+  assert(
+    state.training?.presentation?.headline === "TRAINING LAB",
+    failures,
+    `training presentation expected TRAINING LAB, got ${state.training?.presentation?.headline}`,
+  );
+  assert(
+    state.training?.presentation?.feedbackLine?.includes("0 HIT"),
+    failures,
+    `training presentation should expose combo feedback, got ${state.training?.presentation?.feedbackLine}`,
+  );
   assert(state.p2Mode === "manual", failures, `training fight expected manual dummy, got ${state.p2Mode}`);
   checkRuntimeUiLoaded(state, "training fight", failures);
   checkVisibleRuntimeUiSlots(state, "training fight", FIGHT_UI_SLOTS, failures);
+
+  await page.keyboard.down("KeyJ");
+  await waitFrames(page, 5);
+  state = await readState(page);
+  screenshots.push(await screenshot(page, outDir, "training-light-feedback"));
+  await page.keyboard.up("KeyJ");
+  await waitFrames(page, 4);
+  assert(
+    state.training?.practice?.currentAction === "Light punch",
+    failures,
+    `training practice should expose current light-punch action, got ${state.training?.practice?.currentAction}`,
+  );
+  assert(
+    state.training?.presentation?.feedbackLine?.includes("Light punch"),
+    failures,
+    `training presentation should include light-punch feedback, got ${state.training?.presentation?.feedbackLine}`,
+  );
+
+  await pressKey(page, "KeyR");
+  state = await readState(page);
+  screenshots.push(await screenshot(page, outDir, "training-reset-ready"));
+  assert(state.shellPhase === "ready", failures, `training reset expected ready phase, got ${state.shellPhase}`);
   assert(errors.length === 0, failures, `training console/page errors: ${JSON.stringify(errors)}`);
 
   await context.close();

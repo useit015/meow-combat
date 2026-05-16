@@ -90,7 +90,7 @@ export function shellModeLabel(state: Pick<ShellState, "selectedMode">): string 
 
 export function shellModeDescription(state: Pick<ShellState, "selectedMode">): string {
   const mode = selectedPlayMode(state);
-  if (mode === "training") return "Endless sparring lab for timing, spacing, and dummy practice.";
+  if (mode === "training") return "Endless practice lab for timing, spacing, combo feedback, and dummy status.";
   if (mode === "championship") return petFighterGameBible.championship.firstStoryBeat;
   return "Best-of-three CPU fight using the current roster and difficulty setting.";
 }

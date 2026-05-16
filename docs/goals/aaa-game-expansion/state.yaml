@@ -117,7 +117,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T054
+active_task: T055
 
 tasks:
   - id: T001
@@ -3467,7 +3467,7 @@ tasks:
   - id: T054
     type: worker
     assignee: Worker
-    status: active
+    status: done
     reasoning_hint: medium
     objective: "Deepen Training mode into a small practice lab using existing runtime assets only: add smoke-verifiable training presentation/state for selected fighter tips, dummy behavior/status, input/combo practice feedback, and reset/retry affordances without changing fighter size, fighter rows, generated assets, audio, dependencies, sprite scale, cell size, or placement rules."
     allowed_files:
@@ -3504,20 +3504,88 @@ tasks:
       - "No fighter rows, sprite scale, cell sizes, placement rules, generated assets, dependencies, or audio are changed."
       - "Focused tests, full verify, and training smoke pass."
       - "Receipt states full_outcome_complete=false."
+    receipt:
+      result: done
+      decision: accept_training_mode_depth
+      full_outcome_complete: false
+      note: notes/T054-training-mode-depth.md
+      summary: "Deepened Training mode into a compact practice lab using existing runtime assets only. Training now exposes selected fighter tips, dummy behavior/status, input/combo practice feedback, and reset/retry affordances through smoke-verifiable runtime state and a top-center in-fight presentation panel without changing fighter rows, generated assets, sprite scale logic, cell sizes, placement rules, dependencies, or audio."
+      changed_files:
+        - "src/game/MeowtalArenaScene.ts"
+        - "src/content/gameBible.ts"
+        - "src/game/shellFlow.ts"
+        - "scripts/smoke-meowtal-browser.mjs"
+        - "test/game-bible.test.ts"
+        - "test/shell-flow.test.ts"
+        - "docs/goals/aaa-game-expansion/notes/T054-training-mode-depth.md"
+        - "docs/goals/aaa-game-expansion/state.yaml"
+      evidence:
+        - "No diffs under assets/source/imagegen/fighters, public/assets/generated/fighters, output/imagegen, package.json, package-lock.json, src/game/audio.ts, or public/assets/audio."
+        - "Pickles source/public rows compare byte-identical for all 14 rows."
+        - "Smoke report output/web-game/training-mode-depth/report.json has failures=[]."
+        - "Training smoke asserted selected fighter tips, manual idle dummy behavior, health lock, Training Lab headline, light-punch feedback, and reset-to-ready behavior."
+        - "Visual screenshots show the panel does not obscure fighter bodies or HUD, and character proportions remain stable."
+      verification:
+        result: pass
+        commands:
+          - "git diff --name-only -- assets/source/imagegen/fighters public/assets/generated/fighters output/imagegen package.json package-lock.json src/game/audio.ts public/assets/audio"
+          - "for row in idle walk-forward walk-back crouch jump light-punch heavy-punch light-kick special hitstun blockstun knockdown win lose; do cmp -s assets/source/imagegen/fighters/pugilist-pug/$row.png public/assets/generated/fighters/pugilist-pug/$row.png || exit 1; done"
+          - "npm test -- test/game-bible.test.ts test/shell-flow.test.ts test/character-select.test.ts test/combat-core.test.ts test/match-flow.test.ts"
+          - "npm run typecheck"
+          - "npm run verify"
+          - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/training-mode-depth"
+      residual_risks:
+        - "Training remains a presentation/state depth slice, not a full advanced frame-data lab."
+        - "Broad AAA goal remains incomplete."
+      judge_review:
+        decision: approved
+        summary: "Judge accepted T054 with no blockers, confirmed the patch stayed inside Training mode presentation/text state, shell/game-bible copy, smoke assertions, and focused tests, and found no fighter rows, generated assets, audio, dependencies, sprite scale logic, cell size, frame size, placement rules, or character-size logic changed."
+      spawned_tasks:
+        - T055
+  - id: T055
+    type: judge
+    assignee: Judge
+    status: active
+    reasoning_hint: high
+    objective: "Choose the next highest-leverage safe package after Training mode depth. Decide whether to audit the current tranche, deepen championship rewards/interstitials, improve mode/select polish, add non-asset combat feel/readability, or select another bounded gameplay slice while preserving the hard no-size-change rule."
+    inputs:
+      - "T050 championship ladder receipt"
+      - "T052 championship UI polish receipt"
+      - "T054 training mode depth receipt"
+      - "docs/goals/aaa-game-expansion/goal.md"
+      - "Current project files and smoke reports"
+      - "Owner hard rule: character size should not change"
+    constraints:
+      - "Read-only."
+      - "Do not implement."
+      - "Do not generate or edit image/audio assets."
+      - "Do not approve fighter row regeneration, resizing, normalization, sprite scale changes, cell size changes, placement-rule changes, generated asset churn, dependencies, or audio unless a later owner-approved task explicitly scopes it."
+      - "Do not expand into a fourth-fighter playable promotion unless a later task explicitly proves all animation/QA gates."
+      - "Prefer the largest safe useful slice with exact allowed_files, verification commands, stop_if conditions, and acceptance criteria."
+      - "Keep the broad AAA outcome explicitly incomplete unless a final audit proves otherwise."
+    expected_output:
+      - "Decision: proceed_with_worker | require_scout | require_audit | ask_owner"
+      - "Rationale and rejected alternatives"
+      - "Exact next Worker/Judge/Scout objective"
+      - "allowed_files"
+      - "verify"
+      - "stop_if"
+      - "acceptance checklist"
+      - "Parallelization safety notes"
     receipt: null
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T052
+    task: T054
     commands:
       - "git diff --name-only -- assets/source/imagegen/fighters public/assets/generated/fighters output/imagegen package.json package-lock.json src/game/audio.ts public/assets/audio"
       - "for row in idle walk-forward walk-back crouch jump light-punch heavy-punch light-kick special hitstun blockstun knockdown win lose; do cmp -s assets/source/imagegen/fighters/pugilist-pug/$row.png public/assets/generated/fighters/pugilist-pug/$row.png || exit 1; done"
-      - "npm test -- test/game-bible.test.ts test/shell-flow.test.ts test/character-select.test.ts test/combat-core.test.ts"
+      - "npm test -- test/game-bible.test.ts test/shell-flow.test.ts test/character-select.test.ts test/combat-core.test.ts test/match-flow.test.ts"
       - "npm run typecheck"
       - "npm run verify"
-      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/championship-ui-polish"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/training-mode-depth"
   t021_verification:
     result: pass
     task: T021

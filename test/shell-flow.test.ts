@@ -34,6 +34,7 @@ describe("shell flow", () => {
     });
     expect(training).toEqual({ phase: "mode-select", selectedMode: "training" });
     expect(shellModeLabel(training)).toBe("TRAINING");
+    expect(shellModeDescription(training)).toContain("combo feedback");
 
     const championship = reduceShellState(training, {
       modeNextPressed: true,
