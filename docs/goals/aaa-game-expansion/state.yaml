@@ -117,7 +117,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T076
+active_task: T077
 
 tasks:
   - id: T001
@@ -5016,7 +5016,7 @@ tasks:
   - id: T076
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Review the accepted Noodle Nibbles idle, locomotion, and mobility source rows and decide the next safe row-production package without risking character-size drift, identity drift, motion slop, or premature runtime promotion."
     inputs:
@@ -5040,25 +5040,132 @@ tasks:
       - "Exact next Worker objective if approved."
       - "Allowed files, verification commands, stop conditions, and acceptance criteria."
       - "Parallel-safety decision."
+    receipt:
+      result: done
+      decision: proceed_with_worker
+      full_outcome_complete: false
+      note: notes/T076-noodle-mobility-review.md
+      rationale: "The accepted Noodle idle, locomotion, crouch, and jump rows are good enough to continue source-only row production because they have exact alpha dimensions, stable QA receipts, and rejected-candidate evidence for bad shrink/trajectory/packing cases. They are not good enough for runtime promotion because the row set still needs every required attack, reaction, knockdown, win, and lose row reviewed together. The largest safe next package is starter attacks: light-punch plus light-kick."
+      rejected_alternatives:
+        - "Require repair: rejected because the accepted rows meet current source-only QA gates and bad candidates were already rejected."
+        - "Heavy-punch or special next: rejected because those rows introduce body-twist, stretch, and signature-effect risk before simple contact attacks are proven."
+        - "Defense/reaction rows next: rejected because incoming-impact distortion should follow clean self-driven attack poses."
+        - "Win/lose acting rows next: rejected because they are lower gameplay proof than starter attacks."
+        - "Runtime promotion: rejected until every required Noodle row passes source-only production, QA, manifest review, and smoke in a later task."
+        - "Parallel workers: rejected because light-punch and light-kick share one scale/identity/contact-pose risk and should share one QA report."
+      next_task: T077
+      commands:
+        - cmd: "view_image assets/source/imagegen/fighters/ferret-noodle/idle.png"
+          result: pass
+        - cmd: "view_image assets/source/imagegen/fighters/ferret-noodle/walk-forward.png"
+          result: pass
+        - cmd: "view_image assets/source/imagegen/fighters/ferret-noodle/walk-back.png"
+          result: pass
+        - cmd: "view_image assets/source/imagegen/fighters/ferret-noodle/crouch.png"
+          result: pass
+        - cmd: "view_image assets/source/imagegen/fighters/ferret-noodle/jump.png"
+          result: pass
+        - cmd: "sed -n '1,220p' output/animation-preflight/noodle-nibbles-idle-row-qa.json"
+          result: pass
+        - cmd: "sed -n '1,240p' output/animation-preflight/noodle-nibbles-locomotion-row-qa.json"
+          result: pass
+        - cmd: "sed -n '1,230p' output/animation-preflight/noodle-nibbles-mobility-row-qa.json"
+          result: pass
+        - cmd: "test ! -e public/assets/generated/fighters/ferret-noodle"
+          result: pass
+        - cmd: "rg -n \"light-punch|heavy-punch|light-kick|special|hitstun|blockstun|knockdown|win|lose|ferret-noodle\" src/assets/catalog.ts src/assets/fighterAnimationPreflight.ts"
+          result: pass
+        - cmd: "ruby -e 'require \"yaml\"; YAML.load_file(\"docs/goals/aaa-game-expansion/state.yaml\"); puts \"state yaml ok\"'"
+          result: pass
+      summary: "Reviewed the accepted source-only Noodle idle, locomotion, and mobility rows. Approved a bounded next Worker to generate exactly light-punch and light-kick source-only starter attack rows with built-in imagegen, while keeping heavy-punch, special, reactions, acting rows, runtime promotion, and parallel workers blocked."
+      spawned_tasks:
+        - T077
+  - id: T077
+    type: worker
+    assignee: Worker
+    status: active
+    reasoning_hint: medium
+    objective: "Generate and QA exactly two source-only Noodle Nibbles / ferret-noodle starter attack rows: light-punch and light-kick, using built-in imagegen only. Normalize light-punch to exact 1536x256 transparent spritesheet form and light-kick to exact 2048x256 transparent spritesheet form, compare both against the accepted idle/walk-forward/walk-back/crouch/jump rows, update only source/planned manifests and focused tests, and prove Noodle remains not playable with no public/runtime assets."
+    inputs:
+      - "T076 Judge receipt."
+      - "T071 accepted Noodle idle source row and QA."
+      - "T073 accepted Noodle walk-forward/walk-back source rows and QA."
+      - "T075 accepted Noodle crouch/jump source rows and QA."
+      - "Hardened Noodle preflight row-generation briefs."
+    constraints:
+      - "Use built-in imagegen only; do not use external APIs, .env, CLI fallback, new dependencies, or package-lock changes."
+      - "Generate only light-punch and light-kick; do not generate idle, walk-forward, walk-back, crouch, jump, heavy-punch, special, reactions, win/lose, knockdown, portraits, UI, stage, audio, or story assets."
+      - "Do not create or modify public/assets/generated/fighters/ferret-noodle files."
+      - "Do not change runtime roster, select screen, championship ladder, combat frame data, hitboxes, damage, pushback, movement, sprite scale, placement, frame size, dependencies, audio, or source records."
+      - "Reject any candidate with character-size drift, identity drift, limb-length stretch, body-length shrink/stretch, tail-ring instability, sock-prop mutation, weird anatomy, unstable alpha bounds, baked hit sparks/effects/text, cropped frames, copied fighting-game language, or contact-pose slop."
+      - "Do not mark the full AAA outcome complete."
+    allowed_files:
+      - "assets/source/imagegen/fighters/ferret-noodle/candidates/light-punch-codex-01.png"
+      - "assets/source/imagegen/fighters/ferret-noodle/candidates/light-punch-codex-02.png"
+      - "assets/source/imagegen/fighters/ferret-noodle/candidates/light-punch-codex-03.png"
+      - "assets/source/imagegen/fighters/ferret-noodle/candidates/light-kick-codex-01.png"
+      - "assets/source/imagegen/fighters/ferret-noodle/candidates/light-kick-codex-02.png"
+      - "assets/source/imagegen/fighters/ferret-noodle/candidates/light-kick-codex-03.png"
+      - "assets/source/imagegen/fighters/ferret-noodle/light-punch.png"
+      - "assets/source/imagegen/fighters/ferret-noodle/light-kick.png"
+      - "output/imagegen/ferret-noodle-light-punch.png"
+      - "output/imagegen/ferret-noodle-light-punch-normalized.png"
+      - "output/imagegen/ferret-noodle-light-kick.png"
+      - "output/imagegen/ferret-noodle-light-kick-normalized.png"
+      - "output/animation-preflight/noodle-nibbles-starter-attack-row-qa.json"
+      - "output/animation-preflight/noodle-nibbles-starter-attack-row-qa.html"
+      - "output/web-game/noodle-starter-attacks-source-rows/"
+      - "src/assets/catalog.ts"
+      - "test/asset-pipeline.test.ts"
+      - "test/asset-qa.test.ts"
+      - "test/fighter-animation-preflight.test.ts"
+      - "test/imagegen-jobs.test.ts"
+      - "docs/goals/aaa-game-expansion/notes/T077-noodle-starter-attack-row-production.md"
+      - "docs/goals/aaa-game-expansion/state.yaml"
+    verify:
+      - "node scripts/normalize-fighter-rows.mjs --animation light-punch --fighters ferret-noodle"
+      - "node scripts/normalize-fighter-rows.mjs --animation light-kick --fighters ferret-noodle"
+      - "bundled remove_chroma_key.py cleanup on normalized rows if imagegen uses a chroma key background"
+      - "npm run typecheck"
+      - "npm test -- test/fighter-animation-preflight.test.ts test/asset-pipeline.test.ts test/source-roster-lab.test.ts test/game-config.test.ts test/imagegen-jobs.test.ts test/asset-qa.test.ts"
+      - "sips -g pixelWidth -g pixelHeight -g hasAlpha assets/source/imagegen/fighters/ferret-noodle/light-punch.png assets/source/imagegen/fighters/ferret-noodle/light-kick.png output/imagegen/ferret-noodle-light-punch-normalized.png output/imagegen/ferret-noodle-light-kick-normalized.png"
+      - "node scripts/asset-qa.mjs --json"
+      - "test ! -e public/assets/generated/fighters/ferret-noodle"
+      - "npm run verify"
+      - "git diff --name-only -- public/assets/generated/fighters package.json package-lock.json src/game/audio.ts public/assets/audio assets/source/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts src/core/frameData.ts"
+      - "rg -n \"Noodle Nibbles|ferret-noodle|light-punch|light-kick|no-size-drift|row-generation|not playable|source-only\" src/assets/catalog.ts src/assets/fighterAnimationPreflight.ts test/fighter-animation-preflight.test.ts test/asset-pipeline.test.ts test/asset-qa.test.ts docs/goals/aaa-game-expansion/notes/T077-noodle-starter-attack-row-production.md output/animation-preflight/noodle-nibbles-starter-attack-row-qa.json"
+    stop_if:
+      - "Built-in imagegen is unavailable or any external image API/.env/CLI fallback use is needed."
+      - "Either row has size drift, identity drift, limb-length stretch, body-length shrink/stretch, tail-ring instability, sock-prop mutation, weird anatomy, unstable alpha bounds, baked hit sparks/effects/text, cropped frames, copied fighting-game language, or contact-pose slop."
+      - "More than the three allowed candidates per row are needed."
+      - "Any runtime roster/select/combat/public asset change is needed."
+      - "Light-punch cannot be normalized to exact 1536x256 or light-kick cannot be normalized to exact 2048x256 with 256x256 cells."
+      - "Verification fails twice."
+    acceptance:
+      - "Exactly two accepted source-only rows: light-punch and light-kick."
+      - "Both rows preserve Noodle identity and compare cleanly against accepted idle, locomotion, and mobility baselines."
+      - "Catalog marks only idle, walk-forward, walk-back, crouch, jump, light-punch, and light-kick as generated for Noodle; heavy-punch/special/reaction/KO/win/lose rows remain blocked."
+      - "Candidate/source/public separation is preserved."
+      - "public/assets/generated/fighters/ferret-noodle remains absent."
+      - "Noodle remains not playable."
+      - "Tests and verification pass."
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T075
+    task: T076
     commands:
-      - "built-in Codex imagegen for source-only Noodle crouch/jump candidates"
-      - "bundled remove_chroma_key.py cleanup on accepted raw and normalized mobility rows"
-      - "node scripts/normalize-fighter-rows.mjs --animation crouch --fighters ferret-noodle"
-      - "node scripts/normalize-fighter-rows.mjs --animation jump --fighters ferret-noodle"
-      - "npm run typecheck"
-      - "npm test -- test/fighter-animation-preflight.test.ts test/asset-pipeline.test.ts test/source-roster-lab.test.ts test/game-config.test.ts test/imagegen-jobs.test.ts test/asset-qa.test.ts"
-      - "sips -g pixelWidth -g pixelHeight -g hasAlpha assets/source/imagegen/fighters/ferret-noodle/crouch.png assets/source/imagegen/fighters/ferret-noodle/jump.png output/imagegen/ferret-noodle-crouch-normalized.png output/imagegen/ferret-noodle-jump-normalized.png"
-      - "node scripts/asset-qa.mjs --json"
+      - "view_image assets/source/imagegen/fighters/ferret-noodle/idle.png"
+      - "view_image assets/source/imagegen/fighters/ferret-noodle/walk-forward.png"
+      - "view_image assets/source/imagegen/fighters/ferret-noodle/walk-back.png"
+      - "view_image assets/source/imagegen/fighters/ferret-noodle/crouch.png"
+      - "view_image assets/source/imagegen/fighters/ferret-noodle/jump.png"
+      - "sed -n '1,220p' output/animation-preflight/noodle-nibbles-idle-row-qa.json"
+      - "sed -n '1,240p' output/animation-preflight/noodle-nibbles-locomotion-row-qa.json"
+      - "sed -n '1,230p' output/animation-preflight/noodle-nibbles-mobility-row-qa.json"
       - "test ! -e public/assets/generated/fighters/ferret-noodle"
-      - "npm run verify"
-      - "git diff --name-only -- public/assets/generated/fighters package.json package-lock.json src/game/audio.ts public/assets/audio assets/source/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts src/core/frameData.ts"
-      - "rg -n \"Noodle Nibbles|ferret-noodle|crouch|jump|no-size-drift|row-generation|not playable|source-only\" src/assets/catalog.ts src/assets/fighterAnimationPreflight.ts test/fighter-animation-preflight.test.ts test/asset-pipeline.test.ts test/asset-qa.test.ts docs/goals/aaa-game-expansion/notes/T075-noodle-mobility-row-production.md output/animation-preflight/noodle-nibbles-mobility-row-qa.json"
+      - "rg -n \"light-punch|heavy-punch|light-kick|special|hitstun|blockstun|knockdown|win|lose|ferret-noodle\" src/assets/catalog.ts src/assets/fighterAnimationPreflight.ts"
       - "ruby -e 'require \"yaml\"; YAML.load_file(\"docs/goals/aaa-game-expansion/state.yaml\"); puts \"state yaml ok\"'"
   t021_verification:
     result: pass
