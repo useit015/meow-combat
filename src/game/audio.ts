@@ -13,8 +13,16 @@ export type ArenaAudioCue =
   | "victory-sting";
 export type ArenaAudioAssetId = "music-loop" | ArenaAudioCue;
 export type ArenaAudioStatus = "locked" | "ready" | "unavailable";
+export type ArenaAudioSampleStatus = "unrequested" | "loading" | "ready" | "missing" | "failed";
 
 export type ArenaAudioCharacters = Readonly<Record<PlayerId, string>>;
+export type ArenaAudioFetch = (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
+
+export interface ArenaAudioOptions {
+  fetchAudio?: ArenaAudioFetch | null;
+  contextFactory?: (() => AudioContext) | null;
+  startMusicOnUnlock?: boolean;
+}
 
 export interface ArenaAudioPrimaryAssetSpec {
   kind: "authored-sample";
@@ -36,6 +44,13 @@ export interface ArenaAudioAssetSpec {
   role: string;
   primary: ArenaAudioPrimaryAssetSpec;
   proceduralFallback: ArenaAudioProceduralFallbackSpec;
+}
+
+export interface ArenaAudioSampleRuntimeState {
+  id: ArenaAudioAssetId;
+  runtimePath: string;
+  status: ArenaAudioSampleStatus;
+  fallbackStatus: ArenaAudioProceduralFallbackSpec["status"];
 }
 
 const audioSourceRecordNotes =
@@ -172,7 +187,29 @@ function audioCueForHit(event: Extract<CombatEvent, { type: "hit" }>, characters
 export class ArenaAudio {
   private context: AudioContext | null = null;
   private musicTimer: ReturnType<typeof setInterval> | null = null;
+  private musicSource: AudioBufferSourceNode | null = null;
   private unavailable = false;
+  private readonly contextFactory: (() => AudioContext) | null;
+  private readonly fetchAudio: ArenaAudioFetch | null;
+  private readonly startMusicOnUnlock: boolean;
+  private readonly sampleBuffers = new Map<ArenaAudioAssetId, AudioBuffer>();
+  private readonly sampleLoads = new Map<ArenaAudioAssetId, Promise<AudioBuffer | null>>();
+  private readonly sampleStatuses = new Map<ArenaAudioAssetId, ArenaAudioSampleStatus>();
+
+  constructor(options: ArenaAudioOptions = {}) {
+    this.contextFactory = options.contextFactory ?? null;
+    this.fetchAudio =
+      options.fetchAudio === undefined
+        ? typeof globalThis.fetch === "function"
+          ? globalThis.fetch.bind(globalThis)
+          : null
+        : options.fetchAudio;
+    this.startMusicOnUnlock = options.startMusicOnUnlock ?? true;
+
+    for (const spec of AUDIO_CUE_ASSET_SPECS) {
+      this.sampleStatuses.set(spec.id, "unrequested");
+    }
+  }
 
   status(): ArenaAudioStatus {
     if (this.unavailable) return "unavailable";
@@ -181,7 +218,28 @@ export class ArenaAudio {
   }
 
   musicActive(): boolean {
-    return this.musicTimer !== null;
+    return this.musicTimer !== null || this.musicSource !== null;
+  }
+
+  sampleRuntimeStates(): readonly ArenaAudioSampleRuntimeState[] {
+    return AUDIO_CUE_ASSET_SPECS.map((spec) => this.sampleStateForSpec(spec));
+  }
+
+  sampleRuntimeState(id: ArenaAudioAssetId): ArenaAudioSampleRuntimeState | null {
+    const spec = audioAssetSpecForCue(id);
+    if (!spec) return null;
+    return this.sampleStateForSpec(spec);
+  }
+
+  async preloadPrimarySamples(ids: readonly ArenaAudioAssetId[] = AUDIO_CUE_ASSET_SPECS.map((spec) => spec.id)): Promise<
+    readonly ArenaAudioSampleRuntimeState[]
+  > {
+    if (!this.context) this.unlock();
+    const context = this.context;
+    if (!context) return this.sampleRuntimeStates();
+
+    await Promise.all(ids.map((id) => this.loadSample(id, context)));
+    return this.sampleRuntimeStates();
   }
 
   unlock(): void {
@@ -190,16 +248,16 @@ export class ArenaAudio {
       return;
     }
 
-    const Ctor = globalThis.AudioContext ?? (globalThis as AudioGlobal).webkitAudioContext;
-    if (!Ctor) {
+    const contextFactory = this.contextFactory ?? defaultAudioContextFactory();
+    if (!contextFactory) {
       this.unavailable = true;
       return;
     }
 
     try {
-      this.context = new Ctor();
+      this.context = contextFactory();
       void this.context.resume().catch(() => undefined);
-      this.startMusicLoop();
+      if (this.startMusicOnUnlock) this.startMusicLoop();
     } catch {
       this.context = null;
       this.unavailable = true;
@@ -213,6 +271,13 @@ export class ArenaAudio {
     if (!context) return;
 
     const now = context.currentTime;
+    if (this.playPrimarySample(cue, context, now)) return;
+    void this.loadSample(cue, context);
+
+    this.playProceduralCue(cue, context, now);
+  }
+
+  private playProceduralCue(cue: ArenaAudioCue, context: AudioContext, now: number): void {
     if (cue === "ui-confirm") {
       this.tone(context, now, 320, 0.06, "triangle", 0.04);
       this.tone(context, now + 0.055, 520, 0.08, "triangle", 0.035);
@@ -280,6 +345,75 @@ export class ArenaAudio {
     this.tone(context, now + 0.22, 540, 0.2, "triangle", 0.05);
   }
 
+  private sampleStateForSpec(spec: ArenaAudioAssetSpec): ArenaAudioSampleRuntimeState {
+    return {
+      id: spec.id,
+      runtimePath: spec.primary.runtimePath,
+      status: this.sampleStatuses.get(spec.id) ?? "unrequested",
+      fallbackStatus: spec.proceduralFallback.status,
+    };
+  }
+
+  private async loadSample(id: ArenaAudioAssetId, context: AudioContext): Promise<AudioBuffer | null> {
+    const loaded = this.sampleBuffers.get(id);
+    if (loaded) return loaded;
+
+    const status = this.sampleStatuses.get(id);
+    if (status === "missing" || status === "failed") return null;
+
+    const activeLoad = this.sampleLoads.get(id);
+    if (activeLoad) return activeLoad;
+
+    const spec = audioAssetSpecForCue(id);
+    if (!spec || !this.fetchAudio) {
+      this.sampleStatuses.set(id, "missing");
+      return null;
+    }
+
+    this.sampleStatuses.set(id, "loading");
+    const load = this.fetchAudio(spec.primary.runtimePath)
+      .then(async (response) => {
+        if (!response.ok) {
+          this.sampleStatuses.set(id, "missing");
+          return null;
+        }
+
+        const bytes = await response.arrayBuffer();
+        const buffer = await context.decodeAudioData(bytes.slice(0));
+        this.sampleBuffers.set(id, buffer);
+        this.sampleStatuses.set(id, "ready");
+        return buffer;
+      })
+      .catch(() => {
+        this.sampleStatuses.set(id, "failed");
+        return null;
+      })
+      .finally(() => {
+        this.sampleLoads.delete(id);
+      });
+
+    this.sampleLoads.set(id, load);
+    return load;
+  }
+
+  private playPrimarySample(
+    id: ArenaAudioAssetId,
+    context: AudioContext,
+    start: number,
+    options: { loop?: boolean } = {},
+  ): boolean {
+    const buffer = this.sampleBuffers.get(id);
+    if (!buffer) return false;
+
+    const source = context.createBufferSource();
+    source.buffer = buffer;
+    source.loop = options.loop ?? false;
+    source.connect(context.destination);
+    source.start(start);
+    if (source.loop) this.musicSource = source;
+    return true;
+  }
+
   private tone(
     context: AudioContext,
     start: number,
@@ -320,8 +454,18 @@ export class ArenaAudio {
   }
 
   private startMusicLoop(): void {
-    if (!this.context || this.musicTimer) return;
-    this.playMusicPhrase(this.context, this.context.currentTime + 0.08);
+    if (!this.context || this.musicTimer || this.musicSource) return;
+    const context = this.context;
+    void this.loadSample("music-loop", context).then((buffer) => {
+      if (this.context !== context || this.musicTimer || this.musicSource) return;
+      if (buffer && this.playPrimarySample("music-loop", context, context.currentTime + 0.08, { loop: true })) return;
+      this.startProceduralMusicLoop(context);
+    });
+  }
+
+  private startProceduralMusicLoop(context: AudioContext): void {
+    if (this.musicTimer || this.musicSource) return;
+    this.playMusicPhrase(context, context.currentTime + 0.08);
     this.musicTimer = setInterval(() => {
       if (!this.context) return;
       this.playMusicPhrase(this.context, this.context.currentTime + 0.08);
@@ -345,4 +489,9 @@ export class ArenaAudio {
       this.tone(context, start + note.offset, note.frequency / 2, 0.42, "sine", 0.009);
     }
   }
+}
+
+function defaultAudioContextFactory(): (() => AudioContext) | null {
+  const Ctor = globalThis.AudioContext ?? (globalThis as AudioGlobal).webkitAudioContext;
+  return Ctor ? () => new Ctor() : null;
 }

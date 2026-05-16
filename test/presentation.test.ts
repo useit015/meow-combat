@@ -1,6 +1,7 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   AUDIO_CUE_ASSET_SPECS,
+  ArenaAudio,
   audioAssetSpecForCue,
   audioCueForCombatEvents,
   audioCuesForCombatEvents,
@@ -202,4 +203,124 @@ describe("presentation helpers", () => {
     expect(audioAssetSpecForCue("rabbit-tornado")?.primary.allowedSourceKinds).toContain("elevenlabs-sound-generation");
     expect(audioAssetSpecForCue("music-loop")?.primary.allowedSourceKinds).not.toContain("elevenlabs-music");
   });
+
+  it("plays authored samples before procedural fallback once a sample decodes", async () => {
+    const context = fakeAudioContext();
+    const fetchAudio = vi.fn(async () => new Response(new Uint8Array([1, 2, 3, 4]), { status: 200 }));
+    const audio = new ArenaAudio({
+      contextFactory: () => context,
+      fetchAudio,
+      startMusicOnUnlock: false,
+    });
+
+    audio.unlock();
+    await audio.preloadPrimarySamples(["ui-confirm"]);
+    audio.play("ui-confirm");
+
+    expect(fetchAudio).toHaveBeenCalledWith("/assets/generated/audio/ui-confirm.ogg");
+    expect(context.decodeAudioData).toHaveBeenCalledOnce();
+    expect(audio.sampleRuntimeState("ui-confirm")).toMatchObject({
+      id: "ui-confirm",
+      runtimePath: "/assets/generated/audio/ui-confirm.ogg",
+      status: "ready",
+      fallbackStatus: "dev-only",
+    });
+    expect(context.createBufferSource).toHaveBeenCalledOnce();
+    expect(context.createdSources[0]?.buffer).toBe(context.decodedBuffer);
+    expect(context.createdSources[0]?.start).toHaveBeenCalledWith(0);
+    expect(context.createOscillator).not.toHaveBeenCalled();
+  });
+
+  it("keeps the dev-only procedural fallback when a primary sample is missing", async () => {
+    const context = fakeAudioContext();
+    const fetchAudio = vi.fn(async () => new Response(null, { status: 404 }));
+    const audio = new ArenaAudio({
+      contextFactory: () => context,
+      fetchAudio,
+      startMusicOnUnlock: false,
+    });
+
+    audio.unlock();
+    await audio.preloadPrimarySamples(["hit-light"]);
+    audio.play("hit-light");
+
+    expect(audio.sampleRuntimeState("hit-light")).toMatchObject({
+      status: "missing",
+      fallbackStatus: "dev-only",
+    });
+    expect(context.createdSources.some((source) => source.buffer === context.decodedBuffer)).toBe(false);
+    expect(context.createOscillator).toHaveBeenCalled();
+    expect(context.createBuffer).toHaveBeenCalled();
+  });
 });
+
+interface FakeAudioSource {
+  buffer: AudioBuffer | null;
+  loop: boolean;
+  connect: ReturnType<typeof vi.fn>;
+  start: ReturnType<typeof vi.fn>;
+  stop: ReturnType<typeof vi.fn>;
+}
+
+interface FakeAudioContext extends AudioContext {
+  createdSources: FakeAudioSource[];
+  decodedBuffer: AudioBuffer;
+}
+
+function fakeAudioContext(): FakeAudioContext {
+  const createdSources: FakeAudioSource[] = [];
+  const decodedBuffer = { duration: 0.42 } as AudioBuffer;
+  const context = {
+    currentTime: 0,
+    sampleRate: 48000,
+    destination: {},
+    createdSources,
+    decodedBuffer,
+    resume: vi.fn(async () => undefined),
+    decodeAudioData: vi.fn(async () => decodedBuffer),
+    createBufferSource: vi.fn(() => {
+      const source: FakeAudioSource = {
+        buffer: null,
+        loop: false,
+        connect: vi.fn(() => source),
+        start: vi.fn(),
+        stop: vi.fn(),
+      };
+      createdSources.push(source);
+      return source as unknown as AudioBufferSourceNode;
+    }),
+    createOscillator: vi.fn(() => {
+      const oscillator = {
+        type: "sine" as OscillatorType,
+        frequency: {
+          setValueAtTime: vi.fn(),
+          exponentialRampToValueAtTime: vi.fn(),
+        },
+        connect: vi.fn(() => ({
+          connect: vi.fn(),
+        })),
+        start: vi.fn(),
+        stop: vi.fn(),
+      };
+      return oscillator as unknown as OscillatorNode;
+    }),
+    createGain: vi.fn(() => {
+      const gain = {
+        gain: {
+          setValueAtTime: vi.fn(),
+          exponentialRampToValueAtTime: vi.fn(),
+        },
+        connect: vi.fn(() => gain),
+      };
+      return gain as unknown as GainNode;
+    }),
+    createBuffer: vi.fn(() => {
+      const channels = [new Float32Array(8)];
+      return {
+        getChannelData: vi.fn((channel: number) => channels[channel] ?? channels[0]),
+      } as unknown as AudioBuffer;
+    }),
+  };
+
+  return context as unknown as FakeAudioContext;
+}
