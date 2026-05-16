@@ -117,7 +117,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T018
+active_task: T020
 
 tasks:
   - id: T001
@@ -939,7 +939,7 @@ tasks:
   - id: T018
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Choose the next safe production package after the source-only roster lab. Decide whether to generate remaining planned fighter model sheets, start authored/sample audio source acquisition, improve championship/story depth, or address another higher-risk gap. Keep the full AAA-style outcome, no-slop asset standard, source/license risk, and runtime overclaiming constraints central."
     inputs:
@@ -963,16 +963,148 @@ tasks:
       - "verify"
       - "stop_if"
       - "acceptance checklist"
+    receipt:
+      result: done
+      decision: "proceed_with_worker"
+      rationale: "T017 created the guardrail that was missing: a source-only roster lab that separates playable fighters from planned identity locks and marks exactly three missing sheets. The safest next package is to finish the remaining source-only roster identity locks for Beanie Beak, Mochi Munch, and Quillabelle Prickles. Defer audio because source/license acquisition is higher-risk and should follow roster visual identity completion or a fresh terms Scout. Defer story because championship depth benefits from knowing the full 8-fighter cast identity first. No playable roster expansion is approved."
+      next_task: T019
+      summary: "Approved exactly three remaining source-only canonical model sheets via built-in imagegen only, plus manifest/provenance/job/roster-lab updates. The Worker must keep runtime roster exactly Gray Rabbit and Ginger Tabby Cat and stop on any need for public/runtime assets, animation rows, portraits, select slots, story/audio implementation, or playable promotion."
+  - id: T019
+    type: worker
+    assignee: Worker
+    status: done
+    reasoning_hint: medium
+    objective: "Generate and register exactly three source-only canonical model sheets via built-in imagegen only: budgie-beanie / Beanie Beak, hamster-mochi / Mochi Munch, and hedgehog-quillabelle / Quillabelle Prickles. Add planned/source-only manifest, provenance, imagegen job, and roster-lab updates. Do not create animation rows, portraits, public assets, select-screen slots, or playable runtime content. Keep runtime roster exactly Gray Rabbit and Ginger Tabby Cat."
+    allowed_files:
+      - "src/assets/catalog.ts"
+      - "src/assets/imagegenJobs.ts"
+      - "src/assets/meowtalProductionManifest.ts"
+      - "src/assets/sourceRosterLab.ts"
+      - "test/asset-pipeline.test.ts"
+      - "test/imagegen-jobs.test.ts"
+      - "test/meowtal-production-manifest.test.ts"
+      - "test/source-roster-lab.test.ts"
+      - "test/game-config.test.ts"
+      - "assets/source/imagegen/fighters/budgie-beanie/canonical-character-sheet.png"
+      - "assets/source/imagegen/fighters/budgie-beanie/candidates/canonical-character-sheet-codex-01.png"
+      - "assets/source/imagegen/fighters/hamster-mochi/canonical-character-sheet.png"
+      - "assets/source/imagegen/fighters/hamster-mochi/candidates/canonical-character-sheet-codex-01.png"
+      - "assets/source/imagegen/fighters/hedgehog-quillabelle/canonical-character-sheet.png"
+      - "assets/source/imagegen/fighters/hedgehog-quillabelle/candidates/canonical-character-sheet-codex-01.png"
+      - "output/imagegen/budgie-beanie-canonical-character-sheet.png"
+      - "output/imagegen/hamster-mochi-canonical-character-sheet.png"
+      - "output/imagegen/hedgehog-quillabelle-canonical-character-sheet.png"
+      - "output/roster-lab/aaa-expansion-full-source-roster-lab.json"
+      - "output/roster-lab/aaa-expansion-full-source-roster-lab.html"
+      - "output/web-game/aaa-expansion-full-source-roster-locks/"
+    verify:
+      - "npm run typecheck"
+      - "npm test -- test/asset-pipeline.test.ts test/imagegen-jobs.test.ts test/meowtal-production-manifest.test.ts test/source-roster-lab.test.ts test/game-config.test.ts"
+      - "npm run verify"
+      - "sips -g pixelWidth -g pixelHeight assets/source/imagegen/fighters/budgie-beanie/canonical-character-sheet.png assets/source/imagegen/fighters/hamster-mochi/canonical-character-sheet.png assets/source/imagegen/fighters/hedgehog-quillabelle/canonical-character-sheet.png"
+      - "rg -n \"Beanie Beak|Mochi Munch|Quillabelle Prickles|source-only|not playable|8-fighter\" src/assets/sourceRosterLab.ts output/roster-lab/aaa-expansion-full-source-roster-lab.json"
+      - "test ! -e public/assets/generated/fighters/budgie-beanie && test ! -e public/assets/generated/fighters/hamster-mochi && test ! -e public/assets/generated/fighters/hedgehog-quillabelle"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/aaa-expansion-full-source-roster-locks"
+    stop_if:
+      - "Need any file outside allowed_files."
+      - "Need public/assets, runtime roster, select UI, combat, scene flow, audio runtime, dependencies, or external APIs other than built-in imagegen."
+      - "Need animation rows, runtime portraits, select-screen planned slots, playable promotion, or story/audio implementation."
+      - "More than three final generated model-sheet assets are required."
+      - "Any fighter needs more than two imagegen attempts to produce an acceptable source sheet."
+      - "Any generated output has readable/pseudo text, logos, watermarks, copied fighting-game marks, malformed anatomy, identity drift, size drift, extra characters, generic AI look, unclear species identity, or inconsistent stance."
+      - "Browser smoke reports runtime promotion of budgie-beanie, hamster-mochi, or hedgehog-quillabelle."
+    acceptance:
+      - "Exactly one accepted source-only canonical sheet exists for each of budgie-beanie, hamster-mochi, and hedgehog-quillabelle."
+      - "Beanie reads as one cute upright budgie aerial trickster with stable beak, wing, feather, palette, and silhouette language."
+      - "Mochi reads as one cute upright hamster rushdown/snack fighter with stable cheeks, tiny limbs, round body, palette, and stance language."
+      - "Quillabelle reads as one cute upright hedgehog counter-zoner with stable quills, face, compact body, palette, and defensive pose language."
+      - "All three sheets include consistent front/side/back/three-quarter, guard/idle, head close-up, expressions, silhouette guide, and color swatches."
+      - "No text, pseudo-text, labels, logos, watermarks, brand marks, extra characters, or copied costume/move language."
+      - "Metadata marks all three as source-only identity locks, not playable assets."
+      - "Source roster lab updates show all 8 fighters while preserving runtime/playable separation."
+      - "Latest smoke still shows only Gray Rabbit and Ginger Tabby Cat as playable."
+    receipt:
+      result: done
+      changed_files:
+        - "src/assets/catalog.ts"
+        - "src/assets/meowtalProductionManifest.ts"
+        - "test/asset-pipeline.test.ts"
+        - "test/imagegen-jobs.test.ts"
+        - "test/meowtal-production-manifest.test.ts"
+        - "test/source-roster-lab.test.ts"
+        - "assets/source/imagegen/fighters/budgie-beanie/canonical-character-sheet.png"
+        - "assets/source/imagegen/fighters/budgie-beanie/candidates/canonical-character-sheet-codex-01.png"
+        - "assets/source/imagegen/fighters/hamster-mochi/canonical-character-sheet.png"
+        - "assets/source/imagegen/fighters/hamster-mochi/candidates/canonical-character-sheet-codex-01.png"
+        - "assets/source/imagegen/fighters/hedgehog-quillabelle/canonical-character-sheet.png"
+        - "assets/source/imagegen/fighters/hedgehog-quillabelle/candidates/canonical-character-sheet-codex-01.png"
+        - "output/imagegen/budgie-beanie-canonical-character-sheet.png"
+        - "output/imagegen/hamster-mochi-canonical-character-sheet.png"
+        - "output/imagegen/hedgehog-quillabelle-canonical-character-sheet.png"
+        - "output/roster-lab/aaa-expansion-full-source-roster-lab.json"
+        - "output/roster-lab/aaa-expansion-full-source-roster-lab.html"
+        - "output/web-game/aaa-expansion-full-source-roster-locks/"
+      commands:
+        - cmd: "built-in Codex imagegen for source-only Beanie Beak canonical model sheet"
+          status: pass
+        - cmd: "built-in Codex imagegen for source-only Mochi Munch canonical model sheet"
+          status: pass
+        - cmd: "built-in Codex imagegen for source-only Quillabelle Prickles canonical model sheet"
+          status: pass
+        - cmd: "npm test -- test/asset-pipeline.test.ts test/imagegen-jobs.test.ts test/meowtal-production-manifest.test.ts test/source-roster-lab.test.ts test/game-config.test.ts"
+          status: pass
+        - cmd: "npm run typecheck"
+          status: pass
+        - cmd: "npm run verify"
+          status: pass
+        - cmd: "sips -g pixelWidth -g pixelHeight assets/source/imagegen/fighters/budgie-beanie/canonical-character-sheet.png assets/source/imagegen/fighters/hamster-mochi/canonical-character-sheet.png assets/source/imagegen/fighters/hedgehog-quillabelle/canonical-character-sheet.png"
+          status: pass
+        - cmd: "rg -n \"Beanie Beak|Mochi Munch|Quillabelle Prickles|source-only|not playable|8-fighter\" src/assets/sourceRosterLab.ts output/roster-lab/aaa-expansion-full-source-roster-lab.json"
+          status: pass
+        - cmd: "test ! -e public/assets/generated/fighters/budgie-beanie && test ! -e public/assets/generated/fighters/hamster-mochi && test ! -e public/assets/generated/fighters/hedgehog-quillabelle"
+          status: pass
+        - cmd: "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/aaa-expansion-full-source-roster-locks"
+          status: pass
+      summary: "Generated exactly three accepted source-only canonical model sheets with built-in Codex imagegen: Beanie Beak / budgie-beanie, Mochi Munch / hamster-mochi, and Quillabelle Prickles / hedgehog-quillabelle. Registered all three as source-only planned fighter identity locks, updated provenance and job expectations, updated full source-roster lab artifacts to show all 8 fighters with 6 source-only locks and 0 missing identity locks, kept all new animation rows blocked, and did not create public/runtime assets, portraits, select slots, story/audio implementation, or playable content. Focused tests, typecheck, full verify, dimensions, source-roster rg guard, public-path guard, and production-preview smoke passed; latest smoke still reports Gray Rabbit vs Ginger Tabby Cat as playable."
+  - id: T020
+    type: judge
+    assignee: Judge
+    status: active
+    reasoning_hint: high
+    objective: "Audit the goal after all 8 Pawbreaker fighters now have either playable runtime status or source-only identity locks. Decide the next highest-leverage safe package: audio source/license Scout/Worker, championship/story depth, animation plan for first new playable candidate, select/roster review UX, or final tranche audit. Keep full AAA outcome honesty, no-slop asset quality, audio licensing risk, and runtime overclaiming constraints central."
+    inputs:
+      - "T013 tranche inventory and checklist"
+      - "T017 source roster lab"
+      - "T019 full source roster lock receipt"
+      - "T004 8-fighter content spine"
+      - "T005/T008 authored/sample audio contract and sample-first runtime"
+      - "Latest smoke proof at output/web-game/aaa-expansion-full-source-roster-locks/report.json"
+    constraints:
+      - "Do not implement, generate images, acquire audio, or call external APIs."
+      - "Do not approve playable roster expansion unless the Worker scope is only an animation plan or preflight; actual playable promotion still needs full rows/QA/smoke."
+      - "If choosing audio, require source/license records and no procedural-primary direction."
+      - "If choosing story/modes, preserve runtime stability and keep scope bounded."
+      - "Reject completion if authored audio, story depth, playable roster expansion, or broader AAA outcome still has safe local follow-up."
+    expected_output:
+      - "Decision: proceed_with_worker | require_scout | final_audit_not_complete | complete"
+      - "Rationale"
+      - "Exact Worker or Scout objective"
+      - "allowed_files"
+      - "verify"
+      - "stop_if"
+      - "acceptance checklist"
     receipt: null
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T017
+    task: T019
     commands:
       - "npm run typecheck"
-      - "npm test -- test/source-roster-lab.test.ts test/asset-pipeline.test.ts test/imagegen-jobs.test.ts test/game-config.test.ts"
+      - "npm test -- test/asset-pipeline.test.ts test/imagegen-jobs.test.ts test/meowtal-production-manifest.test.ts test/source-roster-lab.test.ts test/game-config.test.ts"
       - "npm run verify"
-      - "rg -n \"Pickles Pugilist|Noodle Nibbles|Tofu Tortoise|source-only|not playable|missing identity lock|8-fighter\" docs/goals/aaa-game-expansion/notes/T017-source-roster-lab.md"
-      - "test ! -e public/assets/generated/fighters/pugilist-pug && test ! -e public/assets/generated/fighters/ferret-noodle && test ! -e public/assets/generated/fighters/tortoise-tofu"
+      - "sips -g pixelWidth -g pixelHeight assets/source/imagegen/fighters/budgie-beanie/canonical-character-sheet.png assets/source/imagegen/fighters/hamster-mochi/canonical-character-sheet.png assets/source/imagegen/fighters/hedgehog-quillabelle/canonical-character-sheet.png"
+      - "rg -n \"Beanie Beak|Mochi Munch|Quillabelle Prickles|source-only|not playable|8-fighter\" src/assets/sourceRosterLab.ts output/roster-lab/aaa-expansion-full-source-roster-lab.json"
+      - "test ! -e public/assets/generated/fighters/budgie-beanie && test ! -e public/assets/generated/fighters/hamster-mochi && test ! -e public/assets/generated/fighters/hedgehog-quillabelle"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/aaa-expansion-full-source-roster-locks"
