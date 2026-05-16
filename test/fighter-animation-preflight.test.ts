@@ -5,7 +5,10 @@ import { describe, expect, it } from "vitest";
 import {
   DEFAULT_FIGHTER_CELL_SIZE,
   REQUIRED_FIGHTER_ANIMATIONS,
+  buildNoodleAnimationPreflight,
   buildPicklesAnimationPreflight,
+  pawbreakerPlannedFighterAssetManifests,
+  renderNoodleAnimationPreflightHtml,
   meowtalFighterAssetManifests,
   renderPicklesAnimationPreflightHtml,
   validateFighterAnimationPreflight,
@@ -221,6 +224,87 @@ describe("Pickles Pugilist animation preflight", () => {
     expect(below195Frames.every((frame) => frame.width >= 205)).toBe(true);
     expect(tinyFrames).toEqual([]);
     expect(average(opaquePixels)).toBeGreaterThanOrEqual(22_500);
+  });
+});
+
+describe("Noodle Nibbles animation preflight", () => {
+  it("records Noodle as the next source-only roster-production candidate", () => {
+    const plan = buildNoodleAnimationPreflight();
+
+    expect(plan).toMatchObject({
+      fighterId: "ferret-noodle",
+      displayName: "Noodle Nibbles",
+      sourceOnly: true,
+      playable: false,
+      runtimeExposure: "not playable",
+      status: "source-only-preflight",
+      fullOutcome: "incomplete",
+      publicRuntimePath: null,
+    });
+    expect(plan.canonicalReferencePath).toBe("assets/source/imagegen/fighters/ferret-noodle/canonical-character-sheet.png");
+    expect(existsSync(join(process.cwd(), plan.canonicalReferencePath))).toBe(true);
+    expect(existsSync(join(process.cwd(), "public/assets/generated/fighters/ferret-noodle"))).toBe(false);
+    expect(meowtalKombatConfig.roster.map((fighter) => fighter.id)).toEqual(["gray-rabbit", "ginger-tabby-cat", "pugilist-pug"]);
+    expect(meowtalFighterAssetManifests.map((fighter) => fighter.id)).toEqual(["gray-rabbit", "ginger-tabby-cat", "pugilist-pug"]);
+    expect(pawbreakerPlannedFighterAssetManifests.map((fighter) => fighter.id)).toContain("ferret-noodle");
+  });
+
+  it("covers every required Noodle row with no-size-drift source-only gates", () => {
+    const plan = buildNoodleAnimationPreflight();
+    const errors = validateFighterAnimationPreflight(plan);
+
+    expect(errors).toEqual([]);
+    expect(plan.requiredRows.map((row) => row.animationId)).toEqual(REQUIRED_FIGHTER_ANIMATIONS);
+    for (const row of plan.requiredRows) {
+      expect(row.cellSize).toEqual(DEFAULT_FIGHTER_CELL_SIZE);
+      expect(row.facing).toBe("right");
+      expect(row.rowGenerationBrief).toContain("Noodle Nibbles");
+      expect(row.rowGenerationBrief).toContain("row-generation");
+      expect(row.acceptanceCriteria.join(" ")).toContain("no-size-drift");
+      expect(row.acceptanceCriteria.join(" ")).toContain("no-drift");
+      expect(row.acceptanceCriteria.join(" ")).toContain("transparent-background");
+      expect(row.rejectionTriggers.join(" ")).toContain("size drift");
+      expect(row.rejectionTriggers.join(" ")).toContain("identity drift");
+    }
+
+    const gateText = plan.noDriftQaGates.map((gate) => `${gate.id} ${gate.label} ${gate.requiredEvidence.join(" ")} ${gate.failIf.join(" ")}`).join(" ");
+    const promotionCommands = plan.runtimePromotionTests.map((test) => test.command).join(" ");
+    const smokeText = plan.browserSmokeRequirements.map((requirement) => requirement.expectedEvidence).join(" ");
+
+    expect(gateText).toContain("no-size-drift");
+    expect(gateText).toContain("alpha-bounds");
+    expect(gateText).toContain("identity-traits");
+    expect(gateText).toContain("256x256");
+    expect(gateText).toContain("provenance");
+    expect(promotionCommands).toContain("test ! -e public/assets/generated/fighters/ferret-noodle");
+    expect(promotionCommands).toContain("smoke:meowtal");
+    expect(smokeText).toContain("absent from the selectable runtime roster");
+    expect(smokeText).toContain("no procedural or missing-output fallback");
+  });
+
+  it("renders source-only review artifacts without claiming Noodle is playable", () => {
+    const plan = buildNoodleAnimationPreflight();
+    const html = renderNoodleAnimationPreflightHtml(plan);
+    const outputJson = JSON.parse(
+      readFileSync(join(process.cwd(), "output/animation-preflight/noodle-nibbles-animation-plan.json"), "utf8"),
+    ) as typeof plan;
+    const outputHtml = readFileSync(
+      join(process.cwd(), "output/animation-preflight/noodle-nibbles-animation-plan.html"),
+      "utf8",
+    );
+
+    expect(outputJson.fighterId).toBe("ferret-noodle");
+    expect(outputJson.sourceOnly).toBe(true);
+    expect(outputJson.playable).toBe(false);
+    expect(outputJson.requiredRows.map((row) => row.animationId)).toEqual(REQUIRED_FIGHTER_ANIMATIONS);
+    expect(html).toContain("Noodle Nibbles");
+    expect(html).toContain("source-only production preflight");
+    expect(html).toContain("not playable");
+    expect(html).toContain("no-size-drift");
+    expect(html).not.toContain("playable runtime assets");
+    expect(outputHtml).toContain("Noodle Nibbles");
+    expect(outputHtml).toContain("source-only production preflight");
+    expect(outputHtml).not.toContain("playable runtime assets");
   });
 });
 

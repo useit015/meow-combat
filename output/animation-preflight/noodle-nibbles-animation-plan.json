@@ -1,0 +1,123 @@
+{
+  "id": "noodle-nibbles-animation-preflight",
+  "fighterId": "ferret-noodle",
+  "displayName": "Noodle Nibbles",
+  "sourceOnly": true,
+  "playable": false,
+  "status": "source-only-preflight",
+  "runtimeExposure": "not playable",
+  "fullOutcome": "incomplete",
+  "canonicalReferencePath": "assets/source/imagegen/fighters/ferret-noodle/canonical-character-sheet.png",
+  "publicRuntimePath": null,
+  "rowGenerationStrategy": [
+    "Use the approved source-only Noodle Nibbles canonical model sheet as the only identity source before any row-generation pass.",
+    "Start actual imagegen with idle only after a Judge approves it as the scale/reference row; row groups and runtime promotion remain blocked.",
+    "Keep Noodle upright, ferret-faced, long-bodied, short-legged, mischievous, and readable as a side-switch mix-up fighter in every normal gameplay row.",
+    "Every future row must keep exact 256x256 cells, transparent frames, stable alpha bounds, and no-size-drift evidence against the accepted idle/reference row.",
+    "Keep rejected candidates and QA notes source-only; do not create public/assets/generated/fighters/ferret-noodle until every required row passes and a separate promotion task approves it.",
+    "Runtime promotion requires byte-identical source/runtime rows, source provenance, browser smoke, and explicit roster/select/championship updates in a later task."
+  ],
+  "requiredRows": [
+    { "animationId": "idle", "frameCount": 8, "cellSize": { "width": 256, "height": 256 }, "facing": "right" },
+    { "animationId": "walk-forward", "frameCount": 8, "cellSize": { "width": 256, "height": 256 }, "facing": "right" },
+    { "animationId": "walk-back", "frameCount": 8, "cellSize": { "width": 256, "height": 256 }, "facing": "right" },
+    { "animationId": "crouch", "frameCount": 4, "cellSize": { "width": 256, "height": 256 }, "facing": "right" },
+    { "animationId": "jump", "frameCount": 6, "cellSize": { "width": 256, "height": 256 }, "facing": "right" },
+    { "animationId": "light-punch", "frameCount": 6, "cellSize": { "width": 256, "height": 256 }, "facing": "right" },
+    { "animationId": "heavy-punch", "frameCount": 8, "cellSize": { "width": 256, "height": 256 }, "facing": "right" },
+    { "animationId": "light-kick", "frameCount": 8, "cellSize": { "width": 256, "height": 256 }, "facing": "right" },
+    { "animationId": "special", "frameCount": 10, "cellSize": { "width": 256, "height": 256 }, "facing": "right" },
+    { "animationId": "hitstun", "frameCount": 5, "cellSize": { "width": 256, "height": 256 }, "facing": "right" },
+    { "animationId": "blockstun", "frameCount": 5, "cellSize": { "width": 256, "height": 256 }, "facing": "right" },
+    { "animationId": "knockdown", "frameCount": 8, "cellSize": { "width": 256, "height": 256 }, "facing": "right" },
+    { "animationId": "win", "frameCount": 8, "cellSize": { "width": 256, "height": 256 }, "facing": "right" },
+    { "animationId": "lose", "frameCount": 6, "cellSize": { "width": 256, "height": 256 }, "facing": "right" }
+  ],
+  "noDriftQaGates": [
+    {
+      "id": "scale-bounds",
+      "label": "Scale and silhouette no-size-drift",
+      "requiredEvidence": [
+        "The first accepted idle row becomes the future Noodle scale reference before any locomotion, attack, reaction, or K.O. row.",
+        "Head height, long torso length, shoulder width, sock-belt scale, short-leg length, and ringed-tail size remain stable across frames and rows."
+      ],
+      "failIf": [
+        "Noodle changes character size between frames or rows.",
+        "The silhouette becomes a generic weasel, noodle mascot, snake, cat, or unrelated creature."
+      ]
+    },
+    {
+      "id": "alpha-bounds",
+      "label": "Transparent sprite bounds",
+      "requiredEvidence": [
+        "Every future frame has an alpha channel and stable non-transparent bounds.",
+        "No detached dust, speed lines, shadows, hit sparks, text, frame numbers, grids, or UI artifacts are baked into a row."
+      ],
+      "failIf": [
+        "A frame is cropped, clipped, floating outside its 256x256 cell, or has baked effects that belong in the game effects layer."
+      ]
+    },
+    {
+      "id": "identity-traits",
+      "label": "Noodle identity lock",
+      "requiredEvidence": [
+        "Tapered muzzle, bright eyes, rounded ears, long torso, short legs, ringed tail, sock-belt gag, mischievous face, and warm ferret palette survive every row."
+      ],
+      "failIf": [
+        "The face, muzzle, eyes, ears, torso length, tail rings, sock props, or palette mutate between frames."
+      ]
+    },
+    {
+      "id": "frame-dimensions",
+      "label": "Frame dimensions and row structure",
+      "requiredEvidence": [
+        "Each accepted row has the planned frame count and exact 256x256 cell dimensions.",
+        "Spritesheet width equals frameCount * 256 and spritesheet height equals 256."
+      ],
+      "failIf": [
+        "Any row uses inconsistent dimensions, missing frames, variable cell sizes, or an unreviewed frame order."
+      ]
+    },
+    {
+      "id": "provenance",
+      "label": "Source and runtime provenance",
+      "requiredEvidence": [
+        "Source prompt, canonical-reference path, candidate path, QA decision, accepted source path, and future runtime path are recorded before promotion."
+      ],
+      "failIf": [
+        "A row lacks a source record, reviewer decision, or future runtime destination."
+      ]
+    }
+  ],
+  "runtimePromotionTests": [
+    {
+      "id": "preflight-unit",
+      "command": "npm test -- test/fighter-animation-preflight.test.ts",
+      "proves": "The Noodle preflight covers every required row and keeps the fighter source-only."
+    },
+    {
+      "id": "source-only-public-block",
+      "command": "test ! -e public/assets/generated/fighters/ferret-noodle",
+      "proves": "Noodle Nibbles has no public/runtime fighter folder during preflight and row production."
+    },
+    {
+      "id": "future-smoke",
+      "command": "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/noodle-runtime-promotion",
+      "proves": "Future runtime promotion must prove browser gameplay, roster state, sprite loading, and no fallback rows."
+    }
+  ],
+  "browserSmokeRequirements": [
+    {
+      "id": "current-roster-unchanged",
+      "expectedEvidence": "During preflight and source-only row production, Noodle Nibbles remains absent from the selectable runtime roster."
+    },
+    {
+      "id": "promotion-roster-explicit",
+      "expectedEvidence": "Only a later promotion smoke may show ferret-noodle runtime spritesheets for every required animation row."
+    },
+    {
+      "id": "no-fallback-rows",
+      "expectedEvidence": "Future promotion smoke must show approved sprite rows, exact 256x256 cells, and no procedural or missing-output fallback."
+    }
+  ]
+}

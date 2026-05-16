@@ -117,7 +117,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T066
+active_task: T068
 
 tasks:
   - id: T001
@@ -4274,7 +4274,7 @@ tasks:
   - id: T066
     type: judge
     assignee: Judge
-    status: active
+    status: blocked
     reasoning_hint: high
     objective: "Audit the post-settings browser milestone and decide whether any safe local non-size/non-asset/non-audio/non-frame-data package remains, or ask_owner with exact options if the next meaningful work requires audio, generated assets, roster production, or gameplay frame-data changes."
     inputs:
@@ -4323,20 +4323,126 @@ tasks:
           - "C) Combat-feel tuning. Risk: gameplay frame-data, hitbox, damage, pushback, movement, and balance regressions."
           - "D) Pause production and run only a final not-complete audit of the current browser milestone."
       missing_evidence:
-        - "Owner must choose A, B, C, or D before safe execution can continue."
+        - "Owner chose B/yes on 2026-05-16, approving roster production for the next fighter under the strict no-size-drift gate."
+      owner_decision:
+        received: "2026-05-16"
+        selected_option: "B"
+        meaning: "Proceed with next-fighter roster production only through explicit GoalBuddy tasks with no-size-drift, no-slop, candidate/source/public separation, and verification gates."
+        next_task: T067
+  - id: T067
+    type: worker
+    assignee: Worker
+    status: done
+    reasoning_hint: medium
+    objective: "Create the next-fighter animation-production preflight for Noodle Nibbles / ferret-noodle after owner approval of roster production. Generalize the existing preflight surface only as needed, record strict no-size-drift gates, produce source-controlled JSON/HTML review artifacts, and prove Noodle remains source-only and non-playable with no new fighter rows or public/runtime assets."
+    inputs:
+      - "Owner approval: yes/B for roster production under strict no-size-drift gate."
+      - "T066 post-settings audit and owner-gated roster lane."
+      - "Current Pawbreaker 8-fighter roster bible."
+      - "Existing Pickles animation preflight pattern and tests."
+      - "Existing Noodle Nibbles source-only canonical sheet."
+    constraints:
+      - "Do not run imagegen."
+      - "Do not regenerate, resize, normalize, crop, repack, or pixel-edit fighter rows."
+      - "Do not create or modify any public/assets/generated/fighters/ferret-noodle files."
+      - "Do not change runtime roster, select screen, championship ladder, combat frame data, hitboxes, damage, pushback, movement, sprite scale, placement, frame size, dependencies, audio, or source records."
+      - "Preserve character size: every future Noodle row must use exact 256x256 cells and no-size-drift evidence before promotion."
+      - "Do not mark the full AAA outcome complete."
+    allowed_files:
+      - "src/assets/fighterAnimationPreflight.ts"
+      - "test/fighter-animation-preflight.test.ts"
+      - "output/animation-preflight/noodle-nibbles-animation-plan.json"
+      - "output/animation-preflight/noodle-nibbles-animation-plan.html"
+      - "docs/goals/aaa-game-expansion/notes/T067-noodle-animation-preflight.md"
+      - "docs/goals/aaa-game-expansion/state.yaml"
+    verify:
+      - "npm run typecheck"
+      - "npm test -- test/fighter-animation-preflight.test.ts test/imagegen-jobs.test.ts test/source-roster-lab.test.ts test/game-config.test.ts"
+      - "test ! -e public/assets/generated/fighters/ferret-noodle"
+      - "test -s output/animation-preflight/noodle-nibbles-animation-plan.json && test -s output/animation-preflight/noodle-nibbles-animation-plan.html"
+      - "rg -n \"Noodle Nibbles|ferret-noodle|no-size-drift|no-drift|source-only|not playable|runtime promotion|row-generation\" src/assets/fighterAnimationPreflight.ts test/fighter-animation-preflight.test.ts docs/goals/aaa-game-expansion/notes/T067-noodle-animation-preflight.md output/animation-preflight/noodle-nibbles-animation-plan.json"
+    stop_if:
+      - "The implementation requires generating or editing any raster asset."
+      - "The implementation requires changing runtime roster/select/combat, public fighter assets, sprite sizing, frame data, audio, dependencies, or lockfiles."
+      - "The preflight cannot prove Noodle stays source-only and not playable."
+      - "The future row contract cannot enforce exact 256x256 cells and no-size-drift acceptance before imagegen."
+      - "Verification fails twice."
+    acceptance:
+      - "Noodle Nibbles has a source-only animation-production preflight covering all required rows."
+      - "The preflight explicitly states no-size-drift, identity, alpha, provenance, and runtime-promotion gates."
+      - "JSON/HTML review artifacts are present."
+      - "Noodle remains not playable and has no public/runtime fighter folder."
+      - "No generated assets, fighter rows, audio, dependencies, sprite sizing, placement, or frame-data files changed."
+    receipt:
+      result: done
+      note: notes/T067-noodle-animation-preflight.md
+      full_outcome_complete: false
+      changed_files:
+        - "src/assets/fighterAnimationPreflight.ts"
+        - "test/fighter-animation-preflight.test.ts"
+        - "output/animation-preflight/noodle-nibbles-animation-plan.json"
+        - "output/animation-preflight/noodle-nibbles-animation-plan.html"
+        - "docs/goals/aaa-game-expansion/notes/T067-noodle-animation-preflight.md"
+        - "docs/goals/aaa-game-expansion/state.yaml"
+      commands:
+        - cmd: "npm run typecheck"
+          result: pass
+        - cmd: "npm test -- test/fighter-animation-preflight.test.ts test/imagegen-jobs.test.ts test/source-roster-lab.test.ts test/game-config.test.ts"
+          result: pass
+          evidence: "4 test files, 29 tests passed."
+        - cmd: "test ! -e public/assets/generated/fighters/ferret-noodle"
+          result: pass
+        - cmd: "test -s output/animation-preflight/noodle-nibbles-animation-plan.json && test -s output/animation-preflight/noodle-nibbles-animation-plan.html"
+          result: pass
+        - cmd: "npm run verify"
+          result: pass
+          evidence: "Typecheck, 31 test files / 221 tests, and production build passed."
+        - cmd: "git diff --name-only -- assets/source/imagegen/fighters public/assets/generated/fighters output/imagegen package.json package-lock.json src/game/audio.ts public/assets/audio assets/source/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts src/core/frameData.ts"
+          result: pass
+          evidence: "No changed files."
+        - cmd: "rg -n \"Noodle Nibbles|ferret-noodle|no-size-drift|no-drift|source-only|not playable|runtime promotion|row-generation\" src/assets/fighterAnimationPreflight.ts test/fighter-animation-preflight.test.ts docs/goals/aaa-game-expansion/notes/T067-noodle-animation-preflight.md output/animation-preflight/noodle-nibbles-animation-plan.json"
+          result: pass
+      summary: "Created a source-only animation-production preflight for Noodle Nibbles / ferret-noodle, generalized the preflight surface beyond Pickles, added no-size-drift/no-drift row gates and JSON/HTML review artifacts, and proved Noodle remains not playable with no public/runtime fighter folder. No imagegen, generated assets, runtime roster, public assets, audio, dependencies, sprite sizing, placement, or frame-data files changed."
+      spawned_tasks:
+        - T068
+  - id: T068
+    type: judge
+    assignee: Judge
+    status: active
+    reasoning_hint: high
+    objective: "Review the T067 Noodle Nibbles animation preflight and decide whether the next safe roster-production Worker should create only the source-only Noodle idle row as the future scale baseline."
+    inputs:
+      - "T067 receipt and note."
+      - "Noodle Nibbles preflight JSON/HTML artifacts."
+      - "Existing source-only Noodle canonical model sheet."
+      - "Owner approval for roster production under the strict no-size-drift gate."
+    constraints:
+      - "Read-only."
+      - "Do not run imagegen."
+      - "Do not edit generated assets, fighter rows, public runtime assets, roster/select/championship/runtime files, sprite sizing, frame data, hitboxes, damage, pushback, movement, audio, source records, dependencies, or lockfiles."
+      - "Challenge whether the preflight sufficiently prevents character-size drift, identity drift, public/runtime leakage, and row-generation slop."
+      - "If approving production, approve only the largest safe next Worker package with exact allowed_files, verify commands, stop_if, and acceptance criteria."
+      - "Do not mark the full AAA outcome complete."
+    expected_output:
+      - "Decision: approve_idle_worker | revise_preflight | ask_owner | pause"
+      - "Rationale and rejected alternatives."
+      - "Exact next Worker objective if approved."
+      - "Allowed files, verification commands, stop conditions, and acceptance criteria."
+      - "Parallel-safety decision."
 
 checks:
   dirty_fingerprint: unknown
   last_verification:
     result: pass
-    task: T065
+    task: T067
     commands:
-      - "git diff --name-only -- assets/source/imagegen/fighters public/assets/generated/fighters output/imagegen package.json package-lock.json src/game/audio.ts public/assets/audio assets/source/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts src/core/frameData.ts"
-      - "for row in idle walk-forward walk-back crouch jump light-punch heavy-punch light-kick special hitstun blockstun knockdown win lose; do cmp -s assets/source/imagegen/fighters/pugilist-pug/$row.png public/assets/generated/fighters/pugilist-pug/$row.png || exit 1; done"
-      - "npm test -- test/game-bible.test.ts test/shell-flow.test.ts test/character-select.test.ts test/control-fallback.test.ts"
       - "npm run typecheck"
+      - "npm test -- test/fighter-animation-preflight.test.ts test/imagegen-jobs.test.ts test/source-roster-lab.test.ts test/game-config.test.ts"
+      - "test ! -e public/assets/generated/fighters/ferret-noodle"
+      - "test -s output/animation-preflight/noodle-nibbles-animation-plan.json && test -s output/animation-preflight/noodle-nibbles-animation-plan.html"
       - "npm run verify"
-      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/browser-settings-controls"
+      - "git diff --name-only -- assets/source/imagegen/fighters public/assets/generated/fighters output/imagegen package.json package-lock.json src/game/audio.ts public/assets/audio assets/source/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts src/core/frameData.ts"
+      - "rg -n \"Noodle Nibbles|ferret-noodle|no-size-drift|no-drift|source-only|not playable|runtime promotion|row-generation\" src/assets/fighterAnimationPreflight.ts test/fighter-animation-preflight.test.ts docs/goals/aaa-game-expansion/notes/T067-noodle-animation-preflight.md output/animation-preflight/noodle-nibbles-animation-plan.json"
   t021_verification:
     result: pass
     task: T021
