@@ -59,7 +59,19 @@ describe("Pickles Pugilist animation preflight", () => {
       outputPath: "assets/source/imagegen/fighters/pugilist-pug/idle.png",
     });
     expect(plannedManifest?.animations.filter((animation) => animation.source.status === "generated").map((animation) => animation.id)).toEqual(
-      ["idle", "walk-forward", "walk-back", "crouch", "jump", "light-punch", "heavy-punch", "light-kick", "special"],
+      [
+        "idle",
+        "walk-forward",
+        "walk-back",
+        "crouch",
+        "jump",
+        "light-punch",
+        "heavy-punch",
+        "light-kick",
+        "special",
+        "hitstun",
+        "blockstun",
+      ],
     );
   });
 
@@ -146,6 +158,24 @@ describe("Pickles Pugilist animation preflight", () => {
       expect(Math.min(...heights)).toBeGreaterThanOrEqual(195);
       expect(average(heights)).toBeGreaterThanOrEqual(205);
       expect(average(heights)).toBeGreaterThanOrEqual(idleHeight * 0.9);
+    }
+  });
+
+  it("keeps generated Pickles defensive reactions at full character scale", () => {
+    const rows = [
+      "assets/source/imagegen/fighters/pugilist-pug/hitstun.png",
+      "assets/source/imagegen/fighters/pugilist-pug/blockstun.png",
+    ];
+
+    for (const path of rows) {
+      const bounds = alphaBoundsByFrame(path, 5);
+      const widths = bounds.map((frame) => frame.width);
+      const heights = bounds.map((frame) => frame.height);
+
+      expect(Math.min(...widths)).toBeGreaterThanOrEqual(150);
+      expect(Math.max(...widths)).toBeLessThanOrEqual(230);
+      expect(Math.min(...heights)).toBeGreaterThanOrEqual(195);
+      expect(average(heights)).toBeGreaterThanOrEqual(220);
     }
   });
 });

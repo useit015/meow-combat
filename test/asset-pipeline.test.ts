@@ -20,6 +20,8 @@ describe("fighter asset manifests", () => {
     "heavy-punch",
     "light-kick",
     "special",
+    "hitstun",
+    "blockstun",
   ]);
 
   it("define every required production animation for each fighter", () => {

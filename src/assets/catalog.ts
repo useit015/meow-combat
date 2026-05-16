@@ -136,6 +136,8 @@ const generatedAnimationRows: Record<string, Partial<Record<FighterAnimationSpec
     "heavy-punch": "assets/source/imagegen/fighters/pugilist-pug/heavy-punch.png",
     "light-kick": "assets/source/imagegen/fighters/pugilist-pug/light-kick.png",
     special: "assets/source/imagegen/fighters/pugilist-pug/special.png",
+    hitstun: "assets/source/imagegen/fighters/pugilist-pug/hitstun.png",
+    blockstun: "assets/source/imagegen/fighters/pugilist-pug/blockstun.png",
   },
 };
 
