@@ -17,6 +17,21 @@ describe("character selection support", () => {
     expect(meowtalKombatConfig.roster.map((fighter) => fighter.id)).toContain("pugilist-pug");
   });
 
+  it("keeps every runtime-selectable fighter backed by shell story and move copy", () => {
+    for (const fighterId of meowtalKombatConfig.contentSpine.runtimeFighterIds) {
+      const content = meowtalKombatConfig.contentSpine.fighters.find((fighter) => fighter.id === fighterId);
+
+      expect(content?.runtime.status).toBe("active");
+      expect(content?.name).toBeTruthy();
+      expect(content?.storyHook).toBeTruthy();
+      expect(content?.signatureMove).toBeTruthy();
+      expect(content?.superMove).toBeTruthy();
+      expect(content?.trainingTip).toBeTruthy();
+    }
+
+    expect(meowtalKombatConfig.contentSpine.fighters.filter((fighter) => fighter.runtime.status === "planned")).toHaveLength(5);
+  });
+
   it("lets the simulation start with selected fighter definitions", () => {
     const simulation = new FightingSimulation({
       p1Definition: GINGER_TABBY_CAT,

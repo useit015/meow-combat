@@ -63,6 +63,7 @@ import {
   playModeUsesCpu,
   reduceShellState,
   selectedPlayMode,
+  shellModeDescription,
   shellModeLabel,
   type ShellState,
 } from "./shellFlow";
@@ -88,6 +89,16 @@ import { meterFillPlan, touchControlChrome, type TouchControlChrome } from "./ui
 type KeyMap = Record<string, Phaser.Input.Keyboard.Key>;
 type ImpactFlash = { color: number; alpha: number; remainingFrames: number; totalFrames: number };
 type StageLayerImage = { layer: StageRuntimeLayer; image: Phaser.GameObjects.Image };
+interface SelectedFighterTextProfile {
+  fighterId: string;
+  displayName: string;
+  leagueName: string;
+  rosterIndex: number;
+  storyHook: string | null;
+  trainingTip: string | null;
+  signatureMove: string | null;
+  superMove: string | null;
+}
 type ChampionshipLadderStatus = "inactive" | "in-progress" | "complete";
 type ChampionshipLadderResult = "cleared" | "failed" | null;
 interface ChampionshipLadderState {
@@ -485,6 +496,7 @@ export class MeowtalArenaScene extends Phaser.Scene {
       p2Mode: this.p2CpuEnabled ? "cpu" : "manual",
       playMode: selectedPlayMode(this.shell),
       playModeLabel: shellModeLabel(this.shell),
+      shellPresentation: this.shellPresentationState(selectedFighterDetails),
       storyMode:
         selectedPlayMode(this.shell) === "championship"
           ? {
@@ -2436,28 +2448,32 @@ export class MeowtalArenaScene extends Phaser.Scene {
 
   private renderShellText(): void {
     this.titleText.setText(shellTitle(this.shell, this.snapshot, this.matchSet));
-    this.helpText.setText(shellHelp(this.shell, this.selectionLabel(), this.controlFallbackState().fallbackLine));
+    this.helpText.setText(shellHelp(this.shell, this.selectionLabel(), this.selectedFighterDetails()));
     this.titleText.setVisible(true);
     this.versusText.setVisible(this.shell.phase === "select");
     this.helpText.setVisible(true);
+    this.helpText.setLineSpacing(8);
     if (this.shell.phase === "fighting") {
       this.titleText.setPosition(512, 182);
       this.titleText.setFontSize(34);
       this.helpText.setPosition(512, 532);
       this.helpText.setFontSize(13);
+      this.helpText.setLineSpacing(6);
       this.helpText.setAlpha(0.78);
       this.helpText.setVisible(!this.canRenderRuntimeUi());
     } else if (this.shell.phase === "select") {
-      this.titleText.setPosition(512, 138);
-      this.titleText.setFontSize(30);
-      this.helpText.setPosition(512, 202);
-      this.helpText.setFontSize(15);
+      this.titleText.setPosition(512, 126);
+      this.titleText.setFontSize(28);
+      this.helpText.setPosition(512, 184);
+      this.helpText.setFontSize(13);
+      this.helpText.setLineSpacing(4);
       this.helpText.setAlpha(1);
     } else if (this.shell.phase === "mode-select") {
       this.titleText.setPosition(512, 138);
       this.titleText.setFontSize(30);
-      this.helpText.setPosition(512, 222);
-      this.helpText.setFontSize(16);
+      this.helpText.setPosition(512, 218);
+      this.helpText.setFontSize(14);
+      this.helpText.setLineSpacing(5);
       this.helpText.setAlpha(1);
     } else if (this.shell.phase === "ready") {
       this.titleText.setPosition(512, 178);
@@ -2470,13 +2486,15 @@ export class MeowtalArenaScene extends Phaser.Scene {
       this.titleText.setPosition(512, 194);
       this.titleText.setFontSize(34);
       this.helpText.setPosition(512, 286);
-      this.helpText.setFontSize(16);
+      this.helpText.setFontSize(15);
+      this.helpText.setLineSpacing(7);
       this.helpText.setAlpha(1);
     } else {
       this.titleText.setPosition(512, 182);
       this.titleText.setFontSize(34);
       this.helpText.setPosition(512, 258);
-      this.helpText.setFontSize(18);
+      this.helpText.setFontSize(16);
+      this.helpText.setLineSpacing(6);
       this.helpText.setAlpha(1);
     }
 
@@ -2643,7 +2661,14 @@ export class MeowtalArenaScene extends Phaser.Scene {
     return null;
   }
 
-  private selectedFighterProfile(player: "p1" | "p2") {
+  private selectedFighterDetails(): { p1: SelectedFighterTextProfile; p2: SelectedFighterTextProfile } {
+    return {
+      p1: this.selectedFighterProfile("p1"),
+      p2: this.selectedFighterProfile("p2"),
+    };
+  }
+
+  private selectedFighterProfile(player: "p1" | "p2"): SelectedFighterTextProfile {
     const rosterIndex = this.selectedFighterIndex[player];
     const fighter = selectedFighter(rosterIndex);
     const content = GAME_CONFIG.contentSpine.fighters.find((candidate) => candidate.id === fighter.id);
@@ -2651,6 +2676,7 @@ export class MeowtalArenaScene extends Phaser.Scene {
     return {
       fighterId: fighter.id,
       displayName: fighter.displayName,
+      leagueName: content?.name ?? fighter.displayName,
       rosterIndex,
       storyHook: content?.storyHook ?? null,
       trainingTip: content?.trainingTip ?? null,
@@ -2665,18 +2691,64 @@ export class MeowtalArenaScene extends Phaser.Scene {
       return {
         fighterId: fighter.id,
         displayName: fighter.displayName,
+        leagueName: content?.name ?? fighter.displayName,
         rosterIndex: index,
         storyHook: content?.storyHook ?? null,
         trainingTip: content?.trainingTip ?? null,
+        signatureMove: content?.signatureMove ?? null,
+        superMove: content?.superMove ?? null,
+        runtimeStatus: content?.runtime.status ?? "active",
       };
     });
   }
 
+  private shellPresentationState(selectedFighterDetails: { p1: SelectedFighterTextProfile; p2: SelectedFighterTextProfile }) {
+    const title = shellTitle(this.shell, this.snapshot, this.matchSet);
+    const help = shellHelp(this.shell, this.selectionLabel(), selectedFighterDetails);
+    const mode = selectedPlayMode(this.shell);
+    const modeContent = GAME_CONFIG.contentSpine.modes.find((candidate) => candidate.id === mode);
+    const runtimeFighters = GAME_CONFIG.contentSpine.fighters.filter((fighter) => fighter.runtime.status === "active");
+    const plannedFighters = GAME_CONFIG.contentSpine.fighters.filter((fighter) => fighter.runtime.status === "planned");
+
+    return {
+      phase: this.shell.phase,
+      title,
+      keyboardFirst: true,
+      orientation: GAME_CONFIG.contentSpine.platformPlan.browserV1.orientation,
+      touchPlan: "mobile-v2",
+      mode: {
+        id: mode,
+        label: shellModeLabel(this.shell),
+        status: modeContent?.status ?? "implemented",
+        purpose: modeContent?.purpose ?? shellModeDescription(this.shell),
+        description: shellModeDescription(this.shell),
+        panelLines: modeSelectText(this.shell, this.cpuDifficulty).split("\n"),
+      },
+      roster: {
+        playableCount: runtimeFighters.length,
+        plannedLockedCount: plannedFighters.length,
+        playableFighterIds: runtimeFighters.map((fighter) => fighter.id),
+        plannedFightersPlayable: false,
+        truthLine: selectFooterLine(this.assetReadiness),
+      },
+      selectedFighters: {
+        p1: fighterShellCard(selectedFighterDetails.p1, "P1"),
+        p2: fighterShellCard(selectedFighterDetails.p2, playModeUsesCpu(this.shell) ? "CPU" : "P2"),
+      },
+      actions: shellActionLines(this.shell),
+      visibleCopy: {
+        title,
+        help,
+        modePanel: this.shell.phase === "mode-select" ? modeSelectText(this.shell, this.cpuDifficulty) : null,
+        selectFooter: this.shell.phase === "select" ? selectFooterLine(this.assetReadiness) : null,
+      },
+    };
+  }
+
   private selectionLabel(): string {
     const p2Role = playModeUsesCpu(this.shell) ? "CPU" : "P2";
-    return `P1 ${selectedFighter(this.selectedFighterIndex.p1).displayName}  |  ${p2Role} ${
-      selectedFighter(this.selectedFighterIndex.p2).displayName
-    }`;
+    const details = this.selectedFighterDetails();
+    return `P1 ${details.p1.leagueName}  |  ${p2Role} ${details.p2.leagueName}`;
   }
 
   private renderComboText(snapshot: MatchSnapshot): void {
@@ -2815,38 +2887,91 @@ function shellTitle(shell: ShellState, snapshot: MatchSnapshot, matchSet: MatchS
   return "";
 }
 
-function shellHelp(shell: ShellState, selectionLabel: string, controlFallbackLine: string): string {
+function shellHelp(
+  shell: ShellState,
+  selectionLabel: string,
+  selectedFighterDetails: { p1: SelectedFighterTextProfile; p2: SelectedFighterTextProfile },
+): string {
   if (shell.phase === "ready") {
-    return `${GAME_SUBTITLE}\nPRESS ENTER`;
+    return `${GAME_SUBTITLE}\nKEYBOARD-FIRST LANDSCAPE BUILD\nENTER / SPACE START`;
   }
   if (shell.phase === "mode-select") {
-    return `A/D or arrows: mode  |  Enter: character select  |  R: reset\n${controlFallbackLine}`;
+    return "A/D or arrows choose mode  |  Enter/Space select\nKeyboard v1: tuned for browser landscape";
   }
   if (shell.phase === "select") {
-    return `${selectionLabel}\n${shellModeLabel(shell)}\nA/D or B: P1 fighter  |  Arrow keys: CPU/P2 fighter\nEnter: fight  |  R: reset`;
+    const p2Role = playModeUsesCpu(shell) ? "CPU" : "P2";
+    return [
+      selectionLabel,
+      fighterSelectMoveLine(selectedFighterDetails.p1, "P1"),
+      fighterSelectMoveLine(selectedFighterDetails.p2, p2Role),
+      `Story: ${fighterStoryTag(selectedFighterDetails.p1)} vs ${fighterStoryTag(selectedFighterDetails.p2)}`,
+      "A/D/B P1  |  arrows CPU/P2  |  Enter/Space fight",
+    ].join("\n");
   }
   if (shell.phase === "round-over") {
-    return "Enter: next round\nR: reset to ready";
+    return "ENTER / SPACE NEXT ROUND\nR RESET TO READY";
   }
   if (shell.phase === "match-over") {
-    return "Enter: new match\nR: reset to ready";
+    return "ENTER / SPACE REMATCH\nR RESET TO READY";
   }
   if (shell.phase === "paused") {
-    return "RESUME FIGHT\nRESET TO READY\nFULLSCREEN\nCPU SETTINGS";
+    return "START / P / ESC RESUME\nR RESET TO READY\nF FULLSCREEN\nC CPU  |  V LEVEL";
   }
   if (selectedPlayMode(shell) === "training") {
-    return "Training: endless timer and dummy sparring  |  Space/J light  |  I kick  |  K heavy  |  L special  |  P pause  |  R reset";
+    return "Training lab  |  Space/J light  |  I kick  |  K heavy  |  L special  |  P pause  |  R reset";
   }
   if (selectedPlayMode(shell) === "championship") {
-    return "Championship: Snackbelt CPU rival fight  |  Space/J light  |  I kick  |  K heavy  |  L special  |  S,D,L super  |  P pause  |  R reset";
+    return "Snackbelt rival fight  |  Space/J light  |  I kick  |  K heavy  |  L special  |  S,D,L super  |  P pause  |  R reset";
   }
   return "Double-tap D/B run  |  W+dir hop  |  Space/J light  |  I kick  |  K heavy  |  L special  |  S,D,L super  |  C CPU  |  V level  |  P pause  |  F full";
 }
 
 function modeSelectText(shell: ShellState, cpuDifficulty: CpuDifficulty): string {
-  if (selectedPlayMode(shell) === "training") return "TRAINING\nENDLESS SPARRING";
-  if (selectedPlayMode(shell) === "championship") return "CHAMPIONSHIP\nSNACKBELT LADDER";
-  return `1 VS CPU\n${cpuDifficulty.toUpperCase()}`;
+  return [shellModeLabel(shell), ...shellModeDetailLines(shell, cpuDifficulty)].join("\n");
+}
+
+function shellModeDetailLines(shell: ShellState, cpuDifficulty: CpuDifficulty): readonly string[] {
+  const mode = selectedPlayMode(shell);
+  if (mode === "training") return ["ENDLESS LAB", "TIMING + COMBO FEEDBACK"];
+  if (mode === "championship") return ["SNACKBELT LADDER", "2 CPU RIVALS"];
+  return ["BEST OF THREE", `CPU ${cpuDifficulty.toUpperCase()}`];
+}
+
+function shellActionLines(shell: ShellState): readonly string[] {
+  if (shell.phase === "ready") return ["Enter/Space opens mode select"];
+  if (shell.phase === "mode-select") return ["A/D or arrows choose mode", "Enter/Space opens fighter select"];
+  if (shell.phase === "select") return ["A/D/B choose P1", "Arrows choose CPU/P2", "Enter/Space starts fight"];
+  if (shell.phase === "paused") return ["Start/P/Esc resume", "R reset", "F fullscreen", "C/V CPU settings"];
+  if (shell.phase === "round-over") return ["Enter/Space next round", "R reset"];
+  if (shell.phase === "match-over") return ["Enter/Space rematch", "R reset"];
+  return ["Keyboard attacks and movement active"];
+}
+
+function fighterShellCard(profile: SelectedFighterTextProfile, role: string) {
+  return {
+    role,
+    fighterId: profile.fighterId,
+    displayName: profile.displayName,
+    leagueName: profile.leagueName,
+    storyHook: profile.storyHook,
+    trainingTip: profile.trainingTip,
+    signatureMove: profile.signatureMove,
+    superMove: profile.superMove,
+    storyTag: fighterStoryTag(profile),
+  };
+}
+
+function fighterSelectMoveLine(profile: SelectedFighterTextProfile, role: string): string {
+  return `${role} ${profile.leagueName}: ${profile.signatureMove ?? "signature ready"} / ${
+    profile.superMove ?? "super ready"
+  }`;
+}
+
+function fighterStoryTag(profile: Pick<SelectedFighterTextProfile, "fighterId" | "storyHook">): string {
+  if (profile.fighterId === "gray-rabbit") return "cardboard castle";
+  if (profile.fighterId === "ginger-tabby-cat") return "prize couch";
+  if (profile.fighterId === "pugilist-pug") return "edible trophy";
+  return profile.storyHook?.split(".")[0] ?? "league glory";
 }
 
 function nextCpuDifficulty(current: CpuDifficulty): CpuDifficulty {
@@ -3021,8 +3146,10 @@ function conceptArtPlacement(
 
 function selectFooterLine(summary: ReturnType<typeof buildAssetReadinessSummary>): string {
   const fallbackCount = summary.runtimeFallbacks.fighterAnimations + summary.runtimeFallbacks.stageLayers;
-  if (fallbackCount > 0) return "PROTOTYPE ASSETS ACTIVE";
-  return "ARCADE BUILD READY";
+  const playableCount = GAME_CONFIG.contentSpine.fighters.filter((fighter) => fighter.runtime.status === "active").length;
+  const plannedLockedCount = GAME_CONFIG.contentSpine.fighters.filter((fighter) => fighter.runtime.status === "planned").length;
+  if (fallbackCount > 0) return `${playableCount} PLAYABLE NOW  |  PROTOTYPE ASSETS ACTIVE`;
+  return `${playableCount} PLAYABLE NOW  |  ${plannedLockedCount} PLANNED LOCKED FOR MODEL-SHEET QA`;
 }
 
 function powerStockLabel(meter: number): string {

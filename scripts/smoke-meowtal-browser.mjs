@@ -338,6 +338,87 @@ function checkControlFallback(state, scenario, failures) {
   assert(Number.isInteger(controls?.connectedGamepads), failures, `${scenario} should report connected gamepad count`);
 }
 
+function visibleShellCopy(state) {
+  const copy = state.shellPresentation?.visibleCopy ?? {};
+  return Object.values(copy)
+    .filter((value) => typeof value === "string")
+    .join("\n");
+}
+
+function checkKeyboardShellPresentation(state, scenario, failures) {
+  const shell = state.shellPresentation;
+  assert(shell?.keyboardFirst === true, failures, `${scenario} should expose keyboard-first shell presentation`);
+  assert(shell?.orientation === "landscape", failures, `${scenario} should expose landscape browser v1 orientation`);
+  assert(shell?.touchPlan === "mobile-v2", failures, `${scenario} should keep touch as mobile v2 plan`);
+  assert(
+    !visibleShellCopy(state).includes("PHONE TOUCH"),
+    failures,
+    `${scenario} visible shell copy should not present phone touch as browser v1`,
+  );
+}
+
+function checkModeShellPresentation(state, scenario, expectedMode, expectedLabel, expectedFragment, failures) {
+  checkKeyboardShellPresentation(state, scenario, failures);
+  assert(state.shellPresentation?.mode?.id === expectedMode, failures, `${scenario} expected mode ${expectedMode}`);
+  assert(state.shellPresentation?.mode?.label === expectedLabel, failures, `${scenario} expected label ${expectedLabel}`);
+  assert(
+    state.shellPresentation?.mode?.status === "implemented",
+    failures,
+    `${scenario} should only expose implemented browser v1 modes`,
+  );
+  assert(
+    state.shellPresentation?.mode?.description?.includes(expectedFragment) ||
+      state.shellPresentation?.mode?.purpose?.includes(expectedFragment),
+    failures,
+    `${scenario} mode presentation should include ${expectedFragment}`,
+  );
+  assert(
+    state.shellPresentation?.mode?.panelLines?.includes(expectedLabel),
+    failures,
+    `${scenario} mode panel should include ${expectedLabel}`,
+  );
+}
+
+function checkSelectShellPresentation(state, scenario, failures) {
+  checkKeyboardShellPresentation(state, scenario, failures);
+  const shell = state.shellPresentation;
+  assert(shell?.roster?.playableCount === 3, failures, `${scenario} should expose exactly three playable runtime fighters`);
+  assert(shell?.roster?.plannedLockedCount === 5, failures, `${scenario} should expose five planned locked fighters`);
+  assert(shell?.roster?.plannedFightersPlayable === false, failures, `${scenario} should not claim planned fighters are playable`);
+  assert(shell?.roster?.truthLine?.includes("3 PLAYABLE NOW"), failures, `${scenario} roster truth should name playable count`);
+  assert(shell?.roster?.truthLine?.includes("5 PLANNED LOCKED"), failures, `${scenario} roster truth should name planned locked count`);
+  assert(!visibleShellCopy(state).includes("5 PLAYABLE"), failures, `${scenario} shell copy should not overclaim planned fighters`);
+
+  for (const player of ["p1", "p2"]) {
+    const card = shell?.selectedFighters?.[player];
+    assert(typeof card?.leagueName === "string" && card.leagueName.length > 0, failures, `${scenario} ${player} should expose league name`);
+    assert(typeof card?.storyHook === "string" && card.storyHook.length > 0, failures, `${scenario} ${player} should expose story hook`);
+    assert(typeof card?.signatureMove === "string" && card.signatureMove.length > 0, failures, `${scenario} ${player} should expose signature move`);
+    assert(typeof card?.superMove === "string" && card.superMove.length > 0, failures, `${scenario} ${player} should expose super move`);
+  }
+}
+
+function checkPauseShellPresentation(state, scenario, failures) {
+  checkKeyboardShellPresentation(state, scenario, failures);
+  assert(state.shellPresentation?.phase === "paused", failures, `${scenario} shell presentation should report paused`);
+  assert(
+    visibleShellCopy(state).includes("START / P / ESC RESUME"),
+    failures,
+    `${scenario} pause copy should expose resume controls`,
+  );
+  assert(state.shellPresentation?.actions?.includes("R reset"), failures, `${scenario} pause actions should include reset`);
+}
+
+function checkEndShellPresentation(state, scenario, expectedAction, failures) {
+  checkKeyboardShellPresentation(state, scenario, failures);
+  assert(
+    state.shellPresentation?.actions?.includes(expectedAction),
+    failures,
+    `${scenario} shell presentation should include ${expectedAction}`,
+  );
+  assert(visibleShellCopy(state).includes("ENTER / SPACE"), failures, `${scenario} end copy should expose Enter/Space`);
+}
+
 function checkFramePacing(state, scenario, failures) {
   const pacing = state.framePacing;
   assert(pacing && typeof pacing === "object", failures, `${scenario} should expose frame pacing telemetry`);
@@ -396,9 +477,11 @@ async function runDesktop(browser, url, outDir) {
   let state = await readState(page);
   assert(state.shellPhase === "mode-select", failures, `desktop Space confirm expected mode-select phase, got ${state.shellPhase}`);
   assert(state.playMode === "versus-cpu", failures, `desktop default play mode expected versus-cpu, got ${state.playMode}`);
+  checkModeShellPresentation(state, "desktop mode-select", "versus-cpu", "1 VS CPU", "Best-of-three", failures);
   await pressKey(page, "Space");
   state = await readState(page);
   assert(state.shellPhase === "select", failures, `desktop second Space confirm expected select phase, got ${state.shellPhase}`);
+  checkSelectShellPresentation(state, "desktop character-select", failures);
   state = await holdKey(page, "Space", 10);
   assert(state.shellPhase === "fighting", failures, `desktop held Space confirm expected fighting phase, got ${state.shellPhase}`);
   assert(state.playMode === "versus-cpu", failures, `desktop fight expected versus-cpu mode, got ${state.playMode}`);
@@ -495,6 +578,7 @@ async function runTrainingDemo(browser, url, outDir) {
   screenshots.push(await screenshot(page, outDir, "training-mode-select-default"));
   assert(state.shellPhase === "mode-select", failures, `training path expected mode-select phase, got ${state.shellPhase}`);
   assert(state.playMode === "versus-cpu", failures, `training path default expected versus-cpu, got ${state.playMode}`);
+  checkModeShellPresentation(state, "training default mode-select", "versus-cpu", "1 VS CPU", "Best-of-three", failures);
 
   await pressKey(page, "KeyD");
   state = await readState(page);
@@ -502,12 +586,14 @@ async function runTrainingDemo(browser, url, outDir) {
   assert(state.shellPhase === "mode-select", failures, `training mode cycle should stay mode-select, got ${state.shellPhase}`);
   assert(state.playMode === "training", failures, `training mode cycle expected training, got ${state.playMode}`);
   assert(state.playModeLabel === "TRAINING", failures, `training mode label expected TRAINING, got ${state.playModeLabel}`);
+  checkModeShellPresentation(state, "training mode-select", "training", "TRAINING", "combo feedback", failures);
 
   await pressKey(page, "Space");
   state = await readState(page);
   screenshots.push(await screenshot(page, outDir, "training-character-select"));
   assert(state.shellPhase === "select", failures, `training confirm expected select phase, got ${state.shellPhase}`);
   assert(state.playMode === "training", failures, `training select expected training mode, got ${state.playMode}`);
+  checkSelectShellPresentation(state, "training character-select", failures);
 
   await pressKey(page, "Space");
   await waitFrames(page, 30);
@@ -618,6 +704,7 @@ async function runThreeFighterRuntimePolish(browser, url, outDir) {
       failures,
       `${rosterCase.name} expected CHAMPIONSHIP label, got ${state.playModeLabel}`,
     );
+    checkModeShellPresentation(state, `${rosterCase.name} championship mode-select`, "championship", "CHAMPIONSHIP", "2026", failures);
 
     await pressKey(page, "Space");
     for (let index = 0; index < rosterCase.p1Index; index += 1) {
@@ -631,6 +718,7 @@ async function runThreeFighterRuntimePolish(browser, url, outDir) {
     states[`${rosterCase.name}-select`] = state;
     screenshots.push(await screenshot(page, outDir, `three-fighter-${rosterCase.name}-select`));
     checkThreeFighterRosterState(state, `${rosterCase.name} select`, failures);
+    checkSelectShellPresentation(state, `${rosterCase.name} select`, failures);
     assert(
       state.selectedFighterDetails?.p1?.fighterId === rosterCase.p1Id,
       failures,
@@ -888,6 +976,12 @@ function checkThreeFighterRosterState(state, scenario, failures) {
       `${scenario} ${player} should expose a training tip`,
     );
   }
+  for (const fighter of state.runtimeRoster ?? []) {
+    assert(typeof fighter.leagueName === "string", failures, `${scenario} ${fighter.fighterId} should expose league identity`);
+    assert(typeof fighter.storyHook === "string", failures, `${scenario} ${fighter.fighterId} should expose story hook`);
+    assert(typeof fighter.signatureMove === "string", failures, `${scenario} ${fighter.fighterId} should expose signature move`);
+    assert(typeof fighter.superMove === "string", failures, `${scenario} ${fighter.fighterId} should expose super move`);
+  }
 }
 
 function checkHudPortrait(state, player, fighterId, staticSlot, scenario, failures) {
@@ -980,6 +1074,7 @@ async function runGamepad(browser, url, outDir) {
   state = await readState(page);
   screenshots.push(await screenshot(page, outDir, "gamepad-pause"));
   assert(state.shellPhase === "paused", failures, `gamepad pause expected paused phase, got ${state.shellPhase}`);
+  checkPauseShellPresentation(state, "gamepad pause", failures);
   checkRuntimeUiLoaded(state, "gamepad pause", failures);
   checkVisibleRuntimeUiSlots(state, "gamepad pause", FIGHT_UI_SLOTS, failures);
 
@@ -1159,6 +1254,7 @@ async function runEndgameDemo(browser, url, outDir) {
     screenshots.push(await screenshot(page, outDir, "ko-overlay"));
     states["ko-overlay"] = state;
     assert(state.shellPhase === "round-over", failures, `ko expected round-over phase, got ${state.shellPhase}`);
+    checkEndShellPresentation(state, "ko round-over", "Enter/Space next round", failures);
     assert(state.runtimeUi?.overlaySlot === "ko-overlay", failures, `ko expected ko-overlay, got ${state.runtimeUi?.overlaySlot}`);
     assert(state.fighters?.p2?.state === "knockdown", failures, `ko expected p2 knockdown, got ${state.fighters?.p2?.state}`);
     checkRuntimeUiLoaded(state, "ko", failures);
@@ -1187,6 +1283,7 @@ async function runEndgameDemo(browser, url, outDir) {
     screenshots.push(await screenshot(page, outDir, "match-victory-overlay"));
     states["match-victory-overlay"] = state;
     assert(state.shellPhase === "match-over", failures, `win expected match-over phase, got ${state.shellPhase}`);
+    checkEndShellPresentation(state, "win match-over", "Enter/Space rematch", failures);
     assert(state.matchSet?.status === "complete", failures, `win expected complete match set, got ${state.matchSet?.status}`);
     assert(
       state.runtimeUi?.overlaySlot === "rabbit-win-overlay",
@@ -1228,6 +1325,7 @@ async function runEndgameDemo(browser, url, outDir) {
     screenshots.push(await screenshot(page, outDir, "cat-victory-overlay"));
     states["cat-victory-overlay"] = state;
     assert(state.shellPhase === "match-over", failures, `cat-win expected match-over phase, got ${state.shellPhase}`);
+    checkEndShellPresentation(state, "cat-win match-over", "Enter/Space rematch", failures);
     assert(
       state.runtimeUi?.overlaySlot === "cat-win-overlay",
       failures,
