@@ -117,7 +117,7 @@ visual_board:
     command: "npx goalbuddy extend github-projects"
     missing: []
 
-active_task: T057
+active_task: T058
 
 tasks:
   - id: T001
@@ -3671,7 +3671,7 @@ tasks:
   - id: T057
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Choose the next highest-leverage safe package after non-asset combat readability. Decide whether to audit the current vertical-slice tranche, add championship rewards/interstitials, improve mode/select polish, deepen runtime UX, or select another bounded slice while preserving the hard no-size-change rule."
     inputs:
@@ -3699,6 +3699,81 @@ tasks:
       - "stop_if"
       - "acceptance checklist"
       - "Parallelization safety notes"
+    receipt:
+      result: done
+      decision: require_audit
+      routing_decision: require_audit
+      full_outcome_complete: false
+      summary: "Required a post-T056 vertical-slice audit before more implementation. T050/T052/T054/T056 delivered real playable improvements with fresh verification, but the board needs a holistic review mapping championship, Training, 1 VS CPU, mode/select, responsive UX, asset guards, and smoke screenshots back to the tranche proof before ranking the next package."
+      evidence:
+        - "docs/goals/aaa-game-expansion/goal.md"
+        - "docs/goals/aaa-game-expansion/state.yaml"
+        - "docs/goals/aaa-game-expansion/notes/T050-championship-three-fighter-ladder.md"
+        - "docs/goals/aaa-game-expansion/notes/T052-championship-ui-polish.md"
+        - "docs/goals/aaa-game-expansion/notes/T054-training-mode-depth.md"
+        - "docs/goals/aaa-game-expansion/notes/T056-combat-readability.md"
+        - "output/web-game/combat-readability/report.json"
+        - "output/web-game/training-mode-depth/report.json"
+        - "output/web-game/championship-ui-polish/report.json"
+      rejected_alternatives:
+        - "Championship rewards/interstitials: useful, but should wait until the audit confirms championship is still the highest gap."
+        - "Mode/select polish: plausible safe slice, but it touches shared scene UX and should be ranked against current smoke evidence first."
+        - "Deepen runtime UX: too broad without a milestone review defining the exact gap."
+        - "Fourth-fighter, asset, audio, dependency, frame-data, or size-related work: rejected by the owner hard rule unless explicitly scoped later."
+        - "Additional Scout work: not needed because current receipts, code, tests, and smoke artifacts are enough for an audit."
+        - "Owner question: not needed because a read-only audit preserves the no-size-change rule."
+      parallel_safety:
+        write_parallelism: unsafe
+        reason: "The audit result will choose the next shared UI/gameplay package and update one board receipt. Use one audit owner."
+        safe_parallel_followup: "Read-only screenshot/report review can be parallelized if the audit owner assigns disjoint surfaces, but no concurrent writers should touch board state or implementation files."
+      missing_evidence:
+        - "No post-T056 holistic audit currently maps all recent playable slices to the tranche proof and next-package priority."
+      spawned_tasks:
+        - T058
+  - id: T058
+    type: judge
+    assignee: Judge
+    status: active
+    reasoning_hint: high
+    objective: "Run a read-only post-T056 vertical-slice audit of the current three-fighter browser milestone. Map T050/T052/T054/T056 against the tranche proof, inspect current code/tests/smoke screenshots, verify the hard no-size-change invariant, identify regressions or overclaims, rank remaining gaps, and recommend the next largest safe package with allowed_files, verify, stop_if, and acceptance."
+    allowed_files:
+      - "docs/goals/aaa-game-expansion/notes/T058-vertical-slice-audit.md"
+      - "docs/goals/aaa-game-expansion/state.yaml"
+      - "output/web-game/vertical-slice-audit/*"
+    read_only_inputs:
+      - "docs/goals/aaa-game-expansion/goal.md"
+      - "docs/goals/aaa-game-expansion/notes/T050-championship-three-fighter-ladder.md"
+      - "docs/goals/aaa-game-expansion/notes/T052-championship-ui-polish.md"
+      - "docs/goals/aaa-game-expansion/notes/T054-training-mode-depth.md"
+      - "docs/goals/aaa-game-expansion/notes/T056-combat-readability.md"
+      - "src/game/MeowtalArenaScene.ts"
+      - "src/game/shellFlow.ts"
+      - "src/content/gameBible.ts"
+      - "scripts/smoke-meowtal-browser.mjs"
+      - "test/*.test.ts"
+      - "output/web-game/championship-ui-polish/*"
+      - "output/web-game/training-mode-depth/*"
+      - "output/web-game/combat-readability/*"
+    verify:
+      - "git status --short"
+      - "git diff --name-only -- assets/source/imagegen/fighters public/assets/generated/fighters output/imagegen package.json package-lock.json src/game/audio.ts public/assets/audio src/game/spriteFrame.ts src/game/spriteVisualSizing.ts src/core/frameData.ts"
+      - "for row in idle walk-forward walk-back crouch jump light-punch heavy-punch light-kick special hitstun blockstun knockdown win lose; do cmp -s assets/source/imagegen/fighters/pugilist-pug/$row.png public/assets/generated/fighters/pugilist-pug/$row.png || exit 1; done"
+      - "npm test -- test/game-bible.test.ts test/shell-flow.test.ts test/character-select.test.ts test/combat-core.test.ts test/combat-effects.test.ts test/presentation.test.ts test/match-flow.test.ts"
+      - "npm run typecheck"
+      - "npm run verify"
+      - "PLAYWRIGHT_NODE_MODULES=/tmp/meowtal-playwright/node_modules npm run smoke:meowtal -- --url http://127.0.0.1:4173/ --out-dir output/web-game/vertical-slice-audit"
+    stop_if:
+      - "Any implementation edit is needed to make the audit pass."
+      - "Any fighter row regeneration, resizing, normalization, sprite scale change, cell size change, frame size change, placement-rule change, character-size logic change, generated asset churn, dependency/audio change, or gameplay frame-data tuning is required."
+      - "Smoke or screenshot review shows runtime fighter fallback, misleading portrait state, obscured fighter bodies/HUD, or visible character size drift."
+      - "Current verification contradicts T050/T052/T054/T056 receipts."
+      - "The audit cannot inspect current smoke screenshots or report JSON enough to rank gaps."
+    acceptance:
+      - "Audit maps championship ladder/presentation, Training lab, combat readability, 1 VS CPU, mode/select, pause/end states, responsive surfaces, story truthfulness, and no-size guards to tranche proof."
+      - "Audit records fresh verification and smoke evidence, including failures=[] or exact blockers."
+      - "Audit explicitly states full_outcome_complete=false."
+      - "Audit ranks remaining gaps and chooses exactly one next largest safe package."
+      - "Audit defines that next package with allowed_files, verify commands, stop_if conditions, and acceptance criteria."
     receipt: null
 
 checks:
