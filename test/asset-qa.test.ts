@@ -18,104 +18,34 @@ interface AssetQaSummary {
   }>;
 }
 
+const ANIMATIONS = [
+  "idle",
+  "walk-forward",
+  "walk-back",
+  "crouch",
+  "jump",
+  "light-punch",
+  "light-kick",
+  "hitstun",
+  "blockstun",
+  "heavy-punch",
+  "special",
+  "knockdown",
+  "win",
+  "lose",
+];
+
 describe("imagegen asset QA command", () => {
   it("distinguishes source rows from normalized runtime-cell candidates", () => {
-    execFileSync("node", ["scripts/normalize-fighter-rows.mjs", "--animation", "idle"], {
-      cwd: process.cwd(),
-      encoding: "utf8",
-    });
-    execFileSync("node", ["scripts/normalize-fighter-rows.mjs", "--animation", "walk-forward"], {
-      cwd: process.cwd(),
-      encoding: "utf8",
-    });
-    execFileSync("node", ["scripts/normalize-fighter-rows.mjs", "--animation", "walk-back"], {
-      cwd: process.cwd(),
-      encoding: "utf8",
-    });
-    execFileSync("node", ["scripts/normalize-fighter-rows.mjs", "--animation", "crouch"], {
-      cwd: process.cwd(),
-      encoding: "utf8",
-    });
-    execFileSync("node", ["scripts/normalize-fighter-rows.mjs", "--animation", "jump"], {
-      cwd: process.cwd(),
-      encoding: "utf8",
-    });
-    execFileSync("node", ["scripts/normalize-fighter-rows.mjs", "--animation", "light-punch"], {
-      cwd: process.cwd(),
-      encoding: "utf8",
-    });
-    execFileSync("node", ["scripts/normalize-fighter-rows.mjs", "--animation", "light-kick"], {
-      cwd: process.cwd(),
-      encoding: "utf8",
-    });
-    execFileSync(
-      "node",
-      ["scripts/normalize-fighter-rows.mjs", "--animation", "light-kick", "--fighters", "gray-rabbit,ginger-tabby-cat"],
-      {
+    // Normalize every row for every fighter so the QA count doesn't depend on
+    // candidates left over in the gitignored output/ folder from earlier runs.
+    const fighters = "atlas-lion,sahara-viper,gray-rabbit,ginger-tabby-cat";
+    for (const animation of ANIMATIONS) {
+      execFileSync("node", ["scripts/normalize-fighter-rows.mjs", "--animation", animation, "--fighters", fighters], {
         cwd: process.cwd(),
         encoding: "utf8",
-      },
-    );
-    execFileSync("node", ["scripts/normalize-fighter-rows.mjs", "--animation", "hitstun"], {
-      cwd: process.cwd(),
-      encoding: "utf8",
-    });
-    execFileSync("node", ["scripts/normalize-fighter-rows.mjs", "--animation", "blockstun"], {
-      cwd: process.cwd(),
-      encoding: "utf8",
-    });
-    execFileSync("node", ["scripts/normalize-fighter-rows.mjs", "--animation", "heavy-punch"], {
-      cwd: process.cwd(),
-      encoding: "utf8",
-    });
-    execFileSync("node", ["scripts/normalize-fighter-rows.mjs", "--animation", "special"], {
-      cwd: process.cwd(),
-      encoding: "utf8",
-    });
-    execFileSync(
-      "node",
-      ["scripts/normalize-fighter-rows.mjs", "--animation", "special", "--fighters", "gray-rabbit,ginger-tabby-cat"],
-      {
-        cwd: process.cwd(),
-        encoding: "utf8",
-      },
-    );
-    execFileSync("node", ["scripts/normalize-fighter-rows.mjs", "--animation", "knockdown"], {
-      cwd: process.cwd(),
-      encoding: "utf8",
-    });
-    execFileSync(
-      "node",
-      ["scripts/normalize-fighter-rows.mjs", "--animation", "knockdown", "--fighters", "gray-rabbit,ginger-tabby-cat"],
-      {
-        cwd: process.cwd(),
-        encoding: "utf8",
-      },
-    );
-    execFileSync("node", ["scripts/normalize-fighter-rows.mjs", "--animation", "win"], {
-      cwd: process.cwd(),
-      encoding: "utf8",
-    });
-    execFileSync(
-      "node",
-      ["scripts/normalize-fighter-rows.mjs", "--animation", "win", "--fighters", "gray-rabbit,ginger-tabby-cat"],
-      {
-        cwd: process.cwd(),
-        encoding: "utf8",
-      },
-    );
-    execFileSync("node", ["scripts/normalize-fighter-rows.mjs", "--animation", "lose"], {
-      cwd: process.cwd(),
-      encoding: "utf8",
-    });
-    execFileSync(
-      "node",
-      ["scripts/normalize-fighter-rows.mjs", "--animation", "lose", "--fighters", "gray-rabbit,ginger-tabby-cat"],
-      {
-        cwd: process.cwd(),
-        encoding: "utf8",
-      },
-    );
+      });
+    }
     const output = execFileSync("node", ["scripts/asset-qa.mjs", "--json"], {
       cwd: process.cwd(),
       encoding: "utf8",
